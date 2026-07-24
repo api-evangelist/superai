@@ -1,0 +1,4796 @@
+openapi: 3.1.0
+info:
+  title: SuperAI Flow Platform auth flows API
+  description: "SuperAI Flows is a workflow orchestration platform that enables you to design, deploy, and monitor automated workflows at scale.\n\nBuild complex workflows using our declarative YAML DSL, execute them reliably, and integrate seamlessly with AI models, cloud storage, and enterprise systems.\n\n**Key Capabilities:**\n- **Workflow Management**: Define workflows as code with version control and automated execution\n- **Task Orchestration**: Chain together API calls, data processing, and AI operations\n- **Real-time Monitoring**: Track execution progress with WebSocket notifications and comprehensive logging\n- **Multi-tenant Architecture**: Organization-scoped resources with role-based access control\n\n**API Versioning and Breaking Changes:**\n\nWe follow a strict compatibility policy to ensure your integrations remain stable:\n\n- **Non-breaking changes** (safe, no action required):\n  - Adding new API endpoints\n  - Adding new optional query parameters to existing endpoints\n  - Adding new fields to API responses\n  - Adding new values to existing enums\n\n- **Breaking changes** (requires client updates):\n  - Removing or renaming API endpoints\n  - Removing query parameters or request fields\n  - Removing response fields\n  - Changing field types or validation rules\n  - Removing values from existing enums\n\n**Client Implementation Requirements:**\n\nYour API clients MUST be designed to gracefully handle additional fields in responses. We may add new fields to any response object without considering this a breaking change. Ensure your JSON parsers ignore unknown fields rather than raising errors.\n\n**Backward Compatibility Guarantee:**\n\nWe commit to maintaining backward compatibility for all non-breaking changes. Breaking changes will be:\n- Announced at least 15 days in advance\n- Documented in our changelog with migration guide\n\nFor the latest API updates and migration guides, see our changelog."
+  version: 0.1.0
+tags:
+- name: flows
+  description: 'Flow management operations for defining and organizing workflows.
+
+
+    Flows represent workflow definitions with tasks, dependencies, and execution logic. They serve as reusable templates that can be executed multiple times with different inputs.
+
+
+    **What is a flow?**
+
+    A flow consists of:
+
+    - **Tasks**: Individual units of work that perform specific actions
+
+    - **Dependencies**: Relationships between tasks that define execution order
+
+    - **Configuration**: Settings and parameters that control flow behavior
+
+
+    **Use these endpoints to:**
+
+    - Create new flow definitions from scratch or import from YAML
+
+    - List and search existing flows in your organization
+
+    - Retrieve detailed flow information including task definitions
+
+    - Update flow configurations and task parameters
+
+    - Delete flows that are no longer needed
+
+
+    Flows are the foundation of your workflow automation—once defined, they can be executed via the flow-executions endpoints.'
+  x-displayName: Flows
+paths:
+  /api/flows:
+    get:
+      tags:
+      - flows
+      summary: List all flows
+      description: 'List all flows accessible to the authenticated user.
+
+
+        Returns flows within the user''s organization with pagination, sorting, and search support.
+
+        Each flow includes its latest version by default.
+
+
+        ## Pagination
+
+        Results are paginated with a default page size of 20. Use `page` and `page_size` parameters
+
+        to navigate through results.
+
+
+        ## Sorting
+
+        Sort by `created_at` or `updated_at` in `asc` or `desc` direction.
+
+        Default: `created_at` descending (newest first).
+
+
+        ## Search
+
+        Use `search` parameter for case-insensitive search on flow display names.
+
+
+        ## Expansion Parameters
+
+        Use query parameters to include additional computed fields. See FlowResponse model
+
+        documentation for details on available expansion parameters and their performance impact.'
+      operationId: list_flows_api_flows_get
+      parameters:
+      - name: search
+        in: query
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Search flows by display name (case-insensitive)
+          title: Search
+        description: Search flows by display name (case-insensitive)
+      - name: sort_field
+        in: query
+        required: false
+        schema:
+          anyOf:
+          - type: string
+            pattern: ^(created_at|updated_at|display_name)$
+          - type: 'null'
+          description: Field to sort by
+          title: Sort Field
+        description: Field to sort by
+      - name: sort_direction
+        in: query
+        required: false
+        schema:
+          anyOf:
+          - type: string
+            pattern: ^(asc|desc)$
+          - type: 'null'
+          description: Sort direction
+          title: Sort Direction
+        description: Sort direction
+      - name: page
+        in: query
+        required: false
+        schema:
+          type: integer
+          maximum: 10000
+          minimum: 1
+          description: Page number
+          default: 1
+          title: Page
+        description: Page number
+      - name: page_size
+        in: query
+        required: false
+        schema:
+          type: integer
+          maximum: 100
+          minimum: 1
+          description: Number of items per page
+          default: 20
+          title: Page Size
+        description: Number of items per page
+      - name: tag_filters
+        in: query
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: JSON-encoded list of tag filter groups. Each group has 'mode' and 'values'.
+          title: Tag Filters
+        description: JSON-encoded list of tag filter groups. Each group has 'mode' and 'values'.
+      - name: is_cleanable
+        in: query
+        required: false
+        schema:
+          type: boolean
+          description: When true, returns only flows eligible for cleanup (0 tasks, older than 30 days)
+          default: false
+          title: Is Cleanable
+        description: When true, returns only flows eligible for cleanup (0 tasks, older than 30 days)
+      - name: created_by_id
+        in: query
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Filter flows by creator user ID.
+          title: Created By Id
+        description: Filter flows by creator user ID.
+      - name: organization_id
+        in: query
+        required: false
+        schema:
+          anyOf:
+          - type: string
+            format: uuid
+          - type: 'null'
+          description: Restrict results to a single organization (backoffice cross-org views).
+          title: Organization Id
+        description: Restrict results to a single organization (backoffice cross-org views).
+      - name: include_latest_version_executions_count
+        in: query
+        required: false
+        schema:
+          type: boolean
+          description: When true, each flow includes latest_version_executions_count — runs on the most recent version that has any runs (the dataset calibration samples). Off by default to keep the default list query cheap.
+          default: false
+          title: Include Latest Version Executions Count
+        description: When true, each flow includes latest_version_executions_count — runs on the most recent version that has any runs (the dataset calibration samples). Off by default to keep the default list query cheap.
+      - name: include_ordered_task_names
+        in: query
+        required: false
+        schema:
+          type: boolean
+          description: Include topologically sorted list of task names in execution order. Useful for visualizing task dependencies. Adds ~50ms latency for complex flows with 20+ tasks.
+          default: false
+          title: Include Ordered Task Names
+        description: Include topologically sorted list of task names in execution order. Useful for visualizing task dependencies. Adds ~50ms latency for complex flows with 20+ tasks.
+      - name: include_validation_errors
+        in: query
+        required: false
+        schema:
+          type: boolean
+          description: Include DSL validation errors if the flow definition is malformed. Essential for debugging invalid flows during development. No performance impact as validation runs regardless.
+          default: false
+          title: Include Validation Errors
+        description: Include DSL validation errors if the flow definition is malformed. Essential for debugging invalid flows during development. No performance impact as validation runs regardless.
+      - name: include_dynamic_data
+        in: query
+        required: false
+        schema:
+          type: boolean
+          description: Include runtime configuration options for each task (e.g., dropdown values, available resources). Requires authentication to external services. May add 100-500ms latency depending on integration APIs.
+          default: false
+          title: Include Dynamic Data
+        description: Include runtime configuration options for each task (e.g., dropdown values, available resources). Requires authentication to external services. May add 100-500ms latency depending on integration APIs.
+      - name: include_output_schemas
+        in: query
+        required: false
+        schema:
+          type: boolean
+          description: 'Include JSON Schema definitions for each task''s output structure. Required for building dynamic UIs or validating task connections. '
+          default: false
+          title: Include Output Schemas
+        description: 'Include JSON Schema definitions for each task''s output structure. Required for building dynamic UIs or validating task connections. '
+      - name: include_input_schema
+        in: query
+        required: false
+        schema:
+          type: boolean
+          description: 'Include JSON Schema definitions for input task executors'' input structure. Calls get_input_model() to generate dynamic input schemas for form building. '
+          default: false
+          title: Include Input Schema
+        description: 'Include JSON Schema definitions for input task executors'' input structure. Calls get_input_model() to generate dynamic input schemas for form building. '
+      - name: include_default_reference_modes
+        in: query
+        required: false
+        schema:
+          type: boolean
+          description: Include each task's default reference modes (single/collection) as the task-level 'default_reference_modes' property. Lets the UI show the resolved default instead of an ambiguous 'Default' option. Cheap to compute.
+          default: false
+          title: Include Default Reference Modes
+        description: Include each task's default reference modes (single/collection) as the task-level 'default_reference_modes' property. Lets the UI show the resolved default instead of an ambiguous 'Default' option. Cheap to compute.
+      responses:
+        '200':
+          description: List of flows successfully retrieved
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginatedFlowResponse'
+        '401':
+          description: Unauthorized - Missing or invalid authentication credentials
+          content:
+            application/json:
+              examples:
+                missing_token:
+                  summary: Missing authentication token
+                  value:
+                    error:
+                      message: Authentication required
+                      code: unauthorized
+                    request_id: 01K8KABR6S16YETA2SZPVBS9SP
+                invalid_token:
+                  summary: Invalid or expired token
+                  value:
+                    error:
+                      message: Invalid authentication token
+                      code: unauthorized
+                    request_id: 01K8KACP7D2XFGHJ9KLM4NPQR8
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: Internal Server Error - An unexpected error occurred
+          content:
+            application/json:
+              examples:
+                internal_error:
+                  summary: Internal server error
+                  value:
+                    error:
+                      message: Internal server error
+                      code: internal_error
+                    request_id: 01K8KABR6S16YETA2SZPVBS9SP
+                repository_error:
+                  summary: Database error
+                  value:
+                    error:
+                      message: Database operation failed
+                      code: repository_error
+                    request_id: 01K8KACP7D2XFGHJ9KLM4NPQR8
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+      security:
+      - BearerAuth: []
+      - APIKeyAuth: []
+    post:
+      tags:
+      - flows
+      summary: Create a new flow
+      description: 'Create a new flow in draft status.
+
+
+        Creates a flow definition that can be executed via the flow executions API.
+
+        New flows are assigned version 1 and status ''draft'', allowing iterative development
+
+        before marking as ''published'' for production use.
+
+
+        ## Flow Lifecycle
+
+        1. **Draft**: Newly created flows start here. Editable and testable.
+
+        2. **Published**: Ready for production. Can be executed by end users.
+
+
+        ## DSL Validation
+
+        The flow definition is validated against the DSL schema during creation.
+
+        If validation fails, a 400 error is returned with detailed error messages
+
+        in the `details` array.
+
+
+        ## Common Validation Errors
+
+        - Missing required fields (tasks, edges)
+
+        - Invalid task executor names
+
+        - Circular dependencies in task graph
+
+        - Invalid parameter types for task executors'
+      operationId: create_flow_api_flows_post
+      parameters:
+      - name: include_ordered_task_names
+        in: query
+        required: false
+        schema:
+          type: boolean
+          description: Include topologically sorted list of task names in execution order. Useful for visualizing task dependencies. Adds ~50ms latency for complex flows with 20+ tasks.
+          default: false
+          title: Include Ordered Task Names
+        description: Include topologically sorted list of task names in execution order. Useful for visualizing task dependencies. Adds ~50ms latency for complex flows with 20+ tasks.
+      - name: include_validation_errors
+        in: query
+        required: false
+        schema:
+          type: boolean
+          description: Include DSL validation errors if the flow definition is malformed. Essential for debugging invalid flows during development. No performance impact as validation runs regardless.
+          default: false
+          title: Include Validation Errors
+        description: Include DSL validation errors if the flow definition is malformed. Essential for debugging invalid flows during development. No performance impact as validation runs regardless.
+      - name: include_dynamic_data
+        in: query
+        required: false
+        schema:
+          type: boolean
+          description: Include runtime configuration options for each task (e.g., dropdown values, available resources). Requires authentication to external services. May add 100-500ms latency depending on integration APIs.
+          default: false
+          title: Include Dynamic Data
+        description: Include runtime configuration options for each task (e.g., dropdown values, available resources). Requires authentication to external services. May add 100-500ms latency depending on integration APIs.
+      - name: include_output_schemas
+        in: query
+        required: false
+        schema:
+          type: boolean
+          description: 'Include JSON Schema definitions for each task''s output structure. Required for building dynamic UIs or validating task connections. '
+          default: false
+          title: Include Output Schemas
+        description: 'Include JSON Schema definitions for each task''s output structure. Required for building dynamic UIs or validating task connections. '
+      - name: include_input_schema
+        in: query
+        required: false
+        schema:
+          type: boolean
+          description: 'Include JSON Schema definitions for input task executors'' input structure. Calls get_input_model() to generate dynamic input schemas for form building. '
+          default: false
+          title: Include Input Schema
+        description: 'Include JSON Schema definitions for input task executors'' input structure. Calls get_input_model() to generate dynamic input schemas for form building. '
+      - name: include_default_reference_modes
+        in: query
+        required: false
+        schema:
+          type: boolean
+          description: Include each task's default reference modes (single/collection) as the task-level 'default_reference_modes' property. Lets the UI show the resolved default instead of an ambiguous 'Default' option. Cheap to compute.
+          default: false
+          title: Include Default Reference Modes
+        description: Include each task's default reference modes (single/collection) as the task-level 'default_reference_modes' property. Lets the UI show the resolved default instead of an ambiguous 'Default' option. Cheap to compute.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/FlowCreateRequest'
+      responses:
+        '201':
+          description: Flow created successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FlowResponse'
+        '400':
+          description: Bad Request - Invalid flow definition or validation errors
+          content:
+            application/json:
+              examples:
+                invalid_dsl:
+                  summary: Invalid DSL input
+                  value:
+                    error:
+                      message: Invalid DSL input
+                      code: invalid_dsl_input
+                      details:
+                      - 'tasks.1.task_executor_name: Invalid task executor ''invalid_executor'''
+                      - 'edges.0.target: Target task ''unknown_task'' does not exist'
+                    request_id: 01K8KABR6S16YETA2SZPVBS9SP
+                missing_org:
+                  summary: Missing organization ID
+                  value:
+                    error:
+                      message: Organization ID is required
+                      code: bad_request
+                    request_id: 01K8KACP7D2XFGHJ9KLM4NPQR8
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          description: Unauthorized - Missing or invalid authentication credentials
+          content:
+            application/json:
+              examples:
+                missing_token:
+                  summary: Missing authentication token
+                  value:
+                    error:
+                      message: Authentication required
+                      code: unauthorized
+                    request_id: 01K8KABR6S16YETA2SZPVBS9SP
+                invalid_token:
+                  summary: Invalid or expired token
+                  value:
+                    error:
+                      message: Invalid authentication token
+                      code: unauthorized
+                    request_id: 01K8KACP7D2XFGHJ9KLM4NPQR8
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '409':
+          description: Conflict - The resource already exists or conflicts with existing state
+          content:
+            application/json:
+              examples:
+                duplicate_resource:
+                  summary: Resource already exists
+                  value:
+                    error:
+                      message: A resource with this identifier already exists
+                      code: conflict
+                    request_id: 01K8KABR6S16YETA2SZPVBS9SP
+                duplicate_name:
+                  summary: Name already in use
+                  value:
+                    error:
+                      message: A flow with this name already exists
+                      code: conflict
+                    request_id: 01K8KACP7D2XFGHJ9KLM4NPQR8
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: Internal Server Error - An unexpected error occurred
+          content:
+            application/json:
+              examples:
+                internal_error:
+                  summary: Internal server error
+                  value:
+                    error:
+                      message: Internal server error
+                      code: internal_error
+                    request_id: 01K8KABR6S16YETA2SZPVBS9SP
+                repository_error:
+                  summary: Database error
+                  value:
+                    error:
+                      message: Database operation failed
+                      code: repository_error
+                    request_id: 01K8KACP7D2XFGHJ9KLM4NPQR8
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+      security:
+      - BearerAuth: []
+      - APIKeyAuth: []
+  /api/flows/available-tags:
+    get:
+      tags:
+      - flows
+      summary: Get available flow tags for autocomplete
+      operationId: get_flow_available_tags_api_flows_available_tags_get
+      parameters:
+      - name: search
+        in: query
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Filter tags by substring (case-insensitive)
+          title: Search
+        description: Filter tags by substring (case-insensitive)
+      responses:
+        '200':
+          description: List of distinct tags successfully retrieved
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: string
+                title: Response Get Flow Available Tags Api Flows Available Tags Get
+        '401':
+          description: Unauthorized - Missing or invalid authentication credentials
+          content:
+            application/json:
+              examples:
+                missing_token:
+                  summary: Missing authentication token
+                  value:
+                    error:
+                      message: Authentication required
+                      code: unauthorized
+                    request_id: 01K8KABR6S16YETA2SZPVBS9SP
+                invalid_token:
+                  summary: Invalid or expired token
+                  value:
+                    error:
+                      message: Invalid authentication token
+                      code: unauthorized
+                    request_id: 01K8KACP7D2XFGHJ9KLM4NPQR8
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: Internal Server Error - An unexpected error occurred
+          content:
+            application/json:
+              examples:
+                internal_error:
+                  summary: Internal server error
+                  value:
+                    error:
+                      message: Internal server error
+                      code: internal_error
+                    request_id: 01K8KABR6S16YETA2SZPVBS9SP
+                repository_error:
+                  summary: Database error
+                  value:
+                    error:
+                      message: Database operation failed
+                      code: repository_error
+                    request_id: 01K8KACP7D2XFGHJ9KLM4NPQR8
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+      security:
+      - BearerAuth: []
+      - APIKeyAuth: []
+  /api/flows/{flow_id}:
+    get:
+      tags:
+      - flows
+      summary: Retrieve a flow by ID
+      description: "Retrieve a specific flow by ID.\n\nReturns the latest version of a flow with its complete definition, metadata, and\noptional computed fields. This endpoint is typically used when displaying flow\ndetails or preparing to execute a flow.\n\n## Behavior\n- Always returns the latest version unless a specific version is requested via\n  `/flows/{flow_id}/versions/{version}`\n- Use expansion parameters to include computed fields (see FlowResponse model docs)\n\n## Use Cases\n- Display flow details in your application UI\n- Retrieve flow definition before execution\n- Check flow validation status and errors"
+      operationId: get_flow_api_flows__flow_id__get
+      parameters:
+      - name: flow_id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+          title: Flow Id
+      - name: include_ordered_task_names
+        in: query
+        required: false
+        schema:
+          type: boolean
+          description: Include topologically sorted list of task names in execution order. Useful for visualizing task dependencies. Adds ~50ms latency for complex flows with 20+ tasks.
+          default: false
+          title: Include Ordered Task Names
+        description: Include topologically sorted list of task names in execution order. Useful for visualizing task dependencies. Adds ~50ms latency for complex flows with 20+ tasks.
+      - name: include_validation_errors
+        in: query
+        required: false
+        schema:
+          type: boolean
+          description: Include DSL validation errors if the flow definition is malformed. Essential for debugging invalid flows during development. No performance impact as validation runs regardless.
+          default: false
+          title: Include Validation Errors
+        description: Include DSL validation errors if the flow definition is malformed. Essential for debugging invalid flows during development. No performance impact as validation runs regardless.
+      - name: include_dynamic_data
+        in: query
+        required: false
+        schema:
+          type: boolean
+          description: Include runtime configuration options for each task (e.g., dropdown values, available resources). Requires authentication to external services. May add 100-500ms latency depending on integration APIs.
+          default: false
+          title: Include Dynamic Data
+        description: Include runtime configuration options for each task (e.g., dropdown values, available resources). Requires authentication to external services. May add 100-500ms latency depending on integration APIs.
+      - name: include_output_schemas
+        in: query
+        required: false
+        schema:
+          type: boolean
+          description: 'Include JSON Schema definitions for each task''s output structure. Required for building dynamic UIs or validating task connections. '
+          default: false
+          title: Include Output Schemas
+        description: 'Include JSON Schema definitions for each task''s output structure. Required for building dynamic UIs or validating task connections. '
+      - name: include_input_schema
+        in: query
+        required: false
+        schema:
+          type: boolean
+          description: 'Include JSON Schema definitions for input task executors'' input structure. Calls get_input_model() to generate dynamic input schemas for form building. '
+          default: false
+          title: Include Input Schema
+        description: 'Include JSON Schema definitions for input task executors'' input structure. Calls get_input_model() to generate dynamic input schemas for form building. '
+      - name: include_default_reference_modes
+        in: query
+        required: false
+        schema:
+          type: boolean
+          description: Include each task's default reference modes (single/collection) as the task-level 'default_reference_modes' property. Lets the UI show the resolved default instead of an ambiguous 'Default' option. Cheap to compute.
+          default: false
+          title: Include Default Reference Modes
+        description: Include each task's default reference modes (single/collection) as the task-level 'default_reference_modes' property. Lets the UI show the resolved default instead of an ambiguous 'Default' option. Cheap to compute.
+      responses:
+        '200':
+          description: Flow successfully retrieved
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FlowResponse'
+        '403':
+          description: Forbidden - User doesn't have access to this flow (wrong organization)
+          content:
+            application/json:
+              example:
+                error:
+                  message: User doesn't have access to this flow
+                  code: forbidden
+                request_id: 01K8KABR6S16YETA2SZPVBS9SP
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          description: Unauthorized - Missing or invalid authentication credentials
+          content:
+            application/json:
+              examples:
+                missing_token:
+                  summary: Missing authentication token
+                  value:
+                    error:
+                      message: Authentication required
+                      code: unauthorized
+                    request_id: 01K8KABR6S16YETA2SZPVBS9SP
+                invalid_token:
+                  summary: Invalid or expired token
+                  value:
+                    error:
+                      message: Invalid authentication token
+                      code: unauthorized
+                    request_id: 01K8KACP7D2XFGHJ9KLM4NPQR8
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: Not Found - The requested resource does not exist
+          content:
+            application/json:
+              examples:
+                resource_not_found:
+                  summary: Resource not found
+                  value:
+                    error:
+                      message: Resource not found
+                      code: not_found
+                    request_id: 01K8KABR6S16YETA2SZPVBS9SP
+                flow_not_found:
+                  summary: Flow not found
+                  value:
+                    error:
+                      message: Flow not found
+                      code: not_found
+                    request_id: 01K8KACP7D2XFGHJ9KLM4NPQR8
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+      security:
+      - BearerAuth: []
+      - APIKeyAuth: []
+    delete:
+      tags:
+      - flows
+      summary: Delete a flow
+      description: 'Soft delete a flow.
+
+
+        Marks a flow as deleted without permanently removing it from the database.
+
+        Deleted flows are hidden from listings but can be recovered if needed.
+
+
+        ## Behavior
+
+        - Flow is marked with `deleted=true` flag
+
+        - Flow no longer appears in list/get operations
+
+        - All versions of the flow are marked as deleted
+
+        - Can be recovered by support team if needed
+
+
+        ## Important Notes
+
+        - This is a soft delete, not a permanent deletion
+
+        - Associated executions and files are NOT deleted
+
+        - Deleted flows cannot be undeleted via API (contact support)'
+      operationId: delete_flow_api_flows__flow_id__delete
+      parameters:
+      - name: flow_id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+          title: Flow Id
+      responses:
+        '204':
+          description: Flow successfully deleted (soft delete)
+        '403':
+          description: Forbidden - User doesn't have permission to delete this flow
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          description: Unauthorized - Missing or invalid authentication credentials
+          content:
+            application/json:
+              examples:
+                missing_token:
+                  summary: Missing authentication token
+                  value:
+                    error:
+                      message: Authentication required
+                      code: unauthorized
+                    request_id: 01K8KABR6S16YETA2SZPVBS9SP
+                invalid_token:
+                  summary: Invalid or expired token
+                  value:
+                    error:
+                      message: Invalid authentication token
+                      code: unauthorized
+                    request_id: 01K8KACP7D2XFGHJ9KLM4NPQR8
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: Not Found - The requested resource does not exist
+          content:
+            application/json:
+              examples:
+                resource_not_found:
+                  summary: Resource not found
+                  value:
+                    error:
+                      message: Resource not found
+                      code: not_found
+                    request_id: 01K8KABR6S16YETA2SZPVBS9SP
+                flow_not_found:
+                  summary: Flow not found
+                  value:
+                    error:
+                      message: Flow not found
+                      code: not_found
+                    request_id: 01K8KACP7D2XFGHJ9KLM4NPQR8
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+      security:
+      - BearerAuth: []
+      - APIKeyAuth: []
+    patch:
+      tags:
+      - flows
+      summary: Partially update a flow
+      description: 'Partially update flow properties.
+
+
+        Update specific fields of a flow without replacing the entire object.
+
+        Only provided fields will be modified; others remain unchanged.
+
+
+        ## Updateable Fields
+
+        - `display_name`: Human-readable flow name
+
+        - `description`: Flow description
+
+        - `visibility`: Access control setting
+
+        - `settings`: Flow-level configuration
+
+        - `status`: Lifecycle status (draft or published)
+
+
+        ## Status Transitions
+
+        Currently the API allows any status transition. The valid status values are:
+
+        - `draft`: Flow is in development and can be edited
+
+        - `published`: Flow is ready for production use'
+      operationId: patch_flow_api_flows__flow_id__patch
+      parameters:
+      - name: flow_id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+          title: Flow Id
+      - name: include_ordered_task_names
+        in: query
+        required: false
+        schema:
+          type: boolean
+          description: Include topologically sorted list of task names in execution order. Useful for visualizing task dependencies. Adds ~50ms latency for complex flows with 20+ tasks.
+          default: false
+          title: Include Ordered Task Names
+        description: Include topologically sorted list of task names in execution order. Useful for visualizing task dependencies. Adds ~50ms latency for complex flows with 20+ tasks.
+      - name: include_validation_errors
+        in: query
+        required: false
+        schema:
+          type: boolean
+          description: Include DSL validation errors if the flow definition is malformed. Essential for debugging invalid flows during development. No performance impact as validation runs regardless.
+          default: false
+          title: Include Validation Errors
+        description: Include DSL validation errors if the flow definition is malformed. Essential for debugging invalid flows during development. No performance impact as validation runs regardless.
+      - name: include_dynamic_data
+        in: query
+        required: false
+        schema:
+          type: boolean
+          description: Include runtime configuration options for each task (e.g., dropdown values, available resources). Requires authentication to external services. May add 100-500ms latency depending on integration APIs.
+          default: false
+          title: Include Dynamic Data
+        description: Include runtime configuration options for each task (e.g., dropdown values, available resources). Requires authentication to external services. May add 100-500ms latency depending on integration APIs.
+      - name: include_output_schemas
+        in: query
+        required: false
+        schema:
+          type: boolean
+          description: 'Include JSON Schema definitions for each task''s output structure. Required for building dynamic UIs or validating task connections. '
+          default: false
+          title: Include Output Schemas
+        description: 'Include JSON Schema definitions for each task''s output structure. Required for building dynamic UIs or validating task connections. '
+      - name: include_input_schema
+        in: query
+        required: false
+        schema:
+          type: boolean
+          description: 'Include JSON Schema definitions for input task executors'' input structure. Calls get_input_model() to generate dynamic input schemas for form building. '
+          default: false
+          title: Include Input Schema
+        description: 'Include JSON Schema definitions for input task executors'' input structure. Calls get_input_model() to generate dynamic input schemas for form building. '
+      - name: include_default_reference_modes
+        in: query
+        required: false
+        schema:
+          type: boolean
+          description: Include each task's default reference modes (single/collection) as the task-level 'default_reference_modes' property. Lets the UI show the resolved default instead of an ambiguous 'Default' option. Cheap to compute.
+          default: false
+          title: Include Default Reference Modes
+        description: Include each task's default reference modes (single/collection) as the task-level 'default_reference_modes' property. Lets the UI show the resolved default instead of an ambiguous 'Default' option. Cheap to compute.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PatchFlowRequest'
+      responses:
+        '200':
+          description: Flow successfully updated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FlowResponse'
+        '400':
+          description: Bad Request - Invalid field values or illegal status transition
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          description: Unauthorized - Missing or invalid authentication credentials
+          content:
+            application/json:
+              examples:
+                missing_token:
+                  summary: Missing authentication token
+                  value:
+                    error:
+                      message: Authentication required
+                      code: unauthorized
+                    request_id: 01K8KABR6S16YETA2SZPVBS9SP
+                invalid_token:
+                  summary: Invalid or expired token
+                  value:
+                    error:
+                      message: Invalid authentication token
+                      code: unauthorized
+                    request_id: 01K8KACP7D2XFGHJ9KLM4NPQR8
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '403':
+          description: Forbidden - Insufficient permissions to access this resource
+          content:
+            application/json:
+              examples:
+                insufficient_permissions:
+                  summary: Insufficient permissions
+                  value:
+                    error:
+                      message: You do not have permission to access this resource
+                      code: forbidden
+                    request_id: 01K8KABR6S16YETA2SZPVBS9SP
+                wrong_organization:
+                  summary: Resource belongs to different organization
+                  value:
+                    error:
+                      message: This resource belongs to a different organization
+                      code: forbidden
+                    request_id: 01K8KACP7D2XFGHJ9KLM4NPQR8
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: Not Found - The requested resource does not exist
+          content:
+            application/json:
+              examples:
+                resource_not_found:
+                  summary: Resource not found
+                  value:
+                    error:
+                      message: Resource not found
+                      code: not_found
+                    request_id: 01K8KABR6S16YETA2SZPVBS9SP
+                flow_not_found:
+                  summary: Flow not found
+                  value:
+                    error:
+                      message: Flow not found
+                      code: not_found
+                    request_id: 01K8KACP7D2XFGHJ9KLM4NPQR8
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+      security:
+      - BearerAuth: []
+      - APIKeyAuth: []
+  /api/flows/{flow_id}/clone-info:
+    get:
+      tags:
+      - flows
+      summary: Get clone info for a flow
+      operationId: get_flow_clone_info_api_flows__flow_id__clone_info_get
+      parameters:
+      - name: flow_id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+          title: Flow Id
+      responses:
+        '200':
+          description: Clone info successfully retrieved
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FlowCloneInfoResponse'
+        '401':
+          description: Unauthorized - Missing or invalid authentication credentials
+          content:
+            application/json:
+              examples:
+                missing_token:
+                  summary: Missing authentication token
+                  value:
+                    error:
+                      message: Authentication required
+                      code: unauthorized
+                    request_id: 01K8KABR6S16YETA2SZPVBS9SP
+                invalid_token:
+                  summary: Invalid or expired token
+                  value:
+                    error:
+                      message: Invalid authentication token
+                      code: unauthorized
+                    request_id: 01K8KACP7D2XFGHJ9KLM4NPQR8
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: Not Found - The requested resource does not exist
+          content:
+            application/json:
+              examples:
+                resource_not_found:
+                  summary: Resource not found
+                  value:
+                    error:
+                      message: Resource not found
+                      code: not_found
+                    request_id: 01K8KABR6S16YETA2SZPVBS9SP
+                flow_not_found:
+                  summary: Flow not found
+                  value:
+                    error:
+                      message: Flow not found
+                      code: not_found
+                    request_id: 01K8KACP7D2XFGHJ9KLM4NPQR8
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+      security:
+      - BearerAuth: []
+      - APIKeyAuth: []
+  /api/flows/{flow_id}/versions:
+    get:
+      tags:
+      - flows
+      summary: List all versions of a flow
+      description: 'List all versions of a specific flow.
+
+
+        Returns complete version history for a flow, ordered by version number (newest first).
+
+        Each version represents a snapshot of the flow definition at the time it was saved.
+
+
+        ## Versioning Behavior
+
+        - Version numbers start at 1 and increment sequentially
+
+        - Versions are immutable once created
+
+        - Latest version is marked with `is_latest: true`
+
+
+        ## Use Cases
+
+        - View flow evolution and change history
+
+        - Compare different versions
+
+        - Rollback to previous versions'
+      operationId: list_flow_versions_api_flows__flow_id__versions_get
+      parameters:
+      - name: flow_id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+          title: Flow Id
+      - name: include_ordered_task_names
+        in: query
+        required: false
+        schema:
+          type: boolean
+          description: Include topologically sorted list of task names in execution order. Useful for visualizing task dependencies. Adds ~50ms latency for complex flows with 20+ tasks.
+          default: false
+          title: Include Ordered Task Names
+        description: Include topologically sorted list of task names in execution order. Useful for visualizing task dependencies. Adds ~50ms latency for complex flows with 20+ tasks.
+      - name: include_validation_errors
+        in: query
+        required: false
+        schema:
+          type: boolean
+          description: Include DSL validation errors if the flow definition is malformed. Essential for debugging invalid flows during development. No performance impact as validation runs regardless.
+          default: false
+          title: Include Validation Errors
+        description: Include DSL validation errors if the flow definition is malformed. Essential for debugging invalid flows during development. No performance impact as validation runs regardless.
+      - name: include_dynamic_data
+        in: query
+        required: false
+        schema:
+          type: boolean
+          description: Include runtime configuration options for each task (e.g., dropdown values, available resources). Requires authentication to external services. May add 100-500ms latency depending on integration APIs.
+          default: false
+          title: Include Dynamic Data
+        description: Include runtime configuration options for each task (e.g., dropdown values, available resources). Requires authentication to external services. May add 100-500ms latency depending on integration APIs.
+      - name: include_output_schemas
+        in: query
+        required: false
+        schema:
+          type: boolean
+          description: 'Include JSON Schema definitions for each task''s output structure. Required for building dynamic UIs or validating task connections. '
+          default: false
+          title: Include Output Schemas
+        description: 'Include JSON Schema definitions for each task''s output structure. Required for building dynamic UIs or validating task connections. '
+      - name: include_input_schema
+        in: query
+        required: false
+        schema:
+          type: boolean
+          description: 'Include JSON Schema definitions for input task executors'' input structure. Calls get_input_model() to generate dynamic input schemas for form building. '
+          default: false
+          title: Include Input Schema
+        description: 'Include JSON Schema definitions for input task executors'' input structure. Calls get_input_model() to generate dynamic input schemas for form building. '
+      - name: include_default_reference_modes
+        in: query
+        required: false
+        schema:
+          type: boolean
+          description: Include each task's default reference modes (single/collection) as the task-level 'default_reference_modes' property. Lets the UI show the resolved default instead of an ambiguous 'Default' option. Cheap to compute.
+          default: false
+          title: Include Default Reference Modes
+        description: Include each task's default reference modes (single/collection) as the task-level 'default_reference_modes' property. Lets the UI show the resolved default instead of an ambiguous 'Default' option. Cheap to compute.
+      responses:
+        '200':
+          description: List of flow versions successfully retrieved
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/FlowResponse'
+                title: Response List Flow Versions Api Flows  Flow Id  Versions Get
+        '403':
+          description: Forbidden - User doesn't have access to this flow
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          description: Unauthorized - Missing or invalid authentication credentials
+          content:
+            application/json:
+              examples:
+                missing_token:
+                  summary: Missing authentication token
+                  value:
+                    error:
+                      message: Authentication required
+                      code: unauthorized
+                    request_id: 01K8KABR6S16YETA2SZPVBS9SP
+                invalid_token:
+                  summary: Invalid or expired token
+                  value:
+                    error:
+                      message: Invalid authentication token
+                      code: unauthorized
+                    request_id: 01K8KACP7D2XFGHJ9KLM4NPQR8
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: Not Found - The requested resource does not exist
+          content:
+            application/json:
+              examples:
+                resource_not_found:
+                  summary: Resource not found
+                  value:
+                    error:
+                      message: Resource not found
+                      code: not_found
+                    request_id: 01K8KABR6S16YETA2SZPVBS9SP
+                flow_not_found:
+                  summary: Flow not found
+                  value:
+                    error:
+                      message: Flow not found
+                      code: not_found
+                    request_id: 01K8KACP7D2XFGHJ9KLM4NPQR8
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+      security:
+      - BearerAuth: []
+      - APIKeyAuth: []
+  /api/flows/{flow_id}/definition:
+    put:
+      tags:
+      - flows
+      summary: Update flow definition
+      description: 'Update the complete definition of a flow.
+
+
+        Replaces the entire flow definition with a new one. This operation is only
+
+        allowed for flows in ''draft'' status. Creates a new version of the flow.
+
+
+        ## Restrictions
+
+        - Only flows with status ''draft'' can be updated
+
+        - Published flows cannot be modified
+
+        - A new version is created with each update
+
+
+        ## Validation
+
+        - New definition is validated before applying
+
+        - If validation fails, the original definition remains unchanged
+
+        - Use `include_validation_errors=true` to see validation details'
+      operationId: update_flow_definition_api_flows__flow_id__definition_put
+      parameters:
+      - name: flow_id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+          title: Flow Id
+      - name: include_ordered_task_names
+        in: query
+        required: false
+        schema:
+          type: boolean
+          description: Include topologically sorted list of task names in execution order. Useful for visualizing task dependencies. Adds ~50ms latency for complex flows with 20+ tasks.
+          default: false
+          title: Include Ordered Task Names
+        description: Include topologically sorted list of task names in execution order. Useful for visualizing task dependencies. Adds ~50ms latency for complex flows with 20+ tasks.
+      - name: include_validation_errors
+        in: query
+        required: false
+        schema:
+          type: boolean
+          description: Include DSL validation errors if the flow definition is malformed. Essential for debugging invalid flows during development. No performance impact as validation runs regardless.
+          default: false
+          title: Include Validation Errors
+        description: Include DSL validation errors if the flow definition is malformed. Essential for debugging invalid flows during development. No performance impact as validation runs regardless.
+      - name: include_dynamic_data
+        in: query
+        required: false
+        schema:
+          type: boolean
+          description: Include runtime configuration options for each task (e.g., dropdown values, available resources). Requires authentication to external services. May add 100-500ms latency depending on integration APIs.
+          default: false
+          title: Include Dynamic Data
+        description: Include runtime configuration options for each task (e.g., dropdown values, available resources). Requires authentication to external services. May add 100-500ms latency depending on integration APIs.
+      - name: include_output_schemas
+        in: query
+        required: false
+        schema:
+          type: boolean
+          description: 'Include JSON Schema definitions for each task''s output structure. Required for building dynamic UIs or validating task connections. '
+          default: false
+          title: Include Output Schemas
+        description: 'Include JSON Schema definitions for each task''s output structure. Required for building dynamic UIs or validating task connections. '
+      - name: include_input_schema
+        in: query
+        required: false
+        schema:
+          type: boolean
+          description: 'Include JSON Schema definitions for input task executors'' input structure. Calls get_input_model() to generate dynamic input schemas for form building. '
+          default: false
+          title: Include Input Schema
+        description: 'Include JSON Schema definitions for input task executors'' input structure. Calls get_input_model() to generate dynamic input schemas for form building. '
+      - name: include_default_reference_modes
+        in: query
+        required: false
+        schema:
+          type: boolean
+          description: Include each task's default reference modes (single/collection) as the task-level 'default_reference_modes' property. Lets the UI show the resolved default instead of an ambiguous 'Default' option. Cheap to compute.
+          default: false
+          title: Include Default Reference Modes
+        description: Include each task's default reference modes (single/collection) as the task-level 'default_reference_modes' property. Lets the UI show the resolved default instead of an ambiguous 'Default' option. Cheap to compute.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/FlowDefinitionUpdate'
+      responses:
+        '200':
+          description: Flow definition successfully updated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FlowResponse'
+        '400':
+          description: Bad Request - Invalid definition or flow not in draft status
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '403':
+          description: Forbidden - User doesn't have permission to update this flow
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          description: Unauthorized - Missing or invalid authentication credentials
+          content:
+            application/json:
+              examples:
+                missing_token:
+                  summary: Missing authentication token
+                  value:
+                    error:
+                      message: Authentication required
+                      code: unauthorized
+                    request_id: 01K8KABR6S16YETA2SZPVBS9SP
+                invalid_token:
+                  summary: Invalid or expired token
+                  value:
+                    error:
+                      message: Invalid authentication token
+                      code: unauthorized
+                    request_id: 01K8KACP7D2XFGHJ9KLM4NPQR8
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: Not Found - The requested resource does not exist
+          content:
+            application/json:
+              examples:
+                resource_not_found:
+                  summary: Resource not found
+                  value:
+                    error:
+                      message: Resource not found
+                      code: not_found
+                    request_id: 01K8KABR6S16YETA2SZPVBS9SP
+                flow_not_found:
+                  summary: Flow not found
+                  value:
+                    error:
+                      message: Flow not found
+                      code: not_found
+                    request_id: 01K8KACP7D2XFGHJ9KLM4NPQR8
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+      security:
+      - BearerAuth: []
+      - APIKeyAuth: []
+  /api/flows/{flow_id}/validate:
+    post:
+      tags:
+      - flows
+      summary: Validate a flow definition without persisting
+      description: 'Validate a flow definition without persisting anything.
+
+
+        Runs DSL validation and returns validation errors and ordered task names.
+
+        Used for real-time validation feedback during editing.'
+      operationId: validate_flow_definition_api_flows__flow_id__validate_post
+      parameters:
+      - name: flow_id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+          title: Flow Id
+      - name: include_dynamic_data
+        in: query
+        required: false
+        schema:
+          type: boolean
+          default: false
+          title: Include Dynamic Data
+      - name: include_output_schemas
+        in: query
+        required: false
+        schema:
+          type: boolean
+          default: false
+          title: Include Output Schemas
+      - name: include_default_reference_modes
+        in: query
+        required: false
+        schema:
+          type: boolean
+          default: false
+          title: Include Default Reference Modes
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/FlowDefinitionUpdate'
+      responses:
+        '200':
+          description: Validation result returned
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FlowValidationResponse'
+        '401':
+          description: Unauthorized - Missing or invalid authentication credentials
+          content:
+            application/json:
+              examples:
+                missing_token:
+                  summary: Missing authentication token
+                  value:
+                    error:
+                      message: Authentication required
+                      code: unauthorized
+                    request_id: 01K8KABR6S16YETA2SZPVBS9SP
+                invalid_token:
+                  summary: Invalid or expired token
+                  value:
+                    error:
+                      message: Invalid authentication token
+                      code: unauthorized
+                    request_id: 01K8KACP7D2XFGHJ9KLM4NPQR8
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: Not Found - The requested resource does not exist
+          content:
+            application/json:
+              examples:
+                resource_not_found:
+                  summary: Resource not found
+                  value:
+                    error:
+                      message: Resource not found
+                      code: not_found
+                    request_id: 01K8KABR6S16YETA2SZPVBS9SP
+                flow_not_found:
+                  summary: Flow not found
+                  value:
+                    error:
+                      message: Flow not found
+                      code: not_found
+                    request_id: 01K8KACP7D2XFGHJ9KLM4NPQR8
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+      security:
+      - BearerAuth: []
+      - APIKeyAuth: []
+  /api/flows/{flow_id}/versions/summary:
+    get:
+      tags:
+      - flows
+      summary: List version summaries for a flow
+      description: 'Get lightweight version metadata for the version history sidebar.
+
+
+        Returns only metadata (version, timestamps, author, is_latest) without full definitions.
+
+        Ordered by version descending (newest first). Supports pagination, search by name,
+
+        and favourite filtering.'
+      operationId: get_flow_version_summaries_api_flows__flow_id__versions_summary_get
+      parameters:
+      - name: flow_id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+          title: Flow Id
+      - name: page
+        in: query
+        required: false
+        schema:
+          type: integer
+          maximum: 10000
+          minimum: 1
+          default: 1
+          title: Page
+      - name: page_size
+        in: query
+        required: false
+        schema:
+          type: integer
+          maximum: 100
+          minimum: 1
+          default: 20
+          title: Page Size
+      - name: search
+        in: query
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Search
+      - name: favourites_only
+        in: query
+        required: false
+        schema:
+          type: boolean
+          default: false
+          title: Favourites Only
+      responses:
+        '200':
+          description: Version summaries successfully retrieved
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginatedFlowVersionSummaryResponse'
+        '401':
+          description: Unauthorized - Missing or invalid authentication credentials
+          content:
+            application/json:
+              examples:
+                missing_token:
+                  summary: Missing authentication token
+                  value:
+                    error:
+                      message: Authentication required
+                      code: unauthorized
+                    request_id: 01K8KABR6S16YETA2SZPVBS9SP
+                invalid_token:
+                  summary: Invalid or expired token
+                  value:
+                    error:
+                      message: Invalid authentication token
+                      code: unauthorized
+                    request_id: 01K8KACP7D2XFGHJ9KLM4NPQR8
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: Not Found - The requested resource does not exist
+          content:
+            application/json:
+              examples:
+                resource_not_found:
+                  summary: Resource not found
+                  value:
+                    error:
+                      message: Resource not found
+                      code: not_found
+                    request_id: 01K8KABR6S16YETA2SZPVBS9SP
+                flow_not_found:
+                  summary: Flow not found
+                  value:
+                    error:
+                      message: Flow not found
+                      code: not_found
+                    request_id: 01K8KACP7D2XFGHJ9KLM4NPQR8
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+      security:
+      - BearerAuth: []
+      - APIKeyAuth: []
+  /api/flows/{flow_id}/versions/{version}:
+    patch:
+      tags:
+      - flows
+      summary: Update version metadata
+      operationId: update_flow_version_metadata_api_flows__flow_id__versions__version__patch
+      parameters:
+      - name: flow_id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+          title: Flow Id
+      - name: version
+        in: path
+        required: true
+        schema:
+          type: integer
+          title: Version
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateFlowVersionMetadata'
+      responses:
+        '200':
+          description: Version metadata successfully updated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FlowVersionSummary'
+        '401':
+          description: Unauthorized - Missing or invalid authentication credentials
+          content:
+            application/json:
+              examples:
+                missing_token:
+                  summary: Missing authentication token
+                  value:
+                    error:
+                      message: Authentication required
+                      code: unauthorized
+                    request_id: 01K8KABR6S16YETA2SZPVBS9SP
+                invalid_token:
+                  summary: Invalid or expired token
+                  value:
+                    error:
+                      message: Invalid authentication token
+                      code: unauthorized
+                    request_id: 01K8KACP7D2XFGHJ9KLM4NPQR8
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: Not Found - The requested resource does not exist
+          content:
+            application/json:
+              examples:
+                resource_not_found:
+                  summary: Resource not found
+                  value:
+                    error:
+                      message: Resource not found
+                      code: not_found
+                    request_id: 01K8KABR6S16YETA2SZPVBS9SP
+                flow_not_found:
+                  summary: Flow not found
+                  value:
+                    error:
+                      message: Flow not found
+                      code: not_found
+                    request_id: 01K8KACP7D2XFGHJ9KLM4NPQR8
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+      security:
+      - BearerAuth: []
+      - APIKeyAuth: []
+    get:
+      tags:
+      - flows
+      summary: Get specific flow version
+      description: 'Retrieve a specific version of a flow.
+
+
+        Access historical versions of a flow to view previous definitions,
+
+        compare changes, or rollback to a previous state.
+
+
+        ## Use Cases
+
+        - View flow definition at a specific point in time
+
+        - Compare versions to understand what changed
+
+        - Reference the exact version used in a flow execution'
+      operationId: get_flow_version_api_flows__flow_id__versions__version__get
+      parameters:
+      - name: flow_id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+          title: Flow Id
+      - name: version
+        in: path
+        required: true
+        schema:
+          type: integer
+          title: Version
+      - name: include_ordered_task_names
+        in: query
+        required: false
+        schema:
+          type: boolean
+          description: Include topologically sorted list of task names in execution order. Useful for visualizing task dependencies. Adds ~50ms latency for complex flows with 20+ tasks.
+          default: false
+          title: Include Ordered Task Names
+        description: Include topologically sorted list of task names in execution order. Useful for visualizing task dependencies. Adds ~50ms latency for complex flows with 20+ tasks.
+      - name: include_validation_errors
+        in: query
+        required: false
+        schema:
+          type: boolean
+          description: Include DSL validation errors if the flow definition is malformed. Essential for debugging invalid flows during development. No performance impact as validation runs regardless.
+          default: false
+          title: Include Validation Errors
+        description: Include DSL validation errors if the flow definition is malformed. Essential for debugging invalid flows during development. No performance impact as validation runs regardless.
+      - name: include_dynamic_data
+        in: query
+        required: false
+        schema:
+          type: boolean
+          description: Include runtime configuration options for each task (e.g., dropdown values, available resources). Requires authentication to external services. May add 100-500ms latency depending on integration APIs.
+          default: false
+          title: Include Dynamic Data
+        description: Include runtime configuration options for each task (e.g., dropdown values, available resources). Requires authentication to external services. May add 100-500ms latency depending on integration APIs.
+      - name: include_output_schemas
+        in: query
+        required: false
+        schema:
+          type: boolean
+          description: 'Include JSON Schema definitions for each task''s output structure. Required for building dynamic UIs or validating task connections. '
+          default: false
+          title: Include Output Schemas
+        description: 'Include JSON Schema definitions for each task''s output structure. Required for building dynamic UIs or validating task connections. '
+      - name: include_input_schema
+        in: query
+        required: false
+        schema:
+          type: boolean
+          description: 'Include JSON Schema definitions for input task executors'' input structure. Calls get_input_model() to generate dynamic input schemas for form building. '
+          default: false
+          title: Include Input Schema
+        description: 'Include JSON Schema definitions for input task executors'' input structure. Calls get_input_model() to generate dynamic input schemas for form building. '
+      - name: include_default_reference_modes
+        in: query
+        required: false
+        schema:
+          type: boolean
+          description: Include each task's default reference modes (single/collection) as the task-level 'default_reference_modes' property. Lets the UI show the resolved default instead of an ambiguous 'Default' option. Cheap to compute.
+          default: false
+          title: Include Default Reference Modes
+        description: Include each task's default reference modes (single/collection) as the task-level 'default_reference_modes' property. Lets the UI show the resolved default instead of an ambiguous 'Default' option. Cheap to compute.
+      responses:
+        '200':
+          description: Flow version successfully retrieved
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FlowResponse'
+        '401':
+          description: Unauthorized - Missing or invalid authentication credentials
+          content:
+            application/json:
+              examples:
+                missing_token:
+                  summary: Missing authentication token
+                  value:
+                    error:
+                      message: Authentication required
+                      code: unauthorized
+                    request_id: 01K8KABR6S16YETA2SZPVBS9SP
+                invalid_token:
+                  summary: Invalid or expired token
+                  value:
+                    error:
+                      message: Invalid authentication token
+                      code: unauthorized
+                    request_id: 01K8KACP7D2XFGHJ9KLM4NPQR8
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '403':
+          description: Forbidden - Insufficient permissions to access this resource
+          content:
+            application/json:
+              examples:
+                insufficient_permissions:
+                  summary: Insufficient permissions
+                  value:
+                    error:
+                      message: You do not have permission to access this resource
+                      code: forbidden
+                    request_id: 01K8KABR6S16YETA2SZPVBS9SP
+                wrong_organization:
+                  summary: Resource belongs to different organization
+                  value:
+                    error:
+                      message: This resource belongs to a different organization
+                      code: forbidden
+                    request_id: 01K8KACP7D2XFGHJ9KLM4NPQR8
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: Not Found - The requested resource does not exist
+          content:
+            application/json:
+              examples:
+                resource_not_found:
+                  summary: Resource not found
+                  value:
+                    error:
+                      message: Resource not found
+                      code: not_found
+                    request_id: 01K8KABR6S16YETA2SZPVBS9SP
+                flow_not_found:
+                  summary: Flow not found
+                  value:
+                    error:
+                      message: Flow not found
+                      code: not_found
+                    request_id: 01K8KACP7D2XFGHJ9KLM4NPQR8
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+      security:
+      - BearerAuth: []
+      - APIKeyAuth: []
+  /api/flows/{flow_id}/versions/{version}/restore:
+    post:
+      tags:
+      - flows
+      summary: Restore a past version
+      description: 'Restore a past version as the new latest version.
+
+
+        Creates a new version with the same definition as the specified historical version.
+
+        The restored version becomes the new latest version with an incremented version number.'
+      operationId: restore_flow_version_api_flows__flow_id__versions__version__restore_post
+      parameters:
+      - name: flow_id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+          title: Flow Id
+      - name: version
+        in: path
+        required: true
+        schema:
+          type: integer
+          title: Version
+      - name: include_ordered_task_names
+        in: query
+        required: false
+        schema:
+          type: boolean
+          description: Include topologically sorted list of task names in execution order. Useful for visualizing task dependencies. Adds ~50ms latency for complex flows with 20+ tasks.
+          default: false
+          title: Include Ordered Task Names
+        description: Include topologically sorted list of task names in execution order. Useful for visualizing task dependencies. Adds ~50ms latency for complex flows with 20+ tasks.
+      - name: include_validation_errors
+        in: query
+        required: false
+        schema:
+          type: boolean
+          description: Include DSL validation errors if the flow definition is malformed. Essential for debugging invalid flows during development. No performance impact as validation runs regardless.
+          default: false
+          title: Include Validation Errors
+        description: Include DSL validation errors if the flow definition is malformed. Essential for debugging invalid flows during development. No performance impact as validation runs regardless.
+      - name: include_dynamic_data
+        in: query
+        required: false
+        schema:
+          type: boolean
+          description: Include runtime configuration options for each task (e.g., dropdown values, available resources). Requires authentication to external services. May add 100-500ms latency depending on integration APIs.
+          default: false
+          title: Include Dynamic Data
+        description: Include runtime configuration options for each task (e.g., dropdown values, available resources). Requires authentication to external services. May add 100-500ms latency depending on integration APIs.
+      - name: include_output_schemas
+        in: query
+        required: false
+        schema:
+          type: boolean
+          description: 'Include JSON Schema definitions for each task''s output structure. Required for building dynamic UIs or validating task connections. '
+          default: false
+          title: Include Output Schemas
+        description: 'Include JSON Schema definitions for each task''s output structure. Required for building dynamic UIs or validating task connections. '
+      - name: include_input_schema
+        in: query
+        required: false
+        schema:
+          type: boolean
+          description: 'Include JSON Schema definitions for input task executors'' input structure. Calls get_input_model() to generate dynamic input schemas for form building. '
+          default: false
+          title: Include Input Schema
+        description: 'Include JSON Schema definitions for input task executors'' input structure. Calls get_input_model() to generate dynamic input schemas for form building. '
+      - name: include_default_reference_modes
+        in: query
+        required: false
+        schema:
+          type: boolean
+          description: Include each task's default reference modes (single/collection) as the task-level 'default_reference_modes' property. Lets the UI show the resolved default instead of an ambiguous 'Default' option. Cheap to compute.
+          default: false
+          title: Include Default Reference Modes
+        description: Include each task's default reference modes (single/collection) as the task-level 'default_reference_modes' property. Lets the UI show the resolved default instead of an ambiguous 'Default' option. Cheap to compute.
+      responses:
+        '200':
+          description: Version successfully restored
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FlowResponse'
+        '400':
+          description: Bad Request - Cannot restore the already-latest version
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          description: Unauthorized - Missing or invalid authentication credentials
+          content:
+            application/json:
+              examples:
+                missing_token:
+                  summary: Missing authentication token
+                  value:
+                    error:
+                      message: Authentication required
+                      code: unauthorized
+                    request_id: 01K8KABR6S16YETA2SZPVBS9SP
+                invalid_token:
+                  summary: Invalid or expired token
+                  value:
+                    error:
+                      message: Invalid authentication token
+                      code: unauthorized
+                    request_id: 01K8KACP7D2XFGHJ9KLM4NPQR8
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: Not Found - The requested resource does not exist
+          content:
+            application/json:
+              examples:
+                resource_not_found:
+                  summary: Resource not found
+                  value:
+                    error:
+                      message: Resource not found
+                      code: not_found
+                    request_id: 01K8KABR6S16YETA2SZPVBS9SP
+                flow_not_found:
+                  summary: Flow not found
+                  value:
+                    error:
+                      message: Flow not found
+                      code: not_found
+                    request_id: 01K8KACP7D2XFGHJ9KLM4NPQR8
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+      security:
+      - BearerAuth: []
+      - APIKeyAuth: []
+  /api/flows/{flow_id}/task:
+    put:
+      tags:
+      - flows
+      summary: Update a single task in flow
+      description: 'Update a single task within a flow definition.
+
+
+        Updates one task while preserving the rest of the flow definition.
+
+        More efficient than replacing the entire definition when modifying a single task.
+
+
+        ## Behavior
+
+        - Task is identified by the `name` field in the task definition
+
+        - If task doesn''t exist, it will be added
+
+        - If task exists, it will be replaced
+
+        - Only available for flows in ''draft'' status'
+      operationId: update_flow_task_api_flows__flow_id__task_put
+      parameters:
+      - name: flow_id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+          title: Flow Id
+      - name: include_ordered_task_names
+        in: query
+        required: false
+        schema:
+          type: boolean
+          description: Include topologically sorted list of task names in execution order. Useful for visualizing task dependencies. Adds ~50ms latency for complex flows with 20+ tasks.
+          default: false
+          title: Include Ordered Task Names
+        description: Include topologically sorted list of task names in execution order. Useful for visualizing task dependencies. Adds ~50ms latency for complex flows with 20+ tasks.
+      - name: include_validation_errors
+        in: query
+        required: false
+        schema:
+          type: boolean
+          description: Include DSL validation errors if the flow definition is malformed. Essential for debugging invalid flows during development. No performance impact as validation runs regardless.
+          default: false
+          title: Include Validation Errors
+        description: Include DSL validation errors if the flow definition is malformed. Essential for debugging invalid flows during development. No performance impact as validation runs regardless.
+      - name: include_dynamic_data
+        in: query
+        required: false
+        schema:
+          type: boolean
+          description: Include runtime configuration options for each task (e.g., dropdown values, available resources). Requires authentication to external services. May add 100-500ms latency depending on integration APIs.
+          default: false
+          title: Include Dynamic Data
+        description: Include runtime configuration options for each task (e.g., dropdown values, available resources). Requires authentication to external services. May add 100-500ms latency depending on integration APIs.
+      - name: include_output_schemas
+        in: query
+        required: false
+        schema:
+          type: boolean
+          description: 'Include JSON Schema definitions for each task''s output structure. Required for building dynamic UIs or validating task connections. '
+          default: false
+          title: Include Output Schemas
+        description: 'Include JSON Schema definitions for each task''s output structure. Required for building dynamic UIs or validating task connections. '
+      - name: include_input_schema
+        in: query
+        required: false
+        schema:
+          type: boolean
+          description: 'Include JSON Schema definitions for input task executors'' input structure. Calls get_input_model() to generate dynamic input schemas for form building. '
+          default: false
+          title: Include Input Schema
+        description: 'Include JSON Schema definitions for input task executors'' input structure. Calls get_input_model() to generate dynamic input schemas for form building. '
+      - name: include_default_reference_modes
+        in: query
+        required: false
+        schema:
+          type: boolean
+          description: Include each task's default reference modes (single/collection) as the task-level 'default_reference_modes' property. Lets the UI show the resolved default instead of an ambiguous 'Default' option. Cheap to compute.
+          default: false
+          title: Include Default Reference Modes
+        description: Include each task's default reference modes (single/collection) as the task-level 'default_reference_modes' property. Lets the UI show the resolved default instead of an ambiguous 'Default' option. Cheap to compute.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              additionalProperties: true
+              title: Task Definition
+      responses:
+        '200':
+          description: Task successfully updated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FlowResponse'
+        '400':
+          description: Bad Request - Invalid task definition or flow not in draft status
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          description: Unauthorized - Missing or invalid authentication credentials
+          content:
+            application/json:
+              examples:
+                missing_token:
+                  summary: Missing authentication token
+                  value:
+                    error:
+                      message: Authentication required
+                      code: unauthorized
+                    request_id: 01K8KABR6S16YETA2SZPVBS9SP
+                invalid_token:
+                  summary: Invalid or expired token
+                  value:
+                    error:
+                      message: Invalid authentication token
+                      code: unauthorized
+                    request_id: 01K8KACP7D2XFGHJ9KLM4NPQR8
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '403':
+          description: Forbidden - Insufficient permissions to access this resource
+          content:
+            application/json:
+              examples:
+                insufficient_permissions:
+                  summary: Insufficient permissions
+                  value:
+                    error:
+                      message: You do not have permission to access this resource
+                      code: forbidden
+                    request_id: 01K8KABR6S16YETA2SZPVBS9SP
+                wrong_organization:
+                  summary: Resource belongs to different organization
+                  value:
+                    error:
+                      message: This resource belongs to a different organization
+                      code: forbidden
+                    request_id: 01K8KACP7D2XFGHJ9KLM4NPQR8
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: Not Found - The requested resource does not exist
+          content:
+            application/json:
+              examples:
+                resource_not_found:
+                  summary: Resource not found
+                  value:
+                    error:
+                      message: Resource not found
+                      code: not_found
+                    request_id: 01K8KABR6S16YETA2SZPVBS9SP
+                flow_not_found:
+                  summary: Flow not found
+                  value:
+                    error:
+                      message: Flow not found
+                      code: not_found
+                    request_id: 01K8KACP7D2XFGHJ9KLM4NPQR8
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+      security:
+      - BearerAuth: []
+      - APIKeyAuth: []
+  /api/flows/{flow_id}/upload-url:
+    post:
+      tags:
+      - flows
+      summary: Generate file upload URL
+      description: 'Generate pre-signed URL for uploading files to a flow.
+
+
+        Creates a temporary upload URL that allows direct file upload to cloud storage
+
+        without exposing storage credentials. Each URL is valid for 1 hour.
+
+
+        ## Upload Process
+
+        1. Call this endpoint to receive an upload URL
+
+        2. Use PUT request to upload your file to the returned `upload_url`
+
+        3. Save the returned `file_key` to reference the file later
+
+        4. File becomes accessible via the flow immediately after upload
+
+
+        ## Supported File Types
+
+        - Documents: PDF, DOCX, TXT, CSV
+
+        - Images: PNG, JPG, GIF
+
+        - Archives: ZIP, TAR
+
+        - Maximum file size: 100MB'
+      operationId: generate_upload_url_api_flows__flow_id__upload_url_post
+      parameters:
+      - name: flow_id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+          title: Flow Id
+      - name: content_type
+        in: query
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: MIME type of file to upload (e.g., 'application/pdf', 'image/png')
+          title: Content Type
+        description: MIME type of file to upload (e.g., 'application/pdf', 'image/png')
+      responses:
+        '200':
+          description: Pre-signed upload URL successfully generated
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: true
+                title: Response Generate Upload Url Api Flows  Flow Id  Upload Url Post
+        '401':
+          description: Unauthorized - Missing or invalid authentication credentials
+          content:
+            application/json:
+              examples:
+                missing_token:
+                  summary: Missing authentication token
+                  value:
+                    error:
+                      message: Authentication required
+                      code: unauthorized
+                    request_id: 01K8KABR6S16YETA2SZPVBS9SP
+                invalid_token:
+                  summary: Invalid or expired token
+                  value:
+                    error:
+                      message: Invalid authentication token
+                      code: unauthorized
+                    request_id: 01K8KACP7D2XFGHJ9KLM4NPQR8
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: Not Found - The requested resource does not exist
+          content:
+            application/json:
+              examples:
+                resource_not_found:
+                  summary: Resource not found
+                  value:
+                    error:
+                      message: Resource not found
+                      code: not_found
+                    request_id: 01K8KABR6S16YETA2SZPVBS9SP
+                flow_not_found:
+                  summary: Flow not found
+                  value:
+                    error:
+                      message: Flow not found
+                      code: not_found
+                    request_id: 01K8KACP7D2XFGHJ9KLM4NPQR8
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: Internal Server Error - An unexpected error occurred
+          content:
+            application/json:
+              examples:
+                internal_error:
+                  summary: Internal server error
+                  value:
+                    error:
+                      message: Internal server error
+                      code: internal_error
+                    request_id: 01K8KABR6S16YETA2SZPVBS9SP
+                repository_error:
+                  summary: Database error
+                  value:
+                    error:
+                      message: Database operation failed
+                      code: repository_error
+                    request_id: 01K8KACP7D2XFGHJ9KLM4NPQR8
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+      security:
+      - BearerAuth: []
+      - APIKeyAuth: []
+  /api/flows/{flow_id}/files:
+    get:
+      tags:
+      - flows
+      summary: List flow files
+      description: 'List all files associated with a flow.
+
+
+        Returns metadata for all files that have been uploaded to this flow,
+
+        including original filenames, sizes, and custom metadata.
+
+
+        ## Use Cases
+
+        - Display uploaded files in UI
+
+        - Verify file uploads completed successfully
+
+        - Retrieve file keys for download URL generation'
+      operationId: list_flow_files_api_flows__flow_id__files_get
+      parameters:
+      - name: flow_id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+          title: Flow Id
+      responses:
+        '200':
+          description: List of files with metadata
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  additionalProperties: true
+                title: Response List Flow Files Api Flows  Flow Id  Files Get
+        '401':
+          description: Unauthorized - Missing or invalid authentication credentials
+          content:
+            application/json:
+              examples:
+                missing_token:
+                  summary: Missing authentication token
+                  value:
+                    error:
+                      message: Authentication required
+                      code: unauthorized
+                    request_id: 01K8KABR6S16YETA2SZPVBS9SP
+                invalid_token:
+                  summary: Invalid or expired token
+                  value:
+                    error:
+                      message: Invalid authentication token
+                      code: unauthorized
+                    request_id: 01K8KACP7D2XFGHJ9KLM4NPQR8
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: Not Found - The requested resource does not exist
+          content:
+            application/json:
+              examples:
+                resource_not_found:
+                  summary: Resource not found
+                  value:
+                    error:
+                      message: Resource not found
+                      code: not_found
+                    request_id: 01K8KABR6S16YETA2SZPVBS9SP
+                flow_not_found:
+                  summary: Flow not found
+                  value:
+                    error:
+                      message: Flow not found
+                      code: not_found
+                    request_id: 01K8KACP7D2XFGHJ9KLM4NPQR8
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: Internal Server Error - An unexpected error occurred
+          content:
+            application/json:
+              examples:
+                internal_error:
+                  summary: Internal server error
+                  value:
+                    error:
+                      message: Internal server error
+                      code: internal_error
+                    request_id: 01K8KABR6S16YETA2SZPVBS9SP
+                repository_error:
+                  summary: Database error
+                  value:
+                    error:
+                      message: Database operation failed
+                      code: repository_error
+                    request_id: 01K8KACP7D2XFGHJ9KLM4NPQR8
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+      security:
+      - BearerAuth: []
+      - APIKeyAuth: []
+  /api/flows/{flow_id}/versions/{version}/summary:
+    get:
+      tags:
+      - flows
+      summary: List task summaries for flow version
+      description: 'List task execution summaries for a specific flow version.
+
+
+        Returns lightweight task summaries without full output data, reducing
+
+        network overhead when you only need execution metadata.
+
+
+        ## Performance Benefits
+
+        - Excludes potentially large task output fields
+
+        - Significantly faster response times for flows with large outputs
+
+        - Ideal for listing/summary views
+
+
+        ## Use Cases
+
+        - Display execution history in a table/list
+
+        - Check task statuses without downloading full outputs
+
+        - Build dashboards showing execution statistics'
+      operationId: list_flow_summaries_api_flows__flow_id__versions__version__summary_get
+      parameters:
+      - name: flow_id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+          title: Flow Id
+      - name: version
+        in: path
+        required: true
+        schema:
+          type: integer
+          title: Version
+      responses:
+        '200':
+          description: List of task summaries successfully retrieved
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/TaskSummaryResponse'
+                title: Response List Flow Summaries Api Flows  Flow Id  Versions  Version  Summary Get
+        '401':
+          description: Unauthorized - Missing or invalid authentication credentials
+          content:
+            application/json:
+              examples:
+                missing_token:
+                  summary: Missing authentication token
+                  value:
+                    error:
+                      message: Authentication required
+                      code: unauthorized
+                    request_id: 01K8KABR6S16YETA2SZPVBS9SP
+                invalid_token:
+                  summary: Invalid or expired token
+                  value:
+                    error:
+                      message: Invalid authentication token
+                      code: unauthorized
+                    request_id: 01K8KACP7D2XFGHJ9KLM4NPQR8
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: Not Found - The requested resource does not exist
+          content:
+            application/json:
+              examples:
+                resource_not_found:
+                  summary: Resource not found
+                  value:
+                    error:
+                      message: Resource not found
+                      code: not_found
+                    request_id: 01K8KABR6S16YETA2SZPVBS9SP
+                flow_not_found:
+                  summary: Flow not found
+                  value:
+                    error:
+                      message: Flow not found
+                      code: not_found
+                    request_id: 01K8KACP7D2XFGHJ9KLM4NPQR8
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: Internal Server Error - An unexpected error occurred
+          content:
+            application/json:
+              examples:
+                internal_error:
+                  summary: Internal server error
+                  value:
+                    error:
+                      message: Internal server error
+                      code: internal_error
+                    request_id: 01K8KABR6S16YETA2SZPVBS9SP
+                repository_error:
+                  summary: Database error
+                  value:
+                    error:
+                      message: Database operation failed
+                      code: repository_error
+                    request_id: 01K8KACP7D2XFGHJ9KLM4NPQR8
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+      security:
+      - BearerAuth: []
+      - APIKeyAuth: []
+  /api/flows/{flow_id}/tags:
+    get:
+      tags:
+      - flows
+      summary: Get tags for flow executions
+      description: 'Get all unique tag values from task outputs for a specific flow.
+
+
+        Returns distinct tag strings from TaskOutput.tags across all active
+
+        flow executions. Used to populate tag filter dropdowns dynamically.
+
+        When task_name is provided, only returns tags from that specific task.'
+      operationId: get_flow_tags_api_flows__flow_id__tags_get
+      parameters:
+      - name: flow_id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+          title: Flow Id
+      - name: task_name
+        in: query
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Optional task name to scope tags to a specific task
+          title: Task Name
+        description: Optional task name to scope tags to a specific task
+      responses:
+        '200':
+          description: List of unique tags successfully retrieved
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: string
+                title: Response Get Flow Tags Api Flows  Flow Id  Tags Get
+        '403':
+          description: Forbidden - User doesn't have access to this flow
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          description: Unauthorized - Missing or invalid authentication credentials
+          content:
+            application/json:
+              examples:
+                missing_token:
+                  summary: Missing authentication token
+                  value:
+                    error:
+                      message: Authentication required
+                      code: unauthorized
+                    request_id: 01K8KABR6S16YETA2SZPVBS9SP
+                invalid_token:
+                  summary: Invalid or expired token
+                  value:
+                    error:
+                      message: Invalid authentication token
+                      code: unauthorized
+                    request_id: 01K8KACP7D2XFGHJ9KLM4NPQR8
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: Not Found - The requested resource does not exist
+          content:
+            application/json:
+              examples:
+                resource_not_found:
+                  summary: Resource not found
+                  value:
+                    error:
+                      message: Resource not found
+                      code: not_found
+                    request_id: 01K8KABR6S16YETA2SZPVBS9SP
+                flow_not_found:
+                  summary: Flow not found
+                  value:
+                    error:
+                      message: Flow not found
+                      code: not_found
+                    request_id: 01K8KACP7D2XFGHJ9KLM4NPQR8
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: Internal Server Error - An unexpected error occurred
+          content:
+            application/json:
+              examples:
+                internal_error:
+                  summary: Internal server error
+                  value:
+                    error:
+                      message: Internal server error
+                      code: internal_error
+                    request_id: 01K8KABR6S16YETA2SZPVBS9SP
+                repository_error:
+                  summary: Database error
+                  value:
+                    error:
+                      message: Database operation failed
+                      code: repository_error
+                    request_id: 01K8KACP7D2XFGHJ9KLM4NPQR8
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+      security:
+      - BearerAuth: []
+      - APIKeyAuth: []
+  /api/flows/{flow_id}/metadata/keys:
+    get:
+      tags:
+      - flows
+      summary: Get distinct metadata keys for a flow
+      description: 'Get all distinct metadata keys used in runs for this flow.
+
+
+        Retrieve distinct metadata keys with optional search-as-you-type autocomplete.
+
+        Returns up to `limit` keys ordered by the specified field and direction.
+
+
+        Example responses:
+
+        - No search: [{"key": "project", "count": 42}, {"key": "department", "count": 15}]
+
+        - Search "pro": [{"key": "project", "count": 42}, {"key": "product", "count": 10}]'
+      operationId: get_flow_metadata_keys_api_flows__flow_id__metadata_keys_get
+      parameters:
+      - name: flow_id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+          title: Flow Id
+      - name: key_like
+        in: query
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Search filter for key (case-insensitive, supports partial match)
+          title: Key Like
+        description: Search filter for key (case-insensitive, supports partial match)
+      - name: limit
+        in: query
+        required: false
+        schema:
+          type: integer
+          maximum: 100
+          minimum: 1
+          description: Maximum number of keys to return
+          default: 10
+          title: Limit
+        description: Maximum number of keys to return
+      - name: order_by
+        in: query
+        required: false
+        schema:
+          $ref: '#/components/schemas/MetadataOrderBy'
+          description: Field to order by
+          default: created_at
+        description: Field to order by
+      - name: order_direction
+        in: query
+        required: false
+        schema:
+          $ref: '#/components/schemas/OrderDirection'
+          description: Sort direction
+          default: desc
+        description: Sort direction
+      responses:
+        '200':
+          description: List of metadata keys successfully retrieved
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/MetadataKeyResponse'
+                title: Response Get Flow Metadata Keys Api Flows  Flow Id  Metadata Keys Get
+        '403':
+          description: Forbidden - User doesn't have access to this flow
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          description: Unauthorized - Missing or invalid authentication credentials
+          content:
+            application/json:
+              examples:
+                missing_token:
+                  summary: Missing authentication token
+                  value:
+                    error:
+                      message: Authentication required
+                      code: unauthorized
+                    request_id: 01K8KABR6S16YETA2SZPVBS9SP
+                invalid_token:
+                  summary: Invalid or expired token
+                  value:
+                    error:
+                      message: Invalid authentication token
+                      code: unauthorized
+                    request_id: 01K8KACP7D2XFGHJ9KLM4NPQR8
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: Not Found - The requested resource does not exist
+          content:
+            application/json:
+              examples:
+                resource_not_found:
+                  summary: Resource not found
+                  value:
+                    error:
+                      message: Resource not found
+                      code: not_found
+                    request_id: 01K8KABR6S16YETA2SZPVBS9SP
+                flow_not_found:
+                  summary: Flow not found
+                  value:
+                    error:
+                      message: Flow not found
+                      code: not_found
+                    request_id: 01K8KACP7D2XFGHJ9KLM4NPQR8
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: Internal Server Error - An unexpected error occurred
+          content:
+            application/json:
+              examples:
+                internal_error:
+                  summary: Internal server error
+                  value:
+                    error:
+                      message: Internal server error
+                      code: internal_error
+                    request_id: 01K8KABR6S16YETA2SZPVBS9SP
+                repository_error:
+                  summary: Database error
+                  value:
+                    error:
+                      message: Database operation failed
+                      code: repository_error
+                    request_id: 01K8KACP7D2XFGHJ9KLM4NPQR8
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+      security:
+      - BearerAuth: []
+      - APIKeyAuth: []
+  /api/flows/{flow_id}/metadata/values:
+    get:
+      tags:
+      - flows
+      summary: Get distinct values for a metadata key
+      description: 'Get all distinct values for a specific metadata key across all runs.
+
+
+        Retrieve distinct values with optional search-as-you-type autocomplete.
+
+        Returns up to `limit` values ordered by the specified field and direction.
+
+
+        Example: GET /flows/{id}/metadata/values?key=project
+
+        Response: [{"value": "Alpha", "count": 30}, {"value": "Beta", "count": 12}]
+
+
+        Example with search: GET /flows/{id}/metadata/values?key=project&value_like=alp
+
+        Response: [{"value": "Alpha", "count": 30}, {"value": "Alpine", "count": 5}]'
+      operationId: get_flow_metadata_values_api_flows__flow_id__metadata_values_get
+      parameters:
+      - name: flow_id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+          title: Flow Id
+      - name: key
+        in: query
+        required: true
+        schema:
+          type: string
+          description: Metadata key to get values for (case-insensitive)
+          title: Key
+        description: Metadata key to get values for (case-insensitive)
+      - name: value_like
+        in: query
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Search filter for value (case-insensitive, supports partial match)
+          title: Value Like
+        description: Search filter for value (case-insensitive, supports partial match)
+      - name: limit
+        in: query
+        required: false
+        schema:
+          type: integer
+          maximum: 100
+          minimum: 1
+          description: Maximum number of values to return
+          default: 10
+          title: Limit
+        description: Maximum number of values to return
+      - name: order_by
+        in: query
+        required: false
+        schema:
+          $ref: '#/components/schemas/MetadataOrderBy'
+          description: Field to order by
+          default: created_at
+        description: Field to order by
+      - name: order_direction
+        in: query
+        required: false
+        schema:
+          $ref: '#/components/schemas/OrderDirection'
+          description: Sort direction
+          default: desc
+        description: Sort direction
+      responses:
+        '200':
+          description: List of metadata values successfully retrieved
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/MetadataValueResponse'
+                title: Response Get Flow Metadata Values Api Flows  Flow Id  Metadata Values Get
+        '403':
+          description: Forbidden - User doesn't have access to this flow
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          description: Unauthorized - Missing or invalid authentication credentials
+          content:
+            application/json:
+              examples:
+                missing_token:
+                  summary: Missing authentication token
+                  value:
+                    error:
+                      message: Authentication required
+                      code: unauthorized
+                    request_id: 01K8KABR6S16YETA2SZPVBS9SP
+                invalid_token:
+                  summary: Invalid or expired token
+                  value:
+                    error:
+                      message: Invalid authentication token
+                      code: unauthorized
+                    request_id: 01K8KACP7D2XFGHJ9KLM4NPQR8
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: Not Found - The requested resource does not exist
+          content:
+            application/json:
+              examples:
+                resource_not_found:
+                  summary: Resource not found
+                  value:
+                    error:
+                      message: Resource not found
+                      code: not_found
+                    request_id: 01K8KABR6S16YETA2SZPVBS9SP
+                flow_not_found:
+                  summary: Flow not found
+                  value:
+                    error:
+                      message: Flow not found
+                      code: not_found
+                    request_id: 01K8KACP7D2XFGHJ9KLM4NPQR8
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: Internal Server Error - An unexpected error occurred
+          content:
+            application/json:
+              examples:
+                internal_error:
+                  summary: Internal server error
+                  value:
+                    error:
+                      message: Internal server error
+                      code: internal_error
+                    request_id: 01K8KABR6S16YETA2SZPVBS9SP
+                repository_error:
+                  summary: Database error
+                  value:
+                    error:
+                      message: Database operation failed
+                      code: repository_error
+                    request_id: 01K8KACP7D2XFGHJ9KLM4NPQR8
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+      security:
+      - BearerAuth: []
+      - APIKeyAuth: []
+  /api/flows/download-url:
+    post:
+      tags:
+      - flows
+      summary: Generate file download URL
+      description: 'Generate pre-signed URL for downloading a file.
+
+
+        Creates a temporary download URL (valid 1 hour) for a previously uploaded
+
+        file. The requested `file_key` is authorized against the caller''s org before
+
+        signing — a key belonging to another organization returns 404.
+
+
+        ## Download Process
+
+        1. Get file_key from file listing or upload response
+
+        2. Call this endpoint with the file_key
+
+        3. Use returned URL in browser or GET request to download file'
+      operationId: generate_download_url_api_flows_download_url_post
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/GeneratePresignedUrlForDownload'
+        required: true
+      responses:
+        '200':
+          description: Pre-signed download URL successfully generated
+          content:
+            application/json:
+              schema:
+                additionalProperties: true
+                type: object
+                title: Response Generate Download Url Api Flows Download Url Post
+        '400':
+          description: Bad Request - Invalid input parameters or request format
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                generic:
+                  summary: Generic bad request
+                  value:
+                    error:
+                      message: Invalid request parameters
+                      code: bad_request
+                    request_id: 01K8KABR6S16YETA2SZPVBS9SP
+                missing_field:
+                  summary: Missing required field
+                  value:
+                    error:
+                      message: Organization ID is required
+                      code: bad_request
+                    request_id: 01K8KACP7D2XFGHJ9KLM4NPQR8
+        '401':
+          description: Unauthorized - Missing or invalid authentication credentials
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                missing_token:
+                  summary: Missing authentication token
+                  value:
+                    error:
+                      message: Authentication required
+                      code: unauthorized
+                    request_id: 01K8KABR6S16YETA2SZPVBS9SP
+                invalid_token:
+                  summary: Invalid or expired token
+                  value:
+                    error:
+                      message: Invalid authentication token
+                      code: unauthorized
+                    request_id: 01K8KACP7D2XFGHJ9KLM4NPQR8
+        '403':
+          description: Forbidden - Insufficient permissions to access this resource
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                insufficient_permissions:
+                  summary: Insufficient permissions
+                  value:
+                    error:
+                      message: You do not have permission to access this resource
+                      code: forbidden
+                    request_id: 01K8KABR6S16YETA2SZPVBS9SP
+                wrong_organization:
+                  summary: Resource belongs to different organization
+                  value:
+                    error:
+                      message: This resource belongs to a different organization
+                      code: forbidden
+                    request_id: 01K8KACP7D2XFGHJ9KLM4NPQR8
+        '404':
+          description: Not Found - The requested resource does not exist
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                resource_not_found:
+                  summary: Resource not found
+                  value:
+                    error:
+                      message: Resource not found
+                      code: not_found
+                    request_id: 01K8KABR6S16YETA2SZPVBS9SP
+                flow_not_found:
+                  summary: Flow not found
+                  value:
+                    error:
+                      message: Flow not found
+                      code: not_found
+                    request_id: 01K8KACP7D2XFGHJ9KLM4NPQR8
+        '500':
+          description: Internal Server Error - An unexpected error occurred
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                internal_error:
+                  summary: Internal server error
+                  value:
+                    error:
+                      message: Internal server error
+                      code: internal_error
+                    request_id: 01K8KABR6S16YETA2SZPVBS9SP
+                repository_error:
+                  summary: Database error
+                  value:
+                    error:
+                      message: Database operation failed
+                      code: repository_error
+                    request_id: 01K8KACP7D2XFGHJ9KLM4NPQR8
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+      security:
+      - BearerAuth: []
+      - APIKeyAuth: []
+  /api/flows/{flow_id}/invitations:
+    put:
+      tags:
+      - flows
+      summary: Upsert user invitations to a flow
+      description: 'Upsert invitations for multiple users to access a flow.
+
+
+        This endpoint allows admins to invite worker users to specific flows.
+
+        Only users with the **worker role** will be invited - other users are automatically filtered out.
+
+        Invited users will be able to access the flow and its executions through
+
+        the RLS policies enforced at the database level.
+
+
+        ## Permissions
+
+        - Only org_admin role can create/update invitations
+
+        - Users must belong to the same organization as the flow
+
+
+        ## Behavior
+
+        - **Upsert semantics**: Creates new invitations or updates existing ones
+
+        - **Role filtering**: Only users with worker role are invited (others are skipped)
+
+        - If a user_id doesn''t have worker role, it''s silently skipped
+
+        - Returns both invited user IDs and skipped user IDs
+
+        - All operations are performed in a single transaction
+
+
+        ## Use Cases
+
+        - Grant worker access to specific flows
+
+        - Update existing invitations (refresh updated_at timestamp)
+
+        - Manage flow-level permissions for review workflows
+
+        - Enable selective flow visibility for team members
+
+
+        ## Example
+
+        If you send user_ids: [user1, user2, user3, user4] and only user1, user2, user3 have worker role:
+
+        - Response will show invited_user_ids: [user1, user2, user3]
+
+        - Response will show skipped_user_ids: [user4]'
+      operationId: upsert_flow_invitations_api_flows__flow_id__invitations_put
+      parameters:
+      - name: flow_id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+          title: Flow Id
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/FlowInvitationRequest'
+      responses:
+        '200':
+          description: Users successfully invited/updated for the flow
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FlowInvitationBulkResponse'
+        '400':
+          description: Bad Request - Invalid user IDs
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '403':
+          description: Forbidden - User doesn't have permission to manage invitations
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          description: Unauthorized - Missing or invalid authentication credentials
+          content:
+            application/json:
+              examples:
+                missing_token:
+                  summary: Missing authentication token
+                  value:
+                    error:
+                      message: Authentication required
+                      code: unauthorized
+                    request_id: 01K8KABR6S16YETA2SZPVBS9SP
+                invalid_token:
+                  summary: Invalid or expired token
+                  value:
+                    error:
+                      message: Invalid authentication token
+                      code: unauthorized
+                    request_id: 01K8KACP7D2XFGHJ9KLM4NPQR8
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: Not Found - The requested resource does not exist
+          content:
+            application/json:
+              examples:
+                resource_not_found:
+                  summary: Resource not found
+                  value:
+                    error:
+                      message: Resource not found
+                      code: not_found
+                    request_id: 01K8KABR6S16YETA2SZPVBS9SP
+                flow_not_found:
+                  summary: Flow not found
+                  value:
+                    error:
+                      message: Flow not found
+                      code: not_found
+                    request_id: 01K8KACP7D2XFGHJ9KLM4NPQR8
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+      security:
+      - BearerAuth: []
+      - APIKeyAuth: []
+    get:
+      tags:
+      - flows
+      summary: List flow invitations
+      description: 'List all invitations for a specific flow.
+
+
+        Returns all users who have been invited to access this flow.
+
+
+        ## Permissions
+
+        - Only org_admin role can view invitations
+
+        - User must belong to the same organization as the flow'
+      operationId: list_flow_invitations_api_flows__flow_id__invitations_get
+      parameters:
+      - name: flow_id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+          title: Flow Id
+      responses:
+        '200':
+          description: List of invitations successfully retrieved
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/FlowInvitationResponse'
+                title: Response List Flow Invitations Api Flows  Flow Id  Invitations Get
+        '403':
+          description: Forbidden - User doesn't have permission to view invitations
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          description: Unauthorized - Missing or invalid authentication credentials
+          content:
+            application/json:
+              examples:
+                missing_token:
+                  summary: Missing authentication token
+                  value:
+                    error:
+                      message: Authentication required
+                      code: unauthorized
+                    request_id: 01K8KABR6S16YETA2SZPVBS9SP
+                invalid_token:
+                  summary: Invalid or expired token
+                  value:
+                    error:
+                      message: Invalid authentication token
+                      code: unauthorized
+                    request_id: 01K8KACP7D2XFGHJ9KLM4NPQR8
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: Not Found - The requested resource does not exist
+          content:
+            application/json:
+              examples:
+                resource_not_found:
+                  summary: Resource not found
+                  value:
+                    error:
+                      message: Resource not found
+                      code: not_found
+                    request_id: 01K8KABR6S16YETA2SZPVBS9SP
+                flow_not_found:
+                  summary: Flow not found
+                  value:
+                    error:
+                      message: Flow not found
+                      code: not_found
+                    request_id: 01K8KACP7D2XFGHJ9KLM4NPQR8
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+      security:
+      - BearerAuth: []
+      - APIKeyAuth: []
+    delete:
+      tags:
+      - flows
+      summary: Remove user invitations from a flow
+      description: 'Remove invitations for specific users from a flow.
+
+
+        This endpoint allows admins to revoke access for worker users to specific flows.
+
+        Once removed, users will no longer be able to access the flow and its executions
+
+        through the RLS policies enforced at the database level.
+
+
+        ## Permissions
+
+        - Only org_admin role can remove invitations
+
+        - Users must belong to the same organization as the flow
+
+
+        ## Behavior
+
+        - Removes invitations for all specified user IDs
+
+        - Non-existent invitations are silently ignored
+
+        - All deletions are performed in a single transaction
+
+
+        ## Use Cases
+
+        - Revoke worker access from specific flows
+
+        - Manage flow-level permissions for review workflows
+
+        - Remove team members who no longer need access'
+      operationId: delete_flow_invitations_api_flows__flow_id__invitations_delete
+      parameters:
+      - name: flow_id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+          title: Flow Id
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/FlowInvitationRequest'
+      responses:
+        '204':
+          description: Invitations successfully removed
+        '400':
+          description: Bad Request - Invalid user IDs or empty list
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '403':
+          description: Forbidden - User doesn't have permission to remove invitations
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          description: Unauthorized - Missing or invalid authentication credentials
+          content:
+            application/json:
+              examples:
+                missing_token:
+                  summary: Missing authentication token
+                  value:
+                    error:
+                      message: Authentication required
+                      code: unauthorized
+                    request_id: 01K8KABR6S16YETA2SZPVBS9SP
+                invalid_token:
+                  summary: Invalid or expired token
+                  value:
+                    error:
+                      message: Invalid authentication token
+                      code: unauthorized
+                    request_id: 01K8KACP7D2XFGHJ9KLM4NPQR8
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: Not Found - The requested resource does not exist
+          content:
+            application/json:
+              examples:
+                resource_not_found:
+                  summary: Resource not found
+                  value:
+                    error:
+                      message: Resource not found
+                      code: not_found
+                    request_id: 01K8KABR6S16YETA2SZPVBS9SP
+                flow_not_found:
+                  summary: Flow not found
+                  value:
+                    error:
+                      message: Flow not found
+                      code: not_found
+                    request_id: 01K8KACP7D2XFGHJ9KLM4NPQR8
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+      security:
+      - BearerAuth: []
+      - APIKeyAuth: []
+  /api/flows/{flow_id}/team-invitations:
+    put:
+      tags:
+      - flows
+      summary: Upsert team (worker group) invitations to a flow
+      description: 'Invite one or more worker groups (teams) to a flow.
+
+
+        Every current member of the referenced team gains flow visibility via
+
+        the RLS join on `worker_group_members` — no per-member rows are written,
+
+        so membership changes propagate automatically.'
+      operationId: upsert_flow_team_invitations_api_flows__flow_id__team_invitations_put
+      parameters:
+      - name: flow_id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+          title: Flow Id
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/FlowTeamInvitationRequest'
+      responses:
+        '200':
+          description: Teams successfully invited/updated for the flow
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FlowTeamInvitationBulkResponse'
+        '400':
+          description: Bad Request - Invalid worker group IDs
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '403':
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          description: Unauthorized - Missing or invalid authentication credentials
+          content:
+            application/json:
+              examples:
+                missing_token:
+                  summary: Missing authentication token
+                  value:
+                    error:
+                      message: Authentication required
+                      code: unauthorized
+                    request_id: 01K8KABR6S16YETA2SZPVBS9SP
+                invalid_token:
+                  summary: Invalid or expired token
+                  value:
+                    error:
+                      message: Invalid authentication token
+                      code: unauthorized
+                    request_id: 01K8KACP7D2XFGHJ9KLM4NPQR8
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: Not Found - The requested resource does not exist
+          content:
+            application/json:
+              examples:
+                resource_not_found:
+                  summary: Resource not found
+                  value:
+                    error:
+                      message: Resource not found
+                      code: not_found
+                    request_id: 01K8KABR6S16YETA2SZPVBS9SP
+                flow_not_found:
+                  summary: Flow not found
+                  value:
+                    error:
+                      message: Flow not found
+                      code: not_found
+                    request_id: 01K8KACP7D2XFGHJ9KLM4NPQR8
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+      security:
+      - BearerAuth: []
+      - APIKeyAuth: []
+    get:
+      tags:
+      - flows
+      summary: List team invitations for a flow
+      description: List every team invited to the flow, with current member counts.
+      operationId: list_flow_team_invitations_api_flows__flow_id__team_invitations_get
+      parameters:
+      - name: flow_id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+          title: Flow Id
+      responses:
+        '200':
+          description: List of team invitations retrieved
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/FlowTeamInvitationResponse'
+                title: Response List Flow Team Invitations Api Flows  Flow Id  Team Invitations Get
+        '403':
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          description: Unauthorized - Missing or invalid authentication credentials
+          content:
+            application/json:
+              examples:
+                missing_token:
+                  summary: Missing authentication token
+                  value:
+                    error:
+                      message: Authentication required
+                      code: unauthorized
+                    request_id: 01K8KABR6S16YETA2SZPVBS9SP
+                invalid_token:
+                  summary: Invalid or expired token
+                  value:
+                    error:
+                      message: Invalid authentication token
+                      code: unauthorized
+                    request_id: 01K8KACP7D2XFGHJ9KLM4NPQR8
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: Not Found - The requested resource does not exist
+          content:
+            application/json:
+              examples:
+                resource_not_found:
+                  summary: Resource not found
+                  value:
+                    error:
+                      message: Resource not found
+                      code: not_found
+                    request_id: 01K8KABR6S16YETA2SZPVBS9SP
+                flow_not_found:
+                  summary: Flow not found
+                  value:
+                    error:
+                      message: Flow not found
+                      code: not_found
+                    request_id: 01K8KACP7D2XFGHJ9KLM4NPQR8
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+      security:
+      - BearerAuth: []
+      - APIKeyAuth: []
+    delete:
+      tags:
+      - flows
+      summary: Remove team invitations from a flow
+      description: 'Remove team invitations; members lose access unless they''re invited individually
+
+        or via another team still on the flow.'
+      operationId: delete_flow_team_invitations_api_flows__flow_id__team_invitations_delete
+      parameters:
+      - name: flow_id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+          title: Flow Id
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/FlowTeamInvitationRequest'
+      responses:
+        '204':
+          description: Team invitations successfully removed
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '403':
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          description: Unauthorized - Missing or invalid authentication credentials
+          content:
+            application/json:
+              examples:
+                missing_token:
+                  summary: Missing authentication token
+                  value:
+                    error:
+                      message: Authentication required
+                      code: unauthorized
+                    request_id: 01K8KABR6S16YETA2SZPVBS9SP
+                invalid_token:
+                  summary: Invalid or expired token
+                  value:
+                    error:
+                      message: Invalid authentication token
+                      code: unauthorized
+                    request_id: 01K8KACP7D2XFGHJ9KLM4NPQR8
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: Not Found - The requested resource does not exist
+          content:
+            application/json:
+              examples:
+                resource_not_found:
+                  summary: Resource not found
+                  value:
+                    error:
+                      message: Resource not found
+                      code: not_found
+                    request_id: 01K8KABR6S16YETA2SZPVBS9SP
+                flow_not_found:
+                  summary: Flow not found
+                  value:
+                    error:
+                      message: Flow not found
+                      code: not_found
+                    request_id: 01K8KACP7D2XFGHJ9KLM4NPQR8
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+      security:
+      - BearerAuth: []
+      - APIKeyAuth: []
+components:
+  schemas:
+    OrderDirection:
+      type: string
+      enum:
+      - asc
+      - desc
+      title: OrderDirection
+      description: Enum for sort direction.
+    PaginatedFlowVersionSummaryResponse:
+      properties:
+        versions:
+          items:
+            $ref: '#/components/schemas/FlowVersionSummary'
+          type: array
+          title: Versions
+        total:
+          type: integer
+          title: Total
+        page:
+          type: integer
+          title: Page
+        page_size:
+          type: integer
+          title: Page Size
+      type: object
+      required:
+      - versions
+      - total
+      - page
+      - page_size
+      title: PaginatedFlowVersionSummaryResponse
+    ValidationError:
+      properties:
+        loc:
+          items:
+            anyOf:
+            - type: string
+            - type: integer
+          type: array
+          title: Location
+        msg:
+          type: string
+          title: Message
+        type:
+          type: string
+          title: Error Type
+      type: object
+      required:
+      - loc
+      - msg
+      - type
+      title: ValidationError
+    MetadataOrderBy:
+      type: string
+      enum:
+      - created_at
+      title: MetadataOrderBy
+      description: Enum for metadata ordering options.
+    ErrorDetails:
+      properties:
+        type:
+          type: string
+          title: Type
+        loc:
+          items:
+            anyOf:
+            - type: integer
+            - type: string
+          type: array
+          title: Loc
+        msg:
+          type: string
+          title: Msg
+        input:
+          title: Input
+        ctx:
+          additionalProperties: true
+          type: object
+          title: Ctx
+        url:
+          type: string
+          title: Url
+      type: object
+      required:
+      - type
+      - loc
+      - msg
+      - input
+      title: ErrorDetails
+    FlowTeamInvitationRequest:
+      properties:
+        worker_group_ids:
+          items:
+            type: string
+            format: uuid
+          type: array
+          minItems: 1
+          title: Worker Group Ids
+          description: List of worker group IDs to invite to the flow
+      type: object
+      required:
+      - worker_group_ids
+      title: FlowTeamInvitationRequest
+      description: Request model for creating flow team invitations.
+    ErrorDetail:
+      properties:
+        message:
+          type: string
+          title: Message
+          description: Human-readable error message
+        code:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Code
+          description: Machine-readable error code for programmatic handling
+        details:
+          anyOf:
+          - items:
+              type: string
+            type: array
+          - items:
+              additionalProperties: true
+              type: object
+            type: array
+          - additionalProperties: true
+            type: object
+          - type: 'null'
+          title: Details
+          description: Additional error context, validation errors, or debugging information
+      type: object
+      required:
+      - message
+      title: ErrorDetail
+      description: 'Standard error detail structure.
+
+
+        This model matches the error format returned by the centralized
+
+        exception handlers in app/api/errors/handlers.py.'
+    FlowInvitationResponse:
+      properties:
+        flow_id:
+          type: string
+          format: uuid
+          title: Flow Id
+        user_id:
+          type: string
+          format: uuid
+          title: User Id
+        email:
+          type: string
+          title: Email
+        first_name:
+          type: string
+          title: First Name
+        last_name:
+          type: string
+          title: Last Name
+        role:
+          $ref: '#/components/schemas/UserRole'
+        organization_id:
+          type: string
+          format: uuid
+          title: Organization Id
+        created_at:
+          type: string
+          format: date-time
+          title: Created At
+        updated_at:
+          type: string
+          format: date-time
+          title: Updated At
+      type: object
+      required:
+      - flow_id
+      - user_id
+      - email
+      - first_name
+      - last_name
+      - role
+      - organization_id
+      - created_at
+      - updated_at
+      title: FlowInvitationResponse
+      description: Response model for a flow invitation.
+    UserRole:
+      type: string
+      enum:
+      - org_admin
+      - backoffice
+      - app_user
+      - worker
+      - publisher
+      - integration
+      title: UserRole
+    GeneratePresignedUrlForDownload:
+      properties:
+        file_key:
+          type: string
+          title: File Key
+      type: object
+      required:
+      - file_key
+      title: GeneratePresignedUrlForDownload
+      description: Model for generating a pre-signed URL for downloading a file.
+    TaskSummaryResponse:
+      properties:
+        id:
+          type: string
+          format: uuid
+          title: Id
+        created_at:
+          type: string
+          format: date-time
+          title: Created At
+        updated_at:
+          type: string
+          format: date-time
+          title: Updated At
+        modified_by:
+          type: string
+          title: Modified By
+        flow_execution_id:
+          type: string
+          format: uuid
+          title: Flow Execution Id
+          description: UUID of the parent flow execution containing this task
+          examples:
+          - 550e8400-e29b-41d4-a716-446655440000
+        task_name:
+          type: string
+          maxLength: 255
+          minLength: 1
+          title: Task Name
+          description: Name of the task as defined in the flow definition. Case-sensitive.
+          examples:
+          - process_document
+        summary:
+          title: Summary
+          description: Task execution summary data. Structure varies by task type. May contain results, metrics, or status information.
+          examples:
+          - duration_seconds: 12.5
+            processed_items: 42
+        processing_status:
+          $ref: '#/components/schemas/ProcessingStatus'
+          description: 'Processing lifecycle status of the task. Common values: ''running'', ''completed'', ''failed'''
+          examples:
+          - completed
+        edited_status:
+          $ref: '#/components/schemas/TaskOutputEditedStatus'
+          description: 'Whether this task output was manually edited. Values: ''not_edited'', ''edited'''
+          examples:
+          - not_edited
+        stale_status:
+          $ref: '#/components/schemas/StaleStatus'
+          description: 'Whether this task output is outdated. Values: ''consistent'', ''stale'''
+          examples:
+          - consistent
+        tags:
+          anyOf:
+          - items:
+              type: string
+            type: array
+          - type: 'null'
+          title: Tags
+          description: 'Optional list of tags associated with this task. Tags use key:value format for categorization. Example: [''priority:high'', ''department:finance'']'
+          examples:
+          - priority:high
+          - type:extraction
+        flow_version:
+          anyOf:
+          - type: integer
+            minimum: 1.0
+          - type: 'null'
+          title: Flow Version
+          description: Version of the flow definition when this task executed. May differ from current flow version if flow was updated.
+          examples:
+          - 3
+      type: object
+      required:
+      - id
+      - created_at
+      - updated_at
+      - modified_by
+      - flow_execution_id
+      - task_name
+      - summary
+      - processing_status
+      - edited_status
+      - stale_status
+      title: TaskSummaryResponse
+      description: 'Summary of a task execution within a flow execution.
+
+
+        Represents aggregated task information with status and metadata.
+
+        Used for displaying task-level details in execution views.'
+    MetadataValueResponse:
+      properties:
+        value:
+          type: string
+          title: Value
+          description: Metadata value
+        count:
+          type: integer
+          title: Count
+          description: Number of executions with this value
+      type: object
+      required:
+      - value
+      - count
+      title: MetadataValueResponse
+      description: Response model for metadata value discovery.
+    FlowInvitationRequest:
+      properties:
+        user_ids:
+          items:
+            type: string
+            format: uuid
+          type: array
+          minItems: 1
+          title: User Ids
+          description: List of user IDs to invite to the flow
+      type: object
+      required:
+      - user_ids
+      title: FlowInvitationRequest
+      description: Request model for creating flow invitations.
+    PatchFlowRequest:
+      properties:
+        display_name:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Display Name
+          description: New display name for the flow
+        description:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Description
+          description: New description
+        visibility:
+          anyOf:
+          - {}
+          - type: 'null'
+          title: Visibility
+          description: New visibility setting
+        settings:
+          anyOf:
+          - $ref: '#/components/schemas/FlowSettings'
+          - type: 'null'
+          description: New settings (replaces existing).
+        status:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Status
+          description: 'New status. Valid values: ''draft'' or ''published''. Currently all transitions are allowed.'
+        tags:
+          anyOf:
+          - items:
+              type: string
+            type: array
+            uniqueItems: true
+          - type: 'null'
+          title: Tags
+      type: object
+      title: PatchFlowRequest
+      description: 'Request body for partially updating a flow.
+
+
+        All fields are optional - only provided fields will be updated.'
+    TaskOutputEditedStatus:
+      type: string
+      enum:
+      - not_edited
+      - edited
+      title: TaskOutputEditedStatus
+      description: "Aggregated edited status for a task output.\n\nValues:\n    - not_edited: All task executions have not_edited status\n    - edited: At least one task execution has edited_not_reexecuted or edited_reexecuted status"
+    FlowResponse:
+      properties:
+        id:
+          type: string
+          format: uuid
+          title: Id
+        created_at:
+          type: string
+          format: date-time
+          title: Created At
+        updated_at:
+          type: string
+          format: date-time
+          title: Updated At
+        modified_by:
+          type: string
+          title: Modified By
+        display_name:
+          type: string
+          title: Display Name
+          description: Human-readable flow name
+        description:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Description
+          description: Detailed flow description
+        version:
+          type: integer
+          minimum: 1.0
+          title: Version
+          description: Flow version number. Increments on each update.
+        status:
+          type: string
+          title: Status
+          description: 'Flow lifecycle status. Values: ''draft'' (editable), ''published'' (ready for production use)'
+        is_latest:
+          type: boolean
+          title: Is Latest
+          description: Whether this is the latest version of the flow
+        organization_id:
+          type: string
+          format: uuid
+          title: Organization Id
+          description: Organization that owns this flow
+        definition:
+          additionalProperties: true
+          type: object
+          title: Definition
+          description: Complete flow definition in DSL format. May be enriched with additional fields when using expansion parameters (include_dynamic_data, include_output_schemas). Enriched fields are added to each task within definition.tasks[].
+        settings:
+          anyOf:
+          - $ref: '#/components/schemas/FlowSettings'
+          - type: 'null'
+          description: Flow-level configuration settings
+        flow_executions_count:
+          type: integer
+          title: Flow Executions Count
+          description: Total number of times this flow has been executed across all versions
+          default: 0
+        latest_version_executions_count:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Latest Version Executions Count
+          description: Number of executions on the most recent flow version that has any runs — the dataset calibration samples. Only included when include_latest_version_executions_count=true.
+        task_names:
+          anyOf:
+          - items:
+              type: string
+            type: array
+          - type: 'null'
+          title: Task Names
+          description: Topologically sorted list of task names in execution order. Only included when include_ordered_task_names=true. Useful for visualizing task dependencies and execution flow.
+        validation_errors:
+          anyOf:
+          - items:
+              $ref: '#/components/schemas/ErrorDetails'
+            type: array
+          - type: 'null'
+          title: Validation Errors
+          description: DSL validation errors if the flow definition is malformed. Only included when include_validation_errors=true. Empty list indicates a valid flow. Each error contains location and message details.
+        tags:
+          items:
+            type: string
+          type: array
+          uniqueItems: true
+          title: Tags
+        deleted:
+          type: boolean
+          title: Deleted
+          default: false
+      type: object
+      required:
+      - id
+      - created_at
+      - updated_at
+      - modified_by
+      - display_name
+      - version
+      - status
+      - is_latest
+      - organization_id
+      - definition
+      title: FlowResponse
+      description: 'Response model for a flow object.
+
+
+        Represents a complete flow definition with metadata, execution statistics,
+
+        and optional computed fields. Use query parameters to include additional
+
+        fields that require extra processing.
+
+
+        ## Expansion Parameters
+
+
+        Control which computed fields are included using these query parameters:
+
+
+        - `include_ordered_task_names`: Adds `task_names` field with topological sort
+
+        - `include_validation_errors`: Adds `validation_errors` field if flow is invalid
+
+        - `include_dynamic_data`: Enriches each task in `definition` with runtime config options
+
+        - `include_output_schemas`: Enriches each task in `definition` with JSON schema
+
+
+        ## Performance Considerations
+
+
+        Each expansion parameter adds processing overhead. Only request fields you need:
+
+
+        - Base response: ~50-100ms
+
+        - `+ include_ordered_task_names`: +50ms for 20+ tasks
+
+        - `+ include_dynamic_data`: +100-500ms (calls external APIs)
+
+        - `+ include_output_schemas`: +10-50ms
+
+        - `+ include_validation_errors`: No overhead (always validated)'
+    TTLSettings:
+      properties:
+        seconds:
+          anyOf:
+          - type: integer
+            maximum: 5097600.0
+            minimum: 60.0
+          - type: 'null'
+          title: Seconds
+          description: TTL in seconds after completion (1 minute to 30 days). Required when enabled=True.
+      type: object
+      title: TTLSettings
+      description: TTL configuration for flow executions.
+    UpdateFlowVersionMetadata:
+      properties:
+        name:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Name
+        is_favourite:
+          anyOf:
+          - type: boolean
+          - type: 'null'
+          title: Is Favourite
+      type: object
+      title: UpdateFlowVersionMetadata
+    FlowTeamInvitationBulkResponse:
+      properties:
+        flow_id:
+          type: string
+          format: uuid
+          title: Flow Id
+        invited_worker_group_ids:
+          items:
+            type: string
+            format: uuid
+          type: array
+          title: Invited Worker Group Ids
+        total_invitations:
+          type: integer
+          title: Total Invitations
+        skipped_worker_group_ids:
+          items:
+            type: string
+            format: uuid
+          type: array
+          title: Skipped Worker Group Ids
+          description: Worker group IDs that were skipped (not found or soft-deleted)
+        message:
+          type: string
+          title: Message
+      type: object
+      required:
+      - flow_id
+      - invited_worker_group_ids
+      - total_invitations
+      - message
+      title: FlowTeamInvitationBulkResponse
+      description: Response model for bulk team invitation creation/update.
+    FlowCreateRequest:
+      properties:
+        display_name:
+          type: string
+          maxLength: 255
+          minLength: 1
+          title: Display Name
+          description: Human-readable name for the flow. Displayed in UI and logs.
+        description:
+          anyOf:
+          - type: string
+            maxLength: 5000
+          - type: 'null'
+          title: Description
+          description: Optional detailed description of the flow's purpose and behavior. Supports markdown.
+        definition:
+          additionalProperties: true
+          type: object
+          title: Definition
+          description: Flow definition in DSL format. The definition contains a 'flow' metadata object and a 'flow_configs' array with task configurations. Each task has a unique 'name' (UUID), 'task_executor_name' (the task type), 'task_title' (display name), 'parameters' (executor-specific config), and optional 'visual_properties' for UI layout. Tasks reference upstream outputs using '{{task_name.output_field}}' template syntax in their parameters to define dependencies.
+          examples:
+          - flow:
+              author_uuid: ''
+              created_at: ''
+            flow_configs:
+            - config:
+                groups: []
+                notes: []
+                tasks:
+                - is_schedulable_executor: false
+                  name: e264bc8d-d6d3-4bef-a18e-a27ad491cd26
+                  parameters: {}
+                  task_executor_name: receive_file
+                  task_title: Receive File
+                  visual_properties:
+                    collapsed: false
+                    position:
+                      x: 584.5
+                      y: 359.5
+                    zIndex: 2
+                - is_schedulable_executor: false
+                  name: 6ef3e60a-94e7-48b0-adbf-80d3ef81c3a6
+                  parameters:
+                    document_url: '{{e264bc8d-d6d3-4bef-a18e-a27ad491cd26.document_url}}'
+                    fields:
+                    - columns: []
+                      data_type: int
+                      id: InvoiceID
+                      instructions: ''
+                      title: Invoice ID
+                    worker: gpt-4.1
+                  task_executor_name: doc_to_structured
+                  task_title: Doc To Structured
+                  visual_properties:
+                    collapsed: false
+                    position:
+                      x: 1170
+                      y: 360
+                    zIndex: 2
+              meta:
+                description: Extract data from invoices
+                name: Invoice Processing
+        visibility:
+          anyOf:
+          - {}
+          - type: 'null'
+          title: Visibility
+          description: 'Access control level. Determines who can view and execute this flow. Options: ''private'' (creator only), ''organization'' (all org members), ''public'' (anyone with link).'
+        settings:
+          anyOf:
+          - $ref: '#/components/schemas/FlowSettings'
+          - type: 'null'
+          description: Flow-level configuration settings.
+        tags:
+          items:
+            type: string
+          type: array
+          uniqueItems: true
+          title: Tags
+      type: object
+      required:
+      - display_name
+      - definition
+      title: FlowCreateRequest
+      description: 'Request body for creating a new flow.
+
+
+        Flows represent workflow definitions with tasks, dependencies, and execution logic.
+
+        Upon creation, flows are assigned version 1 and status ''draft''.'
+    MetadataKeyResponse:
+      properties:
+        key:
+          type: string
+          title: Key
+          description: Metadata key name
+        count:
+          type: integer
+          title: Count
+          description: Number of executions with this key
+      type: object
+      required:
+      - key
+      - count
+      title: MetadataKeyResponse
+      description: Response model for metadata key discovery.
+    FlowSettings:
+      properties:
+        ttl:
+          $ref: '#/components/schemas/TTLSettings'
+          description: Time-to-live settings for automatic execution deletion
+          default: {}
+        reexecute_on_update:
+          type: boolean
+          title: Reexecute On Update
+          description: Reexecute stale tasks on flow update
+          default: false
+        review_view_id:
+          anyOf:
+          - type: string
+            format: uuid
+          - type: 'null'
+          title: Review View Id
+          description: Reference to FlowView for review navigation. Determines which tasks are visible when reviewing runs from Runs View.
+      type: object
+      title: FlowSettings
+      description: Flow-level settings configuration.
+    FlowCloneInfoResponse:
+      properties:
+        has_external_input_tasks:
+          type: boolean
+          title: Has External Input Tasks
+          description: Whether the flow has input tasks that receive data from external sources
+        external_input_task_names:
+          items:
+            type: string
+          type: array
+          title: External Input Task Names
+          description: List of task executor names for external input tasks (e.g., 'receive_email', 'google_drive_receive')
+      type: object
+      required:
+      - has_external_input_tasks
+      title: FlowCloneInfoResponse
+      description: Response indicating whether a flow has external input tasks that need attention when cloning.
+    ErrorResponse:
+      properties:
+        error:
+          $ref: '#/components/schemas/ErrorDetail'
+        request_id:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Request Id
+          description: 'Unique request identifier in ULID format for debugging and support. Example: 01K8KABR6S16YETA2SZPVBS9SP'
+      type: object
+      required:
+      - error
+      title: ErrorResponse
+      description: "Standard API error response structure.\n\nAll error responses from the API follow this format, ensuring\nconsistent error handling for API consumers.\n\nExample:\n    {\n        \"error\": {\n            \"message\": \"Flow not found\",\n            \"code\": \"not_found\"\n        },\n        \"request_id\": \"01K8KABR6S16YETA2SZPVBS9SP\"\n    }"
+      examples:
+      - error:
+          code: not_found
+          message: Resource not found
+        request_id: 01K8KABR6S16YETA2SZPVBS9SP
+    ProcessingStatus:
+      type: string
+      enum:
+      - queued
+      - running
+      - completed
+      - failed
+      - deleted
+      - awaiting_input
+      - cancel_requested
+      - cancelled
+      title: ProcessingStatus
+      description: "Valid status values for task processing lifecycle.\n\nUsed by task_execution and task_output tables to track where a task\nis in its processing pipeline, independent of data consistency state.\n\nStatus Transitions:\n    queued → running → completed\n                     → failed\n    running/awaiting_input → cancel_requested → cancelled\n    Any status → deleted (soft delete)"
+    HTTPValidationError:
+      properties:
+        detail:
+          items:
+            $ref: '#/components/schemas/ValidationError'
+          type: array
+          title: Detail
+      type: object
+      title: HTTPValidationError
+    FlowTeamInvitationResponse:
+      properties:
+        flow_id:
+          type: string
+          format: uuid
+          title: Flow Id
+        worker_group_id:
+          type: string
+          format: uuid
+          title: Worker Group Id
+        worker_group_name:
+          type: string
+          title: Worker Group Name
+        member_count:
+          type: integer
+          title: Member Count
+        organization_id:
+          type: string
+          format: uuid
+          title: Organization Id
+        created_at:
+          type: string
+          format: date-time
+          title: Created At
+        updated_at:
+          type: string
+          format: date-time
+          title: Updated At
+      type: object
+      required:
+      - flow_id
+      - worker_group_id
+      - worker_group_name
+      - member_count
+      - organization_id
+      - created_at
+      - updated_at
+      title: FlowTeamInvitationResponse
+      description: Response model for a single flow team invitation.
+    StaleStatus:
+      type: string
+      enum:
+      - consistent
+      - stale
+      title: StaleStatus
+      description: "Tracks whether task data is consistent with upstream changes.\n\nOrthogonal to edited_status — a task can be both \"edited\" and \"stale\".\n\nValues:\n    - consistent: Data is up-to-date with all upstream dependencies\n    - stale: Data is outdated due to an upstream edit and should be recalculated"
+    FlowDefinitionUpdate:
+      properties:
+        definition:
+          additionalProperties: true
+          type: object
+          title: Definition
+          description: Flow definition in DSL format. The definition contains a 'flow' metadata object and a 'flow_configs' array with task configurations. Each task has a unique 'name' (UUID), 'task_executor_name' (the task type), 'task_title' (display name), 'parameters' (executor-specific config), and optional 'visual_properties' for UI layout. Tasks reference upstream outputs using '{{task_name.output_field}}' template syntax in their parameters to define dependencies.
+          examples:
+          - flow:
+              author_uuid: ''
+              created_at: ''
+            flow_configs:
+            - config:
+                groups: []
+                notes: []
+                tasks:
+                - is_schedulable_executor: false
+                  name: e264bc8d-d6d3-4bef-a18e-a27ad491cd26
+                  parameters: {}
+                  task_executor_name: receive_file
+                  task_title: Receive File
+                  visual_properties:
+                    collapsed: false
+                    position:
+                      x: 584.5
+                      y: 359.5
+                    zIndex: 2
+                - is_schedulable_executor: false
+                  name: 6ef3e60a-94e7-48b0-adbf-80d3ef81c3a6
+                  parameters:
+                    document_url: '{{e264bc8d-d6d3-4bef-a18e-a27ad491cd26.document_url}}'
+                    fields:
+                    - columns: []
+                      data_type: int
+                      id: InvoiceID
+                      instructions: ''
+                      title: Invoice ID
+                    worker: gpt-4.1
+                  task_executor_name: doc_to_structured
+                  task_title: Doc To Structured
+                  visual_properties:
+                    collapsed: false
+                    position:
+                      x: 1170
+                      y: 360
+                    zIndex: 2
+              meta:
+                description: Extract data from invoices
+                name: Invoice Processing
+      type: object
+      required:
+      - definition
+      title: FlowDefinitionUpdate
+      description: Model for flow definition update request.
+    FlowVersionSummary:
+      properties:
+        version:
+          type: integer
+          title: Version
+        created_at:
+          type: string
+          format: date-time
+          title: Created At
+        updated_at:
+          type: string
+          format: date-time
+          title: Updated At
+        modified_by:
+          type: string
+          title: Modified By
+        is_latest:
+          type: boolean
+          title: Is Latest
+        name:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Name
+        is_favourite:
+          type: boolean
+          title: Is Favourite
+          default: false
+      type: object
+      required:
+      - version
+      - created_at
+      - updated_at
+      - modified_by
+      - is_latest
+      title: FlowVersionSummary
+      description: Lightweight version metadata for the version history sidebar.
+    FlowInvitationBulkResponse:
+      properties:
+        flow_id:
+          type: string
+          format: uuid
+          title: Flow Id
+        invited_user_ids:
+          items:
+            type: string
+            format: uuid
+          type: array
+          title: Invited User Ids
+        total_invitations:
+          type: integer
+          title: Total Invitations
+        skipped_user_ids:
+          items:
+            type: string
+            format: uuid
+          type: array
+          title: Skipped User Ids
+          description: User IDs that were skipped (not worker/publisher role)
+        message:
+          type: string
+          title: Message
+      type: object
+      required:
+      - flow_id
+      - invited_user_ids
+      - total_invitations
+      - message
+      title: FlowInvitationBulkResponse
+      description: Response model for bulk invitation creation/update.
+    FlowValidationResponse:
+      properties:
+        validation_errors:
+          items:
+            $ref: '#/components/schemas/ErrorDetails'
+          type: array
+          title: Validation Errors
+        ordered_task_names:
+          anyOf:
+          - items:
+              type: string
+            type: array
+          - type: 'null'
+          title: Ordered Task Names
+        dynamic_data:
+          anyOf:
+          - additionalProperties: true
+            type: object
+          - type: 'null'
+          title: Dynamic Data
+        output_schemas:
+          anyOf:
+          - additionalProperties: true
+            type: object
+          - type: 'null'
+          title: Output Schemas
+        default_reference_modes:
+          anyOf:
+          - additionalProperties: true
+            type: object
+          - type: 'null'
+          title: Default Reference Modes
+      type: object
+      required:
+      - validation_errors
+      title: FlowValidationResponse
+      description: Response model for validate-only endpoint (no persistence).
+    PaginatedFlowResponse:
+      properties:
+        flows:
+          items:
+            $ref: '#/components/schemas/FlowResponse'
+          type: array
+          title: Flows
+        total:
+          type: integer
+          title: Total
+        page:
+          type: integer
+          title: Page
+        page_size:
+          type: integer
+          title: Page Size
+      type: object
+      required:
+      - flows
+      - total
+      - page
+      - page_size
+      title: PaginatedFlowResponse
+      description: Paginated response for flows list.
+  securitySchemes:
+    BearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+      description: 'JWT Bearer token authentication. Include your access token in the Authorization header as: `Bearer YOUR_ACCESS_TOKEN`
+
+
+        Example:
+
+        ```
+
+        Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
+
+        ```'
+    APIKeyAuth:
+      type: apiKey
+      name: X-API-Key
+      in: header
+      description: 'API key authentication. Include your API key in the X-API-Key header as: `X-API-Key YOUR_API_KEY`
+
+
+        Example:
+
+        ```
+
+        X-API-Key: saf_1234567890
+
+        ```'

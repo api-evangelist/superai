@@ -1,0 +1,298 @@
+openapi: 3.1.0
+info:
+  title: SuperAI Flow Platform auth task-executors API
+  description: "SuperAI Flows is a workflow orchestration platform that enables you to design, deploy, and monitor automated workflows at scale.\n\nBuild complex workflows using our declarative YAML DSL, execute them reliably, and integrate seamlessly with AI models, cloud storage, and enterprise systems.\n\n**Key Capabilities:**\n- **Workflow Management**: Define workflows as code with version control and automated execution\n- **Task Orchestration**: Chain together API calls, data processing, and AI operations\n- **Real-time Monitoring**: Track execution progress with WebSocket notifications and comprehensive logging\n- **Multi-tenant Architecture**: Organization-scoped resources with role-based access control\n\n**API Versioning and Breaking Changes:**\n\nWe follow a strict compatibility policy to ensure your integrations remain stable:\n\n- **Non-breaking changes** (safe, no action required):\n  - Adding new API endpoints\n  - Adding new optional query parameters to existing endpoints\n  - Adding new fields to API responses\n  - Adding new values to existing enums\n\n- **Breaking changes** (requires client updates):\n  - Removing or renaming API endpoints\n  - Removing query parameters or request fields\n  - Removing response fields\n  - Changing field types or validation rules\n  - Removing values from existing enums\n\n**Client Implementation Requirements:**\n\nYour API clients MUST be designed to gracefully handle additional fields in responses. We may add new fields to any response object without considering this a breaking change. Ensure your JSON parsers ignore unknown fields rather than raising errors.\n\n**Backward Compatibility Guarantee:**\n\nWe commit to maintaining backward compatibility for all non-breaking changes. Breaking changes will be:\n- Announced at least 15 days in advance\n- Documented in our changelog with migration guide\n\nFor the latest API updates and migration guides, see our changelog."
+  version: 0.1.0
+tags:
+- name: task-executors
+  description: 'Task executor operations for discovering available task types and their capabilities.
+
+
+    Task executors define the available task types that can be used in flow definitions. Each executor specifies its input schema, execution behavior, and capabilities. This endpoint enables programmatic discovery of task types for building flows dynamically.
+
+
+    **What task executors provide:**
+
+    - **Input Schema**: JSON Schema defining required and optional parameters
+
+    - **Output Schema**: Expected output structure and data types
+
+    - **Description**: Human-readable explanation of functionality
+
+    - **Agent Prompts**: Instructions for AI-powered flow generation
+
+
+    **Use these endpoints to:**
+
+    - Discover available task types for flow building
+
+    - View task input/output schemas for validation
+
+    - Understand task capabilities and requirements
+
+    - Build flow builder UIs with dynamic task lists
+
+    - Enable AI agents to select appropriate tasks
+
+
+    Task executors enable dynamic, flexible workflow creation by providing a registry of available operations.'
+  x-displayName: Task Executors
+paths:
+  /api/task-executors:
+    get:
+      tags:
+      - task-executors
+      summary: List all available task executors
+      description: "List all available task executors for workflow composition.\n\n**Overview**\nTask executors are reusable building blocks for workflows. Each executor performs\na specific operation (send email, extract data, classify documents, etc.). This\nendpoint provides discovery of all registered executors with their schemas,\nenabling programmatic flow builder UIs and validation.\n\n**What are Task Executors?**\nTask executors are typed workflow components that:\n- Accept configuration parameters (e.g., API keys, endpoints, templates)\n- Optionally receive runtime input data (for input executors)\n- Perform an operation (API call, data transformation, ML inference)\n- Return structured output for downstream tasks\n- Support scheduling (for compatible executors)\n\n**Executor Categories**\n1. Input Executors (is_input_task_executor=true):\n   - Trigger flows from external sources\n   - Examples: receive_email, webhook_receive, receive_file\n   - Have flow_input_schema defining incoming data\n\n2. Processing Executors (is_input_task_executor=false):\n   - Transform data within flows\n   - Examples: doc_to_structured, classify_text, format_data\n   - No flow_input_schema (work on task outputs)\n\n3. Output Executors:\n   - Send data to external systems\n   - Examples: send_email, webhook_notification, external_db\n   - Can be terminal tasks in flows\n\n4. Schedulable Executors (is_schedulable_executor=true):\n   - Support time-based triggers\n   - Examples: scheduled_db_query\n   - Can run on cron schedules\n\n**Response Format**\nReturns array of TaskExecutorResponse objects containing:\n- Executor metadata (name, description, agent prompt)\n- Configuration schema (parameters_schema) - JSON Schema for static config\n- Runtime input schema (flow_input_schema) - JSON Schema for dynamic data\n- Capability flags (is_input_task_executor, is_schedulable_executor)\n\n**Schema Usage**\n- parameters_schema: Generate configuration UI, validate flow definitions\n- flow_input_schema: Validate incoming webhook/email/file data\n- Both schemas follow JSON Schema Draft 2020-12 specification\n\n**Use Cases**\n- Flow Builder UI: Display available task types with autocomplete\n- AI Agents: Use agent_prompt to intelligently select executors\n- Validation: Check flow definitions against executor schemas\n- Documentation: Generate API reference from executor metadata\n- Client SDKs: Generate type-safe executor configuration classes\n\n**Executor Registration**\nTask executors are registered via TaskExecutorsManager (flow-sdk).\nTo add custom executors, see flow-sdk/src/flow_sdk/task_executors/README.md\n\n**Performance Notes**\n- Response cached for 5 minutes (executors rarely change)\n- Typical response size: ~50-100 executors, 200-500KB\n- Schemas can be large (1-10KB per executor)\n- Consider client-side caching for production use\n\n**Related Endpoints**\n- POST /flows - Create flow using discovered executors\n- GET /flows/{id} - View flow definition with executor references\n- POST /task-data - Get task output schemas for flow validation"
+      operationId: get_task_executors_api_task_executors_get
+      responses:
+        '200':
+          description: List of task executors successfully retrieved
+          content:
+            application/json:
+              schema:
+                items:
+                  $ref: '#/components/schemas/TaskExecutorResponse'
+                type: array
+                title: Response Get Task Executors Api Task Executors Get
+        '500':
+          description: Internal Server Error - An unexpected error occurred
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                internal_error:
+                  summary: Internal server error
+                  value:
+                    error:
+                      message: Internal server error
+                      code: internal_error
+                    request_id: 01K8KABR6S16YETA2SZPVBS9SP
+                repository_error:
+                  summary: Database error
+                  value:
+                    error:
+                      message: Database operation failed
+                      code: repository_error
+                    request_id: 01K8KACP7D2XFGHJ9KLM4NPQR8
+      security:
+      - BearerAuth: []
+      - APIKeyAuth: []
+components:
+  schemas:
+    TaskExecutorResponse:
+      properties:
+        task_executor_name:
+          type: string
+          minLength: 1
+          title: Task Executor Name
+          description: "Unique identifier for this task executor type. Used in flow definition YAML to reference this executor. Case-sensitive and immutable. \n\nNaming convention: snake_case with descriptive action verbs. \n\nExamples: 'send_email', 'doc_to_structured', 'classify_document', 'receive_file', 'webhook_notification', 'external_db'"
+          examples:
+          - send_email
+          - doc_to_structured
+          - receive_email
+          - notify_webhook
+        task_executor_description:
+          type: string
+          minLength: 10
+          title: Task Executor Description
+          description: "Human-readable description of what this task executor does. Explains the executor's purpose, behavior, and typical use cases. Displayed in UI flow builders and documentation. \n\nShould be 1-3 sentences focusing on capabilities and outcomes. Written in present tense, active voice."
+          examples:
+          - Sends email notifications via SMTP or email service provider
+          - Extracts structured data from documents using vision-language models
+          - Receives incoming emails and triggers workflow execution
+        task_executor_agent_prompt:
+          type: string
+          title: Task Executor Agent Prompt
+          description: "Prompt template used by AI agents when configuring this task executor. Provides context to LLM agents about executor capabilities and parameters. Guides automated flow generation and task configuration. \n\nFormat: Natural language instructions for AI agents describing when and how to use this executor. \n\nUsed by: Flow Builder AI Assistant, Auto-configuration agents"
+          examples:
+          - Use this executor to send email notifications. Configure recipient, subject, and body. Supports templates and attachments.
+          - Use this executor to extract structured fields from documents. Specify field names and types in the schema parameter.
+        parameters_schema:
+          additionalProperties: true
+          type: object
+          title: Parameters Schema
+          description: "JSON Schema defining configuration parameters for this task executor. Describes required and optional parameters, their types, and validation rules. Clients use this schema to generate configuration UIs and validate inputs. \n\nSchema Format: JSON Schema Draft 2020-12 specification \n\nCommon properties: type, required, properties, additionalProperties, description, examples, enum, default, minimum, maximum, pattern \n\nUsed for: UI form generation, parameter validation, API documentation \n\nNote: This is the CONFIGURATION schema (static parameters), not the runtime input schema (see flow_input_schema)."
+          examples:
+          - properties:
+              recipient:
+                description: Email recipient address
+                format: email
+                type: string
+              subject:
+                description: Email subject line
+                maxLength: 200
+                type: string
+              body:
+                description: Email body content (supports templates)
+                type: string
+            required:
+            - recipient
+            - subject
+            type: object
+        flow_input_schema:
+          anyOf:
+          - additionalProperties: true
+            type: object
+          - type: 'null'
+          title: Flow Input Schema
+          description: "JSON Schema defining runtime input data for input task executors. Only present for executors that can trigger/receive flow executions (is_input_task_executor=true). \n\nDefines the shape of data received from external sources: webhooks, email attachments, file uploads, scheduled triggers, etc. \n\nDifference from parameters_schema:\n- parameters_schema: Static configuration set during flow design\n- flow_input_schema: Dynamic data received at runtime\n\nExample: An 'receive_email' executor has:\n- parameters_schema: {email_address, filters, ...} (configuration)\n- flow_input_schema: {from, subject, body, attachments, ...} (runtime data)\n\nNull for non-input executors (standard task executors)."
+          examples:
+          - properties:
+              from:
+                description: Sender email address
+                format: email
+                type: string
+              subject:
+                description: Email subject line
+                type: string
+              body:
+                description: Email body content
+                type: string
+              attachments:
+                description: File URLs for attachments
+                items:
+                  type: string
+                type: array
+            type: object
+          - null
+        is_input_task_executor:
+          type: boolean
+          title: Is Input Task Executor
+          description: "Whether this executor can trigger flow execution from external sources. \n\nInput executors (true):\n- Receive data from external systems (webhooks, emails, files, schedules)\n- Can be first task in a flow\n- Have flow_input_schema defining received data structure\n- Examples: receive_email, receive_file, webhook_receive\n\nNon-input executors (false):\n- Process data within flow execution\n- Cannot trigger flows (must be downstream of input executor)\n- No flow_input_schema\n- Examples: send_email, doc_to_structured, classify_text, external_db\n\nUsed by flow validators to ensure flows have at least one input executor."
+          examples:
+          - true
+          - false
+        is_schedulable_executor:
+          type: boolean
+          title: Is Schedulable Executor
+          description: "Whether this executor supports scheduled/recurring execution. \n\nSchedulable executors (true):\n- Can run on cron schedules (hourly, daily, weekly, custom)\n- Support time-based triggers\n- Often paired with input executors\n- Examples: scheduled_db_query\n\nNon-schedulable executors (false):\n- Event-driven only (triggered by upstream tasks or external events)\n- Cannot run on schedule\n- Examples: send_email, classify_document, receive_email (event-driven)\n\nNote: Scheduling is configured at the flow execution level, not per task. This flag indicates executor compatibility with scheduling."
+          examples:
+          - true
+          - false
+      type: object
+      required:
+      - task_executor_name
+      - task_executor_description
+      - task_executor_agent_prompt
+      - parameters_schema
+      - is_input_task_executor
+      - is_schedulable_executor
+      title: TaskExecutorResponse
+      description: 'Response model for a task executor definition.
+
+
+        Task executors are reusable workflow components that perform specific operations
+
+        within a flow. Each executor defines its input schema, execution behavior, and
+
+        capabilities. This model provides all metadata needed to programmatically
+
+        discover and configure task executors in flow definitions.'
+      example:
+        is_input_task_executor: false
+        is_schedulable_executor: false
+        parameters_schema:
+          properties:
+            schema:
+              description: Field definitions to extract from documents
+              type: object
+            model:
+              default: gpt-4-vision
+              description: AI model to use for extraction
+              enum:
+              - gpt-4-vision
+              - claude-3-opus
+              type: string
+          required:
+          - schema
+          type: object
+        task_executor_agent_prompt: Use this executor to extract specific fields from documents. Define a schema with field names, types, and descriptions. The executor will use AI to locate and extract those fields from uploaded documents.
+        task_executor_description: Extracts structured data from documents using vision-language models and OCR
+        task_executor_name: doc_to_structured
+    ErrorDetail:
+      properties:
+        message:
+          type: string
+          title: Message
+          description: Human-readable error message
+        code:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Code
+          description: Machine-readable error code for programmatic handling
+        details:
+          anyOf:
+          - items:
+              type: string
+            type: array
+          - items:
+              additionalProperties: true
+              type: object
+            type: array
+          - additionalProperties: true
+            type: object
+          - type: 'null'
+          title: Details
+          description: Additional error context, validation errors, or debugging information
+      type: object
+      required:
+      - message
+      title: ErrorDetail
+      description: 'Standard error detail structure.
+
+
+        This model matches the error format returned by the centralized
+
+        exception handlers in app/api/errors/handlers.py.'
+    ErrorResponse:
+      properties:
+        error:
+          $ref: '#/components/schemas/ErrorDetail'
+        request_id:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Request Id
+          description: 'Unique request identifier in ULID format for debugging and support. Example: 01K8KABR6S16YETA2SZPVBS9SP'
+      type: object
+      required:
+      - error
+      title: ErrorResponse
+      description: "Standard API error response structure.\n\nAll error responses from the API follow this format, ensuring\nconsistent error handling for API consumers.\n\nExample:\n    {\n        \"error\": {\n            \"message\": \"Flow not found\",\n            \"code\": \"not_found\"\n        },\n        \"request_id\": \"01K8KABR6S16YETA2SZPVBS9SP\"\n    }"
+      examples:
+      - error:
+          code: not_found
+          message: Resource not found
+        request_id: 01K8KABR6S16YETA2SZPVBS9SP
+  securitySchemes:
+    BearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+      description: 'JWT Bearer token authentication. Include your access token in the Authorization header as: `Bearer YOUR_ACCESS_TOKEN`
+
+
+        Example:
+
+        ```
+
+        Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
+
+        ```'
+    APIKeyAuth:
+      type: apiKey
+      name: X-API-Key
+      in: header
+      description: 'API key authentication. Include your API key in the X-API-Key header as: `X-API-Key YOUR_API_KEY`
+
+
+        Example:
+
+        ```
+
+        X-API-Key: saf_1234567890
+
+        ```'

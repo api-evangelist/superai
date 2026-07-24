@@ -1,0 +1,1000 @@
+openapi: 3.1.0
+info:
+  title: SuperAI Flow Platform auth worker-groups API
+  description: "SuperAI Flows is a workflow orchestration platform that enables you to design, deploy, and monitor automated workflows at scale.\n\nBuild complex workflows using our declarative YAML DSL, execute them reliably, and integrate seamlessly with AI models, cloud storage, and enterprise systems.\n\n**Key Capabilities:**\n- **Workflow Management**: Define workflows as code with version control and automated execution\n- **Task Orchestration**: Chain together API calls, data processing, and AI operations\n- **Real-time Monitoring**: Track execution progress with WebSocket notifications and comprehensive logging\n- **Multi-tenant Architecture**: Organization-scoped resources with role-based access control\n\n**API Versioning and Breaking Changes:**\n\nWe follow a strict compatibility policy to ensure your integrations remain stable:\n\n- **Non-breaking changes** (safe, no action required):\n  - Adding new API endpoints\n  - Adding new optional query parameters to existing endpoints\n  - Adding new fields to API responses\n  - Adding new values to existing enums\n\n- **Breaking changes** (requires client updates):\n  - Removing or renaming API endpoints\n  - Removing query parameters or request fields\n  - Removing response fields\n  - Changing field types or validation rules\n  - Removing values from existing enums\n\n**Client Implementation Requirements:**\n\nYour API clients MUST be designed to gracefully handle additional fields in responses. We may add new fields to any response object without considering this a breaking change. Ensure your JSON parsers ignore unknown fields rather than raising errors.\n\n**Backward Compatibility Guarantee:**\n\nWe commit to maintaining backward compatibility for all non-breaking changes. Breaking changes will be:\n- Announced at least 15 days in advance\n- Documented in our changelog with migration guide\n\nFor the latest API updates and migration guides, see our changelog."
+  version: 0.1.0
+tags:
+- name: worker-groups
+paths:
+  /api/organizations/worker-groups:
+    get:
+      tags:
+      - worker-groups
+      summary: List all worker groups
+      description: List all worker groups for the current organization (paginated).
+      operationId: list_worker_groups_api_organizations_worker_groups_get
+      parameters:
+      - name: offset
+        in: query
+        required: false
+        schema:
+          type: integer
+          minimum: 0
+          description: Number of records to skip.
+          default: 0
+          title: Offset
+        description: Number of records to skip.
+      - name: limit
+        in: query
+        required: false
+        schema:
+          type: integer
+          maximum: 250
+          minimum: 1
+          description: Maximum number of records to return.
+          default: 50
+          title: Limit
+        description: Maximum number of records to return.
+      responses:
+        '200':
+          description: Worker groups retrieved successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/WorkerGroupListResponse'
+        '401':
+          description: Unauthorized - Missing or invalid authentication credentials
+          content:
+            application/json:
+              examples:
+                missing_token:
+                  summary: Missing authentication token
+                  value:
+                    error:
+                      message: Authentication required
+                      code: unauthorized
+                    request_id: 01K8KABR6S16YETA2SZPVBS9SP
+                invalid_token:
+                  summary: Invalid or expired token
+                  value:
+                    error:
+                      message: Invalid authentication token
+                      code: unauthorized
+                    request_id: 01K8KACP7D2XFGHJ9KLM4NPQR8
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '403':
+          description: Forbidden - Insufficient permissions to access this resource
+          content:
+            application/json:
+              examples:
+                insufficient_permissions:
+                  summary: Insufficient permissions
+                  value:
+                    error:
+                      message: You do not have permission to access this resource
+                      code: forbidden
+                    request_id: 01K8KABR6S16YETA2SZPVBS9SP
+                wrong_organization:
+                  summary: Resource belongs to different organization
+                  value:
+                    error:
+                      message: This resource belongs to a different organization
+                      code: forbidden
+                    request_id: 01K8KACP7D2XFGHJ9KLM4NPQR8
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: Internal Server Error - An unexpected error occurred
+          content:
+            application/json:
+              examples:
+                internal_error:
+                  summary: Internal server error
+                  value:
+                    error:
+                      message: Internal server error
+                      code: internal_error
+                    request_id: 01K8KABR6S16YETA2SZPVBS9SP
+                repository_error:
+                  summary: Database error
+                  value:
+                    error:
+                      message: Database operation failed
+                      code: repository_error
+                    request_id: 01K8KACP7D2XFGHJ9KLM4NPQR8
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+      security:
+      - BearerAuth: []
+      - APIKeyAuth: []
+    post:
+      tags:
+      - worker-groups
+      summary: Create a worker group
+      description: Create a new worker group in the current organization.
+      operationId: create_worker_group_api_organizations_worker_groups_post
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/WorkerGroupCreateRequest'
+      responses:
+        '201':
+          description: Worker group created successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/WorkerGroupDetailResponse'
+        '409':
+          description: Worker group name already exists
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          description: Unauthorized - Missing or invalid authentication credentials
+          content:
+            application/json:
+              examples:
+                missing_token:
+                  summary: Missing authentication token
+                  value:
+                    error:
+                      message: Authentication required
+                      code: unauthorized
+                    request_id: 01K8KABR6S16YETA2SZPVBS9SP
+                invalid_token:
+                  summary: Invalid or expired token
+                  value:
+                    error:
+                      message: Invalid authentication token
+                      code: unauthorized
+                    request_id: 01K8KACP7D2XFGHJ9KLM4NPQR8
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '403':
+          description: Forbidden - Insufficient permissions to access this resource
+          content:
+            application/json:
+              examples:
+                insufficient_permissions:
+                  summary: Insufficient permissions
+                  value:
+                    error:
+                      message: You do not have permission to access this resource
+                      code: forbidden
+                    request_id: 01K8KABR6S16YETA2SZPVBS9SP
+                wrong_organization:
+                  summary: Resource belongs to different organization
+                  value:
+                    error:
+                      message: This resource belongs to a different organization
+                      code: forbidden
+                    request_id: 01K8KACP7D2XFGHJ9KLM4NPQR8
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: Internal Server Error - An unexpected error occurred
+          content:
+            application/json:
+              examples:
+                internal_error:
+                  summary: Internal server error
+                  value:
+                    error:
+                      message: Internal server error
+                      code: internal_error
+                    request_id: 01K8KABR6S16YETA2SZPVBS9SP
+                repository_error:
+                  summary: Database error
+                  value:
+                    error:
+                      message: Database operation failed
+                      code: repository_error
+                    request_id: 01K8KACP7D2XFGHJ9KLM4NPQR8
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+      security:
+      - BearerAuth: []
+      - APIKeyAuth: []
+  /api/organizations/worker-groups/{group_id}:
+    get:
+      tags:
+      - worker-groups
+      summary: Get a worker group
+      description: Get details of a specific worker group including its members.
+      operationId: get_worker_group_api_organizations_worker_groups__group_id__get
+      parameters:
+      - name: group_id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+          title: Group Id
+      responses:
+        '200':
+          description: Worker group retrieved successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/WorkerGroupDetailResponse'
+        '404':
+          description: Worker group not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          description: Unauthorized - Missing or invalid authentication credentials
+          content:
+            application/json:
+              examples:
+                missing_token:
+                  summary: Missing authentication token
+                  value:
+                    error:
+                      message: Authentication required
+                      code: unauthorized
+                    request_id: 01K8KABR6S16YETA2SZPVBS9SP
+                invalid_token:
+                  summary: Invalid or expired token
+                  value:
+                    error:
+                      message: Invalid authentication token
+                      code: unauthorized
+                    request_id: 01K8KACP7D2XFGHJ9KLM4NPQR8
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '403':
+          description: Forbidden - Insufficient permissions to access this resource
+          content:
+            application/json:
+              examples:
+                insufficient_permissions:
+                  summary: Insufficient permissions
+                  value:
+                    error:
+                      message: You do not have permission to access this resource
+                      code: forbidden
+                    request_id: 01K8KABR6S16YETA2SZPVBS9SP
+                wrong_organization:
+                  summary: Resource belongs to different organization
+                  value:
+                    error:
+                      message: This resource belongs to a different organization
+                      code: forbidden
+                    request_id: 01K8KACP7D2XFGHJ9KLM4NPQR8
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: Internal Server Error - An unexpected error occurred
+          content:
+            application/json:
+              examples:
+                internal_error:
+                  summary: Internal server error
+                  value:
+                    error:
+                      message: Internal server error
+                      code: internal_error
+                    request_id: 01K8KABR6S16YETA2SZPVBS9SP
+                repository_error:
+                  summary: Database error
+                  value:
+                    error:
+                      message: Database operation failed
+                      code: repository_error
+                    request_id: 01K8KACP7D2XFGHJ9KLM4NPQR8
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+      security:
+      - BearerAuth: []
+      - APIKeyAuth: []
+    put:
+      tags:
+      - worker-groups
+      summary: Update a worker group
+      description: Update a worker group's name and/or description.
+      operationId: update_worker_group_api_organizations_worker_groups__group_id__put
+      parameters:
+      - name: group_id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+          title: Group Id
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/WorkerGroupUpdateRequest'
+      responses:
+        '200':
+          description: Worker group updated successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/WorkerGroupDetailResponse'
+        '404':
+          description: Worker group not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '409':
+          description: Worker group name already exists
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          description: Unauthorized - Missing or invalid authentication credentials
+          content:
+            application/json:
+              examples:
+                missing_token:
+                  summary: Missing authentication token
+                  value:
+                    error:
+                      message: Authentication required
+                      code: unauthorized
+                    request_id: 01K8KABR6S16YETA2SZPVBS9SP
+                invalid_token:
+                  summary: Invalid or expired token
+                  value:
+                    error:
+                      message: Invalid authentication token
+                      code: unauthorized
+                    request_id: 01K8KACP7D2XFGHJ9KLM4NPQR8
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '403':
+          description: Forbidden - Insufficient permissions to access this resource
+          content:
+            application/json:
+              examples:
+                insufficient_permissions:
+                  summary: Insufficient permissions
+                  value:
+                    error:
+                      message: You do not have permission to access this resource
+                      code: forbidden
+                    request_id: 01K8KABR6S16YETA2SZPVBS9SP
+                wrong_organization:
+                  summary: Resource belongs to different organization
+                  value:
+                    error:
+                      message: This resource belongs to a different organization
+                      code: forbidden
+                    request_id: 01K8KACP7D2XFGHJ9KLM4NPQR8
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: Internal Server Error - An unexpected error occurred
+          content:
+            application/json:
+              examples:
+                internal_error:
+                  summary: Internal server error
+                  value:
+                    error:
+                      message: Internal server error
+                      code: internal_error
+                    request_id: 01K8KABR6S16YETA2SZPVBS9SP
+                repository_error:
+                  summary: Database error
+                  value:
+                    error:
+                      message: Database operation failed
+                      code: repository_error
+                    request_id: 01K8KACP7D2XFGHJ9KLM4NPQR8
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+      security:
+      - BearerAuth: []
+      - APIKeyAuth: []
+    delete:
+      tags:
+      - worker-groups
+      summary: Delete a worker group
+      description: Soft-delete a worker group. Existing HITL task assignments are preserved.
+      operationId: delete_worker_group_api_organizations_worker_groups__group_id__delete
+      parameters:
+      - name: group_id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+          title: Group Id
+      responses:
+        '204':
+          description: Worker group deleted successfully
+        '404':
+          description: Worker group not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          description: Unauthorized - Missing or invalid authentication credentials
+          content:
+            application/json:
+              examples:
+                missing_token:
+                  summary: Missing authentication token
+                  value:
+                    error:
+                      message: Authentication required
+                      code: unauthorized
+                    request_id: 01K8KABR6S16YETA2SZPVBS9SP
+                invalid_token:
+                  summary: Invalid or expired token
+                  value:
+                    error:
+                      message: Invalid authentication token
+                      code: unauthorized
+                    request_id: 01K8KACP7D2XFGHJ9KLM4NPQR8
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '403':
+          description: Forbidden - Insufficient permissions to access this resource
+          content:
+            application/json:
+              examples:
+                insufficient_permissions:
+                  summary: Insufficient permissions
+                  value:
+                    error:
+                      message: You do not have permission to access this resource
+                      code: forbidden
+                    request_id: 01K8KABR6S16YETA2SZPVBS9SP
+                wrong_organization:
+                  summary: Resource belongs to different organization
+                  value:
+                    error:
+                      message: This resource belongs to a different organization
+                      code: forbidden
+                    request_id: 01K8KACP7D2XFGHJ9KLM4NPQR8
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: Internal Server Error - An unexpected error occurred
+          content:
+            application/json:
+              examples:
+                internal_error:
+                  summary: Internal server error
+                  value:
+                    error:
+                      message: Internal server error
+                      code: internal_error
+                    request_id: 01K8KABR6S16YETA2SZPVBS9SP
+                repository_error:
+                  summary: Database error
+                  value:
+                    error:
+                      message: Database operation failed
+                      code: repository_error
+                    request_id: 01K8KACP7D2XFGHJ9KLM4NPQR8
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+      security:
+      - BearerAuth: []
+      - APIKeyAuth: []
+  /api/organizations/worker-groups/{group_id}/members:
+    post:
+      tags:
+      - worker-groups
+      summary: Add or remove members from a worker group
+      description: 'Add and/or remove members from a worker group in a single call.
+
+
+        Users in add_user_ids that are already members are silently skipped.
+
+        Users in remove_user_ids that are not members are silently ignored.'
+      operationId: update_worker_group_members_api_organizations_worker_groups__group_id__members_post
+      parameters:
+      - name: group_id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+          title: Group Id
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/WorkerGroupMembersUpdateRequest'
+      responses:
+        '200':
+          description: Members updated successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/WorkerGroupDetailResponse'
+        '404':
+          description: Worker group not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          description: Unauthorized - Missing or invalid authentication credentials
+          content:
+            application/json:
+              examples:
+                missing_token:
+                  summary: Missing authentication token
+                  value:
+                    error:
+                      message: Authentication required
+                      code: unauthorized
+                    request_id: 01K8KABR6S16YETA2SZPVBS9SP
+                invalid_token:
+                  summary: Invalid or expired token
+                  value:
+                    error:
+                      message: Invalid authentication token
+                      code: unauthorized
+                    request_id: 01K8KACP7D2XFGHJ9KLM4NPQR8
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '403':
+          description: Forbidden - Insufficient permissions to access this resource
+          content:
+            application/json:
+              examples:
+                insufficient_permissions:
+                  summary: Insufficient permissions
+                  value:
+                    error:
+                      message: You do not have permission to access this resource
+                      code: forbidden
+                    request_id: 01K8KABR6S16YETA2SZPVBS9SP
+                wrong_organization:
+                  summary: Resource belongs to different organization
+                  value:
+                    error:
+                      message: This resource belongs to a different organization
+                      code: forbidden
+                    request_id: 01K8KACP7D2XFGHJ9KLM4NPQR8
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: Internal Server Error - An unexpected error occurred
+          content:
+            application/json:
+              examples:
+                internal_error:
+                  summary: Internal server error
+                  value:
+                    error:
+                      message: Internal server error
+                      code: internal_error
+                    request_id: 01K8KABR6S16YETA2SZPVBS9SP
+                repository_error:
+                  summary: Database error
+                  value:
+                    error:
+                      message: Database operation failed
+                      code: repository_error
+                    request_id: 01K8KACP7D2XFGHJ9KLM4NPQR8
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+      security:
+      - BearerAuth: []
+      - APIKeyAuth: []
+components:
+  schemas:
+    WorkerGroupMembersUpdateRequest:
+      properties:
+        add_user_ids:
+          items:
+            type: string
+            format: uuid
+          type: array
+          title: Add User Ids
+          description: List of user UUIDs to add to the group.
+          examples:
+          - - 550e8400-e29b-41d4-a716-446655440000
+        remove_user_ids:
+          items:
+            type: string
+            format: uuid
+          type: array
+          title: Remove User Ids
+          description: List of user UUIDs to remove from the group.
+          examples:
+          - - 660e8400-e29b-41d4-a716-446655440001
+      type: object
+      title: WorkerGroupMembersUpdateRequest
+      description: Request payload for adding/removing members from a worker group.
+    ErrorDetail:
+      properties:
+        message:
+          type: string
+          title: Message
+          description: Human-readable error message
+        code:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Code
+          description: Machine-readable error code for programmatic handling
+        details:
+          anyOf:
+          - items:
+              type: string
+            type: array
+          - items:
+              additionalProperties: true
+              type: object
+            type: array
+          - additionalProperties: true
+            type: object
+          - type: 'null'
+          title: Details
+          description: Additional error context, validation errors, or debugging information
+      type: object
+      required:
+      - message
+      title: ErrorDetail
+      description: 'Standard error detail structure.
+
+
+        This model matches the error format returned by the centralized
+
+        exception handlers in app/api/errors/handlers.py.'
+    ErrorResponse:
+      properties:
+        error:
+          $ref: '#/components/schemas/ErrorDetail'
+        request_id:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Request Id
+          description: 'Unique request identifier in ULID format for debugging and support. Example: 01K8KABR6S16YETA2SZPVBS9SP'
+      type: object
+      required:
+      - error
+      title: ErrorResponse
+      description: "Standard API error response structure.\n\nAll error responses from the API follow this format, ensuring\nconsistent error handling for API consumers.\n\nExample:\n    {\n        \"error\": {\n            \"message\": \"Flow not found\",\n            \"code\": \"not_found\"\n        },\n        \"request_id\": \"01K8KABR6S16YETA2SZPVBS9SP\"\n    }"
+      examples:
+      - error:
+          code: not_found
+          message: Resource not found
+        request_id: 01K8KABR6S16YETA2SZPVBS9SP
+    HTTPValidationError:
+      properties:
+        detail:
+          items:
+            $ref: '#/components/schemas/ValidationError'
+          type: array
+          title: Detail
+      type: object
+      title: HTTPValidationError
+    ValidationError:
+      properties:
+        loc:
+          items:
+            anyOf:
+            - type: string
+            - type: integer
+          type: array
+          title: Location
+        msg:
+          type: string
+          title: Message
+        type:
+          type: string
+          title: Error Type
+      type: object
+      required:
+      - loc
+      - msg
+      - type
+      title: ValidationError
+    WorkerGroupDetailResponse:
+      properties:
+        id:
+          type: string
+          format: uuid
+          title: Id
+        created_at:
+          type: string
+          format: date-time
+          title: Created At
+        updated_at:
+          type: string
+          format: date-time
+          title: Updated At
+        modified_by:
+          type: string
+          title: Modified By
+        organization_id:
+          type: string
+          format: uuid
+          title: Organization Id
+          description: UUID of the organization this worker group belongs to.
+          examples:
+          - 550e8400-e29b-41d4-a716-446655440000
+        name:
+          type: string
+          title: Name
+          description: Name of the worker group.
+          examples:
+          - Document Review Team
+        description:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Description
+          description: Description of the worker group.
+          examples:
+          - Team responsible for reviewing incoming documents.
+        member_count:
+          type: integer
+          title: Member Count
+          description: Number of users currently in this worker group.
+          examples:
+          - 5
+        members:
+          items:
+            $ref: '#/components/schemas/UserSummary'
+          type: array
+          title: Members
+          description: List of users currently in this worker group.
+      type: object
+      required:
+      - id
+      - created_at
+      - updated_at
+      - modified_by
+      - organization_id
+      - name
+      - member_count
+      title: WorkerGroupDetailResponse
+      description: Response model for worker group detail operations (includes member list).
+    UserSummary:
+      properties:
+        id:
+          type: string
+          format: uuid
+          title: Id
+          description: UUID of the user.
+        first_name:
+          type: string
+          title: First Name
+          description: User's first name.
+        last_name:
+          type: string
+          title: Last Name
+          description: User's last name.
+        email:
+          type: string
+          title: Email
+          description: User's email address.
+        role:
+          type: string
+          title: Role
+          description: User's role.
+        added_at:
+          anyOf:
+          - type: string
+            format: date-time
+          - type: 'null'
+          title: Added At
+          description: When the user was added to the group.
+      type: object
+      required:
+      - id
+      - first_name
+      - last_name
+      - email
+      - role
+      title: UserSummary
+      description: Lightweight user representation used within worker group responses.
+    WorkerGroupListResponse:
+      properties:
+        items:
+          items:
+            $ref: '#/components/schemas/WorkerGroupResponse'
+          type: array
+          title: Items
+          description: List of worker groups.
+        total:
+          type: integer
+          title: Total
+          description: Total number of worker groups in the organization.
+          examples:
+          - 10
+      type: object
+      required:
+      - items
+      - total
+      title: WorkerGroupListResponse
+      description: Paginated response for listing worker groups.
+    WorkerGroupUpdateRequest:
+      properties:
+        name:
+          anyOf:
+          - type: string
+            maxLength: 255
+            minLength: 1
+          - type: 'null'
+          title: Name
+          description: New name for the worker group. Must be unique within the organization.
+          examples:
+          - Document Review Team
+        description:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Description
+          description: New description for the worker group.
+          examples:
+          - Updated team description.
+      type: object
+      title: WorkerGroupUpdateRequest
+      description: Request payload for updating an existing worker group.
+    WorkerGroupResponse:
+      properties:
+        id:
+          type: string
+          format: uuid
+          title: Id
+        created_at:
+          type: string
+          format: date-time
+          title: Created At
+        updated_at:
+          type: string
+          format: date-time
+          title: Updated At
+        modified_by:
+          type: string
+          title: Modified By
+        organization_id:
+          type: string
+          format: uuid
+          title: Organization Id
+          description: UUID of the organization this worker group belongs to.
+          examples:
+          - 550e8400-e29b-41d4-a716-446655440000
+        name:
+          type: string
+          title: Name
+          description: Name of the worker group.
+          examples:
+          - Document Review Team
+        description:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Description
+          description: Description of the worker group.
+          examples:
+          - Team responsible for reviewing incoming documents.
+        member_count:
+          type: integer
+          title: Member Count
+          description: Number of users currently in this worker group.
+          examples:
+          - 5
+      type: object
+      required:
+      - id
+      - created_at
+      - updated_at
+      - modified_by
+      - organization_id
+      - name
+      - member_count
+      title: WorkerGroupResponse
+      description: Response model for worker group list / summary operations.
+    WorkerGroupCreateRequest:
+      properties:
+        name:
+          type: string
+          maxLength: 255
+          minLength: 1
+          title: Name
+          description: Name of the worker group. Must be unique within the organization.
+          examples:
+          - Document Review Team
+        description:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Description
+          description: Optional description of the worker group.
+          examples:
+          - Team responsible for reviewing incoming documents.
+        member_user_ids:
+          items:
+            type: string
+            format: uuid
+          type: array
+          title: Member User Ids
+          description: List of user UUIDs to add as members when creating the group.
+          examples:
+          - - 550e8400-e29b-41d4-a716-446655440000
+      type: object
+      required:
+      - name
+      title: WorkerGroupCreateRequest
+      description: Request payload for creating a new worker group.
+  securitySchemes:
+    BearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+      description: 'JWT Bearer token authentication. Include your access token in the Authorization header as: `Bearer YOUR_ACCESS_TOKEN`
+
+
+        Example:
+
+        ```
+
+        Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
+
+        ```'
+    APIKeyAuth:
+      type: apiKey
+      name: X-API-Key
+      in: header
+      description: 'API key authentication. Include your API key in the X-API-Key header as: `X-API-Key YOUR_API_KEY`
+
+
+        Example:
+
+        ```
+
+        X-API-Key: saf_1234567890
+
+        ```'

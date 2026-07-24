@@ -1,0 +1,1224 @@
+openapi: 3.1.0
+info:
+  title: SuperAI Flow Platform auth plugins API
+  description: "SuperAI Flows is a workflow orchestration platform that enables you to design, deploy, and monitor automated workflows at scale.\n\nBuild complex workflows using our declarative YAML DSL, execute them reliably, and integrate seamlessly with AI models, cloud storage, and enterprise systems.\n\n**Key Capabilities:**\n- **Workflow Management**: Define workflows as code with version control and automated execution\n- **Task Orchestration**: Chain together API calls, data processing, and AI operations\n- **Real-time Monitoring**: Track execution progress with WebSocket notifications and comprehensive logging\n- **Multi-tenant Architecture**: Organization-scoped resources with role-based access control\n\n**API Versioning and Breaking Changes:**\n\nWe follow a strict compatibility policy to ensure your integrations remain stable:\n\n- **Non-breaking changes** (safe, no action required):\n  - Adding new API endpoints\n  - Adding new optional query parameters to existing endpoints\n  - Adding new fields to API responses\n  - Adding new values to existing enums\n\n- **Breaking changes** (requires client updates):\n  - Removing or renaming API endpoints\n  - Removing query parameters or request fields\n  - Removing response fields\n  - Changing field types or validation rules\n  - Removing values from existing enums\n\n**Client Implementation Requirements:**\n\nYour API clients MUST be designed to gracefully handle additional fields in responses. We may add new fields to any response object without considering this a breaking change. Ensure your JSON parsers ignore unknown fields rather than raising errors.\n\n**Backward Compatibility Guarantee:**\n\nWe commit to maintaining backward compatibility for all non-breaking changes. Breaking changes will be:\n- Announced at least 15 days in advance\n- Documented in our changelog with migration guide\n\nFor the latest API updates and migration guides, see our changelog."
+  version: 0.1.0
+tags:
+- name: plugins
+  description: Plugin operations for managing integration plugin instances, OAuth flows, and webhooks.
+  x-displayName: Plugins
+paths:
+  /api/integrations/plugins/:
+    get:
+      tags:
+      - plugins
+      summary: List all registered plugins
+      description: "List all registered plugins from the integration registry.\n\nReturns plugins available in the new plugin system only, excluding legacy integrations.\nEach plugin includes metadata about its capabilities, version, and status.\n\nUse Cases:\n    - Display available integrations to users\n    - Validate plugin availability before configuration\n    - Integration discovery and selection"
+      operationId: list_plugins_api_integrations_plugins__get
+      responses:
+        '200':
+          description: List of plugins successfully retrieved
+          content:
+            application/json:
+              schema:
+                items:
+                  additionalProperties: true
+                  type: object
+                type: array
+                title: Response List Plugins Api Integrations Plugins  Get
+        '401':
+          description: Unauthorized - Missing or invalid authentication credentials
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                missing_token:
+                  summary: Missing authentication token
+                  value:
+                    error:
+                      message: Authentication required
+                      code: unauthorized
+                    request_id: 01K8KABR6S16YETA2SZPVBS9SP
+                invalid_token:
+                  summary: Invalid or expired token
+                  value:
+                    error:
+                      message: Invalid authentication token
+                      code: unauthorized
+                    request_id: 01K8KACP7D2XFGHJ9KLM4NPQR8
+        '500':
+          description: Internal Server Error - An unexpected error occurred
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                internal_error:
+                  summary: Internal server error
+                  value:
+                    error:
+                      message: Internal server error
+                      code: internal_error
+                    request_id: 01K8KABR6S16YETA2SZPVBS9SP
+                repository_error:
+                  summary: Database error
+                  value:
+                    error:
+                      message: Database operation failed
+                      code: repository_error
+                    request_id: 01K8KACP7D2XFGHJ9KLM4NPQR8
+      security:
+      - BearerAuth: []
+      - APIKeyAuth: []
+  /api/integrations/plugins/{plugin_name}/capabilities:
+    get:
+      tags:
+      - plugins
+      summary: Get plugin capabilities
+      description: "Retrieve detailed capabilities of a specific plugin.\n\nReturns comprehensive information about what the plugin can do, including:\n- Supported operations and execution models\n- Required authentication types\n- Configuration schema and metadata\n- Webhook support status\n\nUse Cases:\n    - Display plugin configuration UI\n    - Validate plugin compatibility with workflow\n    - Generate plugin documentation"
+      operationId: get_plugin_capabilities_api_integrations_plugins__plugin_name__capabilities_get
+      parameters:
+      - name: plugin_name
+        in: path
+        required: true
+        schema:
+          type: string
+          title: Plugin Name
+      responses:
+        '200':
+          description: Plugin capabilities retrieved successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: true
+                title: Response Get Plugin Capabilities Api Integrations Plugins  Plugin Name  Capabilities Get
+        '404':
+          description: Plugin not found with the specified name
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          description: Unauthorized - Missing or invalid authentication credentials
+          content:
+            application/json:
+              examples:
+                missing_token:
+                  summary: Missing authentication token
+                  value:
+                    error:
+                      message: Authentication required
+                      code: unauthorized
+                    request_id: 01K8KABR6S16YETA2SZPVBS9SP
+                invalid_token:
+                  summary: Invalid or expired token
+                  value:
+                    error:
+                      message: Invalid authentication token
+                      code: unauthorized
+                    request_id: 01K8KACP7D2XFGHJ9KLM4NPQR8
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: Internal Server Error - An unexpected error occurred
+          content:
+            application/json:
+              examples:
+                internal_error:
+                  summary: Internal server error
+                  value:
+                    error:
+                      message: Internal server error
+                      code: internal_error
+                    request_id: 01K8KABR6S16YETA2SZPVBS9SP
+                repository_error:
+                  summary: Database error
+                  value:
+                    error:
+                      message: Database operation failed
+                      code: repository_error
+                    request_id: 01K8KACP7D2XFGHJ9KLM4NPQR8
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+      security:
+      - BearerAuth: []
+      - APIKeyAuth: []
+  /api/integrations/plugins/{plugin_name}/oauth/authorize:
+    post:
+      tags:
+      - plugins
+      summary: Oauth Authorize Legacy
+      operationId: oauth_authorize_legacy
+      parameters:
+      - name: plugin_name
+        in: path
+        required: true
+        schema:
+          type: string
+          title: Plugin Name
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/app__api__integrations__plugins__plugins_router__OauthAuthorizeRequest'
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+      security:
+      - BearerAuth: []
+      - APIKeyAuth: []
+  /api/integrations/plugins/{plugin_name}/oauth/callback:
+    get:
+      tags:
+      - plugins
+      summary: Oauth Callback Legacy
+      operationId: oauth_callback_legacy
+      parameters:
+      - name: plugin_name
+        in: path
+        required: true
+        schema:
+          type: string
+          title: Plugin Name
+      - name: code
+        in: query
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Code
+      - name: state
+        in: query
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: State
+      - name: error
+        in: query
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Error
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+      security:
+      - BearerAuth: []
+      - APIKeyAuth: []
+  /api/integrations/plugins/{plugin_name}/instances:
+    post:
+      tags:
+      - plugins
+      summary: Create Integration Legacy
+      operationId: create_integration_legacy_api_integrations_plugins__plugin_name__instances_post
+      parameters:
+      - name: plugin_name
+        in: path
+        required: true
+        schema:
+          type: string
+          title: Plugin Name
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              additionalProperties: true
+              title: Request Body
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+      security:
+      - BearerAuth: []
+      - APIKeyAuth: []
+    get:
+      tags:
+      - plugins
+      summary: List Integration Instances
+      operationId: list_integration_instances_api_integrations_plugins__plugin_name__instances_get
+      parameters:
+      - name: plugin_name
+        in: path
+        required: true
+        schema:
+          type: string
+          title: Plugin Name
+      - name: flow_id
+        in: query
+        required: false
+        schema:
+          anyOf:
+          - type: string
+            format: uuid
+          - type: 'null'
+          title: Flow Id
+      - name: task_name
+        in: query
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Task Name
+      - name: task_id
+        in: query
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Task Id
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+      security:
+      - BearerAuth: []
+      - APIKeyAuth: []
+  /api/integrations/plugins/{plugin_name}/instances/{integration_id}:
+    delete:
+      tags:
+      - plugins
+      summary: Delete Integration Legacy
+      operationId: delete_integration_legacy_api_integrations_plugins__plugin_name__instances__integration_id__delete
+      parameters:
+      - name: integration_id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+          title: Integration Id
+      - name: plugin_name
+        in: path
+        required: true
+        schema:
+          type: string
+          title: Plugin Name
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+      security:
+      - BearerAuth: []
+      - APIKeyAuth: []
+  /api/integrations/plugins/{plugin_name}/instances/{integration_id}/webhook/callback:
+    post:
+      tags:
+      - plugins
+      summary: Handle Webhook Legacy
+      operationId: handle_webhook_legacy_api_integrations_plugins__plugin_name__instances__integration_id__webhook_callback_post
+      parameters:
+      - name: plugin_name
+        in: path
+        required: true
+        schema:
+          type: string
+          title: Plugin Name
+      - name: integration_id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+          title: Integration Id
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+      security:
+      - BearerAuth: []
+      - APIKeyAuth: []
+  /api/integrations/plugins/{plugin_name}/instances/{integration_id}/files/move:
+    post:
+      tags:
+      - plugins
+      summary: Move File
+      operationId: move_file_api_integrations_plugins__plugin_name__instances__integration_id__files_move_post
+      parameters:
+      - name: plugin_name
+        in: path
+        required: true
+        schema:
+          type: string
+          title: Plugin Name
+      - name: integration_id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+          title: Integration Id
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+      security:
+      - BearerAuth: []
+      - APIKeyAuth: []
+  /api/integrations/plugins/{plugin_name}/instances/{integration_id}/files:
+    delete:
+      tags:
+      - plugins
+      summary: Delete File
+      operationId: delete_file_api_integrations_plugins__plugin_name__instances__integration_id__files_delete
+      parameters:
+      - name: plugin_name
+        in: path
+        required: true
+        schema:
+          type: string
+          title: Plugin Name
+      - name: integration_id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+          title: Integration Id
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+      security:
+      - BearerAuth: []
+      - APIKeyAuth: []
+  /api/integrations/plugins/{plugin_name}/folders:
+    get:
+      tags:
+      - plugins
+      summary: List Folders
+      operationId: list_folders_api_integrations_plugins__plugin_name__folders_get
+      parameters:
+      - name: plugin_name
+        in: path
+        required: true
+        schema:
+          type: string
+          title: Plugin Name
+      - name: credential_id
+        in: query
+        required: true
+        schema:
+          type: string
+          format: uuid
+          title: Credential Id
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+      security:
+      - BearerAuth: []
+      - APIKeyAuth: []
+  /api/integrations/plugins/sharepoint/sites:
+    get:
+      tags:
+      - plugins
+      summary: Get Sharepoint Sites
+      operationId: get_sharepoint_sites_api_integrations_plugins_sharepoint_sites_get
+      parameters:
+      - name: credential_id
+        in: query
+        required: true
+        schema:
+          type: string
+          format: uuid
+          title: Credential Id
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+      security:
+      - BearerAuth: []
+      - APIKeyAuth: []
+  /api/integrations/plugins/sharepoint/drives:
+    get:
+      tags:
+      - plugins
+      summary: Get Sharepoint Drives
+      operationId: get_sharepoint_drives_api_integrations_plugins_sharepoint_drives_get
+      parameters:
+      - name: credential_id
+        in: query
+        required: true
+        schema:
+          type: string
+          format: uuid
+          title: Credential Id
+      - name: site_id
+        in: query
+        required: true
+        schema:
+          type: string
+          format: uuid
+          title: Site Id
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+      security:
+      - BearerAuth: []
+      - APIKeyAuth: []
+  /api/plugins/instances:
+    get:
+      tags:
+      - plugins
+      summary: List Instances
+      operationId: list_instances_api_plugins_instances_get
+      parameters:
+      - name: flow_id
+        in: query
+        required: true
+        schema:
+          anyOf:
+          - type: string
+            format: uuid
+          - type: 'null'
+          title: Flow Id
+      - name: task_name
+        in: query
+        required: true
+        schema:
+          anyOf:
+          - type: string
+            format: uuid
+          - type: 'null'
+          title: Task Name
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+      security:
+      - BearerAuth: []
+      - APIKeyAuth: []
+  /api/plugins/{plugin_name}/oauth/authorize:
+    post:
+      tags:
+      - plugins
+      summary: Oauth Authorize
+      operationId: oauth_authorize_v2
+      parameters:
+      - name: plugin_name
+        in: path
+        required: true
+        schema:
+          type: string
+          title: Plugin Name
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/app__api__integrations_new__integration_api_model__OauthAuthorizeRequest'
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+      security:
+      - BearerAuth: []
+      - APIKeyAuth: []
+  /api/plugins/{plugin_name}/{provider_name}/oauth/callback:
+    get:
+      tags:
+      - plugins
+      summary: Oauth Callback
+      operationId: oauth_callback_v2
+      parameters:
+      - name: plugin_name
+        in: path
+        required: true
+        schema:
+          type: string
+          title: Plugin Name
+      - name: provider_name
+        in: path
+        required: true
+        schema:
+          type: string
+          title: Provider Name
+      - name: code
+        in: query
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Code
+      - name: state
+        in: query
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: State
+      - name: error
+        in: query
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Error
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+      security:
+      - BearerAuth: []
+      - APIKeyAuth: []
+  /api/plugins/{plugin_name}/instances:
+    post:
+      tags:
+      - plugins
+      summary: Create Integration
+      operationId: create_integration_api_plugins__plugin_name__instances_post
+      parameters:
+      - name: plugin_name
+        in: path
+        required: true
+        schema:
+          type: string
+          title: Plugin Name
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/IntegrationCreateRequest'
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+      security:
+      - BearerAuth: []
+      - APIKeyAuth: []
+    get:
+      tags:
+      - plugins
+      summary: List Integrations
+      operationId: list_integrations_api_plugins__plugin_name__instances_get
+      parameters:
+      - name: plugin_name
+        in: path
+        required: true
+        schema:
+          type: string
+          title: Plugin Name
+      - name: flow_id
+        in: query
+        required: false
+        schema:
+          anyOf:
+          - type: string
+            format: uuid
+          - type: 'null'
+          title: Flow Id
+      - name: task_name
+        in: query
+        required: false
+        schema:
+          anyOf:
+          - type: string
+            format: uuid
+          - type: 'null'
+          title: Task Name
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+      security:
+      - BearerAuth: []
+      - APIKeyAuth: []
+  /api/plugins/{plugin_name}/instances/{integration_id}:
+    delete:
+      tags:
+      - plugins
+      summary: Delete Integration
+      operationId: delete_integration_api_plugins__plugin_name__instances__integration_id__delete
+      parameters:
+      - name: plugin_name
+        in: path
+        required: true
+        schema:
+          type: string
+          title: Plugin Name
+      - name: integration_id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+          title: Integration Id
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+      security:
+      - BearerAuth: []
+      - APIKeyAuth: []
+    put:
+      tags:
+      - plugins
+      summary: Update Integration
+      operationId: update_integration_api_plugins__plugin_name__instances__integration_id__put
+      parameters:
+      - name: plugin_name
+        in: path
+        required: true
+        schema:
+          type: string
+          title: Plugin Name
+      - name: integration_id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+          title: Integration Id
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              additionalProperties: true
+              title: Request Body
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+      security:
+      - BearerAuth: []
+      - APIKeyAuth: []
+  /api/plugins/{plugin_name}/instances/{integration_id}/webhook/callback:
+    post:
+      tags:
+      - plugins
+      summary: Handle Webhook
+      operationId: handle_webhook_api_plugins__plugin_name__instances__integration_id__webhook_callback_post
+      parameters:
+      - name: plugin_name
+        in: path
+        required: true
+        schema:
+          type: string
+          title: Plugin Name
+      - name: integration_id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+          title: Integration Id
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+      security:
+      - BearerAuth: []
+      - APIKeyAuth: []
+  /api/plugins/{plugin_name}/instances/{integration_id}/poll:
+    post:
+      tags:
+      - plugins
+      summary: Poll Integration
+      description: 'Execute scheduled polling for polling integration plugins.
+
+
+        This endpoint is called by the Temporal scheduled workflow to poll external systems
+
+        for new data. It handles file uploads, flow execution creation, and cleanup.
+
+
+        Runs under RLS (``@transactional``, not ``bypass_rls``): the scheduled caller''s
+
+        token carries the deploying user''s org and an ``app_user``/``org_admin`` role, so
+
+        the org-scoped policies on ``user_integrations``/``user_credentials`` resolve only
+
+        this org''s rows. Another org''s ``integration_id`` therefore resolves to nothing
+
+        and surfaces as a 404 — tenant isolation is enforced by the database, not a
+
+        hand-rolled check (FLO-2449).'
+      operationId: poll_integration_api_plugins__plugin_name__instances__integration_id__poll_post
+      parameters:
+      - name: plugin_name
+        in: path
+        required: true
+        schema:
+          type: string
+          title: Plugin Name
+      - name: integration_id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+          title: Integration Id
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              additionalProperties: true
+              title: Request Body
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+      security:
+      - BearerAuth: []
+      - APIKeyAuth: []
+  /api/plugins/{plugin_name}/instances/{integration_id}/execute:
+    post:
+      tags:
+      - plugins
+      summary: Execute Integration
+      operationId: execute_integration_api_plugins__plugin_name__instances__integration_id__execute_post
+      parameters:
+      - name: plugin_name
+        in: path
+        required: true
+        schema:
+          type: string
+          title: Plugin Name
+      - name: integration_id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+          title: Integration Id
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              additionalProperties: true
+              title: Request Body
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+      security:
+      - BearerAuth: []
+      - APIKeyAuth: []
+  /api/plugins/{plugin_name}/instances/{integration_id}/ui_schema:
+    post:
+      tags:
+      - plugins
+      summary: Get Ui Schema
+      operationId: get_ui_schema_api_plugins__plugin_name__instances__integration_id__ui_schema_post
+      parameters:
+      - name: plugin_name
+        in: path
+        required: true
+        schema:
+          type: string
+          title: Plugin Name
+      - name: integration_id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+          title: Integration Id
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/GetUiSchemaRequest'
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+      security:
+      - BearerAuth: []
+      - APIKeyAuth: []
+components:
+  schemas:
+    ErrorDetail:
+      properties:
+        message:
+          type: string
+          title: Message
+          description: Human-readable error message
+        code:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Code
+          description: Machine-readable error code for programmatic handling
+        details:
+          anyOf:
+          - items:
+              type: string
+            type: array
+          - items:
+              additionalProperties: true
+              type: object
+            type: array
+          - additionalProperties: true
+            type: object
+          - type: 'null'
+          title: Details
+          description: Additional error context, validation errors, or debugging information
+      type: object
+      required:
+      - message
+      title: ErrorDetail
+      description: 'Standard error detail structure.
+
+
+        This model matches the error format returned by the centralized
+
+        exception handlers in app/api/errors/handlers.py.'
+    ErrorResponse:
+      properties:
+        error:
+          $ref: '#/components/schemas/ErrorDetail'
+        request_id:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Request Id
+          description: 'Unique request identifier in ULID format for debugging and support. Example: 01K8KABR6S16YETA2SZPVBS9SP'
+      type: object
+      required:
+      - error
+      title: ErrorResponse
+      description: "Standard API error response structure.\n\nAll error responses from the API follow this format, ensuring\nconsistent error handling for API consumers.\n\nExample:\n    {\n        \"error\": {\n            \"message\": \"Flow not found\",\n            \"code\": \"not_found\"\n        },\n        \"request_id\": \"01K8KABR6S16YETA2SZPVBS9SP\"\n    }"
+      examples:
+      - error:
+          code: not_found
+          message: Resource not found
+        request_id: 01K8KABR6S16YETA2SZPVBS9SP
+    HTTPValidationError:
+      properties:
+        detail:
+          items:
+            $ref: '#/components/schemas/ValidationError'
+          type: array
+          title: Detail
+      type: object
+      title: HTTPValidationError
+    IntegrationCreateRequest:
+      properties:
+        flow_id:
+          type: string
+          format: uuid
+          title: Flow Id
+        credential_id:
+          anyOf:
+          - type: string
+            format: uuid
+          - type: 'null'
+          title: Credential Id
+        description:
+          type: string
+          title: Description
+        task_name:
+          type: string
+          title: Task Name
+      type: object
+      required:
+      - flow_id
+      - credential_id
+      - description
+      - task_name
+      title: IntegrationCreateRequest
+    app__api__integrations__plugins__plugins_router__OauthAuthorizeRequest:
+      properties:
+        redirect_to:
+          type: string
+          title: Redirect To
+        integration_name:
+          type: string
+          title: Integration Name
+      type: object
+      required:
+      - redirect_to
+      - integration_name
+      title: OauthAuthorizeRequest
+    GetUiSchemaRequest:
+      properties:
+        parameters:
+          additionalProperties: true
+          type: object
+          title: Parameters
+        user_action:
+          anyOf:
+          - additionalProperties: true
+            type: object
+          - type: 'null'
+          title: User Action
+      type: object
+      required:
+      - parameters
+      title: GetUiSchemaRequest
+    ValidationError:
+      properties:
+        loc:
+          items:
+            anyOf:
+            - type: string
+            - type: integer
+          type: array
+          title: Location
+        msg:
+          type: string
+          title: Message
+        type:
+          type: string
+          title: Error Type
+      type: object
+      required:
+      - loc
+      - msg
+      - type
+      title: ValidationError
+    app__api__integrations_new__integration_api_model__OauthAuthorizeRequest:
+      properties:
+        redirect_to:
+          type: string
+          title: Redirect To
+        integration_name:
+          type: string
+          title: Integration Name
+        provider_name:
+          type: string
+          title: Provider Name
+      type: object
+      required:
+      - redirect_to
+      - integration_name
+      - provider_name
+      title: OauthAuthorizeRequest
+  securitySchemes:
+    BearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+      description: 'JWT Bearer token authentication. Include your access token in the Authorization header as: `Bearer YOUR_ACCESS_TOKEN`
+
+
+        Example:
+
+        ```
+
+        Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
+
+        ```'
+    APIKeyAuth:
+      type: apiKey
+      name: X-API-Key
+      in: header
+      description: 'API key authentication. Include your API key in the X-API-Key header as: `X-API-Key YOUR_API_KEY`
+
+
+        Example:
+
+        ```
+
+        X-API-Key: saf_1234567890
+
+        ```'

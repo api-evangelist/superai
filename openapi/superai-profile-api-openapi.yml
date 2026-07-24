@@ -1,0 +1,649 @@
+openapi: 3.1.0
+info:
+  title: SuperAI Flow Platform auth profile API
+  description: "SuperAI Flows is a workflow orchestration platform that enables you to design, deploy, and monitor automated workflows at scale.\n\nBuild complex workflows using our declarative YAML DSL, execute them reliably, and integrate seamlessly with AI models, cloud storage, and enterprise systems.\n\n**Key Capabilities:**\n- **Workflow Management**: Define workflows as code with version control and automated execution\n- **Task Orchestration**: Chain together API calls, data processing, and AI operations\n- **Real-time Monitoring**: Track execution progress with WebSocket notifications and comprehensive logging\n- **Multi-tenant Architecture**: Organization-scoped resources with role-based access control\n\n**API Versioning and Breaking Changes:**\n\nWe follow a strict compatibility policy to ensure your integrations remain stable:\n\n- **Non-breaking changes** (safe, no action required):\n  - Adding new API endpoints\n  - Adding new optional query parameters to existing endpoints\n  - Adding new fields to API responses\n  - Adding new values to existing enums\n\n- **Breaking changes** (requires client updates):\n  - Removing or renaming API endpoints\n  - Removing query parameters or request fields\n  - Removing response fields\n  - Changing field types or validation rules\n  - Removing values from existing enums\n\n**Client Implementation Requirements:**\n\nYour API clients MUST be designed to gracefully handle additional fields in responses. We may add new fields to any response object without considering this a breaking change. Ensure your JSON parsers ignore unknown fields rather than raising errors.\n\n**Backward Compatibility Guarantee:**\n\nWe commit to maintaining backward compatibility for all non-breaking changes. Breaking changes will be:\n- Announced at least 15 days in advance\n- Documented in our changelog with migration guide\n\nFor the latest API updates and migration guides, see our changelog."
+  version: 0.1.0
+tags:
+- name: profile
+  description: 'User profile operations for viewing and updating account information.
+
+
+    Profile endpoints allow authenticated users to view and update their own account information and preferences. These endpoints operate on the currently authenticated user (determined from the JWT token) and do not require specifying a user ID.
+
+
+    **Account information includes:**
+
+    - **Personal Details**: First name, last name, email
+
+    - **Organization**: Associated organization and role
+
+    - **Status**: Account status and permissions
+
+    - **Metadata**: Created/updated timestamps
+
+
+    **Use these endpoints to:**
+
+    - Retrieve current user information for display
+
+    - Update personal details (name, preferences)
+
+    - View organization membership and role
+
+    - Access account metadata
+
+
+    Profile endpoints provide self-service account management capabilities, reducing the need for administrative intervention for routine updates.
+
+
+    **Note:** All profile endpoints are protected and automatically scope to the authenticated user. Email and organization changes require admin privileges.'
+  x-displayName: Profile
+paths:
+  /api/profile/me:
+    get:
+      tags:
+      - profile
+      summary: Get current user profile
+      description: "Retrieve complete profile information for the currently authenticated user.\n\nReturns the full user profile including personal information, role, status,\norganization membership with organization name, AND landing page configuration\nfor workers.\n\nContext:\n    - Returns user regardless of active/inactive/pending status\n    - Includes organization_id AND organization_name for multi-tenant access control\n    - Organization name used by frontend to enable/disable features (e.g., \"super-ai\" org)\n    - Landing page config included for worker roles (reviewers, publishers)\n    - Profile data is read-only via this endpoint (use PATCH /profile/me to update)\n    - User role determines API permissions across the platform\n\nBehavior:\n    1. Extracts user_id from authenticated user context\n    2. Calls UserService.get_profile() which handles:\n       - User profile retrieval from database\n       - Organization details retrieval\n       - Landing page configuration (for workers only)\n    3. Returns complete user profile with landing page config\n    4. Raises 404 if user exists in auth system but not in database (rare edge case)\n\nUse Cases:\n    - Display user name and email in application header\n    - Check user role to show/hide UI features (org_admin, app_user, etc.)\n    - Check organization name for feature gating (e.g., credits visible for \"super-ai\")\n    - Verify user's organization for multi-tenant data filtering\n    - Determine user status for account activation workflows\n    - Fetch user details after authentication to initialize session\n    - **NEW**: Determine landing page redirect for workers on login\n\nRelated Endpoints:\n    - PATCH /profile/me - Update current user's name\n    - GET /admin/users/{user_id} - Admin endpoint to view any user\n    - GET /admin/organizations/{org_id}/users - List users in organization\n    - GET /organizations/{org_id}/credits - View organization credit balance"
+      operationId: get_current_user_api_profile_me_get
+      responses:
+        '200':
+          description: User profile retrieved successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserProfileResponse'
+        '404':
+          description: User account not found in database despite valid authentication token
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          description: Unauthorized - Missing or invalid authentication credentials
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                missing_token:
+                  summary: Missing authentication token
+                  value:
+                    error:
+                      message: Authentication required
+                      code: unauthorized
+                    request_id: 01K8KABR6S16YETA2SZPVBS9SP
+                invalid_token:
+                  summary: Invalid or expired token
+                  value:
+                    error:
+                      message: Invalid authentication token
+                      code: unauthorized
+                    request_id: 01K8KACP7D2XFGHJ9KLM4NPQR8
+        '500':
+          description: Internal Server Error - An unexpected error occurred
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                internal_error:
+                  summary: Internal server error
+                  value:
+                    error:
+                      message: Internal server error
+                      code: internal_error
+                    request_id: 01K8KABR6S16YETA2SZPVBS9SP
+                repository_error:
+                  summary: Database error
+                  value:
+                    error:
+                      message: Database operation failed
+                      code: repository_error
+                    request_id: 01K8KACP7D2XFGHJ9KLM4NPQR8
+      security:
+      - BearerAuth: []
+      - APIKeyAuth: []
+    patch:
+      tags:
+      - profile
+      summary: Update current user profile
+      description: "Update the currently authenticated user's profile information.\n\nAllows users to modify their personal information including first and last name.\nOnly the fields provided in the request body will be updated. Omitted fields\nremain unchanged. The user is automatically identified from their authentication credentials.\n\nContext:\n    - Only first_name and last_name can be updated via this endpoint\n    - Password field in request body is reserved for future use (not implemented)\n    - Email, role, status, and organization cannot be changed by users\n    - Updates are immediate and reflected in database upon success\n    - Full user profile returned in response with updated values\n\nBehavior:\n    1. Extracts user_id from authenticated user context\n    2. Validates request body fields (min/max length constraints)\n    3. Queries database to verify user exists\n    4. Updates only first_name and last_name if provided\n    5. Persists changes to database with updated_at timestamp\n    6. Returns complete updated user profile\n\nUse Cases:\n    - User wants to correct misspelled name\n    - User prefers different name display (nickname vs full name)\n    - User changes last name after marriage or legal name change\n    - Profile updates during onboarding or account setup\n    - Internationalization of name display\n\nField Update Rules:\n    - first_name: 1-100 characters if provided, unchanged if null\n    - last_name: 1-100 characters if provided, unchanged if null\n    - password: Not currently implemented, reserved for future use\n    - All other fields (email, role, status): Use admin endpoints to modify\n\nRelated Endpoints:\n    - GET /profile/me - Retrieve current user profile\n    - PUT /admin/users/{user_id} - Admin endpoint to update any user\n    - POST /auth/change-password - Change password (separate auth flow)"
+      operationId: update_current_user_api_profile_me_patch
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UserUpdateRequest'
+        required: true
+      responses:
+        '200':
+          description: User profile updated successfully with new values
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+        '404':
+          description: User account not found in database despite valid authentication token
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          description: Unauthorized - Missing or invalid authentication credentials
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                missing_token:
+                  summary: Missing authentication token
+                  value:
+                    error:
+                      message: Authentication required
+                      code: unauthorized
+                    request_id: 01K8KABR6S16YETA2SZPVBS9SP
+                invalid_token:
+                  summary: Invalid or expired token
+                  value:
+                    error:
+                      message: Invalid authentication token
+                      code: unauthorized
+                    request_id: 01K8KACP7D2XFGHJ9KLM4NPQR8
+        '422':
+          description: Unprocessable Entity - Request validation failed
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                validation_error:
+                  summary: Validation error
+                  value:
+                    error:
+                      message: Request validation failed
+                      code: validation_error
+                      details:
+                      - type: missing
+                        loc:
+                        - body
+                        - name
+                        msg: Field required
+                    request_id: 01K8KABR6S16YETA2SZPVBS9SP
+                type_error:
+                  summary: Type validation error
+                  value:
+                    error:
+                      message: Request validation failed
+                      code: validation_error
+                      details:
+                      - type: uuid_parsing
+                        loc:
+                        - path
+                        - flow_id
+                        msg: Input should be a valid UUID
+                        input: not-a-uuid
+                    request_id: 01K8KACP7D2XFGHJ9KLM4NPQR8
+        '500':
+          description: Internal Server Error - An unexpected error occurred
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                internal_error:
+                  summary: Internal server error
+                  value:
+                    error:
+                      message: Internal server error
+                      code: internal_error
+                    request_id: 01K8KABR6S16YETA2SZPVBS9SP
+                repository_error:
+                  summary: Database error
+                  value:
+                    error:
+                      message: Database operation failed
+                      code: repository_error
+                    request_id: 01K8KACP7D2XFGHJ9KLM4NPQR8
+      security:
+      - BearerAuth: []
+      - APIKeyAuth: []
+components:
+  schemas:
+    User:
+      properties:
+        created_at:
+          type: string
+          format: date-time
+          title: Created At
+        updated_at:
+          type: string
+          format: date-time
+          title: Updated At
+        modified_by:
+          type: string
+          title: Modified By
+        id:
+          type: string
+          format: uuid
+          title: Id
+        first_name:
+          type: string
+          title: First Name
+        last_name:
+          type: string
+          title: Last Name
+        email:
+          type: string
+          title: Email
+        role:
+          $ref: '#/components/schemas/UserRole'
+          default: app_user
+        status:
+          $ref: '#/components/schemas/UserStatus'
+          default: pending
+        organization_id:
+          type: string
+          format: uuid
+          title: Organization Id
+        user_auth_id:
+          anyOf:
+          - type: string
+            format: uuid
+          - type: 'null'
+          title: User Auth Id
+        settings:
+          anyOf:
+          - additionalProperties: true
+            type: object
+          - type: 'null'
+          title: Settings
+        deleted:
+          type: boolean
+          title: Deleted
+          default: false
+      type: object
+      required:
+      - first_name
+      - last_name
+      - email
+      - organization_id
+      title: User
+      description: User model
+    UserSettingsUpdateRequest:
+      properties:
+        templates_collapsed:
+          anyOf:
+          - type: boolean
+          - type: 'null'
+          title: Templates Collapsed
+        hub_view:
+          anyOf:
+          - $ref: '#/components/schemas/HubViewPreference'
+          - type: 'null'
+        sidebar_open:
+          anyOf:
+          - type: boolean
+          - type: 'null'
+          title: Sidebar Open
+        hub_sort:
+          anyOf:
+          - type: string
+            enum:
+            - created_at_desc
+            - created_at_asc
+            - updated_at_desc
+            - updated_at_asc
+            - display_name_asc
+            - display_name_desc
+          - type: 'null'
+          title: Hub Sort
+        hub_tag_filters:
+          anyOf:
+          - items:
+              $ref: '#/components/schemas/HubTagFilter'
+            type: array
+          - type: 'null'
+          title: Hub Tag Filters
+        runs_per_page:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Runs Per Page
+        default_flow_views:
+          anyOf:
+          - additionalProperties:
+              anyOf:
+              - type: string
+                format: uuid
+              - type: string
+                const: runs
+              - type: 'null'
+            propertyNames:
+              format: uuid
+            type: object
+            maxProperties: 1000
+          - type: 'null'
+          title: Default Flow Views
+      additionalProperties: false
+      type: object
+      title: UserSettingsUpdateRequest
+    ErrorResponse:
+      properties:
+        error:
+          $ref: '#/components/schemas/ErrorDetail'
+        request_id:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Request Id
+          description: 'Unique request identifier in ULID format for debugging and support. Example: 01K8KABR6S16YETA2SZPVBS9SP'
+      type: object
+      required:
+      - error
+      title: ErrorResponse
+      description: "Standard API error response structure.\n\nAll error responses from the API follow this format, ensuring\nconsistent error handling for API consumers.\n\nExample:\n    {\n        \"error\": {\n            \"message\": \"Flow not found\",\n            \"code\": \"not_found\"\n        },\n        \"request_id\": \"01K8KABR6S16YETA2SZPVBS9SP\"\n    }"
+      examples:
+      - error:
+          code: not_found
+          message: Resource not found
+        request_id: 01K8KABR6S16YETA2SZPVBS9SP
+    ErrorDetail:
+      properties:
+        message:
+          type: string
+          title: Message
+          description: Human-readable error message
+        code:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Code
+          description: Machine-readable error code for programmatic handling
+        details:
+          anyOf:
+          - items:
+              type: string
+            type: array
+          - items:
+              additionalProperties: true
+              type: object
+            type: array
+          - additionalProperties: true
+            type: object
+          - type: 'null'
+          title: Details
+          description: Additional error context, validation errors, or debugging information
+      type: object
+      required:
+      - message
+      title: ErrorDetail
+      description: 'Standard error detail structure.
+
+
+        This model matches the error format returned by the centralized
+
+        exception handlers in app/api/errors/handlers.py.'
+    UserSettings:
+      properties:
+        templates_collapsed:
+          type: boolean
+          title: Templates Collapsed
+          default: false
+        hub_view:
+          $ref: '#/components/schemas/HubViewPreference'
+          default: cards
+        sidebar_open:
+          type: boolean
+          title: Sidebar Open
+          default: true
+        hub_sort:
+          type: string
+          enum:
+          - created_at_desc
+          - created_at_asc
+          - updated_at_desc
+          - updated_at_asc
+          - display_name_asc
+          - display_name_desc
+          title: Hub Sort
+          default: created_at_desc
+        hub_tag_filters:
+          items:
+            $ref: '#/components/schemas/HubTagFilter'
+          type: array
+          title: Hub Tag Filters
+        runs_per_page:
+          type: integer
+          title: Runs Per Page
+          default: 10
+        default_flow_views:
+          additionalProperties:
+            anyOf:
+            - type: string
+              format: uuid
+            - type: string
+              const: runs
+          propertyNames:
+            format: uuid
+          type: object
+          maxProperties: 1000
+          title: Default Flow Views
+      type: object
+      title: UserSettings
+    UserStatus:
+      type: string
+      enum:
+      - pending
+      - active
+      - inactive
+      title: UserStatus
+    UserRole:
+      type: string
+      enum:
+      - org_admin
+      - backoffice
+      - app_user
+      - worker
+      - publisher
+      - integration
+      title: UserRole
+    HubViewPreference:
+      type: string
+      enum:
+      - cards
+      - list
+      title: HubViewPreference
+    HubTagFilter:
+      properties:
+        mode:
+          type: string
+          enum:
+          - contains_any
+          - not_contains_any
+          title: Mode
+          default: contains_any
+        values:
+          items:
+            type: string
+          type: array
+          title: Values
+      type: object
+      title: HubTagFilter
+    UserProfileResponse:
+      properties:
+        id:
+          type: string
+          format: uuid
+          title: Id
+        created_at:
+          type: string
+          format: date-time
+          title: Created At
+        updated_at:
+          type: string
+          format: date-time
+          title: Updated At
+        modified_by:
+          type: string
+          title: Modified By
+        first_name:
+          type: string
+          title: First Name
+        last_name:
+          type: string
+          title: Last Name
+        email:
+          type: string
+          title: Email
+        role:
+          type: string
+          title: Role
+        status:
+          type: string
+          title: Status
+        organization_id:
+          type: string
+          format: uuid
+          title: Organization Id
+        organization_name:
+          type: string
+          title: Organization Name
+        organization_tier:
+          type: string
+          title: Organization Tier
+        organization_payment_method:
+          type: string
+          title: Organization Payment Method
+          default: stripe
+        landing_page:
+          $ref: '#/components/schemas/LandingPageConfig'
+          description: Landing page configuration for workers (hub for non-workers)
+        settings:
+          $ref: '#/components/schemas/UserSettings'
+          description: User UI preferences (templates collapsed, hub view mode)
+      type: object
+      required:
+      - id
+      - created_at
+      - updated_at
+      - modified_by
+      - first_name
+      - last_name
+      - email
+      - role
+      - status
+      - organization_id
+      - organization_name
+      - organization_tier
+      title: UserProfileResponse
+      description: User profile response with organization name included.
+    LandingPageConfig:
+      properties:
+        landing_page_config:
+          $ref: '#/components/schemas/WorkerLandingPageConfig'
+          description: 'Landing page configuration: ''hub'', ''assigned_flow_data_tab'', or ''assigned_flow_work_tab'''
+          default: hub
+        landing_page_flow_id:
+          anyOf:
+          - type: string
+            format: uuid
+          - type: 'null'
+          title: Landing Page Flow Id
+          description: Target flow ID when config is assigned_flow_*, None for hub
+      type: object
+      title: LandingPageConfig
+      description: 'Landing page configuration for workers.
+
+
+        This model encapsulates the landing page redirect behavior including
+
+        the configuration type and optional target flow ID.'
+    WorkerLandingPageConfig:
+      type: string
+      enum:
+      - hub
+      - assigned_flow_data_tab
+      - assigned_flow_work_tab
+      title: WorkerLandingPageConfig
+      description: Configuration for worker landing page redirect.
+    UserUpdateRequest:
+      properties:
+        first_name:
+          anyOf:
+          - type: string
+            maxLength: 100
+            minLength: 1
+          - type: 'null'
+          title: First Name
+          description: User's first name. Used for display in the UI and in email communications. Must be at least 1 character if provided. Set to null or omit to leave unchanged.
+          examples:
+          - John
+          - Maria
+          - 李
+        last_name:
+          anyOf:
+          - type: string
+            maxLength: 100
+            minLength: 1
+          - type: 'null'
+          title: Last Name
+          description: User's last name or family name. Combined with first_name for full name display. Must be at least 1 character if provided. Set to null or omit to leave unchanged.
+          examples:
+          - Doe
+          - García
+          - Chen
+        password:
+          anyOf:
+          - type: string
+            maxLength: 128
+            minLength: 8
+          - type: 'null'
+          title: Password
+          description: 'New password for the user account. Note: Password updates are currently not implemented in the API. This field is reserved for future functionality. Password changes should be handled through the authentication service.'
+          examples:
+          - MySecureP@ssw0rd123
+        settings:
+          anyOf:
+          - $ref: '#/components/schemas/UserSettingsUpdateRequest'
+          - type: 'null'
+          description: User UI preferences to update (partial updates supported)
+      type: object
+      title: UserUpdateRequest
+      description: 'Request model for updating the authenticated user''s profile information.
+
+
+        All fields are optional. Only provided fields will be updated,
+
+        allowing partial updates without affecting other user attributes.
+
+        Omitted fields remain unchanged in the database.'
+  securitySchemes:
+    BearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+      description: 'JWT Bearer token authentication. Include your access token in the Authorization header as: `Bearer YOUR_ACCESS_TOKEN`
+
+
+        Example:
+
+        ```
+
+        Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
+
+        ```'
+    APIKeyAuth:
+      type: apiKey
+      name: X-API-Key
+      in: header
+      description: 'API key authentication. Include your API key in the X-API-Key header as: `X-API-Key YOUR_API_KEY`
+
+
+        Example:
+
+        ```
+
+        X-API-Key: saf_1234567890
+
+        ```'

@@ -1,0 +1,519 @@
+openapi: 3.1.0
+info:
+  title: SuperAI Flow Platform auth files API
+  description: "SuperAI Flows is a workflow orchestration platform that enables you to design, deploy, and monitor automated workflows at scale.\n\nBuild complex workflows using our declarative YAML DSL, execute them reliably, and integrate seamlessly with AI models, cloud storage, and enterprise systems.\n\n**Key Capabilities:**\n- **Workflow Management**: Define workflows as code with version control and automated execution\n- **Task Orchestration**: Chain together API calls, data processing, and AI operations\n- **Real-time Monitoring**: Track execution progress with WebSocket notifications and comprehensive logging\n- **Multi-tenant Architecture**: Organization-scoped resources with role-based access control\n\n**API Versioning and Breaking Changes:**\n\nWe follow a strict compatibility policy to ensure your integrations remain stable:\n\n- **Non-breaking changes** (safe, no action required):\n  - Adding new API endpoints\n  - Adding new optional query parameters to existing endpoints\n  - Adding new fields to API responses\n  - Adding new values to existing enums\n\n- **Breaking changes** (requires client updates):\n  - Removing or renaming API endpoints\n  - Removing query parameters or request fields\n  - Removing response fields\n  - Changing field types or validation rules\n  - Removing values from existing enums\n\n**Client Implementation Requirements:**\n\nYour API clients MUST be designed to gracefully handle additional fields in responses. We may add new fields to any response object without considering this a breaking change. Ensure your JSON parsers ignore unknown fields rather than raising errors.\n\n**Backward Compatibility Guarantee:**\n\nWe commit to maintaining backward compatibility for all non-breaking changes. Breaking changes will be:\n- Announced at least 15 days in advance\n- Documented in our changelog with migration guide\n\nFor the latest API updates and migration guides, see our changelog."
+  version: 0.1.0
+tags:
+- name: files
+  description: "File download operations for retrieving files from gs:// storage URIs.\n\nWhen Super.AI Flows processes documents, task outputs often include file references as `gs://` URIs pointing to Google Cloud Storage. These endpoints let you download those files without needing to understand GCS internals or parse storage URLs.\n\n**The problem these endpoints solve:**\n\nPreviously, downloading a file required:\n1. Recognizing the URL as a GCS reference\n2. Parsing out the file key from the URI\n3. Calling a separate endpoint to get a signed URL\n4. Downloading using that signed URL\n\n**Now it's simple:** Pass the `gs://` URI exactly as received and get your file.\n\n**Two ways to download:**\n\n1. **Direct download** (`GET /files/download`): Returns a redirect to the file. Perfect for curl with `-L` flag.\n   ```\n   curl -L -H \"X-API-Key: saf_xxx\" \"https://flows.super.ai/api/files/download?uri=gs://...\" -o file.pdf\n   ```\n\n2. **Resolve first** (`POST /files/resolve`): Returns a JSON response with the download URL. Better for programmatic use and sensitive files (keeps URI out of logs).\n   ```\n   curl -X POST \"https://flows.super.ai/api/files/resolve\" \\\n     -H \"X-API-Key: saf_xxx\" \\\n     -H \"Content-Type: application/json\" \\\n     -d '{\"uri\": \"gs://...\"}'\n   ```\n\n**Security:**\n- Files are organization-scoped: you can only download files from flows your organization owns\n- URIs are validated to prevent path traversal attacks\n- Download URLs expire after 1 hour\n\n**Common use cases:**\n- Download processed documents from completed flow executions\n- Retrieve extracted data files from task outputs\n- Integrate file downloads into automated pipelines"
+  x-displayName: Files
+paths:
+  /api/files/resolve:
+    post:
+      tags:
+      - files
+      summary: Resolve storage URI to download URL
+      description: 'Resolve a gs:// storage URI to a temporary pre-signed download URL.
+
+
+        This is the **recommended endpoint** for downloading files from task outputs.
+
+        Simply pass the `gs://` URI exactly as you received it—no parsing required.
+
+
+        The returned `download_url` is a pre-signed URL valid for **1 hour** that can
+
+        be used to download the file directly without additional authentication.
+
+
+        **Why use POST instead of GET?**
+
+
+        Using POST keeps the URI out of server access logs and browser history,
+
+        which is better for security when dealing with sensitive files.'
+      operationId: resolve_uri_api_files_resolve_post
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ResolveUriRequest'
+        required: true
+      responses:
+        '200':
+          description: URI resolved successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ResolveUriResponse'
+        '400':
+          description: Invalid URI format, unsupported scheme, or path traversal attempt
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                invalid_scheme:
+                  summary: Invalid URI scheme
+                  value:
+                    error:
+                      message: Invalid URI scheme. Must start with 'gs://'
+                      code: bad_request
+                    request_id: 01K8KABR6S16YETA2SZPVBS9SP
+                invalid_format:
+                  summary: Malformed URI
+                  value:
+                    error:
+                      message: 'Invalid URI format: missing bucket or path'
+                      code: bad_request
+                    request_id: 01K8KACP7D2XFGHJ9KLM4NPQR8
+                path_traversal:
+                  summary: Path traversal attempt (contains ../ or similar)
+                  value:
+                    error:
+                      message: Invalid path
+                      code: bad_request
+                    request_id: 01K8KACP7D2XFGHJ9KLM4NPQR8
+        '403':
+          description: Access denied - user does not have permission to access this file
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                wrong_organization:
+                  summary: File belongs to different organization
+                  value:
+                    error:
+                      message: 'Access denied: you do not have access to this file'
+                      code: forbidden
+                    request_id: 01K8KABR6S16YETA2SZPVBS9SP
+                invalid_bucket:
+                  summary: Invalid storage location
+                  value:
+                    error:
+                      message: 'Access denied: invalid storage location'
+                      code: forbidden
+                    request_id: 01K8KACP7D2XFGHJ9KLM4NPQR8
+        '404':
+          description: The flow or file does not exist
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                flow_not_found:
+                  summary: Flow does not exist or user lacks access
+                  value:
+                    error:
+                      message: Flow not found
+                      code: not_found
+                    request_id: 01K8KABR6S16YETA2SZPVBS9SP
+                file_not_found:
+                  summary: File deleted or moved from storage
+                  value:
+                    error:
+                      message: File not found in storage. The file may have been deleted or moved.
+                      code: not_found
+                    request_id: 01K8KACP7D2XFGHJ9KLM4NPQR8
+        '401':
+          description: Unauthorized - Missing or invalid authentication credentials
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                missing_token:
+                  summary: Missing authentication token
+                  value:
+                    error:
+                      message: Authentication required
+                      code: unauthorized
+                    request_id: 01K8KABR6S16YETA2SZPVBS9SP
+                invalid_token:
+                  summary: Invalid or expired token
+                  value:
+                    error:
+                      message: Invalid authentication token
+                      code: unauthorized
+                    request_id: 01K8KACP7D2XFGHJ9KLM4NPQR8
+        '500':
+          description: Internal Server Error - An unexpected error occurred
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                internal_error:
+                  summary: Internal server error
+                  value:
+                    error:
+                      message: Internal server error
+                      code: internal_error
+                    request_id: 01K8KABR6S16YETA2SZPVBS9SP
+                repository_error:
+                  summary: Database error
+                  value:
+                    error:
+                      message: Database operation failed
+                      code: repository_error
+                    request_id: 01K8KACP7D2XFGHJ9KLM4NPQR8
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+      security:
+      - BearerAuth: []
+      - APIKeyAuth: []
+  /api/files/download:
+    get:
+      tags:
+      - files
+      summary: Download file by URI (with redirect)
+      description: 'Download a file by resolving its gs:// storage URI.
+
+
+        This endpoint provides a convenient way to download files directly using curl
+
+        or wget. By default, it returns a 302 redirect to a pre-signed download URL.
+
+
+        **Quick download with curl:**
+
+        ```
+
+        curl -L -H "X-API-Key: $KEY" "https://flows.super.ai/api/files/download?uri=gs://..." -o file.pdf
+
+        ```
+
+
+        The `-L` flag tells curl to follow the redirect automatically.
+
+
+        **Note:** The URI will appear in server access logs. For sensitive files,
+
+        use the POST `/api/files/resolve` endpoint instead.'
+      operationId: download_file_api_files_download_get
+      parameters:
+      - name: uri
+        in: query
+        required: true
+        schema:
+          type: string
+          description: The gs:// storage URI to download. Pass the exact URI from your task output (URL-encoded for special characters).
+          title: Uri
+        description: The gs:// storage URI to download. Pass the exact URI from your task output (URL-encoded for special characters).
+        examples:
+          document:
+            summary: Document file
+            value: gs://superai-file-upload-prod-eu/flows/255a17d0-5c21-47d9-8e0b-a08b48436f0a/documents/f8230da2-4136-4ffb-acfe-db9318970ea2
+      - name: redirect
+        in: query
+        required: false
+        schema:
+          type: boolean
+          description: If true (default), returns 302 redirect to download URL. If false, returns JSON with the download URL for programmatic use.
+          default: true
+          title: Redirect
+        description: If true (default), returns 302 redirect to download URL. If false, returns JSON with the download URL for programmatic use.
+      responses:
+        '200':
+          description: JSON response with download URL (when redirect=false)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ResolveUriResponse'
+        '302':
+          description: Redirect to pre-signed download URL. Follow this redirect to download the file.
+          headers:
+            Location:
+              description: Pre-signed download URL (valid for 1 hour)
+              schema:
+                type: string
+                format: uri
+        '400':
+          description: Invalid URI format, unsupported scheme, or path traversal attempt
+          content:
+            application/json:
+              examples:
+                invalid_scheme:
+                  summary: Invalid URI scheme
+                  value:
+                    error:
+                      message: Invalid URI scheme. Must start with 'gs://'
+                      code: bad_request
+                    request_id: 01K8KABR6S16YETA2SZPVBS9SP
+                invalid_format:
+                  summary: Malformed URI
+                  value:
+                    error:
+                      message: 'Invalid URI format: missing bucket or path'
+                      code: bad_request
+                    request_id: 01K8KACP7D2XFGHJ9KLM4NPQR8
+                path_traversal:
+                  summary: Path traversal attempt (contains ../ or similar)
+                  value:
+                    error:
+                      message: Invalid path
+                      code: bad_request
+                    request_id: 01K8KACP7D2XFGHJ9KLM4NPQR8
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '403':
+          description: Access denied - user does not have permission to access this file
+          content:
+            application/json:
+              examples:
+                wrong_organization:
+                  summary: File belongs to different organization
+                  value:
+                    error:
+                      message: 'Access denied: you do not have access to this file'
+                      code: forbidden
+                    request_id: 01K8KABR6S16YETA2SZPVBS9SP
+                invalid_bucket:
+                  summary: Invalid storage location
+                  value:
+                    error:
+                      message: 'Access denied: invalid storage location'
+                      code: forbidden
+                    request_id: 01K8KACP7D2XFGHJ9KLM4NPQR8
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: The flow or file does not exist
+          content:
+            application/json:
+              examples:
+                flow_not_found:
+                  summary: Flow does not exist or user lacks access
+                  value:
+                    error:
+                      message: Flow not found
+                      code: not_found
+                    request_id: 01K8KABR6S16YETA2SZPVBS9SP
+                file_not_found:
+                  summary: File deleted or moved from storage
+                  value:
+                    error:
+                      message: File not found in storage. The file may have been deleted or moved.
+                      code: not_found
+                    request_id: 01K8KACP7D2XFGHJ9KLM4NPQR8
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          description: Unauthorized - Missing or invalid authentication credentials
+          content:
+            application/json:
+              examples:
+                missing_token:
+                  summary: Missing authentication token
+                  value:
+                    error:
+                      message: Authentication required
+                      code: unauthorized
+                    request_id: 01K8KABR6S16YETA2SZPVBS9SP
+                invalid_token:
+                  summary: Invalid or expired token
+                  value:
+                    error:
+                      message: Invalid authentication token
+                      code: unauthorized
+                    request_id: 01K8KACP7D2XFGHJ9KLM4NPQR8
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: Internal Server Error - An unexpected error occurred
+          content:
+            application/json:
+              examples:
+                internal_error:
+                  summary: Internal server error
+                  value:
+                    error:
+                      message: Internal server error
+                      code: internal_error
+                    request_id: 01K8KABR6S16YETA2SZPVBS9SP
+                repository_error:
+                  summary: Database error
+                  value:
+                    error:
+                      message: Database operation failed
+                      code: repository_error
+                    request_id: 01K8KACP7D2XFGHJ9KLM4NPQR8
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+      security:
+      - BearerAuth: []
+      - APIKeyAuth: []
+components:
+  schemas:
+    ResolveUriRequest:
+      properties:
+        uri:
+          type: string
+          title: Uri
+          description: The gs:// storage URI to resolve. Pass the exact URI from your task output.
+      type: object
+      required:
+      - uri
+      title: ResolveUriRequest
+      description: 'Request body for resolving a storage URI to a download URL.
+
+
+        Pass the gs:// URI exactly as received from task outputs—no parsing required.'
+      examples:
+      - uri: gs://superai-file-upload-prod-eu/flows/255a17d0-5c21-47d9-8e0b-a08b48436f0a/documents/f8230da2-4136-4ffb-acfe-db9318970ea2
+    ErrorResponse:
+      properties:
+        error:
+          $ref: '#/components/schemas/ErrorDetail'
+        request_id:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Request Id
+          description: 'Unique request identifier in ULID format for debugging and support. Example: 01K8KABR6S16YETA2SZPVBS9SP'
+      type: object
+      required:
+      - error
+      title: ErrorResponse
+      description: "Standard API error response structure.\n\nAll error responses from the API follow this format, ensuring\nconsistent error handling for API consumers.\n\nExample:\n    {\n        \"error\": {\n            \"message\": \"Flow not found\",\n            \"code\": \"not_found\"\n        },\n        \"request_id\": \"01K8KABR6S16YETA2SZPVBS9SP\"\n    }"
+      examples:
+      - error:
+          code: not_found
+          message: Resource not found
+        request_id: 01K8KABR6S16YETA2SZPVBS9SP
+    ErrorDetail:
+      properties:
+        message:
+          type: string
+          title: Message
+          description: Human-readable error message
+        code:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Code
+          description: Machine-readable error code for programmatic handling
+        details:
+          anyOf:
+          - items:
+              type: string
+            type: array
+          - items:
+              additionalProperties: true
+              type: object
+            type: array
+          - additionalProperties: true
+            type: object
+          - type: 'null'
+          title: Details
+          description: Additional error context, validation errors, or debugging information
+      type: object
+      required:
+      - message
+      title: ErrorDetail
+      description: 'Standard error detail structure.
+
+
+        This model matches the error format returned by the centralized
+
+        exception handlers in app/api/errors/handlers.py.'
+    HTTPValidationError:
+      properties:
+        detail:
+          items:
+            $ref: '#/components/schemas/ValidationError'
+          type: array
+          title: Detail
+      type: object
+      title: HTTPValidationError
+    ValidationError:
+      properties:
+        loc:
+          items:
+            anyOf:
+            - type: string
+            - type: integer
+          type: array
+          title: Location
+        msg:
+          type: string
+          title: Message
+        type:
+          type: string
+          title: Error Type
+      type: object
+      required:
+      - loc
+      - msg
+      - type
+      title: ValidationError
+    ResolveUriResponse:
+      properties:
+        download_url:
+          type: string
+          title: Download Url
+          description: Pre-signed URL for downloading the file. Use this URL directly—no authentication headers required. Valid for 1 hour.
+        expires_at:
+          type: string
+          title: Expires At
+          description: ISO 8601 timestamp when the download URL expires. Request a new URL after this time.
+        expires_in_seconds:
+          type: integer
+          title: Expires In Seconds
+          description: Seconds remaining until the download URL expires. Always 3600 (1 hour) for new URLs.
+      type: object
+      required:
+      - download_url
+      - expires_at
+      - expires_in_seconds
+      title: ResolveUriResponse
+      description: 'Response containing a temporary pre-signed download URL.
+
+
+        The download_url can be used directly to download the file without
+
+        additional authentication. URLs expire after 1 hour.'
+      examples:
+      - download_url: https://storage.googleapis.com/superai-file-upload-prod-eu/flows/255a17d0-5c21-47d9-8e0b-a08b48436f0a/documents/f8230da2-4136-4ffb-acfe-db9318970ea2?X-Goog-Algorithm=GOOG4-RSA-SHA256&X-Goog-Credential=...&X-Goog-Date=...&X-Goog-Expires=3600&X-Goog-Signature=...
+        expires_at: '2025-01-15T15:00:00+00:00'
+        expires_in_seconds: 3600
+  securitySchemes:
+    BearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+      description: 'JWT Bearer token authentication. Include your access token in the Authorization header as: `Bearer YOUR_ACCESS_TOKEN`
+
+
+        Example:
+
+        ```
+
+        Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
+
+        ```'
+    APIKeyAuth:
+      type: apiKey
+      name: X-API-Key
+      in: header
+      description: 'API key authentication. Include your API key in the X-API-Key header as: `X-API-Key YOUR_API_KEY`
+
+
+        Example:
+
+        ```
+
+        X-API-Key: saf_1234567890
+
+        ```'

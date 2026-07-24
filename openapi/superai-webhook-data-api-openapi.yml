@@ -1,0 +1,239 @@
+openapi: 3.1.0
+info:
+  title: SuperAI Flow Platform auth webhook-data API
+  description: "SuperAI Flows is a workflow orchestration platform that enables you to design, deploy, and monitor automated workflows at scale.\n\nBuild complex workflows using our declarative YAML DSL, execute them reliably, and integrate seamlessly with AI models, cloud storage, and enterprise systems.\n\n**Key Capabilities:**\n- **Workflow Management**: Define workflows as code with version control and automated execution\n- **Task Orchestration**: Chain together API calls, data processing, and AI operations\n- **Real-time Monitoring**: Track execution progress with WebSocket notifications and comprehensive logging\n- **Multi-tenant Architecture**: Organization-scoped resources with role-based access control\n\n**API Versioning and Breaking Changes:**\n\nWe follow a strict compatibility policy to ensure your integrations remain stable:\n\n- **Non-breaking changes** (safe, no action required):\n  - Adding new API endpoints\n  - Adding new optional query parameters to existing endpoints\n  - Adding new fields to API responses\n  - Adding new values to existing enums\n\n- **Breaking changes** (requires client updates):\n  - Removing or renaming API endpoints\n  - Removing query parameters or request fields\n  - Removing response fields\n  - Changing field types or validation rules\n  - Removing values from existing enums\n\n**Client Implementation Requirements:**\n\nYour API clients MUST be designed to gracefully handle additional fields in responses. We may add new fields to any response object without considering this a breaking change. Ensure your JSON parsers ignore unknown fields rather than raising errors.\n\n**Backward Compatibility Guarantee:**\n\nWe commit to maintaining backward compatibility for all non-breaking changes. Breaking changes will be:\n- Announced at least 15 days in advance\n- Documented in our changelog with migration guide\n\nFor the latest API updates and migration guides, see our changelog."
+  version: 0.1.0
+tags:
+- name: webhook-data
+  description: Push data from external systems to a flow execution's waiting 'Wait for Webhook' task. A 2xx acknowledgment means the data is durably stored; identical redeliveries are idempotent.
+  x-displayName: Webhook Data
+paths:
+  /api/flow-executions/{flow_execution_id}/webhook-data:
+    post:
+      tags:
+      - webhook-data
+      summary: Submit webhook data for a waiting task
+      description: "Push data to a flow execution's waiting \"Wait for Webhook\" task.\n\nThe flow pauses when it reaches a webhook receiver task and resumes with\nthe submitted `data` as the task's output. Data may also be submitted\nbefore the flow reaches the task; it is stored and picked up when the task\nruns.\n\nDelivery contract:\n    - A 2xx response means the data is durably stored and will not be lost.\n    - Retrying with the identical body is safe and idempotent (returns\n      status 'duplicate').\n    - Retry on 5xx. Do not retry 4xx unchanged: 422 means the data does not\n      match the task's schema; 409 with different data means the first\n      delivery already won.\n\nContext:\n    - The target task is addressed by `task_name` in the request body; a\n      flow may contain multiple webhook receiver tasks.\n    - Authenticate with an organization API key (X-API-Key) or a user JWT."
+      operationId: receive_webhook_data_api_flow_executions__flow_execution_id__webhook_data_post
+      parameters:
+      - name: flow_execution_id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+          title: Flow Execution Id
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/WebhookDataCreateRequest'
+      responses:
+        '200':
+          description: Webhook data durably stored ('received') or already stored ('duplicate')
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/WebhookDataAckResponse'
+        '400':
+          description: Bad Request - The named task is not a webhook receiver task
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '403':
+          description: Forbidden - Caller's role may not submit webhook data (org admins and users only)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: Flow execution not found, or no task with this name in its flow definition
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '409':
+          description: Conflict - The flow execution already finished, or different data was already stored for this task (first write wins)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '422':
+          description: Data does not match the task's output model - fix the payload, do not retry as-is
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          description: Unauthorized - Missing or invalid authentication credentials
+          content:
+            application/json:
+              examples:
+                missing_token:
+                  summary: Missing authentication token
+                  value:
+                    error:
+                      message: Authentication required
+                      code: unauthorized
+                    request_id: 01K8KABR6S16YETA2SZPVBS9SP
+                invalid_token:
+                  summary: Invalid or expired token
+                  value:
+                    error:
+                      message: Invalid authentication token
+                      code: unauthorized
+                    request_id: 01K8KACP7D2XFGHJ9KLM4NPQR8
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: Internal Server Error - An unexpected error occurred
+          content:
+            application/json:
+              examples:
+                internal_error:
+                  summary: Internal server error
+                  value:
+                    error:
+                      message: Internal server error
+                      code: internal_error
+                    request_id: 01K8KABR6S16YETA2SZPVBS9SP
+                repository_error:
+                  summary: Database error
+                  value:
+                    error:
+                      message: Database operation failed
+                      code: repository_error
+                    request_id: 01K8KACP7D2XFGHJ9KLM4NPQR8
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+      security:
+      - BearerAuth: []
+      - APIKeyAuth: []
+components:
+  schemas:
+    ErrorDetail:
+      properties:
+        message:
+          type: string
+          title: Message
+          description: Human-readable error message
+        code:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Code
+          description: Machine-readable error code for programmatic handling
+        details:
+          anyOf:
+          - items:
+              type: string
+            type: array
+          - items:
+              additionalProperties: true
+              type: object
+            type: array
+          - additionalProperties: true
+            type: object
+          - type: 'null'
+          title: Details
+          description: Additional error context, validation errors, or debugging information
+      type: object
+      required:
+      - message
+      title: ErrorDetail
+      description: 'Standard error detail structure.
+
+
+        This model matches the error format returned by the centralized
+
+        exception handlers in app/api/errors/handlers.py.'
+    ErrorResponse:
+      properties:
+        error:
+          $ref: '#/components/schemas/ErrorDetail'
+        request_id:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Request Id
+          description: 'Unique request identifier in ULID format for debugging and support. Example: 01K8KABR6S16YETA2SZPVBS9SP'
+      type: object
+      required:
+      - error
+      title: ErrorResponse
+      description: "Standard API error response structure.\n\nAll error responses from the API follow this format, ensuring\nconsistent error handling for API consumers.\n\nExample:\n    {\n        \"error\": {\n            \"message\": \"Flow not found\",\n            \"code\": \"not_found\"\n        },\n        \"request_id\": \"01K8KABR6S16YETA2SZPVBS9SP\"\n    }"
+      examples:
+      - error:
+          code: not_found
+          message: Resource not found
+        request_id: 01K8KABR6S16YETA2SZPVBS9SP
+    WebhookDataAckResponse:
+      properties:
+        id:
+          type: string
+          format: uuid
+          title: Id
+          description: Identifier of the stored payload row.
+        status:
+          type: string
+          enum:
+          - received
+          - duplicate
+          title: Status
+          description: '''received'' on first delivery, ''duplicate'' when the identical payload was already stored.'
+      type: object
+      required:
+      - id
+      - status
+      title: WebhookDataAckResponse
+      description: Acknowledgment that a webhook payload is durably stored.
+    WebhookDataCreateRequest:
+      properties:
+        task_name:
+          type: string
+          title: Task Name
+          description: Name of the webhook_receiver task in the flow that waits for this data.
+          examples:
+          - wait_for_validation
+        data:
+          additionalProperties: true
+          type: object
+          title: Data
+          description: The data for the task. Must match the task's output model (defined by its fields parameter); unknown fields or type mismatches are rejected with 422. Note that field values are compared exactly for duplicate detection — re-sending the identical body is acknowledged idempotently, while a different body for the same task is rejected with 409.
+      type: object
+      required:
+      - task_name
+      - data
+      title: WebhookDataCreateRequest
+      description: Payload submitted by an external system for a waiting webhook_receiver task.
+  securitySchemes:
+    BearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+      description: 'JWT Bearer token authentication. Include your access token in the Authorization header as: `Bearer YOUR_ACCESS_TOKEN`
+
+
+        Example:
+
+        ```
+
+        Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
+
+        ```'
+    APIKeyAuth:
+      type: apiKey
+      name: X-API-Key
+      in: header
+      description: 'API key authentication. Include your API key in the X-API-Key header as: `X-API-Key YOUR_API_KEY`
+
+
+        Example:
+
+        ```
+
+        X-API-Key: saf_1234567890
+
+        ```'

@@ -1,0 +1,792 @@
+openapi: 3.1.0
+info:
+  title: SuperAI Flow Platform auth API
+  description: "SuperAI Flows is a workflow orchestration platform that enables you to design, deploy, and monitor automated workflows at scale.\n\nBuild complex workflows using our declarative YAML DSL, execute them reliably, and integrate seamlessly with AI models, cloud storage, and enterprise systems.\n\n**Key Capabilities:**\n- **Workflow Management**: Define workflows as code with version control and automated execution\n- **Task Orchestration**: Chain together API calls, data processing, and AI operations\n- **Real-time Monitoring**: Track execution progress with WebSocket notifications and comprehensive logging\n- **Multi-tenant Architecture**: Organization-scoped resources with role-based access control\n\n**API Versioning and Breaking Changes:**\n\nWe follow a strict compatibility policy to ensure your integrations remain stable:\n\n- **Non-breaking changes** (safe, no action required):\n  - Adding new API endpoints\n  - Adding new optional query parameters to existing endpoints\n  - Adding new fields to API responses\n  - Adding new values to existing enums\n\n- **Breaking changes** (requires client updates):\n  - Removing or renaming API endpoints\n  - Removing query parameters or request fields\n  - Removing response fields\n  - Changing field types or validation rules\n  - Removing values from existing enums\n\n**Client Implementation Requirements:**\n\nYour API clients MUST be designed to gracefully handle additional fields in responses. We may add new fields to any response object without considering this a breaking change. Ensure your JSON parsers ignore unknown fields rather than raising errors.\n\n**Backward Compatibility Guarantee:**\n\nWe commit to maintaining backward compatibility for all non-breaking changes. Breaking changes will be:\n- Announced at least 15 days in advance\n- Documented in our changelog with migration guide\n\nFor the latest API updates and migration guides, see our changelog."
+  version: 0.1.0
+tags:
+- name: auth
+  description: "Authentication operations for user authentication, authorization, and session management.\n\nAuthentication endpoints handle user identity verification, token generation, and access control throughout the platform. The system uses JWT (JSON Web Token) based authentication managed through core.flows.super.ai.\n\n**Authentication flow:**\n1. Obtain credentials from your account at core.flows.super.ai\n2. Authenticate to receive JWT access token and refresh token\n3. Include access token in API requests via Authorization header\n4. API validates tokens and extracts user identity and organization context\n5. Tokens expire after 1 hour and must be refreshed\n\n**Key concepts:**\n- **Bearer Tokens**: Short-lived JWT tokens (1 hour) used for API requests\n- **Anon-Key**: Long-lived API key used to authenticate to the authentication API.\n- **Refresh Tokens**: Long-lived tokens used to obtain new access tokens\n- **Protected Routes**: Most endpoints require valid authentication\n- **Public Endpoints**: Limited whitelisted paths accessible without auth\n\n**Getting started with authentication:**\n\n1. **Obtain your Anonymous Key** (public endpoint - no authentication required):\n   ```bash\n   curl https://flows.super.ai/api/auth/anon-key\n   ```\n\n2. **Authenticate** to receive your tokens:\n   ```bash\n   curl -X POST 'https://core.flows.super.ai/auth/v1/token?grant_type=password' \\\n     -H 'Content-Type: application/json' \\\n     -H 'apikey: ANON_KEY' \\\n     -d '{\"email\": \"you@example.com\", \"password\": \"your-password\"}'\n   ```\n   This will return a JWT access token and refresh token.\n\n3. **Use the access token** in your requests:\n   ```bash\n   curl -H \"Authorization: Bearer YOUR_ACCESS_TOKEN\" \\\n        https://flows.super.ai/api/flows\n   ```\n\n**Token management:**\n- Access tokens expire after 1 hour\n- Use refresh tokens to obtain new access tokens without re-authenticating\n- Store tokens securely and never commit them to version control\n\nAll API endpoints (except whitelisted public paths) require authentication. Include your bearer token in the Authorization header: `Bearer <token>`"
+  x-displayName: Authentication
+paths:
+  /api/auth/reset-password:
+    post:
+      tags:
+      - auth
+      summary: Reset Password
+      operationId: reset_password_api_auth_reset_password_post
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ResetPasswordRequest'
+        required: true
+      responses:
+        '200':
+          description: Password reset request processed
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ResetPasswordResponse'
+        '422':
+          description: Unprocessable Entity - Request validation failed
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                validation_error:
+                  summary: Validation error
+                  value:
+                    error:
+                      message: Request validation failed
+                      code: validation_error
+                      details:
+                      - type: missing
+                        loc:
+                        - body
+                        - name
+                        msg: Field required
+                    request_id: 01K8KABR6S16YETA2SZPVBS9SP
+                type_error:
+                  summary: Type validation error
+                  value:
+                    error:
+                      message: Request validation failed
+                      code: validation_error
+                      details:
+                      - type: uuid_parsing
+                        loc:
+                        - path
+                        - flow_id
+                        msg: Input should be a valid UUID
+                        input: not-a-uuid
+                    request_id: 01K8KACP7D2XFGHJ9KLM4NPQR8
+      description: ''
+  /api/auth/resend-invite:
+    post:
+      tags:
+      - auth
+      summary: Resend user invitation email
+      description: 'Resend invitation email to an existing user account.
+
+
+        For pending users whose Supabase invite token has expired, this deletes
+
+        the stale user from both Supabase and our database, then re-creates and
+
+        re-invites them with a fresh token. For active users, it simply triggers
+
+        a new invite email.'
+      operationId: resend_invite_api_auth_resend_invite_post
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ResendInviteRequest'
+        required: true
+      responses:
+        '200':
+          description: Invitation email successfully queued for delivery
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ResendInviteResponse'
+        '404':
+          description: User with specified email address does not exist
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: Authentication service unavailable or email delivery failed
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '422':
+          description: Unprocessable Entity - Request validation failed
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                validation_error:
+                  summary: Validation error
+                  value:
+                    error:
+                      message: Request validation failed
+                      code: validation_error
+                      details:
+                      - type: missing
+                        loc:
+                        - body
+                        - name
+                        msg: Field required
+                    request_id: 01K8KABR6S16YETA2SZPVBS9SP
+                type_error:
+                  summary: Type validation error
+                  value:
+                    error:
+                      message: Request validation failed
+                      code: validation_error
+                      details:
+                      - type: uuid_parsing
+                        loc:
+                        - path
+                        - flow_id
+                        msg: Input should be a valid UUID
+                        input: not-a-uuid
+                    request_id: 01K8KACP7D2XFGHJ9KLM4NPQR8
+  /api/auth/login-method:
+    get:
+      tags:
+      - auth
+      summary: Resolve login method for an email
+      description: 'Pre-flight check used by the login form before invoking Supabase sign-in.
+
+
+        This endpoint is unauthenticated; it only reveals whether a given email''s
+
+        domain is configured for strict SSO. Hard enforcement lives in the auth
+
+        middleware — clients bypassing this check still get rejected on the first
+
+        authenticated request.'
+      operationId: login_method_api_auth_login_method_get
+      parameters:
+      - name: email
+        in: query
+        required: true
+        schema:
+          type: string
+          description: Email address to evaluate
+          format: email
+          title: Email
+        description: Email address to evaluate
+      responses:
+        '200':
+          description: Returns 'sso_required' when the email's domain belongs to an organization that enforces strict SSO; 'password_ok' otherwise.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LoginMethodResult'
+        '422':
+          description: Unprocessable Entity - Request validation failed
+          content:
+            application/json:
+              examples:
+                validation_error:
+                  summary: Validation error
+                  value:
+                    error:
+                      message: Request validation failed
+                      code: validation_error
+                      details:
+                      - type: missing
+                        loc:
+                        - body
+                        - name
+                        msg: Field required
+                    request_id: 01K8KABR6S16YETA2SZPVBS9SP
+                type_error:
+                  summary: Type validation error
+                  value:
+                    error:
+                      message: Request validation failed
+                      code: validation_error
+                      details:
+                      - type: uuid_parsing
+                        loc:
+                        - path
+                        - flow_id
+                        msg: Input should be a valid UUID
+                        input: not-a-uuid
+                    request_id: 01K8KACP7D2XFGHJ9KLM4NPQR8
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+  /api/auth/anon-key:
+    get:
+      tags:
+      - auth
+      summary: Retrieve authentication API key
+      description: "Retrieve the anonymous authentication key required for client authentication.\n\nReturns the authentication key that client applications need to authenticate\nwith the authentication API at core.flows.super.ai. This key enables clients\nto perform password-based authentication and obtain JWT access tokens.\n\nContext:\n    - This key is required to make authentication requests to core.flows.super.ai\n    - The key is safe for use in client-side applications (browsers, mobile apps)\n    - Does not grant admin privileges or direct API access\n    - Only enables authentication operations (login, token refresh)\n    - Same key is used across all clients and organizations\n    - Key is long-lived and rarely rotated\n\nAuthentication Flow:\n    1. Client retrieves anonymous key from this endpoint\n    2. Client sends authentication request to core.flows.super.ai\n    3. Include anonymous key in 'apikey' header\n    4. Authentication service validates credentials and returns JWT tokens\n    5. Client uses JWT access token for subsequent API requests\n\nUse Cases:\n    - Web application initialization requiring user authentication\n    - Mobile app setup for authentication integration\n    - Testing authentication flow in development\n    - Building custom authentication UI\n    - Integrating third-party applications with authentication service\n\nSecurity Considerations:\n    - This key is public and safe for client-side applications\n    - Does not provide access to user data or administrative functions\n    - Only enables authentication API operations\n    - Users must still provide valid credentials (email/password)\n    - Rate limiting applied at authentication service level\n    - Key rotation handled by platform administrators\n\nIntegration Example:\n    After retrieving this key, use it to authenticate users:\n\n    Step 1: Get the anonymous key (this endpoint)\n    Step 2: Use the key to authenticate users at core.flows.super.ai\n    Step 3: Receive JWT tokens for API access\n\nRelated Endpoints:\n    - POST /auth/resend-invite - Resend invitation to existing users\n    - GET /profile/me - Retrieve authenticated user profile\n    - See authentication tag description for complete authentication guide\n\nError Handling:\n    - Returns 500 if key is not configured on server\n    - Indicates server misconfiguration requiring administrator attention\n    - Contact platform support if persistent errors occur"
+      operationId: get_anon_key_api_auth_anon_key_get
+      responses:
+        '200':
+          description: Authentication key successfully retrieved
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AnonKeyResponse'
+        '500':
+          description: Authentication key not configured on server
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '422':
+          description: Unprocessable Entity - Request validation failed
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                validation_error:
+                  summary: Validation error
+                  value:
+                    error:
+                      message: Request validation failed
+                      code: validation_error
+                      details:
+                      - type: missing
+                        loc:
+                        - body
+                        - name
+                        msg: Field required
+                    request_id: 01K8KABR6S16YETA2SZPVBS9SP
+                type_error:
+                  summary: Type validation error
+                  value:
+                    error:
+                      message: Request validation failed
+                      code: validation_error
+                      details:
+                      - type: uuid_parsing
+                        loc:
+                        - path
+                        - flow_id
+                        msg: Input should be a valid UUID
+                        input: not-a-uuid
+                    request_id: 01K8KACP7D2XFGHJ9KLM4NPQR8
+  /api/auth/signup-email-policy:
+    get:
+      tags:
+      - auth
+      summary: Pre-flight signup email policy check for magic link
+      description: 'Pre-flight UX check used by the signup form before sending a magic link.
+
+
+        Unauthenticated and purely domain-list based — it performs no account
+
+        lookup, so it cannot be used to enumerate accounts. Hard enforcement stays
+
+        in POST /auth/self-service/complete; clients bypassing this check are still
+
+        rejected there. Mirrors the GET /auth/login-method pre-flight pattern.'
+      operationId: signup_email_policy_api_auth_signup_email_policy_get
+      parameters:
+      - name: email
+        in: query
+        required: true
+        schema:
+          type: string
+          description: Email address to evaluate
+          format: email
+          title: Email
+        description: Email address to evaluate
+      responses:
+        '200':
+          description: Policy evaluated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SignupEmailPolicyResult'
+        '422':
+          description: Unprocessable Entity - Request validation failed
+          content:
+            application/json:
+              examples:
+                validation_error:
+                  summary: Validation error
+                  value:
+                    error:
+                      message: Request validation failed
+                      code: validation_error
+                      details:
+                      - type: missing
+                        loc:
+                        - body
+                        - name
+                        msg: Field required
+                    request_id: 01K8KABR6S16YETA2SZPVBS9SP
+                type_error:
+                  summary: Type validation error
+                  value:
+                    error:
+                      message: Request validation failed
+                      code: validation_error
+                      details:
+                      - type: uuid_parsing
+                        loc:
+                        - path
+                        - flow_id
+                        msg: Input should be a valid UUID
+                        input: not-a-uuid
+                    request_id: 01K8KACP7D2XFGHJ9KLM4NPQR8
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+  /api/auth/self-service/complete:
+    post:
+      tags:
+      - auth
+      summary: Complete self-service signup for an authenticated Supabase user
+      description: 'Provision a free-tier org + org-admin user for a freshly-authenticated Supabase user.
+
+
+        The caller has already signed in with Supabase (OAuth provider or magic link)
+
+        but has no row in our users table yet, so their token carries null
+
+        ``org_id``/``role`` claims and cannot pass the normal auth middleware — hence
+
+        this endpoint is whitelisted and validates the raw Supabase token (sent as the
+
+        standard ``Authorization`` bearer header by the client) itself.
+
+
+        The client should call ``supabase.auth.refreshSession()`` after a success so
+
+        the access-token hook re-issues a token carrying the new ``org_id``/``role``.'
+      operationId: complete_self_service_signup_api_auth_self_service_complete_post
+      responses:
+        '200':
+          description: Account provisioned or already existed
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SelfServiceSignupResponse'
+        '400':
+          description: Token is missing required claims, or the email was rejected by signup policy. The error `code` is `disposable_email`, `personal_email_not_allowed`, or `invalid_signup_token`.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          description: Missing, invalid, or expired authentication token
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '422':
+          description: Unprocessable Entity - Request validation failed
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                validation_error:
+                  summary: Validation error
+                  value:
+                    error:
+                      message: Request validation failed
+                      code: validation_error
+                      details:
+                      - type: missing
+                        loc:
+                        - body
+                        - name
+                        msg: Field required
+                    request_id: 01K8KABR6S16YETA2SZPVBS9SP
+                type_error:
+                  summary: Type validation error
+                  value:
+                    error:
+                      message: Request validation failed
+                      code: validation_error
+                      details:
+                      - type: uuid_parsing
+                        loc:
+                        - path
+                        - flow_id
+                        msg: Input should be a valid UUID
+                        input: not-a-uuid
+                    request_id: 01K8KACP7D2XFGHJ9KLM4NPQR8
+  /api/auth/access-request:
+    post:
+      tags:
+      - auth
+      summary: Submit a self-service access request
+      description: 'Record an access request from a visitor whose email failed the signup policy.
+
+
+        Unauthenticated and whitelisted — the caller has no account. The submission
+
+        is persisted (source of truth, one row per email — a resubmit upserts) and a
+
+        Slack notification to the self-service channel is fired as a background task
+
+        so a slow or failing webhook never blocks or fails the response. Only a
+
+        genuinely new request notifies, so a resubmit (or a double-click) won''t
+
+        re-ping the channel.
+
+
+        The response is a constant acknowledgement regardless of whether the request
+
+        was new or already existed, so it can''t be used to enumerate which emails
+
+        have requested access.'
+      operationId: create_access_request_api_auth_access_request_post
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AccessRequestCreate'
+        required: true
+      responses:
+        '200':
+          description: Access request received
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AccessRequestResponse'
+        '422':
+          description: Unprocessable Entity - Request validation failed
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                validation_error:
+                  summary: Validation error
+                  value:
+                    error:
+                      message: Request validation failed
+                      code: validation_error
+                      details:
+                      - type: missing
+                        loc:
+                        - body
+                        - name
+                        msg: Field required
+                    request_id: 01K8KABR6S16YETA2SZPVBS9SP
+                type_error:
+                  summary: Type validation error
+                  value:
+                    error:
+                      message: Request validation failed
+                      code: validation_error
+                      details:
+                      - type: uuid_parsing
+                        loc:
+                        - path
+                        - flow_id
+                        msg: Input should be a valid UUID
+                        input: not-a-uuid
+                    request_id: 01K8KACP7D2XFGHJ9KLM4NPQR8
+components:
+  schemas:
+    SelfServiceSignupResponse:
+      properties:
+        organization_id:
+          type: string
+          format: uuid
+          title: Organization Id
+          description: The organization the user belongs to.
+        organization_name:
+          type: string
+          title: Organization Name
+          description: Auto-generated organization display name.
+        user_id:
+          type: string
+          format: uuid
+          title: User Id
+          description: The provisioned (or existing) user's ID.
+        email:
+          type: string
+          format: email
+          title: Email
+          description: The verified email the account is keyed on.
+        created:
+          type: boolean
+          title: Created
+          description: True when a new free-tier organization and user were provisioned. False when an account for this email already existed and was returned unchanged.
+      type: object
+      required:
+      - organization_id
+      - organization_name
+      - user_id
+      - email
+      - created
+      title: SelfServiceSignupResponse
+      description: Result of completing self-service signup.
+    ErrorDetail:
+      properties:
+        message:
+          type: string
+          title: Message
+          description: Human-readable error message
+        code:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Code
+          description: Machine-readable error code for programmatic handling
+        details:
+          anyOf:
+          - items:
+              type: string
+            type: array
+          - items:
+              additionalProperties: true
+              type: object
+            type: array
+          - additionalProperties: true
+            type: object
+          - type: 'null'
+          title: Details
+          description: Additional error context, validation errors, or debugging information
+      type: object
+      required:
+      - message
+      title: ErrorDetail
+      description: 'Standard error detail structure.
+
+
+        This model matches the error format returned by the centralized
+
+        exception handlers in app/api/errors/handlers.py.'
+    ErrorResponse:
+      properties:
+        error:
+          $ref: '#/components/schemas/ErrorDetail'
+        request_id:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Request Id
+          description: 'Unique request identifier in ULID format for debugging and support. Example: 01K8KABR6S16YETA2SZPVBS9SP'
+      type: object
+      required:
+      - error
+      title: ErrorResponse
+      description: "Standard API error response structure.\n\nAll error responses from the API follow this format, ensuring\nconsistent error handling for API consumers.\n\nExample:\n    {\n        \"error\": {\n            \"message\": \"Flow not found\",\n            \"code\": \"not_found\"\n        },\n        \"request_id\": \"01K8KABR6S16YETA2SZPVBS9SP\"\n    }"
+      examples:
+      - error:
+          code: not_found
+          message: Resource not found
+        request_id: 01K8KABR6S16YETA2SZPVBS9SP
+    ResetPasswordRequest:
+      properties:
+        email:
+          type: string
+          format: email
+          title: Email
+        redirect_to:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Redirect To
+          description: URL to redirect to after password reset. If not provided, the default redirect URL will be used.
+      type: object
+      required:
+      - email
+      title: ResetPasswordRequest
+    AccessRequestCreate:
+      properties:
+        email:
+          type: string
+          format: email
+          title: Email
+          description: Email the visitor tried to sign up with.
+        full_name:
+          type: string
+          maxLength: 200
+          minLength: 1
+          title: Full Name
+          description: The visitor's name.
+        use_case:
+          type: string
+          maxLength: 5000
+          minLength: 50
+          title: Use Case
+          description: Free-text description of what the visitor wants to use the product for.
+      type: object
+      required:
+      - email
+      - full_name
+      - use_case
+      title: AccessRequestCreate
+      description: 'A visitor''s request for access submitted from the blocked-signup CTA.
+
+
+        The min-lengths mirror the client-side form validation; the max-lengths cap
+
+        abuse on this unauthenticated endpoint.'
+    ResendInviteRequest:
+      properties:
+        email:
+          type: string
+          format: email
+          title: Email
+          description: Email address of the user to re-invite. Must match an existing user account in pending or active status. A new invitation email will be sent to this address with a fresh authentication link and setup instructions.
+          examples:
+          - user@example.com
+          - john.doe@company.com
+      type: object
+      required:
+      - email
+      title: ResendInviteRequest
+      description: 'Request model for resending user invitation.
+
+
+        Used to trigger a new invitation email when the original invitation
+
+        has expired, was not received, or the user needs another copy.'
+    AccessRequestResponse:
+      properties:
+        status:
+          type: string
+          title: Status
+          description: Always 'received'.
+          default: received
+      type: object
+      title: AccessRequestResponse
+      description: 'Constant acknowledgement that an access request was received.
+
+
+        Deliberately carries no record identifier and is identical whether the
+
+        request was newly created or updated an existing one, so the unauthenticated
+
+        endpoint can''t be probed to learn which emails have already requested access
+
+        (an email-enumeration oracle). The created-vs-existing distinction stays
+
+        internal (it only gates the Slack notification).'
+    LoginMethodResult:
+      properties:
+        method:
+          $ref: '#/components/schemas/LoginMethod'
+      type: object
+      required:
+      - method
+      title: LoginMethodResult
+    LoginMethod:
+      type: string
+      enum:
+      - sso_required
+      - password_ok
+      title: LoginMethod
+    SignupEmailPolicyResult:
+      properties:
+        allowed:
+          type: boolean
+          title: Allowed
+          description: Whether this email may sign up via magic link.
+        reason:
+          anyOf:
+          - $ref: '#/components/schemas/SignupRejectionReason'
+          - type: 'null'
+          description: 'Rejection reason when not allowed: `disposable_email`, `personal_email_not_allowed`, or `academic_email_not_allowed`.'
+      type: object
+      required:
+      - allowed
+      title: SignupEmailPolicyResult
+      description: Pre-flight evaluation of the signup email policy for the magic-link path.
+    AnonKeyResponse:
+      properties:
+        anon_key:
+          type: string
+          title: Anon Key
+          description: Anonymous authentication key for client applications. Use this key to authenticate API requests to the authentication service. Include this in your authentication API calls as the 'apikey' header. This key is safe to use in client-side applications and does not grant administrative privileges. It enables password authentication and token generation for users.
+          examples:
+          - eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImFiY2RlZmdoaWprbG1ub3BxcnN0Iiwicm9sZSI6ImFub24iLCJpYXQiOjE2ODkwMDAwMDAsImV4cCI6MTg0Njc2ODAwMH0.signature
+      type: object
+      required:
+      - anon_key
+      title: AnonKeyResponse
+      description: 'Response model for anonymous authentication key retrieval.
+
+
+        Returns the authentication key required for client applications to
+
+        authenticate with the authentication API hosted at core.flows.super.ai.'
+    ResetPasswordResponse:
+      properties:
+        message:
+          type: string
+          title: Message
+      type: object
+      required:
+      - message
+      title: ResetPasswordResponse
+    ResendInviteResponse:
+      properties:
+        success:
+          type: boolean
+          title: Success
+          description: 'Indicates whether the invitation was successfully processed. True if invitation was queued/sent, False if operation failed. Note: This indicates the API succeeded, not that email was delivered.'
+          examples:
+          - true
+        message:
+          type: string
+          title: Message
+          description: 'Human-readable message describing the result. Provides confirmation or additional context about the operation. Example: ''Invitation has been resent successfully'''
+          examples:
+          - Invitation has been resent successfully
+          - Invitation email queued for delivery
+        email:
+          type: string
+          title: Email
+          description: Email address that received the invitation. Echoes back the requested email for confirmation. Useful for logging and audit purposes.
+          examples:
+          - user@example.com
+          - john.doe@company.com
+      type: object
+      required:
+      - success
+      - message
+      - email
+      title: ResendInviteResponse
+      description: 'Response model for resend invite operation.
+
+
+        Confirms that the invitation email was successfully queued or sent.
+
+        Actual email delivery depends on external email service.'
+    SignupRejectionReason:
+      type: string
+      enum:
+      - disposable_email
+      - personal_email_not_allowed
+      - academic_email_not_allowed
+      title: SignupRejectionReason
+      description: 'Machine-readable reasons a signup email is rejected.
+
+
+        Surfaced to the client as an error ``code`` so the UI can map each to a
+
+        tailored message (e.g. "use your work email" vs "temporary emails aren''t
+
+        allowed").'
+  securitySchemes:
+    BearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+      description: 'JWT Bearer token authentication. Include your access token in the Authorization header as: `Bearer YOUR_ACCESS_TOKEN`
+
+
+        Example:
+
+        ```
+
+        Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
+
+        ```'
+    APIKeyAuth:
+      type: apiKey
+      name: X-API-Key
+      in: header
+      description: 'API key authentication. Include your API key in the X-API-Key header as: `X-API-Key YOUR_API_KEY`
+
+
+        Example:
+
+        ```
+
+        X-API-Key: saf_1234567890
+
+        ```'

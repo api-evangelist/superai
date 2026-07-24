@@ -1,0 +1,890 @@
+openapi: 3.1.0
+info:
+  title: SuperAI Flow Platform auth task-outputs API
+  description: "SuperAI Flows is a workflow orchestration platform that enables you to design, deploy, and monitor automated workflows at scale.\n\nBuild complex workflows using our declarative YAML DSL, execute them reliably, and integrate seamlessly with AI models, cloud storage, and enterprise systems.\n\n**Key Capabilities:**\n- **Workflow Management**: Define workflows as code with version control and automated execution\n- **Task Orchestration**: Chain together API calls, data processing, and AI operations\n- **Real-time Monitoring**: Track execution progress with WebSocket notifications and comprehensive logging\n- **Multi-tenant Architecture**: Organization-scoped resources with role-based access control\n\n**API Versioning and Breaking Changes:**\n\nWe follow a strict compatibility policy to ensure your integrations remain stable:\n\n- **Non-breaking changes** (safe, no action required):\n  - Adding new API endpoints\n  - Adding new optional query parameters to existing endpoints\n  - Adding new fields to API responses\n  - Adding new values to existing enums\n\n- **Breaking changes** (requires client updates):\n  - Removing or renaming API endpoints\n  - Removing query parameters or request fields\n  - Removing response fields\n  - Changing field types or validation rules\n  - Removing values from existing enums\n\n**Client Implementation Requirements:**\n\nYour API clients MUST be designed to gracefully handle additional fields in responses. We may add new fields to any response object without considering this a breaking change. Ensure your JSON parsers ignore unknown fields rather than raising errors.\n\n**Backward Compatibility Guarantee:**\n\nWe commit to maintaining backward compatibility for all non-breaking changes. Breaking changes will be:\n- Announced at least 15 days in advance\n- Documented in our changelog with migration guide\n\nFor the latest API updates and migration guides, see our changelog."
+  version: 0.1.0
+tags:
+- name: task-outputs
+  description: 'Task output operations for storing and retrieving task execution results.
+
+
+    Task outputs store the results produced by task executions in a structured, queryable format. While task executions track the full lifecycle (input, output, error, status), task outputs focus specifically on the final output data formatted for display, analysis, and downstream consumption.
+
+
+    **Key characteristics:**
+
+    - **Summary Field**: Structured output data ready for consumption
+
+    - **Historical Record**: Permanent storage of task results
+
+    - **Queryable**: Filter and search outputs by task, execution, or flow
+
+    - **Linked**: Connected to parent flow execution and task execution
+
+
+    **Use these endpoints to:**
+
+    - Store task results after successful execution
+
+    - Retrieve outputs for specific tasks or entire executions
+
+    - Query historical outputs for analysis and reporting
+
+    - Access formatted results for display in dashboards
+
+    - Feed outputs to downstream tasks or external systems
+
+
+    Task outputs provide the data foundation for workflow analytics, debugging, and result visualization.'
+  x-displayName: Task Outputs
+paths:
+  /api/task-outputs:
+    get:
+      tags:
+      - task-outputs
+      summary: List all task outputs
+      description: 'List all task outputs across all flow executions in your organization.
+
+
+        Retrieve all task output records for your organization. Returns complete output data
+
+        including summary, full output, tags, and status for each task that has produced output.
+
+        Results are ordered by creation time (most recent first).
+
+
+        ## Important: No Pagination
+
+
+        This endpoint currently returns **ALL** task outputs in the organization without pagination.
+
+        For organizations with many flow executions, this may return large result sets. Pagination
+
+        is planned for a future release. Consider using `GET /flow-executions/{id}` to filter by
+
+        specific flow execution.
+
+
+        ## What Are Task Outputs
+
+
+        Task outputs represent the summarized, structured results of completed tasks:
+
+        - **summary**: Structured data optimized for UI display and querying
+
+        - **output**: Full output data for downstream task consumption
+
+        - **tags**: Categorization metadata for filtering and organization
+
+        - **status**: Task execution state when output was created
+
+
+        ## Filtering and Querying
+
+
+        Currently no query parameters are supported. To filter by flow execution, use
+
+        `GET /flow-executions/{id}` which includes task outputs in response.
+
+
+        **Planned enhancements**:
+
+        - Filter by flow_execution_id
+
+        - Filter by task_name
+
+        - Filter by status
+
+        - Pagination (limit, starting_after)
+
+        - Date range filtering
+
+
+        ## Performance Considerations
+
+
+        - Query returns all outputs (potentially thousands of records)
+
+        - Results ordered by created_at desc (newest first)
+
+        - Database query scoped to organization via RLS policies
+
+        - Consider using `GET /flow-executions/{id}` for filtered results
+
+
+        ## Common Use Cases
+
+
+        - Export all task outputs for audit or analysis
+
+        - Debug output issues across multiple executions
+
+        - Build organization-wide analytics dashboards
+
+        - Bulk data extraction for external systems
+
+
+        ## Related Endpoints
+
+
+        - `GET /task-outputs/{id}` - Get single task output by ID
+
+        - `GET /flow-executions/{id}` - Get flow execution with filtered task outputs
+
+        - `GET /task-executions` - Get full task execution details'
+      operationId: list_task_outputs_api_task_outputs_get
+      responses:
+        '200':
+          description: List of task outputs successfully retrieved
+          content:
+            application/json:
+              schema:
+                items:
+                  $ref: '#/components/schemas/TaskOutputAPI'
+                type: array
+                title: Response List Task Outputs Api Task Outputs Get
+        '401':
+          description: Unauthorized - Missing or invalid authentication credentials
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                missing_token:
+                  summary: Missing authentication token
+                  value:
+                    error:
+                      message: Authentication required
+                      code: unauthorized
+                    request_id: 01K8KABR6S16YETA2SZPVBS9SP
+                invalid_token:
+                  summary: Invalid or expired token
+                  value:
+                    error:
+                      message: Invalid authentication token
+                      code: unauthorized
+                    request_id: 01K8KACP7D2XFGHJ9KLM4NPQR8
+        '500':
+          description: Internal Server Error - An unexpected error occurred
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                internal_error:
+                  summary: Internal server error
+                  value:
+                    error:
+                      message: Internal server error
+                      code: internal_error
+                    request_id: 01K8KABR6S16YETA2SZPVBS9SP
+                repository_error:
+                  summary: Database error
+                  value:
+                    error:
+                      message: Database operation failed
+                      code: repository_error
+                    request_id: 01K8KACP7D2XFGHJ9KLM4NPQR8
+      security:
+      - BearerAuth: []
+      - APIKeyAuth: []
+    post:
+      tags:
+      - task-outputs
+      summary: Create task output
+      description: 'Create a task output record for a completed task and notify connected clients.
+
+
+        Task outputs represent the processed, summarized results of task executions. Unlike
+
+        task executions which track the full execution lifecycle (input, output, error, status),
+
+        task outputs focus on the final output data formatted for display, downstream consumption,
+
+        and workflow decisions.
+
+
+        ## What Are Task Outputs
+
+
+        Task outputs serve multiple purposes:
+
+        - **Structured Results**: Store task results in a queryable format via the summary field
+
+        - **Full Output Data**: Provide complete output for downstream task consumption
+
+        - **Metadata Tracking**: Associate tags for categorization and filtering
+
+        - **Real-time Updates**: Enable WebSocket notifications for UI progress tracking
+
+        - **Workflow Logic**: Support decision-making based on task outcomes
+
+
+        ## Relationship to Task Executions
+
+
+        - **Task Execution**: Full execution record (input, output, error, retries, timing)
+
+        - **Task Output**: Summarized result optimized for querying and display
+
+        - One task execution typically produces one task output upon completion
+
+        - Task outputs are created by system workers after task completion
+
+
+        ## Notification Behavior
+
+
+        This endpoint triggers two types of WebSocket notifications asynchronously:
+
+        1. **Flow-level notification**: Updates all clients subscribed to the flow''s WebSocket
+
+        2. **Enhanced notification**: Broadcasts to summary-watching clients for real-time updates
+
+
+        Notifications are processed in the background to ensure fast response times (< 100ms).
+
+
+        ## Common Use Cases
+
+
+        - Workers reporting task completion with structured output
+
+        - Storing task results for display in execution history UI
+
+        - Providing data for downstream task inputs in workflows
+
+        - Triggering real-time progress updates
+
+        - Enabling workflow decisions based on task outcomes
+
+
+        ## Related Endpoints
+
+
+        - `GET /task-outputs` - List all task outputs
+
+        - `GET /task-outputs/{id}` - Get single task output
+
+        - `GET /flow-executions/{id}` - View parent flow execution
+
+        - `GET /task-executions` - View full task execution details'
+      operationId: create_task_output_api_task_outputs_post
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TaskOutput'
+        required: true
+      responses:
+        '201':
+          description: Task output successfully created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TaskOutputAPI'
+        '404':
+          description: Flow execution not found for the provided flow_execution_id
+        '400':
+          description: Bad Request - Invalid input parameters or request format
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                generic:
+                  summary: Generic bad request
+                  value:
+                    error:
+                      message: Invalid request parameters
+                      code: bad_request
+                    request_id: 01K8KABR6S16YETA2SZPVBS9SP
+                missing_field:
+                  summary: Missing required field
+                  value:
+                    error:
+                      message: Organization ID is required
+                      code: bad_request
+                    request_id: 01K8KACP7D2XFGHJ9KLM4NPQR8
+        '422':
+          description: Unprocessable Entity - Request validation failed
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                validation_error:
+                  summary: Validation error
+                  value:
+                    error:
+                      message: Request validation failed
+                      code: validation_error
+                      details:
+                      - type: missing
+                        loc:
+                        - body
+                        - name
+                        msg: Field required
+                    request_id: 01K8KABR6S16YETA2SZPVBS9SP
+                type_error:
+                  summary: Type validation error
+                  value:
+                    error:
+                      message: Request validation failed
+                      code: validation_error
+                      details:
+                      - type: uuid_parsing
+                        loc:
+                        - path
+                        - flow_id
+                        msg: Input should be a valid UUID
+                        input: not-a-uuid
+                    request_id: 01K8KACP7D2XFGHJ9KLM4NPQR8
+        '500':
+          description: Internal Server Error - An unexpected error occurred
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                internal_error:
+                  summary: Internal server error
+                  value:
+                    error:
+                      message: Internal server error
+                      code: internal_error
+                    request_id: 01K8KABR6S16YETA2SZPVBS9SP
+                repository_error:
+                  summary: Database error
+                  value:
+                    error:
+                      message: Database operation failed
+                      code: repository_error
+                    request_id: 01K8KACP7D2XFGHJ9KLM4NPQR8
+      security:
+      - BearerAuth: []
+      - APIKeyAuth: []
+  /api/task-outputs/{task_output_id}:
+    get:
+      tags:
+      - task-outputs
+      summary: Get task output by ID
+      description: 'Retrieve a specific task output by its unique identifier.
+
+
+        Fetch a single task output record with complete output data, summary, tags, and metadata.
+
+        Used for inspecting individual task results, debugging, and retrieving output for
+
+        downstream processing.
+
+
+        ## Resource Identification
+
+
+        Task outputs are uniquely identified by UUID (id field). To find task outputs by
+
+        other criteria (flow execution, task name), use `GET /flow-executions/{id}` or
+
+        `GET /task-outputs` (list all).
+
+
+        ## What You''ll Get
+
+
+        - **summary**: Structured task output summary for display
+
+        - **output**: Full output data produced by task
+
+        - **tags**: Associated metadata tags
+
+        - **status**: Task execution state when output was created
+
+        - **Timestamps**: created_at, updated_at for audit trail
+
+        - **Organization context**: organization_id for multi-tenant isolation
+
+
+        ## Common Use Cases
+
+
+        - Inspect task output for debugging or validation
+
+        - Retrieve output data for manual review or corrections
+
+        - Audit task execution history
+
+        - Display detailed task results in UI
+
+
+        ## Related Endpoints
+
+
+        - `GET /task-outputs` - List all task outputs
+
+        - `GET /flow-executions/{id}` - View parent flow execution with all outputs
+
+        - `GET /task-executions/{id}` - View full task execution details'
+      operationId: get_task_output_api_task_outputs__task_output_id__get
+      parameters:
+      - name: task_output_id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+          description: Unique identifier of the task output to retrieve. UUID assigned when task output was created. Task outputs are scoped to organization; attempting to access another organization's output returns 404.
+          examples:
+          - 123e4567-e89b-12d3-a456-426614174000
+          title: Task Output Id
+        description: Unique identifier of the task output to retrieve. UUID assigned when task output was created. Task outputs are scoped to organization; attempting to access another organization's output returns 404.
+      responses:
+        '200':
+          description: Task output successfully retrieved
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TaskOutputAPI'
+        '404':
+          description: Task output not found or belongs to a different organization
+        '401':
+          description: Unauthorized - Missing or invalid authentication credentials
+          content:
+            application/json:
+              examples:
+                missing_token:
+                  summary: Missing authentication token
+                  value:
+                    error:
+                      message: Authentication required
+                      code: unauthorized
+                    request_id: 01K8KABR6S16YETA2SZPVBS9SP
+                invalid_token:
+                  summary: Invalid or expired token
+                  value:
+                    error:
+                      message: Invalid authentication token
+                      code: unauthorized
+                    request_id: 01K8KACP7D2XFGHJ9KLM4NPQR8
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '403':
+          description: Forbidden - Insufficient permissions to access this resource
+          content:
+            application/json:
+              examples:
+                insufficient_permissions:
+                  summary: Insufficient permissions
+                  value:
+                    error:
+                      message: You do not have permission to access this resource
+                      code: forbidden
+                    request_id: 01K8KABR6S16YETA2SZPVBS9SP
+                wrong_organization:
+                  summary: Resource belongs to different organization
+                  value:
+                    error:
+                      message: This resource belongs to a different organization
+                      code: forbidden
+                    request_id: 01K8KACP7D2XFGHJ9KLM4NPQR8
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '422':
+          description: Unprocessable Entity - Request validation failed
+          content:
+            application/json:
+              examples:
+                validation_error:
+                  summary: Validation error
+                  value:
+                    error:
+                      message: Request validation failed
+                      code: validation_error
+                      details:
+                      - type: missing
+                        loc:
+                        - body
+                        - name
+                        msg: Field required
+                    request_id: 01K8KABR6S16YETA2SZPVBS9SP
+                type_error:
+                  summary: Type validation error
+                  value:
+                    error:
+                      message: Request validation failed
+                      code: validation_error
+                      details:
+                      - type: uuid_parsing
+                        loc:
+                        - path
+                        - flow_id
+                        msg: Input should be a valid UUID
+                        input: not-a-uuid
+                    request_id: 01K8KACP7D2XFGHJ9KLM4NPQR8
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: Internal Server Error - An unexpected error occurred
+          content:
+            application/json:
+              examples:
+                internal_error:
+                  summary: Internal server error
+                  value:
+                    error:
+                      message: Internal server error
+                      code: internal_error
+                    request_id: 01K8KABR6S16YETA2SZPVBS9SP
+                repository_error:
+                  summary: Database error
+                  value:
+                    error:
+                      message: Database operation failed
+                      code: repository_error
+                    request_id: 01K8KACP7D2XFGHJ9KLM4NPQR8
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+      security:
+      - BearerAuth: []
+      - APIKeyAuth: []
+components:
+  schemas:
+    TaskOutputEditedStatus:
+      type: string
+      enum:
+      - not_edited
+      - edited
+      title: TaskOutputEditedStatus
+      description: "Aggregated edited status for a task output.\n\nValues:\n    - not_edited: All task executions have not_edited status\n    - edited: At least one task execution has edited_not_reexecuted or edited_reexecuted status"
+    ErrorDetail:
+      properties:
+        message:
+          type: string
+          title: Message
+          description: Human-readable error message
+        code:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Code
+          description: Machine-readable error code for programmatic handling
+        details:
+          anyOf:
+          - items:
+              type: string
+            type: array
+          - items:
+              additionalProperties: true
+              type: object
+            type: array
+          - additionalProperties: true
+            type: object
+          - type: 'null'
+          title: Details
+          description: Additional error context, validation errors, or debugging information
+      type: object
+      required:
+      - message
+      title: ErrorDetail
+      description: 'Standard error detail structure.
+
+
+        This model matches the error format returned by the centralized
+
+        exception handlers in app/api/errors/handlers.py.'
+    ProcessingStatus:
+      type: string
+      enum:
+      - queued
+      - running
+      - completed
+      - failed
+      - deleted
+      - awaiting_input
+      - cancel_requested
+      - cancelled
+      title: ProcessingStatus
+      description: "Valid status values for task processing lifecycle.\n\nUsed by task_execution and task_output tables to track where a task\nis in its processing pipeline, independent of data consistency state.\n\nStatus Transitions:\n    queued → running → completed\n                     → failed\n    running/awaiting_input → cancel_requested → cancelled\n    Any status → deleted (soft delete)"
+    ErrorResponse:
+      properties:
+        error:
+          $ref: '#/components/schemas/ErrorDetail'
+        request_id:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Request Id
+          description: 'Unique request identifier in ULID format for debugging and support. Example: 01K8KABR6S16YETA2SZPVBS9SP'
+      type: object
+      required:
+      - error
+      title: ErrorResponse
+      description: "Standard API error response structure.\n\nAll error responses from the API follow this format, ensuring\nconsistent error handling for API consumers.\n\nExample:\n    {\n        \"error\": {\n            \"message\": \"Flow not found\",\n            \"code\": \"not_found\"\n        },\n        \"request_id\": \"01K8KABR6S16YETA2SZPVBS9SP\"\n    }"
+      examples:
+      - error:
+          code: not_found
+          message: Resource not found
+        request_id: 01K8KABR6S16YETA2SZPVBS9SP
+    StaleStatus:
+      type: string
+      enum:
+      - consistent
+      - stale
+      title: StaleStatus
+      description: "Tracks whether task data is consistent with upstream changes.\n\nOrthogonal to edited_status — a task can be both \"edited\" and \"stale\".\n\nValues:\n    - consistent: Data is up-to-date with all upstream dependencies\n    - stale: Data is outdated due to an upstream edit and should be recalculated"
+    TaskOutput:
+      properties:
+        created_at:
+          type: string
+          format: date-time
+          title: Created At
+        updated_at:
+          type: string
+          format: date-time
+          title: Updated At
+        modified_by:
+          type: string
+          title: Modified By
+        id:
+          type: string
+          format: uuid
+          title: Id
+        flow_execution_id:
+          type: string
+          format: uuid
+          title: Flow Execution Id
+        task_name:
+          type: string
+          title: Task Name
+        summary:
+          title: Summary
+        output:
+          anyOf:
+          - {}
+          - type: 'null'
+          title: Output
+        tags:
+          anyOf:
+          - {}
+          - type: 'null'
+          title: Tags
+        processing_status:
+          $ref: '#/components/schemas/ProcessingStatus'
+          default: queued
+        edited_status:
+          $ref: '#/components/schemas/TaskOutputEditedStatus'
+          default: not_edited
+        stale_status:
+          $ref: '#/components/schemas/StaleStatus'
+          default: consistent
+        error:
+          anyOf:
+          - {}
+          - type: 'null'
+          title: Error
+        organization_id:
+          type: string
+          format: uuid
+          title: Organization Id
+      type: object
+      required:
+      - flow_execution_id
+      - task_name
+      - summary
+      - organization_id
+      title: TaskOutput
+      description: Database model for node output.
+    TaskOutputAPI:
+      properties:
+        id:
+          type: string
+          format: uuid
+          title: Id
+          description: Unique identifier for this task output. Auto-generated UUID assigned at creation time. Used for direct resource access via GET /task-outputs/{id}.
+          examples:
+          - 123e4567-e89b-12d3-a456-426614174000
+        flow_execution_id:
+          type: string
+          format: uuid
+          title: Flow Execution Id
+          description: ID of the parent flow execution containing this task. Establishes the execution hierarchy and organization scope.
+          examples:
+          - 223e4567-e89b-12d3-a456-426614174000
+        task_name:
+          type: string
+          maxLength: 200
+          minLength: 1
+          title: Task Name
+          description: Name of the task that produced this output. Case-sensitive identifier matching flow definition YAML. Used to associate output with specific workflow task.
+          examples:
+          - extract_data
+          - send_email
+          - validate_document
+        summary:
+          title: Summary
+          description: "Structured summary of task output for UI display and querying. Typically a dictionary with standardized keys for rendering. \n\nCommon patterns:\n- Document processing: {'pages': 10, 'word_count': 5000}\n- API calls: {'status_code': 200, 'response_time_ms': 450}\n- Data validation: {'valid_rows': 950, 'invalid_rows': 50}"
+          examples:
+          - duration_seconds: 12.5
+            records_processed: 150
+            status: success
+          - email_sent: true
+            recipient: user@example.com
+        output:
+          anyOf:
+          - {}
+          - type: 'null'
+          title: Output
+          description: Full output data produced by the task. May be large or complex; use summary field for UI display. Can be dict, list, or primitive types. NULL if task produces no output data. Available for downstream task consumption in workflows.
+          examples:
+          - extracted_text: Long document content...
+            metadata:
+              author: John
+          - - name: Item 1
+              value: 100
+            - name: Item 2
+              value: 200
+        tags:
+          anyOf:
+          - {}
+          - type: 'null'
+          title: Tags
+          description: "Task-level tags for categorization and filtering. Typically list of strings or dict with tag metadata. NULL if no tags associated with this output. \n\nCommon patterns:\n- Simple: ['priority:high', 'reviewed']\n- Structured: {'status': 'approved', 'reviewer': 'user@example.com'}"
+          examples:
+          - - priority:high
+            - customer:acme
+            - reviewed
+          - reviewer: user@example.com
+            status: approved
+        processing_status:
+          $ref: '#/components/schemas/ProcessingStatus'
+          description: Processing lifecycle status of the task output.
+          examples:
+          - completed
+          - failed
+          - running
+        edited_status:
+          $ref: '#/components/schemas/TaskOutputEditedStatus'
+          description: Whether this task output was manually edited.
+          examples:
+          - not_edited
+          - edited
+        stale_status:
+          $ref: '#/components/schemas/StaleStatus'
+          description: Whether this task output's data is outdated.
+          examples:
+          - consistent
+          - stale
+        error:
+          anyOf:
+          - $ref: '#/components/schemas/TaskExecutionError'
+          - type: 'null'
+          description: Error information when task execution fails. Contains the error message and whether it's retryable. NULL if task completed successfully.
+          examples:
+          - message: 'Webhook notification failed: HTTP 500'
+          - message: Connection timeout
+        created_at:
+          anyOf:
+          - type: string
+            format: date-time
+          - type: 'null'
+          title: Created At
+          description: ISO 8601 timestamp when task output was created (UTC). Represents when the output was recorded in the system. NULL for legacy records created before timestamp tracking.
+          examples:
+          - '2025-01-24T10:30:00Z'
+        updated_at:
+          anyOf:
+          - type: string
+            format: date-time
+          - type: 'null'
+          title: Updated At
+          description: ISO 8601 timestamp of last update to this output (UTC). Changes when summary, output, tags, or status are modified. NULL for records never updated since creation.
+          examples:
+          - '2025-01-24T10:35:00Z'
+        modified_by:
+          type: string
+          title: Modified By
+          description: "Identifier of the actor who last modified this task output. Tracks who made the last change for auditing purposes. Defaults to 'system' for worker-initiated changes. \n\nValues:\n- 'system': System-automated changes (workers, background jobs)\n- User ID: UUID string of the user who made the change (e.g., '123e4567-e89b-12d3-a456-426614174000')\n- Integration type: For service accounts/integrations (e.g., 'integration', 'service-account')"
+          default: system
+          examples:
+          - system
+          - 123e4567-e89b-12d3-a456-426614174000
+          - integration
+        flow_version:
+          anyOf:
+          - type: integer
+            minimum: 1.0
+          - type: 'null'
+          title: Flow Version
+          description: Version number of the flow definition used for execution. Matches flow_version from parent flow execution. NULL for outputs created before version tracking. Useful for tracking output changes across flow versions.
+          examples:
+          - 1
+          - 2
+          - 3
+        organization_id:
+          type: string
+          format: uuid
+          title: Organization Id
+          description: ID of the organization owning this task output. Inherited from parent flow execution. Used for Row-Level Security (RLS) and multi-tenant isolation.
+          examples:
+          - 323e4567-e89b-12d3-a456-426614174000
+      type: object
+      required:
+      - id
+      - flow_execution_id
+      - task_name
+      - summary
+      - processing_status
+      - edited_status
+      - stale_status
+      - organization_id
+      title: TaskOutputAPI
+      description: "API model representing a task's output data.\n\nTask outputs store the summarized, structured results of task executions.\nUnlike task executions which track the full lifecycle (input, output, error),\ntask outputs focus on the final output data formatted for display, downstream\nconsumption, and workflow decision logic.\n\nKey Differences from Task Execution:\n    - Task Execution: Full execution record with input, output, error, retries\n    - Task Output: Summarized result optimized for querying and display\n    - One task execution typically produces one task output upon completion\n\nResource Hierarchy:\n    Organization → Flow → Flow Execution → Task Output"
+    TaskExecutionError:
+      properties:
+        message:
+          type: string
+          title: Message
+          description: Human-readable error message describing what went wrong. This is the primary error information displayed to users.
+          examples:
+          - 'Webhook notification failed: HTTP 500 - Internal Server Error'
+          - Connection timeout after 30 seconds
+          - Invalid credentials provided
+      type: object
+      required:
+      - message
+      title: TaskExecutionError
+      description: 'Error information for failed task executions.
+
+
+        This model represents the structure of errors that occur during task execution.
+
+        It includes both the error message and a flag indicating whether the error is retryable.'
+  securitySchemes:
+    BearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+      description: 'JWT Bearer token authentication. Include your access token in the Authorization header as: `Bearer YOUR_ACCESS_TOKEN`
+
+
+        Example:
+
+        ```
+
+        Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
+
+        ```'
+    APIKeyAuth:
+      type: apiKey
+      name: X-API-Key
+      in: header
+      description: 'API key authentication. Include your API key in the X-API-Key header as: `X-API-Key YOUR_API_KEY`
+
+
+        Example:
+
+        ```
+
+        X-API-Key: saf_1234567890
+
+        ```'

@@ -1,0 +1,679 @@
+openapi: 3.1.0
+info:
+  title: SuperAI Flow Platform auth sso API
+  description: "SuperAI Flows is a workflow orchestration platform that enables you to design, deploy, and monitor automated workflows at scale.\n\nBuild complex workflows using our declarative YAML DSL, execute them reliably, and integrate seamlessly with AI models, cloud storage, and enterprise systems.\n\n**Key Capabilities:**\n- **Workflow Management**: Define workflows as code with version control and automated execution\n- **Task Orchestration**: Chain together API calls, data processing, and AI operations\n- **Real-time Monitoring**: Track execution progress with WebSocket notifications and comprehensive logging\n- **Multi-tenant Architecture**: Organization-scoped resources with role-based access control\n\n**API Versioning and Breaking Changes:**\n\nWe follow a strict compatibility policy to ensure your integrations remain stable:\n\n- **Non-breaking changes** (safe, no action required):\n  - Adding new API endpoints\n  - Adding new optional query parameters to existing endpoints\n  - Adding new fields to API responses\n  - Adding new values to existing enums\n\n- **Breaking changes** (requires client updates):\n  - Removing or renaming API endpoints\n  - Removing query parameters or request fields\n  - Removing response fields\n  - Changing field types or validation rules\n  - Removing values from existing enums\n\n**Client Implementation Requirements:**\n\nYour API clients MUST be designed to gracefully handle additional fields in responses. We may add new fields to any response object without considering this a breaking change. Ensure your JSON parsers ignore unknown fields rather than raising errors.\n\n**Backward Compatibility Guarantee:**\n\nWe commit to maintaining backward compatibility for all non-breaking changes. Breaking changes will be:\n- Announced at least 15 days in advance\n- Documented in our changelog with migration guide\n\nFor the latest API updates and migration guides, see our changelog."
+  version: 0.1.0
+tags:
+- name: sso
+  description: Single Sign-On operations for configuring SAML-based SSO authentication.
+  x-displayName: SSO
+paths:
+  /api/sso:
+    get:
+      tags:
+      - sso
+      summary: Get SSO configuration for organization
+      description: "Get SSO configuration for the current user's organization.\n\nReturns the current SAML SSO configuration including domains, metadata settings,\nand attribute mappings.\n\nContext:\n    - Returns SSO configuration for the authenticated user's organization\n    - Includes both active and inactive configurations\n    - Shows configuration stored in local database\n\nResponse Data:\n    - sso_provider_id: Supabase SSO provider identifier\n    - domains: Email domains using this SSO provider\n    - metadata_url: URL for SAML metadata (if configured)\n    - attribute_mapping: SAML attribute to user field mappings\n    - is_active: Whether the SSO provider is currently enabled\n\nUse Cases:\n    - Reviewing current SSO configuration\n    - Checking SSO status before updates\n    - Auditing SSO provider settings\n\nRelated Endpoints:\n    - POST /auth/sso - Create SSO configuration\n    - PATCH /auth/sso - Update SSO metadata"
+      operationId: get_sso_config_api_sso_get
+      responses:
+        '200':
+          description: SSO configuration retrieved successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SSOOrganizationResponse'
+        '404':
+          description: SSO configuration not found for organization
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          description: Unauthorized - Missing or invalid authentication credentials
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                missing_token:
+                  summary: Missing authentication token
+                  value:
+                    error:
+                      message: Authentication required
+                      code: unauthorized
+                    request_id: 01K8KABR6S16YETA2SZPVBS9SP
+                invalid_token:
+                  summary: Invalid or expired token
+                  value:
+                    error:
+                      message: Invalid authentication token
+                      code: unauthorized
+                    request_id: 01K8KACP7D2XFGHJ9KLM4NPQR8
+      security:
+      - BearerAuth: []
+      - APIKeyAuth: []
+    post:
+      tags:
+      - sso
+      summary: Create SSO configuration for organization
+      description: "Create SSO configuration for the current user's organization.\n\nCreates a new SAML SSO provider in Supabase and stores the configuration locally.\nThis is a transactional operation that ensures both Supabase and local database\nare updated atomically.\n\nContext:\n    - Only organization administrators can create SSO configurations\n    - Each organization can have only one SSO configuration\n\nSAML Configuration:\n    - Provide either metadata_url OR metadata_xml, not both\n    - metadata_url: URL where Supabase can fetch SAML metadata\n    - metadata_xml: Raw SAML metadata XML content\n    - domains: Email domains that should authenticate via this provider\n    - attribute_mapping: Maps SAML attributes to user profile fields\n\nRelated Endpoints:\n    - GET /auth/sso - Get current SSO configuration\n    - PATCH /auth/sso - Update SSO metadata\n    - DELETE /auth/sso - Remove SSO configuration"
+      operationId: create_sso_config_api_sso_post
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SSOProviderCreate'
+        required: true
+      responses:
+        '201':
+          description: SSO configuration created successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SSOOrganizationResponse'
+        '400':
+          description: Bad Request - Invalid SSO configuration or organization already has SSO
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: Supabase API error or service unavailable
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          description: Unauthorized - Missing or invalid authentication credentials
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                missing_token:
+                  summary: Missing authentication token
+                  value:
+                    error:
+                      message: Authentication required
+                      code: unauthorized
+                    request_id: 01K8KABR6S16YETA2SZPVBS9SP
+                invalid_token:
+                  summary: Invalid or expired token
+                  value:
+                    error:
+                      message: Invalid authentication token
+                      code: unauthorized
+                    request_id: 01K8KACP7D2XFGHJ9KLM4NPQR8
+        '422':
+          description: Unprocessable Entity - Request validation failed
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                validation_error:
+                  summary: Validation error
+                  value:
+                    error:
+                      message: Request validation failed
+                      code: validation_error
+                      details:
+                      - type: missing
+                        loc:
+                        - body
+                        - name
+                        msg: Field required
+                    request_id: 01K8KABR6S16YETA2SZPVBS9SP
+                type_error:
+                  summary: Type validation error
+                  value:
+                    error:
+                      message: Request validation failed
+                      code: validation_error
+                      details:
+                      - type: uuid_parsing
+                        loc:
+                        - path
+                        - flow_id
+                        msg: Input should be a valid UUID
+                        input: not-a-uuid
+                    request_id: 01K8KACP7D2XFGHJ9KLM4NPQR8
+      security:
+      - BearerAuth: []
+      - APIKeyAuth: []
+    delete:
+      tags:
+      - sso
+      summary: Remove SSO configuration for organization
+      description: "Remove SSO configuration for the current user's organization.\n\nDisables the SSO configuration by setting is_active=False. This is a soft delete\nthat preserves the configuration for potential future reactivation.\n\nContext:\n    - Soft delete (sets is_active=False, preserves data)\n    - Users will fall back to password authentication\n    - Configuration can be reactivated by creating a new SSO config\n    - Does not delete the Supabase SSO provider\n\nImpact:\n    - Immediate: Users can no longer authenticate via SSO\n    - Existing sessions may remain active until expiration\n    - Users must use password authentication\n    - Organization admins can recreate SSO configuration\n\nSecurity Considerations:\n    - Disabling SSO immediately affects all users in configured domains\n    - Ensure alternative authentication methods are available\n    - Consider communication to affected users before disabling\n\nUse Cases:\n    - Temporary SSO maintenance or troubleshooting\n    - Migrating to a different SSO provider\n    - Emergency access restoration via password auth\n    - Decommissioning SSO integration\n\nRelated Endpoints:\n    - POST /auth/sso - Create new SSO configuration\n    - GET /auth/sso - Check current configuration status"
+      operationId: delete_sso_config_api_sso_delete
+      responses:
+        '204':
+          description: SSO configuration disabled successfully
+        '404':
+          description: SSO configuration not found for organization
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          description: Unauthorized - Missing or invalid authentication credentials
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                missing_token:
+                  summary: Missing authentication token
+                  value:
+                    error:
+                      message: Authentication required
+                      code: unauthorized
+                    request_id: 01K8KABR6S16YETA2SZPVBS9SP
+                invalid_token:
+                  summary: Invalid or expired token
+                  value:
+                    error:
+                      message: Invalid authentication token
+                      code: unauthorized
+                    request_id: 01K8KACP7D2XFGHJ9KLM4NPQR8
+      security:
+      - BearerAuth: []
+      - APIKeyAuth: []
+    patch:
+      tags:
+      - sso
+      summary: Update SSO metadata configuration
+      description: "Update SSO metadata configuration for the current user's organization.\n\nUpdates metadata-related fields only. This endpoint is restricted to updating:\n- metadata_url: URL for fetching SAML metadata\n- metadata_xml: Raw SAML metadata XML content\n- domains: Email domains that should use this SSO provider\n- attribute_mapping: SAML attribute to user profile field mappings\n\nContext:\n    - Only metadata-related fields can be updated via this endpoint\n    - Updates both Supabase SSO provider and local database\n    - Changes are applied immediately\n    - Cannot update provider ID or organization association\n\nMetadata Update Rules:\n    - Provide either metadata_url OR metadata_xml, not both\n    - Setting metadata_url clears any existing metadata_xml\n    - Setting metadata_xml clears any existing metadata_url\n    - Domains can be added, removed, or modified\n    - Attribute mappings are completely replaced if provided\n\nUse Cases:\n    - Updating SAML metadata after IdP changes\n    - Adding or removing email domains\n    - Modifying attribute mapping for user profiles\n    - Rotating SAML certificates or endpoints\n\nRelated Endpoints:\n    - GET /auth/sso - Get current configuration\n    - DELETE /auth/sso - Remove SSO configuration"
+      operationId: update_sso_config_api_sso_patch
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SSOProviderUpdate'
+        required: true
+      responses:
+        '200':
+          description: SSO configuration updated successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SSOOrganizationResponse'
+        '400':
+          description: Bad Request - Invalid metadata configuration
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: SSO configuration not found for organization
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: Supabase API error or service unavailable
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          description: Unauthorized - Missing or invalid authentication credentials
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                missing_token:
+                  summary: Missing authentication token
+                  value:
+                    error:
+                      message: Authentication required
+                      code: unauthorized
+                    request_id: 01K8KABR6S16YETA2SZPVBS9SP
+                invalid_token:
+                  summary: Invalid or expired token
+                  value:
+                    error:
+                      message: Invalid authentication token
+                      code: unauthorized
+                    request_id: 01K8KACP7D2XFGHJ9KLM4NPQR8
+        '422':
+          description: Unprocessable Entity - Request validation failed
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                validation_error:
+                  summary: Validation error
+                  value:
+                    error:
+                      message: Request validation failed
+                      code: validation_error
+                      details:
+                      - type: missing
+                        loc:
+                        - body
+                        - name
+                        msg: Field required
+                    request_id: 01K8KABR6S16YETA2SZPVBS9SP
+                type_error:
+                  summary: Type validation error
+                  value:
+                    error:
+                      message: Request validation failed
+                      code: validation_error
+                      details:
+                      - type: uuid_parsing
+                        loc:
+                        - path
+                        - flow_id
+                        msg: Input should be a valid UUID
+                        input: not-a-uuid
+                    request_id: 01K8KACP7D2XFGHJ9KLM4NPQR8
+      security:
+      - BearerAuth: []
+      - APIKeyAuth: []
+  /api/sso/service-provider-details:
+    get:
+      tags:
+      - sso
+      summary: Get Supabase SAML service-provider URLs
+      description: "Get the Supabase SAML service-provider (SP) URLs for IdP configuration.\n\nThese URLs depend only on the Supabase project and are the same for every\norganization. They are available before any SSO configuration exists, so the\nsetup UI can pre-fill the read-only SP fields the customer must copy into\ntheir Identity Provider.\n\nResponse Data:\n    - entity_id: SAML SP EntityID (same value as metadata_url)\n    - metadata_url: SAML SP metadata URL\n    - acs_url: Assertion Consumer Service (ACS) URL\n    - slo_url: Single Logout (SLO) URL\n\nRelated Endpoints:\n    - POST /auth/sso - Create SSO configuration\n    - GET /auth/sso - Get current SSO configuration"
+      operationId: get_sso_service_provider_details_api_sso_service_provider_details_get
+      responses:
+        '200':
+          description: Service-provider URLs to configure in the customer's IdP
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SSOServiceProviderDetails'
+        '401':
+          description: Unauthorized - Missing or invalid authentication credentials
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                missing_token:
+                  summary: Missing authentication token
+                  value:
+                    error:
+                      message: Authentication required
+                      code: unauthorized
+                    request_id: 01K8KABR6S16YETA2SZPVBS9SP
+                invalid_token:
+                  summary: Invalid or expired token
+                  value:
+                    error:
+                      message: Invalid authentication token
+                      code: unauthorized
+                    request_id: 01K8KACP7D2XFGHJ9KLM4NPQR8
+      security:
+      - BearerAuth: []
+      - APIKeyAuth: []
+  /api/sso/metadata:
+    get:
+      tags:
+      - sso
+      summary: Proxy SAML metadata to avoid CORS issues
+      description: Fetches SAML metadata from external URLs to avoid browser CORS restrictions
+      operationId: proxy_saml_metadata_api_sso_metadata_get
+      parameters:
+      - name: url
+        in: query
+        required: true
+        schema:
+          type: string
+          format: uri
+          minLength: 1
+          maxLength: 2083
+          description: SAML metadata URL to fetch
+          title: Url
+        description: SAML metadata URL to fetch
+      responses:
+        '200':
+          description: SAML metadata XML content
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MetadataResponse'
+            application/xml: {}
+        '401':
+          description: Unauthorized - Missing or invalid authentication credentials
+          content:
+            application/json:
+              examples:
+                missing_token:
+                  summary: Missing authentication token
+                  value:
+                    error:
+                      message: Authentication required
+                      code: unauthorized
+                    request_id: 01K8KABR6S16YETA2SZPVBS9SP
+                invalid_token:
+                  summary: Invalid or expired token
+                  value:
+                    error:
+                      message: Invalid authentication token
+                      code: unauthorized
+                    request_id: 01K8KACP7D2XFGHJ9KLM4NPQR8
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '400':
+          description: Invalid or missing metadata URL
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+      security:
+      - BearerAuth: []
+      - APIKeyAuth: []
+components:
+  schemas:
+    SSOProviderUpdate:
+      properties:
+        metadata_url:
+          anyOf:
+          - type: string
+            maxLength: 2083
+            minLength: 1
+            format: uri
+          - type: 'null'
+          title: Metadata Url
+          description: Updated SAML metadata URL
+        metadata_xml:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Metadata Xml
+          description: Updated SAML metadata XML
+        domains:
+          anyOf:
+          - items:
+              type: string
+            type: array
+          - type: 'null'
+          title: Domains
+          description: Updated email domains
+        attribute_mapping:
+          anyOf:
+          - additionalProperties: true
+            type: object
+          - type: 'null'
+          title: Attribute Mapping
+          description: Updated attribute mappings
+        is_active:
+          anyOf:
+          - type: boolean
+          - type: 'null'
+          title: Is Active
+          description: Whether provider is active
+      type: object
+      title: SSOProviderUpdate
+      description: Request model for updating an SSO provider via Supabase Management API.
+    ErrorDetail:
+      properties:
+        message:
+          type: string
+          title: Message
+          description: Human-readable error message
+        code:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Code
+          description: Machine-readable error code for programmatic handling
+        details:
+          anyOf:
+          - items:
+              type: string
+            type: array
+          - items:
+              additionalProperties: true
+              type: object
+            type: array
+          - additionalProperties: true
+            type: object
+          - type: 'null'
+          title: Details
+          description: Additional error context, validation errors, or debugging information
+      type: object
+      required:
+      - message
+      title: ErrorDetail
+      description: 'Standard error detail structure.
+
+
+        This model matches the error format returned by the centralized
+
+        exception handlers in app/api/errors/handlers.py.'
+    ErrorResponse:
+      properties:
+        error:
+          $ref: '#/components/schemas/ErrorDetail'
+        request_id:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Request Id
+          description: 'Unique request identifier in ULID format for debugging and support. Example: 01K8KABR6S16YETA2SZPVBS9SP'
+      type: object
+      required:
+      - error
+      title: ErrorResponse
+      description: "Standard API error response structure.\n\nAll error responses from the API follow this format, ensuring\nconsistent error handling for API consumers.\n\nExample:\n    {\n        \"error\": {\n            \"message\": \"Flow not found\",\n            \"code\": \"not_found\"\n        },\n        \"request_id\": \"01K8KABR6S16YETA2SZPVBS9SP\"\n    }"
+      examples:
+      - error:
+          code: not_found
+          message: Resource not found
+        request_id: 01K8KABR6S16YETA2SZPVBS9SP
+    SSOProviderCreate:
+      properties:
+        type:
+          type: string
+          title: Type
+          description: SSO provider type
+          default: saml
+        metadata_url:
+          anyOf:
+          - type: string
+            maxLength: 2083
+            minLength: 1
+            format: uri
+          - type: 'null'
+          title: Metadata Url
+          description: URL to fetch SAML metadata
+        metadata_xml:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Metadata Xml
+          description: Raw SAML metadata XML
+        domains:
+          items:
+            type: string
+          type: array
+          title: Domains
+          description: Email domains for this provider
+        attribute_mapping:
+          anyOf:
+          - additionalProperties: true
+            type: object
+          - type: 'null'
+          title: Attribute Mapping
+          description: SAML attribute mappings
+      type: object
+      required:
+      - domains
+      title: SSOProviderCreate
+      description: Request model for creating an SSO provider via Supabase Management API.
+    HTTPValidationError:
+      properties:
+        detail:
+          items:
+            $ref: '#/components/schemas/ValidationError'
+          type: array
+          title: Detail
+      type: object
+      title: HTTPValidationError
+    ValidationError:
+      properties:
+        loc:
+          items:
+            anyOf:
+            - type: string
+            - type: integer
+          type: array
+          title: Location
+        msg:
+          type: string
+          title: Message
+        type:
+          type: string
+          title: Error Type
+      type: object
+      required:
+      - loc
+      - msg
+      - type
+      title: ValidationError
+    SSOServiceProviderDetails:
+      properties:
+        entity_id:
+          type: string
+          title: Entity Id
+          description: SAML SP EntityID
+        metadata_url:
+          type: string
+          title: Metadata Url
+          description: SAML SP metadata URL
+        acs_url:
+          type: string
+          title: Acs Url
+          description: Assertion Consumer Service (ACS) URL
+        slo_url:
+          type: string
+          title: Slo Url
+          description: Single Logout (SLO) URL
+      type: object
+      required:
+      - entity_id
+      - metadata_url
+      - acs_url
+      - slo_url
+      title: SSOServiceProviderDetails
+      description: Supabase SAML service-provider URLs to configure in the customer's IdP.
+    MetadataResponse:
+      properties:
+        metadata:
+          type: string
+          title: Metadata
+      type: object
+      required:
+      - metadata
+      title: MetadataResponse
+    SSOOrganizationResponse:
+      properties:
+        sso_provider_id:
+          type: string
+          title: Sso Provider Id
+          description: Supabase SSO provider ID
+        organization_id:
+          anyOf:
+          - type: string
+            format: uuid
+          - type: 'null'
+          title: Organization Id
+          description: Associated organization ID
+        domains:
+          anyOf:
+          - items:
+              type: string
+            type: array
+          - type: 'null'
+          title: Domains
+          description: Email domains for this SSO provider
+        metadata_url:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Metadata Url
+          description: SAML metadata URL
+        metadata_xml_hash:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Metadata Xml Hash
+          description: Hash of SAML metadata XML
+        attribute_mapping:
+          anyOf:
+          - additionalProperties: true
+            type: object
+          - type: 'null'
+          title: Attribute Mapping
+          description: SAML attribute mappings
+        is_active:
+          type: boolean
+          title: Is Active
+          description: Whether the SSO provider is active
+          default: true
+        created_at:
+          type: string
+          format: date-time
+          title: Created At
+          description: Creation timestamp
+        updated_at:
+          type: string
+          format: date-time
+          title: Updated At
+          description: Last update timestamp
+      type: object
+      required:
+      - sso_provider_id
+      - created_at
+      - updated_at
+      title: SSOOrganizationResponse
+      description: API response model for SSO organization configuration.
+  securitySchemes:
+    BearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+      description: 'JWT Bearer token authentication. Include your access token in the Authorization header as: `Bearer YOUR_ACCESS_TOKEN`
+
+
+        Example:
+
+        ```
+
+        Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
+
+        ```'
+    APIKeyAuth:
+      type: apiKey
+      name: X-API-Key
+      in: header
+      description: 'API key authentication. Include your API key in the X-API-Key header as: `X-API-Key YOUR_API_KEY`
+
+
+        Example:
+
+        ```
+
+        X-API-Key: saf_1234567890
+
+        ```'
