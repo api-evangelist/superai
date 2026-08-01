@@ -1,8 +1,22 @@
+x-enrichment:
+  date: '2026-07-21'
+  status: enriched
+  artifacts_added: 19
+  pass: local-v1
 aid: superai
 name: Super.ai
-description: 'Super.ai is a company surfaced as a portfolio company of hv-capital and added to the API
-  Evangelist network as a stub for enrichment. Sector: ai-enterprise-software. This profile is a lead
-  awaiting the enrichment pipeline.'
+description: >-
+  super.AI is an intelligent document processing (IDP) platform that automates the
+  extraction and processing of complex, multi-page documents such as invoices, contracts,
+  and bills of lading, improving accuracy as users correct its output. Its developer
+  product, SuperAI Flows, is a workflow orchestration platform for building durable,
+  AI-powered automations through a simple REST API: design flows that orchestrate AI
+  models, data processing, human-review tasks, and business logic, then run them
+  synchronously via polling or asynchronously via webhooks. The API covers flows, flow
+  executions, task executions and outputs, human review, integrations (email, storage,
+  databases), files, models, service accounts, SSO, and organization management, with
+  JWT bearer and service-account API-key authentication. super.AI serves financial
+  services, insurance, logistics, shared services, and testing/inspection/certification.
 url: https://raw.githubusercontent.com/api-evangelist/superai/refs/heads/main/apis.yml
 x-type: company
 x-source: vc-portfolio
@@ -10,15 +24,884 @@ x-backed-by:
 - hv-capital
 x-tier: stub
 x-tier-reason: portfolio-lead
+accessModel:
+  pricing: unknown
+  onboarding: self-serve
+  trial: false
+  try_now: false
+  public: false
+  label: Self-serve signup
+  confidence: medium
+  source:
+  - authentication
+  generated: '2026-07-22'
+  method: derived
+image: https://super.ai/superai-logo.webp
 specificationVersion: '0.20'
 created: '2026-07-17'
-modified: '2026-07-17'
+modified: '2026-07-21'
 tags:
 - Company
 - Ai Enterprise Software
-apis: []
+- Intelligent Document Processing
+- Document Processing
+- Workflow Orchestration
+- Automation
+- Human In The Loop
+- Artificial Intelligence
+- REST API
+apis:
+- aid: superai:superai-auth-api
+  name: Super.ai auth API
+  description: >-
+    Authentication operations for user authentication, authorization, and session management.
+
+
+    Authentication endpoints handle user identity verification, token generation, and access control throughout
+    the platform. The system uses JWT (JSON Web Token) based authentication managed through core.flows.super.ai.
+
+
+    **Authentication flow:**
+
+    1. Obtain credentials from your account at core.flows.super.ai
+
+    2. Authenticate to receive JWT access token and refresh token
+
+    3. Include access token in API requests via Authorization header
+
+    4. API validates tokens and extracts user identity and organization context
+
+    5. Tokens expire after 1 hour and must be refreshed
+
+
+    **Key concepts:**
+
+    - **Bearer Tokens**: Short-lived JWT tokens (1 hour) used for API requests
+
+    - **Anon-Key**: Long-lived API key used to authenticate to the authentication API.
+
+    - **Refresh Tokens**: Long-lived tokens used to obtain new access tokens
+
+    - **Protected Routes**: Most endpoints require valid authentication
+
+    - **Public Endpoints**: Limited whitelisted paths accessible without auth
+
+
+    **Getting started with authentication:**
+
+
+    1. **Obtain your Anonymous Key** (public endpoint - no authentication required):
+       ```bash
+       curl https://flows.super.ai/api/auth/anon-key
+       ```
+
+    2. **Authenticate** to receive your tokens:
+       ```bash
+       curl -X POST 'https://core.flows.super.ai/auth/v1/token?grant_type=password' \
+         -H 'Content-Type: application/json' \
+         -H 'apikey: ANON_KEY' \
+         -d '{"email": "you@example.com", "password": "your-password"}'
+       ```
+       This will return a JWT access token and refresh token.
+
+    3. **Use the access token** in your requests:
+       ```bash
+       curl -H "Authorization: Bearer YOUR_ACCESS_TOKEN" \
+            https://flows.super.ai/api/flows
+       ```
+
+    **Token management:**
+
+    - Access tokens expire after 1 hour
+
+    - Use refresh tokens to obtain new access tokens without re-authenticating
+
+    - Store tokens securely and never commit them to version control
+
+
+    All API endpoints (except whitelisted public paths) require authentication. Include your bearer token
+    in the Authorization header: `Bearer <token>`
+  humanURL: https://docs.flows.super.ai
+  baseURL: https://flows.super.ai/api
+  tags:
+  - auth
+  properties:
+  - type: OpenAPI
+    url: openapi/superai-auth-api-openapi.yml
+  - type: APIReference
+    url: https://docs.flows.super.ai/api-reference
+  - type: Authentication
+    url: authentication/superai-authentication.yml
+- aid: superai:superai-files-api
+  name: Super.ai files API
+  description: >-
+    File download operations for retrieving files from gs:// storage URIs.
+
+
+    When Super.AI Flows processes documents, task outputs often include file references as `gs://` URIs
+    pointing to Google Cloud Storage. These endpoints let you download those files without needing to
+    understand GCS internals or parse storage URLs.
+
+
+    **The problem these endpoints solve:**
+
+
+    Previously, downloading a file required:
+
+    1. Recognizing the URL as a GCS reference
+
+    2. Parsing out the file key from the URI
+
+    3. Calling a separate endpoint to get a signed URL
+
+    4. Downloading using that signed URL
+
+
+    **Now it's simple:** Pass the `gs://` URI exactly as received and get your file.
+
+
+    **Two ways to download:**
+
+
+    1. **Direct download** (`GET /files/download`): Returns a redirect to the file. Perfect for curl with
+    `-L` flag.
+       ```
+       curl -L -H "X-API-Key: saf_xxx" "https://flows.super.ai/api/files/download?uri=gs://..." -o file.pdf
+       ```
+
+    2. **Resolve first** (`POST /files/resolve`): Returns a JSON response with the download URL. Better
+    for programmatic use and sensitive files (keeps URI out of logs).
+       ```
+       curl -X POST "https://flows.super.ai/api/files/resolve" \
+         -H "X-API-Key: saf_xxx" \
+         -H "Content-Type: application/json" \
+         -d '{"uri": "gs://..."}'
+       ```
+
+    **Security:**
+
+    - Files are organization-scoped: you can only download files from flows your organization owns
+
+    - URIs are validated to prevent path traversal attacks
+
+    - Download URLs expire after 1 hour
+
+
+    **Common use cases:**
+
+    - Download processed documents from completed flow executions
+
+    - Retrieve extracted data files from task outputs
+
+    - Integrate file downloads into automated pipelines
+  humanURL: https://docs.flows.super.ai
+  baseURL: https://flows.super.ai/api
+  tags:
+  - files
+  properties:
+  - type: OpenAPI
+    url: openapi/superai-files-api-openapi.yml
+  - type: APIReference
+    url: https://docs.flows.super.ai/api-reference
+  - type: Authentication
+    url: authentication/superai-authentication.yml
+- aid: superai:superai-flow-executions-api
+  name: Super.ai flow-executions API
+  description: >-
+    Flow execution operations for running and monitoring workflows.
+
+
+    Flow executions represent runtime instances of flows. When you execute a flow, a new flow execution
+    is created with its own unique ID, status, and execution context. Each execution is independent and
+    maintains its own state, input data, and results.
+
+
+    **Key concepts:**
+
+    - **Execution Status**: Tracks the lifecycle (running, completed, failed, cancelled)
+
+    - **Run Number**: Sequential identifier for executions of the same flow
+
+    - **Execution Context**: Contains input parameters, user information, and metadata
+
+    - **Task Results**: Stores outputs from each task within the execution
+
+
+    **Use these endpoints to:**
+
+    - Start new flow executions with custom input parameters
+
+    - Monitor execution progress and status in real-time
+
+    - Retrieve execution history and detailed results
+
+    - Filter and search executions by status, date, or flow
+
+    - Cancel running executions when needed
+
+    - Access task-level execution details and outputs
+
+
+    Flow executions transform flow definitions into actual work and deliverable results.
+  humanURL: https://docs.flows.super.ai
+  baseURL: https://flows.super.ai/api
+  tags:
+  - flow-executions
+  properties:
+  - type: OpenAPI
+    url: openapi/superai-flow-executions-api-openapi.yml
+  - type: APIReference
+    url: https://docs.flows.super.ai/api-reference
+  - type: Authentication
+    url: authentication/superai-authentication.yml
+- aid: superai:superai-flows-api
+  name: Super.ai flows API
+  description: >-
+    Flow management operations for defining and organizing workflows.
+
+
+    Flows represent workflow definitions with tasks, dependencies, and execution logic. They serve as
+    reusable templates that can be executed multiple times with different inputs.
+
+
+    **What is a flow?**
+
+    A flow consists of:
+
+    - **Tasks**: Individual units of work that perform specific actions
+
+    - **Dependencies**: Relationships between tasks that define execution order
+
+    - **Configuration**: Settings and parameters that control flow behavior
+
+
+    **Use these endpoints to:**
+
+    - Create new flow definitions from scratch or import from YAML
+
+    - List and search existing flows in your organization
+
+    - Retrieve detailed flow information including task definitions
+
+    - Update flow configurations and task parameters
+
+    - Delete flows that are no longer needed
+
+
+    Flows are the foundation of your workflow automation—once defined, they can be executed via the flow-executions
+    endpoints.
+  humanURL: https://docs.flows.super.ai
+  baseURL: https://flows.super.ai/api
+  tags:
+  - flows
+  properties:
+  - type: OpenAPI
+    url: openapi/superai-flows-api-openapi.yml
+  - type: APIReference
+    url: https://docs.flows.super.ai/api-reference
+  - type: Authentication
+    url: authentication/superai-authentication.yml
+- aid: superai:superai-human-review-tasks-api
+  name: Super.ai human-review-tasks API
+  description: >-
+    Human review task operations for creating and managing human-in-the-loop review workflows.
+  humanURL: https://docs.flows.super.ai
+  baseURL: https://flows.super.ai/api
+  tags:
+  - human-review-tasks
+  properties:
+  - type: OpenAPI
+    url: openapi/superai-human-review-tasks-api-openapi.yml
+  - type: APIReference
+    url: https://docs.flows.super.ai/api-reference
+  - type: Authentication
+    url: authentication/superai-authentication.yml
+- aid: superai:superai-integrations-api
+  name: Super.ai integrations API
+  description: >-
+    Integration operations for connecting flows to external services and platforms.
+
+
+    Integrations enable your workflows to interact with third-party services, databases, storage systems,
+    and communication platforms. They provide a unified interface for managing credentials, testing connections,
+    and configuring service-specific features.
+
+
+    **Supported integration types:**
+
+    - **Databases**: PostgreSQL, MySQL, and other SQL databases
+
+    - **Storage**: SFTP, cloud storage, and file systems
+
+    - **Communication**: Email (SMTP, SES), webhooks, notifications
+
+    - **Collaboration**: SharePoint, Google Drive, document management
+
+    - **Custom**: Plugin architecture for extending functionality
+
+
+    **Key concepts:**
+
+    - **Credentials**: Securely stored authentication information per integration
+
+    - **Plugins**: Modular integration implementations with discovery and registration
+
+    - **OAuth Flows**: Automated authorization for third-party services
+
+    - **Webhooks**: Inbound event handling from external platforms
+
+    - **Connection Testing**: Validate credentials and connectivity before use
+
+
+    **Use these endpoints to:**
+
+    - Configure and manage integration credentials
+
+    - Test connections to external services
+
+    - Handle OAuth authorization flows for cloud services
+
+    - Set up and manage webhooks for inbound events
+
+    - Discover available integration capabilities
+
+    - Access integration-specific features (folders, schemas, etc.)
+
+
+    Integrations bridge your workflows with the external world, enabling powerful automation across your
+    entire technology stack.
+  humanURL: https://docs.flows.super.ai
+  baseURL: https://flows.super.ai/api
+  tags:
+  - integrations
+  properties:
+  - type: OpenAPI
+    url: openapi/superai-integrations-api-openapi.yml
+  - type: APIReference
+    url: https://docs.flows.super.ai/api-reference
+  - type: Authentication
+    url: authentication/superai-authentication.yml
+- aid: superai:superai-models-api
+  name: Super.ai models API
+  description: >-
+    Model operations for querying available AI models and their configurations.
+
+
+    Model endpoints provide information about the AI models available through the platform. These endpoints
+    enable discovery of models, their capabilities, and regional availability.
+
+
+    **Key features:**
+
+    - **Model Discovery**: List all available AI models
+
+    - **Regional Filtering**: Query models by geographic region (EU, Global)
+
+    - **Model Metadata**: Access model information including provider, location, and capabilities
+
+
+    **Use these endpoints to:**
+
+    - Discover available AI models for your workflows
+
+    - Filter models by region for compliance or latency requirements
+
+    - Retrieve model metadata for configuration and selection
+
+    - Build dynamic model selection UIs
+
+
+    **Regional filtering:**
+
+    - `eu`: Models deployed in European regions (West Europe, France Central, Germany, Sweden)
+
+    - `global`: Models deployed in US and other global regions
+
+
+    Model endpoints enable intelligent model selection and routing based on your requirements for compliance,
+    performance, and cost.
+  humanURL: https://docs.flows.super.ai
+  baseURL: https://flows.super.ai/api
+  tags:
+  - models
+  properties:
+  - type: OpenAPI
+    url: openapi/superai-models-api-openapi.yml
+  - type: APIReference
+    url: https://docs.flows.super.ai/api-reference
+  - type: Authentication
+    url: authentication/superai-authentication.yml
+- aid: superai:superai-organizations-api
+  name: Super.ai organizations API
+  description: Organization operations for viewing credit balance and organization-scoped information.
+  humanURL: https://docs.flows.super.ai
+  baseURL: https://flows.super.ai/api
+  tags:
+  - organizations
+  properties:
+  - type: OpenAPI
+    url: openapi/superai-organizations-api-openapi.yml
+  - type: APIReference
+    url: https://docs.flows.super.ai/api-reference
+  - type: Authentication
+    url: authentication/superai-authentication.yml
+- aid: superai:superai-plugins-api
+  name: Super.ai plugins API
+  description: Plugin operations for managing integration plugin instances, OAuth flows, and webhooks.
+  humanURL: https://docs.flows.super.ai
+  baseURL: https://flows.super.ai/api
+  tags:
+  - plugins
+  properties:
+  - type: OpenAPI
+    url: openapi/superai-plugins-api-openapi.yml
+  - type: APIReference
+    url: https://docs.flows.super.ai/api-reference
+  - type: Authentication
+    url: authentication/superai-authentication.yml
+- aid: superai:superai-profile-api
+  name: Super.ai profile API
+  description: >-
+    User profile operations for viewing and updating account information.
+
+
+    Profile endpoints allow authenticated users to view and update their own account information and preferences.
+    These endpoints operate on the currently authenticated user (determined from the JWT token) and do
+    not require specifying a user ID.
+
+
+    **Account information includes:**
+
+    - **Personal Details**: First name, last name, email
+
+    - **Organization**: Associated organization and role
+
+    - **Status**: Account status and permissions
+
+    - **Metadata**: Created/updated timestamps
+
+
+    **Use these endpoints to:**
+
+    - Retrieve current user information for display
+
+    - Update personal details (name, preferences)
+
+    - View organization membership and role
+
+    - Access account metadata
+
+
+    Profile endpoints provide self-service account management capabilities, reducing the need for administrative
+    intervention for routine updates.
+
+
+    **Note:** All profile endpoints are protected and automatically scope to the authenticated user. Email
+    and organization changes require admin privileges.
+  humanURL: https://docs.flows.super.ai
+  baseURL: https://flows.super.ai/api
+  tags:
+  - profile
+  properties:
+  - type: OpenAPI
+    url: openapi/superai-profile-api-openapi.yml
+  - type: APIReference
+    url: https://docs.flows.super.ai/api-reference
+  - type: Authentication
+    url: authentication/superai-authentication.yml
+- aid: superai:superai-service-accounts-api
+  name: Super.ai service-accounts API
+  description: Service account operations for managing programmatic API access credentials.
+  humanURL: https://docs.flows.super.ai
+  baseURL: https://flows.super.ai/api
+  tags:
+  - service-accounts
+  properties:
+  - type: OpenAPI
+    url: openapi/superai-service-accounts-api-openapi.yml
+  - type: APIReference
+    url: https://docs.flows.super.ai/api-reference
+  - type: Authentication
+    url: authentication/superai-authentication.yml
+- aid: superai:superai-sso-api
+  name: Super.ai sso API
+  description: Single Sign-On operations for configuring SAML-based SSO authentication.
+  humanURL: https://docs.flows.super.ai
+  baseURL: https://flows.super.ai/api
+  tags:
+  - sso
+  properties:
+  - type: OpenAPI
+    url: openapi/superai-sso-api-openapi.yml
+  - type: APIReference
+    url: https://docs.flows.super.ai/api-reference
+  - type: Authentication
+    url: authentication/superai-authentication.yml
+- aid: superai:superai-task-data-api
+  name: Super.ai task-data API
+  description: >-
+    Task data operations for flow validation, schema discovery, and dynamic configuration.
+
+
+    The task-data endpoint analyzes flow definitions to extract task output schemas, dynamic configuration
+    options, and validation errors. This is essential for building flow configuration UIs, validating
+    flows before execution, and understanding task data structures.
+
+
+    **Primary Use Cases:**
+
+    - **Flow Builder UI**: Get task output schemas for validating downstream task inputs
+
+    - **Schema Discovery**: Understand the structure of data each task produces
+
+    - **Dynamic Configuration**: Retrieve runtime-dependent options (e.g., available spreadsheets, database
+    tables)
+
+    - **Flow Validation**: Validate flow definitions programmatically before saving or executing
+
+    - **Custom Integrations**: Build tools that work with SuperAI Flows programmatically
+
+
+    **What You Get:**
+
+    - **Output Schemas**: JSON Schema definitions for each task's output structure
+
+    - **Dynamic Data**: Runtime-dependent configuration options (dropdown choices, conditional fields)
+
+    - **Validation Errors**: Detailed error messages for invalid flow definitions
+
+
+    **How It Works:**
+
+    1. Submit a flow definition in SuperAI Flows DSL format
+
+    2. The endpoint validates the structure and loads each task executor
+
+    3. For each task, it extracts the output schema and any dynamic configuration data
+
+    4. Returns all schemas, dynamic data, and any validation errors encountered
+
+
+    **Key Concepts:**
+
+    - **Output Schema**: JSON Schema describing the structure of data a task produces
+
+    - **Dynamic Data**: Configuration options that depend on user credentials or external state (e.g.,
+    list of Google Sheets accessible with your credentials)
+
+    - **Validation Levels**: Basic (structure only) vs Full (includes semantic validation)
+
+
+    **Integration Notes:**
+
+    - The flow builder frontend uses this endpoint to power the task configuration UI
+
+    - Flows API uses this validation internally when creating/updating flows
+
+    - Response includes validation errors even on HTTP 200 - always check `validation_errors` field
+
+    - May make external API calls to fetch dynamic data, so response time varies (100ms-2s typical)
+
+
+    **Related Endpoints:**
+
+    - `GET /task-executors`: List available task executor types and their schemas
+
+    - `POST /flows`: Create flow (uses task-data validation internally)
+
+    - `PUT /flows/{flow_id}`: Update flow (uses task-data validation internally)
+  humanURL: https://docs.flows.super.ai
+  baseURL: https://flows.super.ai/api
+  tags:
+  - task-data
+  properties:
+  - type: OpenAPI
+    url: openapi/superai-task-data-api-openapi.yml
+  - type: APIReference
+    url: https://docs.flows.super.ai/api-reference
+  - type: Authentication
+    url: authentication/superai-authentication.yml
+- aid: superai:superai-task-executions-api
+  name: Super.ai task-executions API
+  description: >-
+    Task execution operations for tracking individual task runs within flow executions.
+
+
+    Task executions represent individual task runs within a flow execution. Each task in a flow execution
+    has its own task execution record that tracks its lifecycle, inputs, outputs, and status.
+
+
+    **What is tracked:**
+
+    - **Status**: Current state (pending, running, completed, failed, skipped)
+
+    - **Input/Output**: Data passed to and produced by the task
+
+    - **Timing**: Start time, end time, and duration
+
+    - **Errors**: Failure details and error messages
+
+    - **Tags**: Metadata and categorization
+
+
+    **Use these endpoints to:**
+
+    - Query task execution status for debugging
+
+    - Retrieve task outputs for analysis
+
+    - Debug task failures with detailed error information
+
+    - Track task performance and timing
+
+    - Monitor task execution progress within flows
+
+
+    Task executions provide granular visibility into workflow execution, essential for debugging and optimization.
+  humanURL: https://docs.flows.super.ai
+  baseURL: https://flows.super.ai/api
+  tags:
+  - task-executions
+  properties:
+  - type: OpenAPI
+    url: openapi/superai-task-executions-api-openapi.yml
+  - type: APIReference
+    url: https://docs.flows.super.ai/api-reference
+  - type: Authentication
+    url: authentication/superai-authentication.yml
+- aid: superai:superai-task-executors-api
+  name: Super.ai task-executors API
+  description: >-
+    Task executor operations for discovering available task types and their capabilities.
+
+
+    Task executors define the available task types that can be used in flow definitions. Each executor
+    specifies its input schema, execution behavior, and capabilities. This endpoint enables programmatic
+    discovery of task types for building flows dynamically.
+
+
+    **What task executors provide:**
+
+    - **Input Schema**: JSON Schema defining required and optional parameters
+
+    - **Output Schema**: Expected output structure and data types
+
+    - **Description**: Human-readable explanation of functionality
+
+    - **Agent Prompts**: Instructions for AI-powered flow generation
+
+
+    **Use these endpoints to:**
+
+    - Discover available task types for flow building
+
+    - View task input/output schemas for validation
+
+    - Understand task capabilities and requirements
+
+    - Build flow builder UIs with dynamic task lists
+
+    - Enable AI agents to select appropriate tasks
+
+
+    Task executors enable dynamic, flexible workflow creation by providing a registry of available operations.
+  humanURL: https://docs.flows.super.ai
+  baseURL: https://flows.super.ai/api
+  tags:
+  - task-executors
+  properties:
+  - type: OpenAPI
+    url: openapi/superai-task-executors-api-openapi.yml
+  - type: APIReference
+    url: https://docs.flows.super.ai/api-reference
+  - type: Authentication
+    url: authentication/superai-authentication.yml
+- aid: superai:superai-task-outputs-api
+  name: Super.ai task-outputs API
+  description: >-
+    Task output operations for storing and retrieving task execution results.
+
+
+    Task outputs store the results produced by task executions in a structured, queryable format. While
+    task executions track the full lifecycle (input, output, error, status), task outputs focus specifically
+    on the final output data formatted for display, analysis, and downstream consumption.
+
+
+    **Key characteristics:**
+
+    - **Summary Field**: Structured output data ready for consumption
+
+    - **Historical Record**: Permanent storage of task results
+
+    - **Queryable**: Filter and search outputs by task, execution, or flow
+
+    - **Linked**: Connected to parent flow execution and task execution
+
+
+    **Use these endpoints to:**
+
+    - Store task results after successful execution
+
+    - Retrieve outputs for specific tasks or entire executions
+
+    - Query historical outputs for analysis and reporting
+
+    - Access formatted results for display in dashboards
+
+    - Feed outputs to downstream tasks or external systems
+
+
+    Task outputs provide the data foundation for workflow analytics, debugging, and result visualization.
+  humanURL: https://docs.flows.super.ai
+  baseURL: https://flows.super.ai/api
+  tags:
+  - task-outputs
+  properties:
+  - type: OpenAPI
+    url: openapi/superai-task-outputs-api-openapi.yml
+  - type: APIReference
+    url: https://docs.flows.super.ai/api-reference
+  - type: Authentication
+    url: authentication/superai-authentication.yml
+- aid: superai:superai-task-tags-api
+  name: Super.ai task-tags API
+  description: >-
+    Task tag operations for categorizing and organizing tasks with metadata.
+
+
+    Task tags provide metadata and categorization for tasks within flow executions. Tags enable flexible
+    organization, filtering, and grouping of tasks beyond their structural relationships.
+
+
+    **What tags enable:**
+
+    - **Categorization**: Group related tasks across different flows
+
+    - **Filtering**: Query executions by tag criteria
+
+    - **Metadata**: Attach custom key-value pairs to tasks
+
+    - **Organization**: Create logical groupings for reporting
+
+
+    **Use these endpoints to:**
+
+    - Manage task labels and categories
+
+    - Add organizational metadata to tasks
+
+    - Query tasks by tag criteria
+
+    - Build custom views and dashboards
+
+
+    Task tags provide flexible organization capabilities that enhance workflow management and analysis.
+  humanURL: https://docs.flows.super.ai
+  baseURL: https://flows.super.ai/api
+  tags:
+  - task-tags
+  properties:
+  - type: OpenAPI
+    url: openapi/superai-task-tags-api-openapi.yml
+  - type: APIReference
+    url: https://docs.flows.super.ai/api-reference
+  - type: Authentication
+    url: authentication/superai-authentication.yml
+- aid: superai:superai-webhook-data-api
+  name: Super.ai webhook-data API
+  description: >-
+    Push data from external systems to a flow execution's waiting 'Wait for Webhook' task. A 2xx acknowledgment
+    means the data is durably stored; identical redeliveries are idempotent.
+  humanURL: https://docs.flows.super.ai
+  baseURL: https://flows.super.ai/api
+  tags:
+  - webhook-data
+  properties:
+  - type: OpenAPI
+    url: openapi/superai-webhook-data-api-openapi.yml
+  - type: APIReference
+    url: https://docs.flows.super.ai/api-reference
+  - type: Authentication
+    url: authentication/superai-authentication.yml
+- aid: superai:superai-worker-groups-api
+  name: Super.ai worker-groups API
+  description: The worker-groups API from Super.ai — 3 operation(s) for worker-groups.
+  humanURL: https://docs.flows.super.ai
+  baseURL: https://flows.super.ai/api
+  tags:
+  - worker-groups
+  properties:
+  - type: OpenAPI
+    url: openapi/superai-worker-groups-api-openapi.yml
+  - type: APIReference
+    url: https://docs.flows.super.ai/api-reference
+  - type: Authentication
+    url: authentication/superai-authentication.yml
 maintainers:
 - FN: Kin Lane
   email: kin@apievangelist.com
 - FN: APIs.json
   email: info@apis.io
+common:
+- type: VulnerabilityDisclosure
+  url: security/superai-vulnerability-disclosure.yml
+- type: DomainSecurity
+  url: security/superai-domain-security.yml
+- type: DeveloperPortal
+  url: https://docs.flows.super.ai
+- type: Documentation
+  url: https://docs.flows.super.ai
+- type: APIReference
+  url: https://docs.flows.super.ai/api-reference
+- type: GettingStarted
+  url: https://docs.flows.super.ai/quickstart
+- type: Blog
+  url: https://super.ai/blog
+- type: Pricing
+  url: https://super.ai/pricing
+- type: SignUp
+  url: https://flows.super.ai/login
+- type: TermsOfService
+  url: https://super.ai/terms_of_service.pdf
+- type: PrivacyPolicy
+  url: https://super.ai/trust/privacy-policy
+- type: GitHubOrganization
+  url: https://github.com/mysuperai
+- type: StatusPage
+  url: https://status.super.ai
+- type: Security
+  url: https://super.ai/trust/security
+- type: TrustCenter
+  url: https://super.ai/trust
+- type: Compliance
+  url: https://super.ai/trust/compliance
+- type: Packages
+  url: packages/superai-packages.yml
+- type: SDKs
+  url: packages/superai-packages.yml
+- type: CLI
+  url: cli/superai-cli.yml
+- type: WellKnown
+  url: well-known/superai-well-known.yml
+- type: SecurityTxt
+  url: well-known/superai-security.txt
+- type: LLMsTxt
+  url: llms/superai-llms.txt
+- type: MCPServer
+  url: mcp/superai-mcp.yml
+- type: Overlay
+  url: overlays/superai-flows-overlay.yaml
+- type: Conformance
+  url: conformance/superai-conformance.yml
+- type: ErrorCatalog
+  url: errors/superai-problem-types.yml
+- type: Lifecycle
+  url: lifecycle/superai-lifecycle.yml
+- type: Conventions
+  url: conventions/superai-conventions.yml
+- type: DataModel
+  url: data-model/superai-data-model.yml
+- type: Webhooks
+  url: asyncapi/superai-flows-webhooks.yml
+- type: AgentSkill
+  url: skills/_index.yml

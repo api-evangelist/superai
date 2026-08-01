@@ -1,0 +1,130 @@
+# SuperAI Flows
+
+> Build reliable, scalable workflows that orchestrate AI models, data processing, and business logic through a simple API.
+
+## Docs
+
+- [Resend user invitation email](https://docs.flows.super.ai/api-reference/auth/resend-user-invitation-email.md): Resend invitation email to an existing user account.
+- [Retrieve authentication API key](https://docs.flows.super.ai/api-reference/auth/retrieve-authentication-api-key.md): Retrieve the anonymous authentication key required for client authentication.
+- [Authentication](https://docs.flows.super.ai/api-reference/authentication.md): How to authenticate with the SuperAI Flows API using JWT bearer tokens or service-account API keys.
+- [Error Codes](https://docs.flows.super.ai/api-reference/errors.md): Error response format, HTTP status codes, and the full catalog of machine-readable error codes.
+- [Download file by URI (with redirect)](https://docs.flows.super.ai/api-reference/files/download-file-by-uri-with-redirect.md): Download a file by resolving its gs:// storage URI.
+- [Resolve storage URI to download URL](https://docs.flows.super.ai/api-reference/files/resolve-storage-uri-to-download-url.md): Resolve a gs:// storage URI to a temporary pre-signed download URL.
+- [Add task status updates (Internal API)](https://docs.flows.super.ai/api-reference/flow-executions/add-task-status-updates-internal-api.md): Add task status updates to a flow execution (Internal API).
+- [Create and start a flow execution](https://docs.flows.super.ai/api-reference/flow-executions/create-and-start-a-flow-execution.md): Create a new flow execution and start workflow processing.
+- [List flow executions with filtering and pagination](https://docs.flows.super.ai/api-reference/flow-executions/list-flow-executions-with-filtering-and-pagination.md): List flow executions with filtering, sorting, and pagination.
+- [Patch Flow Execution Status](https://docs.flows.super.ai/api-reference/flow-executions/patch-flow-execution-status.md): Patch the status of a flow execution.
+- [Re-execute a flow execution](https://docs.flows.super.ai/api-reference/flow-executions/re-execute-a-flow-execution.md): Re-execute a flow execution, optionally skipping cached results.
+- [Retrieve a specific flow execution](https://docs.flows.super.ai/api-reference/flow-executions/retrieve-a-specific-flow-execution.md): Retrieve detailed information for a specific flow execution.
+- [Soft delete a flow execution](https://docs.flows.super.ai/api-reference/flow-executions/soft-delete-a-flow-execution.md): Soft delete a flow execution by marking it as deleted.
+- [Create a new flow](https://docs.flows.super.ai/api-reference/flows/create-a-new-flow.md): Create a new flow in draft status.
+- [Delete a flow](https://docs.flows.super.ai/api-reference/flows/delete-a-flow.md): Soft delete a flow.
+- [Generate file download URL](https://docs.flows.super.ai/api-reference/flows/generate-file-download-url.md): Generate pre-signed URL for downloading a flow file.
+- [Generate file upload URL](https://docs.flows.super.ai/api-reference/flows/generate-file-upload-url.md): Generate pre-signed URL for uploading files to a flow.
+- [Get specific flow version](https://docs.flows.super.ai/api-reference/flows/get-specific-flow-version.md): Retrieve a specific version of a flow.
+- [List all flows](https://docs.flows.super.ai/api-reference/flows/list-all-flows.md): List all flows accessible to the authenticated user.
+- [List all versions of a flow](https://docs.flows.super.ai/api-reference/flows/list-all-versions-of-a-flow.md): List all versions of a specific flow.
+- [List flow files](https://docs.flows.super.ai/api-reference/flows/list-flow-files.md): List all files associated with a flow.
+- [List flow invitations](https://docs.flows.super.ai/api-reference/flows/list-flow-invitations.md): List all invitations for a specific flow.
+- [List task summaries for flow version](https://docs.flows.super.ai/api-reference/flows/list-task-summaries-for-flow-version.md): List task execution summaries for a specific flow version.
+- [Partially update a flow](https://docs.flows.super.ai/api-reference/flows/partially-update-a-flow.md): Partially update flow properties.
+- [Remove user invitations from a flow](https://docs.flows.super.ai/api-reference/flows/remove-user-invitations-from-a-flow.md): Remove invitations for specific users from a flow.
+- [Retrieve a flow by ID](https://docs.flows.super.ai/api-reference/flows/retrieve-a-flow-by-id.md): Retrieve a specific flow by ID.
+- [Update a single task in flow](https://docs.flows.super.ai/api-reference/flows/update-a-single-task-in-flow.md): Update a single task within a flow definition.
+- [Update flow definition](https://docs.flows.super.ai/api-reference/flows/update-flow-definition.md): Update the complete definition of a flow.
+- [Upsert user invitations to a flow](https://docs.flows.super.ai/api-reference/flows/upsert-user-invitations-to-a-flow.md): Upsert invitations for multiple users to access a flow.
+- [Complete a human review task](https://docs.flows.super.ai/api-reference/human-review-tasks/complete-a-human-review-task.md): Complete a human review task.
+- [Create a new human review task](https://docs.flows.super.ai/api-reference/human-review-tasks/create-a-new-human-review-task.md): Create a new human review task with assigned users.
+- [Get a human review task by ID](https://docs.flows.super.ai/api-reference/human-review-tasks/get-a-human-review-task-by-id.md): Get a human review task by its ID.
+- [List all assignments for a human review task](https://docs.flows.super.ai/api-reference/human-review-tasks/list-all-assignments-for-a-human-review-task.md): List all assignments for a human review task.
+- [List human review tasks assigned to the current user](https://docs.flows.super.ai/api-reference/human-review-tasks/list-human-review-tasks-assigned-to-the-current-user.md): List all human review tasks assigned to the current user.
+- [Start a human review task](https://docs.flows.super.ai/api-reference/human-review-tasks/start-a-human-review-task.md): Start a human review task.
+- [Unstart a human review task assignment](https://docs.flows.super.ai/api-reference/human-review-tasks/unstart-a-human-review-task-assignment.md): Unstart a human review task assignment.
+- [Compare Csv For Replace](https://docs.flows.super.ai/api-reference/integrations/compare-csv-for-replace.md): Compare existing CSV with new CSV for replace operation.
+- [Complete File Upload](https://docs.flows.super.ai/api-reference/integrations/complete-file-upload.md): Complete file upload and process the file.
+- [Create Database](https://docs.flows.super.ai/api-reference/integrations/create-database.md): Create a new CSV database instance.
+- [Create Email Task](https://docs.flows.super.ai/api-reference/integrations/create-email-task.md): Create a new email task with a unique email address.
+- [Create integration credentials](https://docs.flows.super.ai/api-reference/integrations/create-integration-credentials.md): Create new integration credentials for connecting to external services.
+- [Create Integration Legacy](https://docs.flows.super.ai/api-reference/integrations/create-integration-legacy.md)
+- [Delete credential](https://docs.flows.super.ai/api-reference/integrations/delete-credential.md): Soft-delete an integration credential.
+- [Delete database](https://docs.flows.super.ai/api-reference/integrations/delete-database.md): Delete a database integration.
+- [Delete File](https://docs.flows.super.ai/api-reference/integrations/delete-file.md)
+- [Delete Integration Legacy](https://docs.flows.super.ai/api-reference/integrations/delete-integration-legacy.md)
+- [Execute Postgres Plugin Task](https://docs.flows.super.ai/api-reference/integrations/execute-postgres-plugin-task.md): Execute PostgreSQL task using the new plugin system.
+- [Generate database upload URL](https://docs.flows.super.ai/api-reference/integrations/generate-database-upload-url.md): Generate a pre-signed URL for uploading files to a database.
+- [Get credential by ID](https://docs.flows.super.ai/api-reference/integrations/get-credential-by-id.md): Retrieve metadata for a specific integration credential.
+- [Get credential secrets](https://docs.flows.super.ai/api-reference/integrations/get-credential-secrets.md): Retrieve decrypted credential secrets for integration use.
+- [Get database by ID](https://docs.flows.super.ai/api-reference/integrations/get-database-by-id.md): Retrieve detailed information for a specific database.
+- [Get database columns](https://docs.flows.super.ai/api-reference/integrations/get-database-columns.md): Retrieve column names from a specific database.
+- [Get Download Url](https://docs.flows.super.ai/api-reference/integrations/get-download-url.md): Generate pre-signed URL for downloading the database CSV file.
+- [Get Email Task Status](https://docs.flows.super.ai/api-reference/integrations/get-email-task-status.md): Get status of an email task.
+- [Get plugin capabilities](https://docs.flows.super.ai/api-reference/integrations/get-plugin-capabilities.md): Retrieve detailed capabilities of a specific plugin.
+- [Get Sharepoint Drives](https://docs.flows.super.ai/api-reference/integrations/get-sharepoint-drives.md)
+- [Get Sharepoint Sites](https://docs.flows.super.ai/api-reference/integrations/get-sharepoint-sites.md)
+- [Handle Webhook Legacy](https://docs.flows.super.ai/api-reference/integrations/handle-webhook-legacy.md)
+- [List all registered plugins](https://docs.flows.super.ai/api-reference/integrations/list-all-registered-plugins.md): List all registered plugins from the integration registry.
+- [List credentials by provider](https://docs.flows.super.ai/api-reference/integrations/list-credentials-by-provider.md): Retrieve user credentials filtered by integration provider.
+- [List Folders](https://docs.flows.super.ai/api-reference/integrations/list-folders.md)
+- [List integration catalog](https://docs.flows.super.ai/api-reference/integrations/list-integration-catalog.md): Retrieve the catalog of available third-party integrations.
+- [List Integration Instances](https://docs.flows.super.ai/api-reference/integrations/list-integration-instances.md)
+- [List user credentials](https://docs.flows.super.ai/api-reference/integrations/list-user-credentials.md): Retrieve all integration credentials for the authenticated user.
+- [List user databases](https://docs.flows.super.ai/api-reference/integrations/list-user-databases.md): List all databases accessible to the authenticated user.
+- [Move File](https://docs.flows.super.ai/api-reference/integrations/move-file.md)
+- [Oauth Authorize Legacy](https://docs.flows.super.ai/api-reference/integrations/oauth-authorize-legacy.md)
+- [Oauth Callback Legacy](https://docs.flows.super.ai/api-reference/integrations/oauth-callback-legacy.md)
+- [Preview CSV file before import](https://docs.flows.super.ai/api-reference/integrations/preview-csv-file-before-import.md): Preview CSV file before final import.
+- [Process Emails](https://docs.flows.super.ai/api-reference/integrations/process-emails.md): Manually trigger email processing (for testing).
+- [Replace File Upload](https://docs.flows.super.ai/api-reference/integrations/replace-file-upload.md): Replace existing database data with new file upload.
+- [Test Postgres Connection](https://docs.flows.super.ai/api-reference/integrations/test-postgres-connection.md): Test PostgreSQL connection (proxied to legacy system).
+- [Test Postgres Connection By Credential Id](https://docs.flows.super.ai/api-reference/integrations/test-postgres-connection-by-credential-id.md): Test PostgreSQL connection by credential ID (proxied to legacy system).
+- [Test Postgres Plugin Connection](https://docs.flows.super.ai/api-reference/integrations/test-postgres-plugin-connection.md): Test PostgreSQL connection using the new plugin system.
+- [Test Sftp Connection](https://docs.flows.super.ai/api-reference/integrations/test-sftp-connection.md): Test SFTP connection by attempting to connect and write a test file.
+- [Update credential](https://docs.flows.super.ai/api-reference/integrations/update-credential.md): Update existing integration credentials with new values.
+- [Overview](https://docs.flows.super.ai/api-reference/introduction.md): The SuperAI Flows REST API — base URL, conventions, and how the reference is organized.
+- [MCP Server](https://docs.flows.super.ai/api-reference/mcp-server.md): Connect external AI agents and MCP-compatible clients to SuperAI Flows over the Model Context Protocol.
+- [List available models](https://docs.flows.super.ai/api-reference/models/list-available-models.md): Retrieve a list of available AI models, deduplicated by model name and optionally filtered by region.
+- [Get credit balance for current user's organization](https://docs.flows.super.ai/api-reference/organizations/get-credit-balance-for-current-users-organization.md): Get credit balance for the current user's organization.
+- [Create Integration](https://docs.flows.super.ai/api-reference/plugins/create-integration.md)
+- [Delete Integration](https://docs.flows.super.ai/api-reference/plugins/delete-integration.md)
+- [Execute Integration](https://docs.flows.super.ai/api-reference/plugins/execute-integration.md)
+- [Get Ui Schema](https://docs.flows.super.ai/api-reference/plugins/get-ui-schema.md)
+- [Handle Webhook](https://docs.flows.super.ai/api-reference/plugins/handle-webhook.md)
+- [List Instances](https://docs.flows.super.ai/api-reference/plugins/list-instances.md)
+- [List Integrations](https://docs.flows.super.ai/api-reference/plugins/list-integrations.md)
+- [Oauth Authorize](https://docs.flows.super.ai/api-reference/plugins/oauth-authorize.md)
+- [Oauth Callback](https://docs.flows.super.ai/api-reference/plugins/oauth-callback.md)
+- [Update Integration](https://docs.flows.super.ai/api-reference/plugins/update-integration.md)
+- [Get current user profile](https://docs.flows.super.ai/api-reference/profile/get-current-user-profile.md): Retrieve complete profile information for the currently authenticated user.
+- [Update current user profile](https://docs.flows.super.ai/api-reference/profile/update-current-user-profile.md): Update the currently authenticated user's profile information.
+- [Activate a service account](https://docs.flows.super.ai/api-reference/service-accounts/activate-a-service-account.md): Activate a service account.
+- [Create a new service account](https://docs.flows.super.ai/api-reference/service-accounts/create-a-new-service-account.md): Create a new service account.
+- [Create an API key for a service account](https://docs.flows.super.ai/api-reference/service-accounts/create-an-api-key-for-a-service-account.md): Create a new API key for a specific service account.
+- [Deactivate a service account](https://docs.flows.super.ai/api-reference/service-accounts/deactivate-a-service-account.md): Deactivate a service account.
+- [Delete a service account](https://docs.flows.super.ai/api-reference/service-accounts/delete-a-service-account.md): Delete a service account.
+- [Get a specific service account](https://docs.flows.super.ai/api-reference/service-accounts/get-a-specific-service-account.md): Get details for a specific service account.
+- [List all service accounts](https://docs.flows.super.ai/api-reference/service-accounts/list-all-service-accounts.md): List all service accounts accessible to the current user.
+- [List API keys for a service account](https://docs.flows.super.ai/api-reference/service-accounts/list-api-keys-for-a-service-account.md): List all API keys associated with a specific service account.
+- [Update a service account](https://docs.flows.super.ai/api-reference/service-accounts/update-a-service-account.md): Update a service account.
+- [Create SSO configuration for organization](https://docs.flows.super.ai/api-reference/sso/create-sso-configuration-for-organization.md): Create SSO configuration for the current user's organization.
+- [Get SSO configuration for organization](https://docs.flows.super.ai/api-reference/sso/get-sso-configuration-for-organization.md): Get SSO configuration for the current user's organization.
+- [Proxy SAML metadata to avoid CORS issues](https://docs.flows.super.ai/api-reference/sso/proxy-saml-metadata-to-avoid-cors-issues.md): Fetches SAML metadata from external URLs to avoid browser CORS restrictions
+- [Remove SSO configuration for organization](https://docs.flows.super.ai/api-reference/sso/remove-sso-configuration-for-organization.md): Remove SSO configuration for the current user's organization.
+- [Update SSO metadata configuration](https://docs.flows.super.ai/api-reference/sso/update-sso-metadata-configuration.md): Update SSO metadata configuration for the current user's organization.
+- [Analyze flow definition and extract schemas](https://docs.flows.super.ai/api-reference/task-data/analyze-flow-definition-and-extract-schemas.md): Analyze a flow definition to extract task output schemas, dynamic data, and validation errors.
+- [Create a task execution record](https://docs.flows.super.ai/api-reference/task-executions/create-a-task-execution-record.md): Create a new task execution record for a specific task within a flow execution.
+- [List task executions with filtering](https://docs.flows.super.ai/api-reference/task-executions/list-task-executions-with-filtering.md): List task executions with optional filtering by flow execution, task name, or execution index.
+- [Retrieve a specific task execution](https://docs.flows.super.ai/api-reference/task-executions/retrieve-a-specific-task-execution.md): Retrieve a specific task execution by its unique identifier.
+- [Update task execution and optionally re-execute flow](https://docs.flows.super.ai/api-reference/task-executions/update-task-execution-and-optionally-re-execute-flow.md): Update an existing task execution and optionally trigger flow re-execution.
+- [List all available task executors](https://docs.flows.super.ai/api-reference/task-executors/list-all-available-task-executors.md): List all available task executors for workflow composition.
+- [Create task output](https://docs.flows.super.ai/api-reference/task-outputs/create-task-output.md): Create a task output record for a completed task and notify connected clients.
+- [Get task output by ID](https://docs.flows.super.ai/api-reference/task-outputs/get-task-output-by-id.md): Retrieve a specific task output by its unique identifier.
+- [List all task outputs](https://docs.flows.super.ai/api-reference/task-outputs/list-all-task-outputs.md): List all task outputs across all flow executions in your organization.
+- [Add or remove task tags in batch](https://docs.flows.super.ai/api-reference/task-tags/add-or-remove-task-tags-in-batch.md): Add or remove tags from task executions in batch operations.
+- [List active task tags for a flow execution](https://docs.flows.super.ai/api-reference/task-tags/list-active-task-tags-for-a-flow-execution.md): List all active tags for task executions within a flow execution.
+- [Downloading Files](https://docs.flows.super.ai/guides/downloading-files.md): Download files from gs:// URLs returned in your flow execution outputs.
+- [Introduction](https://docs.flows.super.ai/index.md): Build reliable, scalable workflows that orchestrate AI models, data processing, and business logic — all through a simple API.
+- [API Quickstart](https://docs.flows.super.ai/quickstart.md): Start processing documents with SuperAI Flows in under 5 minutes — authenticate, run your first workflow, and retrieve results.
+
+## OpenAPI Specs
+
+- [superai-flows-openapi](https://docs.flows.super.ai/openapi/superai-flows-openapi.json)

@@ -1,0 +1,16 @@
+generated: '2026-07-21'
+method: searched
+source: https://pypi.org/project/superai/
+note: >-
+  First-party Python SDK for the super.AI platform, published to PyPI as `superai`
+  (summary "super.AI API"), source at github.com/mysuperai/superai-sdk. The package
+  also ships a `superai` console-script CLI (see cli/). No first-party JavaScript, Go,
+  Java, Ruby, PHP, or .NET client library was found on the public registries.
+packages:
+- language: python
+  registry: pypi
+  name: superai
+  url: https://pypi.org/project/superai/
+  install: pip install superai
+  source: https://github.com/mysuperai/superai-sdk
+  official: true

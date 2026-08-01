@@ -1,0 +1,17 @@
+generated: '2026-07-21'
+method: searched
+source: https://github.com/mysuperai/superai-sdk
+note: >-
+  The first-party Python SDK (`superai` on PyPI) ships a `superai` console-script CLI
+  (entry point superai.cli:main). The binary is catalogued in packages/; this artifact
+  records its command surface at a high level from the SDK repository.
+name: superai
+install:
+- pip install superai
+entry_point: superai.cli:main
+repo: https://github.com/mysuperai/superai-sdk
+commands: []
+note_surface: >-
+  Command groups are provided by the SDK's superai.cli module (verified entry point
+  superai=superai.cli:main in setup.py). The full subcommand tree was not enumerated in
+  this pass and is intentionally left empty rather than fabricated.

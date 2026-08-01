@@ -1,0 +1,30 @@
+generated: '2026-07-21'
+method: generated
+source: openapi/superai-flows-openapi-original.json
+note: >-
+  Packaged Agent Skills for the SuperAI Flows API, one per marquee flow, grounded in real
+  operationIds verified in the OpenAPI. No provider-published AGENTS.md / skill files were
+  found.
+skills:
+- file: superai-run-document-workflow.md
+  name: Run a document workflow and retrieve results
+  api: openapi/superai-flows-openapi-original.json
+  operations:
+  - list_flows_api_flows_get
+  - create_flow_execution_api_flow_executions_post
+  - get_flow_execution_api_flow_executions__flow_execution_id__get
+  - list_task_outputs_api_task_outputs_get
+  - get_task_output_api_task_outputs__task_output_id__get
+- file: superai-human-review.md
+  name: Handle a human review task
+  api: openapi/superai-flows-openapi-original.json
+  operations:
+  - create_human_review_task_api_human_review_tasks_post
+  - start_human_review_task_api_human_review_tasks__task_id__start_post
+  - complete_human_review_task_api_human_review_tasks__task_id__complete_post
+- file: superai-provision-service-account.md
+  name: Provision a service account and API key
+  api: openapi/superai-flows-openapi-original.json
+  operations:
+  - create_service_account_api_service_accounts_post
+  - create_service_account_api_key_api_service_accounts__service_account_id__api_keys_post

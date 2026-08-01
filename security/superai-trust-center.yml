@@ -1,0 +1,24 @@
+generated: '2026-07-21'
+method: searched
+source: https://super.ai/trust
+note: >-
+  super.AI publishes a Trust Center at super.ai/trust covering security and compliance
+  posture. The page names an independent SOC 2 examination and GDPR compliance, and links
+  compliance, privacy-policy, and sub-processors pages.
+url: https://super.ai/trust
+pages:
+- https://super.ai/trust
+- https://super.ai/trust/security
+- https://super.ai/trust/compliance
+- https://super.ai/trust/privacy-policy
+- https://super.ai/trust/sub-processors
+certifications:
+- SOC 2
+- GDPR
+evidence:
+- source: https://super.ai/trust
+  keywords:
+  - soc 2
+  - gdpr
+  - trust center
+  - compliance

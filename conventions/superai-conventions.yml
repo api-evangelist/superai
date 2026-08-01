@@ -1,0 +1,41 @@
+generated: '2026-07-21'
+method: searched
+source: https://docs.flows.super.ai/api-reference
+note: >-
+  Cross-cutting request/response semantics for the SuperAI Flows API, from the docs and
+  the OpenAPI. No idempotency-key contract is documented (no Idempotency-Key header/param
+  in the spec), so no Idempotency pointer is emitted.
+authentication:
+  styles:
+  - JWT bearer token (Authorization: Bearer <token>)
+  - service-account API key (X-API-Key: saf_...)
+  ref: authentication/superai-authentication.yml
+pagination:
+  style: offset
+  params:
+  - page
+  - page_size
+  - limit
+  - offset
+  note: List endpoints accept page/page_size (and limit/offset) with sorting and filtering.
+request_tracing:
+  request_id_field: request_id
+  response_header: X-Request-ID
+  note: Every error envelope carries request_id; the X-Request-ID response header mirrors it for log correlation.
+error_envelope:
+  format: custom-envelope
+  shape: '{"error":{"message","code","details"},"request_id"}'
+  ref: errors/superai-problem-types.yml
+idempotency:
+  supported: false
+  note: No documented idempotency-key mechanism found in docs or OpenAPI.
+versioning:
+  scheme: unversioned-path
+  note: >-
+    API paths are served under /api (e.g. /api/flows) with no version segment; OpenAPI
+    info.version 0.1.0. Flows themselves are independently versioned (list/get/restore
+    flow versions).
+async:
+  webhooks: true
+  ref: asyncapi/superai-flows-webhooks.yml
+  note: Webhook Notification tasks post to configured URLs after referenced tasks complete; template syntax {{task_name.output.field}} references task outputs.

@@ -1,0 +1,470 @@
+generated: '2026-07-21'
+method: derived
+status: candidate
+note: No official hosted MCP server found for SuperAI Flows as of this pass. Candidate tool list derived
+  one-per-operation from the OpenAPI; not an authoritative provider claim.
+server:
+  name: superai-flows
+  transport: stdio
+source: openapi/superai-flows-openapi-original.json
+tool_count: 153
+tools:
+- name: list_flows_api_flows_get
+  description: List all flows
+  source_operation: openapi/superai-flows-openapi-original.json#list_flows_api_flows_get
+- name: create_flow_api_flows_post
+  description: Create a new flow
+  source_operation: openapi/superai-flows-openapi-original.json#create_flow_api_flows_post
+- name: get_flow_available_tags_api_flows_available_tags_get
+  description: Get available flow tags for autocomplete
+  source_operation: openapi/superai-flows-openapi-original.json#get_flow_available_tags_api_flows_available_tags_get
+- name: get_flow_api_flows__flow_id__get
+  description: Retrieve a flow by ID
+  source_operation: openapi/superai-flows-openapi-original.json#get_flow_api_flows__flow_id__get
+- name: delete_flow_api_flows__flow_id__delete
+  description: Delete a flow
+  source_operation: openapi/superai-flows-openapi-original.json#delete_flow_api_flows__flow_id__delete
+- name: patch_flow_api_flows__flow_id__patch
+  description: Partially update a flow
+  source_operation: openapi/superai-flows-openapi-original.json#patch_flow_api_flows__flow_id__patch
+- name: get_flow_clone_info_api_flows__flow_id__clone_info_get
+  description: Get clone info for a flow
+  source_operation: openapi/superai-flows-openapi-original.json#get_flow_clone_info_api_flows__flow_id__clone_info_get
+- name: list_flow_versions_api_flows__flow_id__versions_get
+  description: List all versions of a flow
+  source_operation: openapi/superai-flows-openapi-original.json#list_flow_versions_api_flows__flow_id__versions_get
+- name: update_flow_definition_api_flows__flow_id__definition_put
+  description: Update flow definition
+  source_operation: openapi/superai-flows-openapi-original.json#update_flow_definition_api_flows__flow_id__definition_put
+- name: validate_flow_definition_api_flows__flow_id__validate_post
+  description: Validate a flow definition without persisting
+  source_operation: openapi/superai-flows-openapi-original.json#validate_flow_definition_api_flows__flow_id__validate_post
+- name: get_flow_version_summaries_api_flows__flow_id__versions_summary_get
+  description: List version summaries for a flow
+  source_operation: openapi/superai-flows-openapi-original.json#get_flow_version_summaries_api_flows__flow_id__versions_summary_get
+- name: update_flow_version_metadata_api_flows__flow_id__versions__version__patch
+  description: Update version metadata
+  source_operation: openapi/superai-flows-openapi-original.json#update_flow_version_metadata_api_flows__flow_id__versions__version__patch
+- name: get_flow_version_api_flows__flow_id__versions__version__get
+  description: Get specific flow version
+  source_operation: openapi/superai-flows-openapi-original.json#get_flow_version_api_flows__flow_id__versions__version__get
+- name: restore_flow_version_api_flows__flow_id__versions__version__restore_post
+  description: Restore a past version
+  source_operation: openapi/superai-flows-openapi-original.json#restore_flow_version_api_flows__flow_id__versions__version__restore_post
+- name: update_flow_task_api_flows__flow_id__task_put
+  description: Update a single task in flow
+  source_operation: openapi/superai-flows-openapi-original.json#update_flow_task_api_flows__flow_id__task_put
+- name: generate_upload_url_api_flows__flow_id__upload_url_post
+  description: Generate file upload URL
+  source_operation: openapi/superai-flows-openapi-original.json#generate_upload_url_api_flows__flow_id__upload_url_post
+- name: list_flow_files_api_flows__flow_id__files_get
+  description: List flow files
+  source_operation: openapi/superai-flows-openapi-original.json#list_flow_files_api_flows__flow_id__files_get
+- name: list_flow_summaries_api_flows__flow_id__versions__version__summary_get
+  description: List task summaries for flow version
+  source_operation: openapi/superai-flows-openapi-original.json#list_flow_summaries_api_flows__flow_id__versions__version__summary_get
+- name: get_flow_tags_api_flows__flow_id__tags_get
+  description: Get tags for flow executions
+  source_operation: openapi/superai-flows-openapi-original.json#get_flow_tags_api_flows__flow_id__tags_get
+- name: get_flow_metadata_keys_api_flows__flow_id__metadata_keys_get
+  description: Get distinct metadata keys for a flow
+  source_operation: openapi/superai-flows-openapi-original.json#get_flow_metadata_keys_api_flows__flow_id__metadata_keys_get
+- name: get_flow_metadata_values_api_flows__flow_id__metadata_values_get
+  description: Get distinct values for a metadata key
+  source_operation: openapi/superai-flows-openapi-original.json#get_flow_metadata_values_api_flows__flow_id__metadata_values_get
+- name: generate_download_url_api_flows_download_url_post
+  description: Generate file download URL
+  source_operation: openapi/superai-flows-openapi-original.json#generate_download_url_api_flows_download_url_post
+- name: upsert_flow_invitations_api_flows__flow_id__invitations_put
+  description: Upsert user invitations to a flow
+  source_operation: openapi/superai-flows-openapi-original.json#upsert_flow_invitations_api_flows__flow_id__invitations_put
+- name: list_flow_invitations_api_flows__flow_id__invitations_get
+  description: List flow invitations
+  source_operation: openapi/superai-flows-openapi-original.json#list_flow_invitations_api_flows__flow_id__invitations_get
+- name: delete_flow_invitations_api_flows__flow_id__invitations_delete
+  description: Remove user invitations from a flow
+  source_operation: openapi/superai-flows-openapi-original.json#delete_flow_invitations_api_flows__flow_id__invitations_delete
+- name: upsert_flow_team_invitations_api_flows__flow_id__team_invitations_put
+  description: Upsert team (worker group) invitations to a flow
+  source_operation: openapi/superai-flows-openapi-original.json#upsert_flow_team_invitations_api_flows__flow_id__team_invitations_put
+- name: list_flow_team_invitations_api_flows__flow_id__team_invitations_get
+  description: List team invitations for a flow
+  source_operation: openapi/superai-flows-openapi-original.json#list_flow_team_invitations_api_flows__flow_id__team_invitations_get
+- name: delete_flow_team_invitations_api_flows__flow_id__team_invitations_delete
+  description: Remove team invitations from a flow
+  source_operation: openapi/superai-flows-openapi-original.json#delete_flow_team_invitations_api_flows__flow_id__team_invitations_delete
+- name: create_flow_execution_api_flow_executions_post
+  description: Create and start a flow execution
+  source_operation: openapi/superai-flows-openapi-original.json#create_flow_execution_api_flow_executions_post
+- name: list_flow_executions_api_flow_executions_get
+  description: List flow executions with filtering and pagination
+  source_operation: openapi/superai-flows-openapi-original.json#list_flow_executions_api_flow_executions_get
+- name: delete_flow_execution_api_flow_executions__flow_execution_id__delete
+  description: Soft delete a flow execution
+  source_operation: openapi/superai-flows-openapi-original.json#delete_flow_execution_api_flow_executions__flow_execution_id__delete
+- name: get_flow_execution_api_flow_executions__flow_execution_id__get
+  description: Retrieve a specific flow execution
+  source_operation: openapi/superai-flows-openapi-original.json#get_flow_execution_api_flow_executions__flow_execution_id__get
+- name: cancel_flow_execution_api_flow_executions__flow_execution_id__cancel_post
+  description: Cancel a flow execution
+  source_operation: openapi/superai-flows-openapi-original.json#cancel_flow_execution_api_flow_executions__flow_execution_id__cancel_post
+- name: execute_flow_api_flow_executions__flow_execution_id__execute_post
+  description: Re-execute a flow execution
+  source_operation: openapi/superai-flows-openapi-original.json#execute_flow_api_flow_executions__flow_execution_id__execute_post
+- name: add_flow_task_statuses_api_flow_executions__flow_execution_id__task_status_post
+  description: Add task status updates (Internal API)
+  source_operation: openapi/superai-flows-openapi-original.json#add_flow_task_statuses_api_flow_executions__flow_execution_id__task_status_post
+- name: patch_flow_execution_status_api_flow_executions__flow_execution_id__status_patch
+  description: Patch Flow Execution Status
+  source_operation: openapi/superai-flows-openapi-original.json#patch_flow_execution_status_api_flow_executions__flow_execution_id__status_patch
+- name: create_task_execution_api_task_executions_post
+  description: Create a task execution record
+  source_operation: openapi/superai-flows-openapi-original.json#create_task_execution_api_task_executions_post
+- name: update_task_execution_api_task_executions_put
+  description: Update task execution and optionally re-execute flow
+  source_operation: openapi/superai-flows-openapi-original.json#update_task_execution_api_task_executions_put
+- name: list_task_executions_api_task_executions_get
+  description: List task executions with filtering
+  source_operation: openapi/superai-flows-openapi-original.json#list_task_executions_api_task_executions_get
+- name: get_task_execution_api_task_executions__task_execution_id__get
+  description: Retrieve a specific task execution
+  source_operation: openapi/superai-flows-openapi-original.json#get_task_execution_api_task_executions__task_execution_id__get
+- name: get_task_executors_api_task_executors_get
+  description: List all available task executors
+  source_operation: openapi/superai-flows-openapi-original.json#get_task_executors_api_task_executors_get
+- name: get_task_dynamic_data_api_task_data_post
+  description: Analyze flow definition and extract schemas
+  source_operation: openapi/superai-flows-openapi-original.json#get_task_dynamic_data_api_task_data_post
+- name: list_task_outputs_api_task_outputs_get
+  description: List all task outputs
+  source_operation: openapi/superai-flows-openapi-original.json#list_task_outputs_api_task_outputs_get
+- name: create_task_output_api_task_outputs_post
+  description: Create task output
+  source_operation: openapi/superai-flows-openapi-original.json#create_task_output_api_task_outputs_post
+- name: get_task_output_api_task_outputs__task_output_id__get
+  description: Get task output by ID
+  source_operation: openapi/superai-flows-openapi-original.json#get_task_output_api_task_outputs__task_output_id__get
+- name: patch_flow_task_tags_api_task_tags_patch
+  description: Add or remove task tags in batch
+  source_operation: openapi/superai-flows-openapi-original.json#patch_flow_task_tags_api_task_tags_patch
+- name: list_task_tags_api_task_tags_get
+  description: List active task tags for a flow execution
+  source_operation: openapi/superai-flows-openapi-original.json#list_task_tags_api_task_tags_get
+- name: create_service_account_api_service_accounts_post
+  description: Create a new service account
+  source_operation: openapi/superai-flows-openapi-original.json#create_service_account_api_service_accounts_post
+- name: list_service_accounts_api_service_accounts_get
+  description: List all service accounts
+  source_operation: openapi/superai-flows-openapi-original.json#list_service_accounts_api_service_accounts_get
+- name: get_service_account_api_service_accounts__service_account_id__get
+  description: Get a specific service account
+  source_operation: openapi/superai-flows-openapi-original.json#get_service_account_api_service_accounts__service_account_id__get
+- name: update_service_account_api_service_accounts__service_account_id__patch
+  description: Update a service account
+  source_operation: openapi/superai-flows-openapi-original.json#update_service_account_api_service_accounts__service_account_id__patch
+- name: delete_service_account_api_service_accounts__service_account_id__delete
+  description: Delete a service account
+  source_operation: openapi/superai-flows-openapi-original.json#delete_service_account_api_service_accounts__service_account_id__delete
+- name: list_service_account_api_keys_api_service_accounts__service_account_id__api_keys_get
+  description: List API keys for a service account
+  source_operation: openapi/superai-flows-openapi-original.json#list_service_account_api_keys_api_service_accounts__service_account_id__api_keys_get
+- name: create_service_account_api_key_api_service_accounts__service_account_id__api_keys_post
+  description: Create an API key for a service account
+  source_operation: openapi/superai-flows-openapi-original.json#create_service_account_api_key_api_service_accounts__service_account_id__api_keys_post
+- name: update_api_key_api_service_accounts__service_account_id__api_keys__api_key_id__patch
+  description: Update an API key
+  source_operation: openapi/superai-flows-openapi-original.json#update_api_key_api_service_accounts__service_account_id__api_keys__api_key_id__patch
+- name: delete_api_key_api_service_accounts__service_account_id__api_keys__api_key_id__delete
+  description: Delete an API key
+  source_operation: openapi/superai-flows-openapi-original.json#delete_api_key_api_service_accounts__service_account_id__api_keys__api_key_id__delete
+- name: create_human_review_task_api_human_review_tasks_post
+  description: Create a new human review task
+  source_operation: openapi/superai-flows-openapi-original.json#create_human_review_task_api_human_review_tasks_post
+- name: list_human_review_tasks_api_human_review_tasks_get
+  description: List human review tasks assigned to the current user
+  source_operation: openapi/superai-flows-openapi-original.json#list_human_review_tasks_api_human_review_tasks_get
+- name: start_human_review_task_api_human_review_tasks__task_id__start_post
+  description: Start a human review task
+  source_operation: openapi/superai-flows-openapi-original.json#start_human_review_task_api_human_review_tasks__task_id__start_post
+- name: complete_human_review_task_api_human_review_tasks__task_id__complete_post
+  description: Complete a human review task
+  source_operation: openapi/superai-flows-openapi-original.json#complete_human_review_task_api_human_review_tasks__task_id__complete_post
+- name: unstart_human_review_task_assignment_api_human_review_tasks__task_id__unstart_post
+  description: Unstart a human review task assignment
+  source_operation: openapi/superai-flows-openapi-original.json#unstart_human_review_task_assignment_api_human_review_tasks__task_id__unstart_post
+- name: list_human_review_tasks_by_execution_api_human_review_tasks_by_execution_get
+  description: List human review tasks for a flow execution (org-level access)
+  source_operation: openapi/superai-flows-openapi-original.json#list_human_review_tasks_by_execution_api_human_review_tasks_by_execution_get
+- name: get_human_review_task_api_human_review_tasks__task_id__get
+  description: Get a human review task by ID
+  source_operation: openapi/superai-flows-openapi-original.json#get_human_review_task_api_human_review_tasks__task_id__get
+- name: list_human_review_task_assignments_api_human_review_tasks__task_id__assignments_get
+  description: List all assignments for a human review task
+  source_operation: openapi/superai-flows-openapi-original.json#list_human_review_task_assignments_api_human_review_tasks__task_id__assignments_get
+- name: receive_webhook_data_api_flow_executions__flow_execution_id__webhook_data_post
+  description: Submit webhook data for a waiting task
+  source_operation: openapi/superai-flows-openapi-original.json#receive_webhook_data_api_flow_executions__flow_execution_id__webhook_data_post
+- name: list_worker_groups_api_organizations_worker_groups_get
+  description: List all worker groups
+  source_operation: openapi/superai-flows-openapi-original.json#list_worker_groups_api_organizations_worker_groups_get
+- name: create_worker_group_api_organizations_worker_groups_post
+  description: Create a worker group
+  source_operation: openapi/superai-flows-openapi-original.json#create_worker_group_api_organizations_worker_groups_post
+- name: get_worker_group_api_organizations_worker_groups__group_id__get
+  description: Get a worker group
+  source_operation: openapi/superai-flows-openapi-original.json#get_worker_group_api_organizations_worker_groups__group_id__get
+- name: update_worker_group_api_organizations_worker_groups__group_id__put
+  description: Update a worker group
+  source_operation: openapi/superai-flows-openapi-original.json#update_worker_group_api_organizations_worker_groups__group_id__put
+- name: delete_worker_group_api_organizations_worker_groups__group_id__delete
+  description: Delete a worker group
+  source_operation: openapi/superai-flows-openapi-original.json#delete_worker_group_api_organizations_worker_groups__group_id__delete
+- name: update_worker_group_members_api_organizations_worker_groups__group_id__members_post
+  description: Add or remove members from a worker group
+  source_operation: openapi/superai-flows-openapi-original.json#update_worker_group_members_api_organizations_worker_groups__group_id__members_post
+- name: get_organization_credits_api_organizations_credits_get
+  description: Get credit balance for current user's organization
+  source_operation: openapi/superai-flows-openapi-original.json#get_organization_credits_api_organizations_credits_get
+- name: update_organization_settings_api_organizations_settings_put
+  description: Update organization settings
+  source_operation: openapi/superai-flows-openapi-original.json#update_organization_settings_api_organizations_settings_put
+- name: get_organization_api_organizations__organization_id__get
+  description: Get organization by ID
+  source_operation: openapi/superai-flows-openapi-original.json#get_organization_api_organizations__organization_id__get
+- name: reset_password_api_auth_reset_password_post
+  description: Reset Password
+  source_operation: openapi/superai-flows-openapi-original.json#reset_password_api_auth_reset_password_post
+- name: resend_invite_api_auth_resend_invite_post
+  description: Resend user invitation email
+  source_operation: openapi/superai-flows-openapi-original.json#resend_invite_api_auth_resend_invite_post
+- name: login_method_api_auth_login_method_get
+  description: Resolve login method for an email
+  source_operation: openapi/superai-flows-openapi-original.json#login_method_api_auth_login_method_get
+- name: get_anon_key_api_auth_anon_key_get
+  description: Retrieve authentication API key
+  source_operation: openapi/superai-flows-openapi-original.json#get_anon_key_api_auth_anon_key_get
+- name: signup_email_policy_api_auth_signup_email_policy_get
+  description: Pre-flight signup email policy check for magic link
+  source_operation: openapi/superai-flows-openapi-original.json#signup_email_policy_api_auth_signup_email_policy_get
+- name: complete_self_service_signup_api_auth_self_service_complete_post
+  description: Complete self-service signup for an authenticated Supabase user
+  source_operation: openapi/superai-flows-openapi-original.json#complete_self_service_signup_api_auth_self_service_complete_post
+- name: create_access_request_api_auth_access_request_post
+  description: Submit a self-service access request
+  source_operation: openapi/superai-flows-openapi-original.json#create_access_request_api_auth_access_request_post
+- name: get_current_user_api_profile_me_get
+  description: Get current user profile
+  source_operation: openapi/superai-flows-openapi-original.json#get_current_user_api_profile_me_get
+- name: update_current_user_api_profile_me_patch
+  description: Update current user profile
+  source_operation: openapi/superai-flows-openapi-original.json#update_current_user_api_profile_me_patch
+- name: list_databases_api_integrations_database_get
+  description: List user databases
+  source_operation: openapi/superai-flows-openapi-original.json#list_databases_api_integrations_database_get
+- name: create_database_api_integrations_database_post
+  description: Create Database
+  source_operation: openapi/superai-flows-openapi-original.json#create_database_api_integrations_database_post
+- name: create_managed_database_api_integrations_database_managed_post
+  description: Create managed database
+  source_operation: openapi/superai-flows-openapi-original.json#create_managed_database_api_integrations_database_managed_post
+- name: list_managed_database_tables_api_integrations_database_managed_tables_get
+  description: List tables in managed database
+  source_operation: openapi/superai-flows-openapi-original.json#list_managed_database_tables_api_integrations_database_managed_tables_get
+- name: create_managed_database_table_api_integrations_database_managed_tables_post
+  description: Create table in managed database
+  source_operation: openapi/superai-flows-openapi-original.json#create_managed_database_table_api_integrations_database_managed_tables_post
+- name: get_managed_database_table_columns_api_integrations_database_managed_tables__table_name__columns_get
+  description: Get table columns from managed database
+  source_operation: openapi/superai-flows-openapi-original.json#get_managed_database_table_columns_api_integrations_database_managed_tables__table_name__columns_get
+- name: get_managed_database_table_data_api_integrations_database_managed_tables__table_name__data_get
+  description: Get table data from managed database
+  source_operation: openapi/superai-flows-openapi-original.json#get_managed_database_table_data_api_integrations_database_managed_tables__table_name__data_get
+- name: insert_managed_database_row_api_integrations_database_managed_tables__table_name__rows_post
+  description: Insert one row into a managed-DB table
+  source_operation: openapi/superai-flows-openapi-original.json#insert_managed_database_row_api_integrations_database_managed_tables__table_name__rows_post
+- name: query_managed_database_table_api_integrations_database_managed_tables__table_name__query_post
+  description: Query a managed-DB table with exact-match filters
+  source_operation: openapi/superai-flows-openapi-original.json#query_managed_database_table_api_integrations_database_managed_tables__table_name__query_post
+- name: get_database_api_integrations_database__db_id__get
+  description: Get database by ID
+  source_operation: openapi/superai-flows-openapi-original.json#get_database_api_integrations_database__db_id__get
+- name: delete_database_api_integrations_database__db_id__delete
+  description: Delete database
+  source_operation: openapi/superai-flows-openapi-original.json#delete_database_api_integrations_database__db_id__delete
+- name: get_download_url_api_integrations_database__db_id__download_get
+  description: Get Download Url
+  source_operation: openapi/superai-flows-openapi-original.json#get_download_url_api_integrations_database__db_id__download_get
+- name: get_database_columns_api_integrations_database__db_id__columns_get
+  description: Get database columns
+  source_operation: openapi/superai-flows-openapi-original.json#get_database_columns_api_integrations_database__db_id__columns_get
+- name: generate_database_upload_url_api_integrations_database__db_id__upload_url_post
+  description: Generate database upload URL
+  source_operation: openapi/superai-flows-openapi-original.json#generate_database_upload_url_api_integrations_database__db_id__upload_url_post
+- name: preview_csv_upload_api_integrations_database__db_id__upload_preview_post
+  description: Preview CSV file before import
+  source_operation: openapi/superai-flows-openapi-original.json#preview_csv_upload_api_integrations_database__db_id__upload_preview_post
+- name: compare_csv_for_replace_api_integrations_database__db_id__upload_compare_post
+  description: Compare Csv For Replace
+  source_operation: openapi/superai-flows-openapi-original.json#compare_csv_for_replace_api_integrations_database__db_id__upload_compare_post
+- name: complete_file_upload_api_integrations_database__db_id__upload_complete_post
+  description: Complete File Upload
+  source_operation: openapi/superai-flows-openapi-original.json#complete_file_upload_api_integrations_database__db_id__upload_complete_post
+- name: replace_file_upload_api_integrations_database__db_id__upload_replace_post
+  description: Replace File Upload
+  source_operation: openapi/superai-flows-openapi-original.json#replace_file_upload_api_integrations_database__db_id__upload_replace_post
+- name: get_database_integration_health_api_integrations_database_health_get
+  description: Get Database Integration Health
+  source_operation: openapi/superai-flows-openapi-original.json#get_database_integration_health_api_integrations_database_health_get
+- name: test_postgres_connection_api_integrations_postgres_test_connection_post
+  description: Test Postgres Connection
+  source_operation: openapi/superai-flows-openapi-original.json#test_postgres_connection_api_integrations_postgres_test_connection_post
+- name: test_postgres_connection_by_credential_id_api_integrations_postgres_test_connection__credential_id__post
+  description: Test Postgres Connection By Credential Id
+  source_operation: openapi/superai-flows-openapi-original.json#test_postgres_connection_by_credential_id_api_integrations_postgres_test_connection__credential_id__post
+- name: create_email_task_api_integrations_email_tasks_post
+  description: Create Email Task
+  source_operation: openapi/superai-flows-openapi-original.json#create_email_task_api_integrations_email_tasks_post
+- name: deactivate_email_task_api_integrations_email_tasks_delete
+  description: Deactivate Email Task
+  source_operation: openapi/superai-flows-openapi-original.json#deactivate_email_task_api_integrations_email_tasks_delete
+- name: get_email_task_status_api_integrations_email_tasks__task_id__get
+  description: Get Email Task Status
+  source_operation: openapi/superai-flows-openapi-original.json#get_email_task_status_api_integrations_email_tasks__task_id__get
+- name: process_emails_api_integrations_email_process_post
+  description: Process Emails
+  source_operation: openapi/superai-flows-openapi-original.json#process_emails_api_integrations_email_process_post
+- name: get_email_integration_health_api_integrations_email_health_get
+  description: Get Email Integration Health
+  source_operation: openapi/superai-flows-openapi-original.json#get_email_integration_health_api_integrations_email_health_get
+- name: get_user_credentials_api_integrations_credentials_get
+  description: List user credentials
+  source_operation: openapi/superai-flows-openapi-original.json#get_user_credentials_api_integrations_credentials_get
+- name: create_user_credentials_api_integrations_credentials_post
+  description: Create integration credentials
+  source_operation: openapi/superai-flows-openapi-original.json#create_user_credentials_api_integrations_credentials_post
+- name: get_user_credentials_by_provider_api_integrations_credentials_provider__provider__get
+  description: List credentials by provider
+  source_operation: openapi/superai-flows-openapi-original.json#get_user_credentials_by_provider_api_integrations_credentials_provider__provider__get
+- name: get_credential_secrets_api_integrations_credentials__credential_id__credentials_get
+  description: Get credential secrets
+  source_operation: openapi/superai-flows-openapi-original.json#get_credential_secrets_api_integrations_credentials__credential_id__credentials_get
+- name: get_user_credential_api_integrations_credentials__credential_id__get
+  description: Get credential by ID
+  source_operation: openapi/superai-flows-openapi-original.json#get_user_credential_api_integrations_credentials__credential_id__get
+- name: delete_user_credential_api_integrations_credentials__credential_id__delete
+  description: Delete credential
+  source_operation: openapi/superai-flows-openapi-original.json#delete_user_credential_api_integrations_credentials__credential_id__delete
+- name: update_user_credential_api_integrations_credentials__credential_id__patch
+  description: Update credential
+  source_operation: openapi/superai-flows-openapi-original.json#update_user_credential_api_integrations_credentials__credential_id__patch
+- name: list_plugins_api_integrations_plugins__get
+  description: List all registered plugins
+  source_operation: openapi/superai-flows-openapi-original.json#list_plugins_api_integrations_plugins__get
+- name: get_plugin_capabilities_api_integrations_plugins__plugin_name__capabilities_get
+  description: Get plugin capabilities
+  source_operation: openapi/superai-flows-openapi-original.json#get_plugin_capabilities_api_integrations_plugins__plugin_name__capabilities_get
+- name: oauth_authorize_legacy
+  description: Oauth Authorize Legacy
+  source_operation: openapi/superai-flows-openapi-original.json#oauth_authorize_legacy
+- name: oauth_callback_legacy
+  description: Oauth Callback Legacy
+  source_operation: openapi/superai-flows-openapi-original.json#oauth_callback_legacy
+- name: create_integration_legacy_api_integrations_plugins__plugin_name__instances_post
+  description: Create Integration Legacy
+  source_operation: openapi/superai-flows-openapi-original.json#create_integration_legacy_api_integrations_plugins__plugin_name__instances_post
+- name: list_integration_instances_api_integrations_plugins__plugin_name__instances_get
+  description: List Integration Instances
+  source_operation: openapi/superai-flows-openapi-original.json#list_integration_instances_api_integrations_plugins__plugin_name__instances_get
+- name: delete_integration_legacy_api_integrations_plugins__plugin_name__instances__integration_id__delete
+  description: Delete Integration Legacy
+  source_operation: openapi/superai-flows-openapi-original.json#delete_integration_legacy_api_integrations_plugins__plugin_name__instances__integration_id__delete
+- name: handle_webhook_legacy_api_integrations_plugins__plugin_name__instances__integration_id__webhook_callback_post
+  description: Handle Webhook Legacy
+  source_operation: openapi/superai-flows-openapi-original.json#handle_webhook_legacy_api_integrations_plugins__plugin_name__instances__integration_id__webhook_callback_post
+- name: move_file_api_integrations_plugins__plugin_name__instances__integration_id__files_move_post
+  description: Move File
+  source_operation: openapi/superai-flows-openapi-original.json#move_file_api_integrations_plugins__plugin_name__instances__integration_id__files_move_post
+- name: delete_file_api_integrations_plugins__plugin_name__instances__integration_id__files_delete
+  description: Delete File
+  source_operation: openapi/superai-flows-openapi-original.json#delete_file_api_integrations_plugins__plugin_name__instances__integration_id__files_delete
+- name: list_folders_api_integrations_plugins__plugin_name__folders_get
+  description: List Folders
+  source_operation: openapi/superai-flows-openapi-original.json#list_folders_api_integrations_plugins__plugin_name__folders_get
+- name: get_sharepoint_sites_api_integrations_plugins_sharepoint_sites_get
+  description: Get Sharepoint Sites
+  source_operation: openapi/superai-flows-openapi-original.json#get_sharepoint_sites_api_integrations_plugins_sharepoint_sites_get
+- name: get_sharepoint_drives_api_integrations_plugins_sharepoint_drives_get
+  description: Get Sharepoint Drives
+  source_operation: openapi/superai-flows-openapi-original.json#get_sharepoint_drives_api_integrations_plugins_sharepoint_drives_get
+- name: test_sftp_connection_api_integrations_sftp_test_connection_post
+  description: Test Sftp Connection
+  source_operation: openapi/superai-flows-openapi-original.json#test_sftp_connection_api_integrations_sftp_test_connection_post
+- name: get_integration_catalog_api_integrations_catalog_get
+  description: List integration catalog
+  source_operation: openapi/superai-flows-openapi-original.json#get_integration_catalog_api_integrations_catalog_get
+- name: test_postgres_plugin_connection_api_integrations_plugins_postgres_test_connection_post
+  description: Test Postgres Plugin Connection
+  source_operation: openapi/superai-flows-openapi-original.json#test_postgres_plugin_connection_api_integrations_plugins_postgres_test_connection_post
+- name: execute_postgres_plugin_task_api_integrations_plugins_postgres_execute_post
+  description: Execute Postgres Plugin Task
+  source_operation: openapi/superai-flows-openapi-original.json#execute_postgres_plugin_task_api_integrations_plugins_postgres_execute_post
+- name: list_instances_api_plugins_instances_get
+  description: List Instances
+  source_operation: openapi/superai-flows-openapi-original.json#list_instances_api_plugins_instances_get
+- name: oauth_authorize_v2
+  description: Oauth Authorize
+  source_operation: openapi/superai-flows-openapi-original.json#oauth_authorize_v2
+- name: oauth_callback_v2
+  description: Oauth Callback
+  source_operation: openapi/superai-flows-openapi-original.json#oauth_callback_v2
+- name: create_integration_api_plugins__plugin_name__instances_post
+  description: Create Integration
+  source_operation: openapi/superai-flows-openapi-original.json#create_integration_api_plugins__plugin_name__instances_post
+- name: list_integrations_api_plugins__plugin_name__instances_get
+  description: List Integrations
+  source_operation: openapi/superai-flows-openapi-original.json#list_integrations_api_plugins__plugin_name__instances_get
+- name: delete_integration_api_plugins__plugin_name__instances__integration_id__delete
+  description: Delete Integration
+  source_operation: openapi/superai-flows-openapi-original.json#delete_integration_api_plugins__plugin_name__instances__integration_id__delete
+- name: update_integration_api_plugins__plugin_name__instances__integration_id__put
+  description: Update Integration
+  source_operation: openapi/superai-flows-openapi-original.json#update_integration_api_plugins__plugin_name__instances__integration_id__put
+- name: handle_webhook_api_plugins__plugin_name__instances__integration_id__webhook_callback_post
+  description: Handle Webhook
+  source_operation: openapi/superai-flows-openapi-original.json#handle_webhook_api_plugins__plugin_name__instances__integration_id__webhook_callback_post
+- name: poll_integration_api_plugins__plugin_name__instances__integration_id__poll_post
+  description: Poll Integration
+  source_operation: openapi/superai-flows-openapi-original.json#poll_integration_api_plugins__plugin_name__instances__integration_id__poll_post
+- name: execute_integration_api_plugins__plugin_name__instances__integration_id__execute_post
+  description: Execute Integration
+  source_operation: openapi/superai-flows-openapi-original.json#execute_integration_api_plugins__plugin_name__instances__integration_id__execute_post
+- name: get_ui_schema_api_plugins__plugin_name__instances__integration_id__ui_schema_post
+  description: Get Ui Schema
+  source_operation: openapi/superai-flows-openapi-original.json#get_ui_schema_api_plugins__plugin_name__instances__integration_id__ui_schema_post
+- name: get_models_api_models_get
+  description: List available models
+  source_operation: openapi/superai-flows-openapi-original.json#get_models_api_models_get
+- name: resolve_uri_api_files_resolve_post
+  description: Resolve storage URI to download URL
+  source_operation: openapi/superai-flows-openapi-original.json#resolve_uri_api_files_resolve_post
+- name: download_file_api_files_download_get
+  description: Download file by URI (with redirect)
+  source_operation: openapi/superai-flows-openapi-original.json#download_file_api_files_download_get
+- name: get_sso_config_api_sso_get
+  description: Get SSO configuration for organization
+  source_operation: openapi/superai-flows-openapi-original.json#get_sso_config_api_sso_get
+- name: create_sso_config_api_sso_post
+  description: Create SSO configuration for organization
+  source_operation: openapi/superai-flows-openapi-original.json#create_sso_config_api_sso_post
+- name: delete_sso_config_api_sso_delete
+  description: Remove SSO configuration for organization
+  source_operation: openapi/superai-flows-openapi-original.json#delete_sso_config_api_sso_delete
+- name: update_sso_config_api_sso_patch
+  description: Update SSO metadata configuration
+  source_operation: openapi/superai-flows-openapi-original.json#update_sso_config_api_sso_patch
+- name: get_sso_service_provider_details_api_sso_service_provider_details_get
+  description: Get Supabase SAML service-provider URLs
+  source_operation: openapi/superai-flows-openapi-original.json#get_sso_service_provider_details_api_sso_service_provider_details_get
+- name: proxy_saml_metadata_api_sso_metadata_get
+  description: Proxy SAML metadata to avoid CORS issues
+  source_operation: openapi/superai-flows-openapi-original.json#proxy_saml_metadata_api_sso_metadata_get

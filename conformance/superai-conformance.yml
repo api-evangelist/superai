@@ -1,0 +1,35 @@
+generated: '2026-07-21'
+method: derived
+source: openapi/superai-flows-openapi-original.json
+note: >-
+  Standards conformance for the SuperAI Flows API, derived from the OpenAPI and confirmed
+  from the docs where noted. Auth is JWT bearer + service-account API key (no OAuth2/OIDC
+  securityScheme in the spec, despite an SSO/SAML surface for the app). Errors use a custom
+  JSON envelope, not RFC 9457. SOC 2 and GDPR are published on the Trust Center.
+standards:
+- id: openapi-3.1
+  conforms: true
+  evidence: openapi 3.1.0 document published at https://flows.super.ai/api/openapi.json
+- id: oauth2
+  conforms: false
+  evidence: no oauth2 securityScheme in OpenAPI; auth is http bearer (JWT) + apiKey
+- id: oidc
+  conforms: false
+- id: rfc9457-problem-details
+  conforms: false
+  evidence: errors use a custom {error{message,code,details},request_id} envelope
+- id: rest-json
+  conforms: true
+  evidence: RESTful resource naming, consistent JSON responses, standard HTTP status codes
+- id: webhooks
+  conforms: true
+  evidence: Webhook Notification tasks + plugin webhook handler
+- id: saml-sso
+  conforms: true
+  evidence: SSO tag operations manage SAML metadata / SSO configuration per organization
+- id: soc2
+  conforms: true
+  evidence: independent SOC 2 examination named on https://super.ai/trust
+- id: gdpr
+  conforms: true
+  evidence: GDPR compliance named on https://super.ai/trust

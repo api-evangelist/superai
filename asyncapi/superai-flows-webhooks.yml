@@ -1,0 +1,22 @@
+generated: '2026-07-21'
+method: searched
+source: https://docs.flows.super.ai
+spec_type: Webhooks
+note: >-
+  SuperAI Flows exposes an event surface through webhooks rather than a published AsyncAPI
+  document. A Webhook Notification task fires after referenced tasks complete and POSTs a
+  payload to a configured URL; payloads reference task outputs with template syntax
+  {{task_name.output.field}}. Multiple webhooks per flow are supported. There is also a
+  plugin webhook handler operation and webhook-data retrieval in the REST API. No AsyncAPI
+  spec was found, so none is fabricated.
+delivery:
+  transport: http-post
+  configured_per: flow
+  multiple_per_flow: true
+  trigger: after referenced task(s) complete
+  payload_templating: '{{task_name.output.field}}'
+related_operations:
+- openapi/superai-flows-openapi-original.json#handle_webhook (plugins)
+- webhook-data tag operation (retrieve webhook data)
+docs:
+- https://docs.flows.super.ai

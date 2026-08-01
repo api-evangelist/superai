@@ -1,0 +1,18 @@
+generated: '2026-07-21'
+method: searched
+source: https://docs.flows.super.ai
+note: >-
+  Lifecycle posture for SuperAI Flows. A public status page is hosted on Statuspage.io
+  (status.super.ai). No dated changelog, deprecation policy, or Sunset/Deprecation header
+  support was found in the docs as of this pass; API paths are unversioned (/api).
+versioning:
+  scheme: unversioned-path
+  current: 'api (info.version 0.1.0)'
+  docs: https://docs.flows.super.ai/api-reference
+status_page: https://status.super.ai
+deprecation:
+  policy_found: false
+  sunset_header: false
+sla:
+  found: false
+deprecated_operations: []

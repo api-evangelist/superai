@@ -1,0 +1,74 @@
+generated: '2026-07-21'
+method: derived
+source: openapi/superai-flows-openapi-original.json
+docs: https://docs.flows.super.ai/api-reference/errors
+format: custom-envelope
+note: 'SuperAI Flows uses a custom JSON error envelope (not RFC 9457 problem+json). Shape: {"error":{"message","code","details"},"request_id"}.
+  The X-Request-ID response header mirrors request_id for log correlation.'
+envelope:
+  error:
+    message: string
+    code: string
+    details: object
+  request_id: uuid
+error_codes:
+- code: validation_error
+  status: 422
+  meaning: Request body or parameters failed validation; details array lists invalid fields.
+- code: invalid_dsl_input
+  status: 400
+  meaning: Flow DSL definition is malformed (missing fields, invalid executors, circular dependencies).
+- code: not_found
+  status: 404
+  meaning: Requested resource doesn't exist or belongs to a different organization.
+- code: conflict
+  status: 409
+  meaning: Resource already exists or violates a database constraint (e.g. duplicate name).
+- code: bad_request
+  status: 400
+  meaning: Request is syntactically valid but semantically invalid; invalid parameter values.
+- code: user_info_not_found
+  status: 401
+  meaning: Authentication token is invalid, expired, or user account deactivated.
+- code: repository_error
+  status: 500
+  meaning: Database or repository-layer failure (connection, timeout, deadlock).
+- code: service_error
+  status: 500
+  meaning: Application service-layer error; business logic or external integration failure.
+- code: internal_error
+  status: 500
+  meaning: Unexpected internal error; automatically logged with stack traces.
+http_statuses:
+- status: 400
+  title: Bad Request
+  description: Bad Request - Invalid flow definition or validation errors
+  example_operation: openapi/superai-flows-openapi-original.json#create_flow_api_flows_post
+- status: 401
+  title: Unauthorized
+  description: Unauthorized - Missing or invalid authentication credentials
+  example_operation: openapi/superai-flows-openapi-original.json#list_flows_api_flows_get
+- status: 402
+  title: Payment Required
+  description: Payment Required - Organization has exhausted its credit allocation
+  example_operation: openapi/superai-flows-openapi-original.json#create_flow_execution_api_flow_executions_post
+- status: 403
+  title: Forbidden
+  description: Forbidden - User doesn't have access to this flow (wrong organization)
+  example_operation: openapi/superai-flows-openapi-original.json#get_flow_api_flows__flow_id__get
+- status: 404
+  title: Not Found
+  description: Not Found - The requested resource does not exist
+  example_operation: openapi/superai-flows-openapi-original.json#get_flow_api_flows__flow_id__get
+- status: 409
+  title: Conflict
+  description: Conflict - The resource already exists or conflicts with existing state
+  example_operation: openapi/superai-flows-openapi-original.json#create_flow_api_flows_post
+- status: 422
+  title: Unprocessable Entity
+  description: Validation Error
+  example_operation: openapi/superai-flows-openapi-original.json#list_flows_api_flows_get
+- status: 500
+  title: Internal Server Error
+  description: Internal Server Error - An unexpected error occurred
+  example_operation: openapi/superai-flows-openapi-original.json#list_flows_api_flows_get

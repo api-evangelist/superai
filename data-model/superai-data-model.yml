@@ -1,0 +1,220 @@
+generated: '2026-07-21'
+method: derived
+source: openapi/superai-flows-openapi-original.json
+docs: https://docs.flows.super.ai/api-reference
+note: 'Entity-relationship graph derived from OpenAPI component schemas: $ref links and *_id reference
+  fields. Core domain: Flow -> FlowExecution -> TaskExecution -> TaskOutput, with HumanReviewTask, ServiceAccount/APIKey,
+  and Integration/Credential/Database supporting entities.'
+entities:
+- name: AddTaskStatusRequest
+  relationships:
+  - field: statuses
+    kind: has_many
+    target: AddTaskStatusRequestItem
+- name: ApiKeyCreateResponse
+  relationships:
+  - field: user_id
+    kind: belongs_to
+    target: user
+  - field: service_account_id
+    kind: belongs_to
+    target: service_account
+  - field: organization_id
+    kind: belongs_to
+    target: organization
+- name: ApiKeyResponse
+  relationships:
+  - field: user_id
+    kind: belongs_to
+    target: user
+  - field: service_account_id
+    kind: belongs_to
+    target: service_account
+  - field: organization_id
+    kind: belongs_to
+    target: organization
+- name: CreateTaskExecutionRequest
+  relationships:
+  - field: flow_execution_id
+    kind: belongs_to
+    target: flow_execution
+- name: CredentialsResponse
+  relationships:
+  - field: user_id
+    kind: belongs_to
+    target: user
+  - field: provider
+    kind: has_one
+    target: ProviderApiEnum
+- name: DatabaseColumnsResponse
+  relationships:
+  - field: database_id
+    kind: belongs_to
+    target: database
+- name: EmailTaskRequest
+  relationships:
+  - field: flow_id
+    kind: belongs_to
+    target: flow
+- name: EmailTaskResponse
+  relationships:
+  - field: task_id
+    kind: belongs_to
+    target: task
+- name: EmailTaskStatus
+  relationships:
+  - field: task_id
+    kind: belongs_to
+    target: task
+- name: FlowCreateRequest
+  relationships:
+  - field: settings
+    kind: has_one
+    target: FlowSettings
+- name: FlowExecutionCreateRequest
+  relationships:
+  - field: flow_id
+    kind: belongs_to
+    target: flow
+- name: FlowExecutionResponse
+  relationships:
+  - field: flow_id
+    kind: belongs_to
+    target: flow
+  - field: status
+    kind: has_one
+    target: ExecutionStatus
+  - field: organization_id
+    kind: belongs_to
+    target: organization
+  - field: pricing_config_id
+    kind: belongs_to
+    target: pricing_config
+- name: FlowExecutionResponseWithRunNumber
+  relationships:
+  - field: flow_id
+    kind: belongs_to
+    target: flow
+  - field: status
+    kind: has_one
+    target: ExecutionStatus
+  - field: organization_id
+    kind: belongs_to
+    target: organization
+  - field: pricing_config_id
+    kind: belongs_to
+    target: pricing_config
+- name: FlowInvitationBulkResponse
+  relationships:
+  - field: flow_id
+    kind: belongs_to
+    target: flow
+- name: FlowInvitationResponse
+  relationships:
+  - field: flow_id
+    kind: belongs_to
+    target: flow
+  - field: user_id
+    kind: belongs_to
+    target: user
+  - field: role
+    kind: has_one
+    target: UserRole
+  - field: organization_id
+    kind: belongs_to
+    target: organization
+- name: FlowResponse
+  relationships:
+  - field: organization_id
+    kind: belongs_to
+    target: organization
+  - field: settings
+    kind: has_one
+    target: FlowSettings
+  - field: validation_errors
+    kind: has_one
+    target: ErrorDetails
+- name: FlowSettings
+  relationships:
+  - field: ttl
+    kind: has_one
+    target: TTLSettings
+  - field: review_view_id
+    kind: belongs_to
+    target: review_view
+- name: FlowTaskStatusAPI
+  relationships:
+  - field: flow_execution_id
+    kind: belongs_to
+    target: flow_execution
+  - field: status
+    kind: has_one
+    target: ProcessingStatus
+  - field: organization_id
+    kind: belongs_to
+    target: organization
+- name: FlowTaskTagAPI
+  relationships:
+  - field: flow_execution_id
+    kind: belongs_to
+    target: flow_execution
+  - field: organization_id
+    kind: belongs_to
+    target: organization
+- name: FlowTeamInvitationBulkResponse
+  relationships:
+  - field: flow_id
+    kind: belongs_to
+    target: flow
+- name: FlowTeamInvitationResponse
+  relationships:
+  - field: flow_id
+    kind: belongs_to
+    target: flow
+  - field: worker_group_id
+    kind: belongs_to
+    target: worker_group
+  - field: organization_id
+    kind: belongs_to
+    target: organization
+- name: FlowValidationResponse
+  relationships:
+  - field: validation_errors
+    kind: has_many
+    target: ErrorDetails
+- name: HumanReviewTaskAssignmentResponse
+  relationships:
+  - field: human_review_task_id
+    kind: belongs_to
+    target: human_review_task
+  - field: user_id
+    kind: belongs_to
+    target: user
+  - field: worker_group_id
+    kind: belongs_to
+    target: worker_group
+  - field: organization_id
+    kind: belongs_to
+    target: organization
+  - field: user
+    kind: has_one
+    target: app__api__user__user_api_model__UserResponse
+- name: HumanReviewTaskCreateRequest
+  relationships:
+  - field: flow_execution_id
+    kind: belongs_to
+    target: flow_execution
+  - field: target_task_executions
+    kind: has_many
+    target: HumanReviewTargetTaskExecution
+- name: HumanReviewTaskResponse
+  relationships:
+  - field: organization_id
+    kind: belongs_to
+    target: organization
+  - field: flow_execution_id
+    kind: belongs_to
+    target: flow_execution
+  - field: target_task_executions
+    kind: has_many
+    target: HumanReviewTargetTaskExecution

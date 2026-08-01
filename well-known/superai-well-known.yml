@@ -1,0 +1,37 @@
+generated: '2026-07-21'
+method: searched
+note: >-
+  Only /.well-known/security.txt (on the super.ai apex) returns a genuine document.
+  The flows.super.ai app returns its SPA HTML shell (soft-404) for openid-configuration,
+  oauth-authorization-server, api-catalog, and ai-plugin.json, so those are recorded as
+  not-published rather than saved.
+hosts:
+- host: https://super.ai
+  documents:
+  - path: /.well-known/security.txt
+    status: 200
+    file: superai-security.txt
+  - path: /.well-known/openid-configuration
+    status: 404
+  - path: /.well-known/oauth-authorization-server
+    status: 404
+  - path: /.well-known/api-catalog
+    status: 404
+  - path: /.well-known/ai-plugin.json
+    status: 404
+- host: https://flows.super.ai
+  documents:
+  - path: /.well-known/security.txt
+    status: 404
+  - path: /.well-known/openid-configuration
+    status: soft-404
+    note: returns SPA HTML shell, not a discovery document
+  - path: /.well-known/oauth-authorization-server
+    status: soft-404
+    note: returns SPA HTML shell, not a discovery document
+  - path: /.well-known/api-catalog
+    status: soft-404
+    note: returns SPA HTML shell
+  - path: /.well-known/ai-plugin.json
+    status: soft-404
+    note: returns SPA HTML shell

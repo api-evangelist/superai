@@ -1,0 +1,18 @@
+overlay: 1.0.0
+info:
+  title: API Evangelist enhancements for SuperAI Flows
+  version: 1.0.0
+extends: openapi/superai-flows-openapi-original.json
+actions:
+- target: $.info
+  update:
+    x-apievangelist-provider: superai
+    x-apievangelist-product: SuperAI Flows
+    x-apievangelist-auth: [bearer-jwt, api-key]
+    x-apievangelist-error-format: custom-envelope
+    x-apievangelist-webhooks: true
+    x-apievangelist-status-page: https://status.super.ai
+- target: $.servers
+  update:
+  - url: https://flows.super.ai/api
+    description: SuperAI Flows production API (added by API Evangelist; absent from source spec)
