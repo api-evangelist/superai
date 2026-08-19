@@ -1,0 +1,66 @@
+{
+  "opencollection": "1.0.0",
+  "info": {
+    "name": "SuperAI Flow Platform auth files API",
+    "version": "0.1.0"
+  },
+  "items": [
+    {
+      "info": {
+        "name": "files",
+        "type": "folder"
+      },
+      "items": [
+        {
+          "info": {
+            "name": "Resolve storage URI to download URL",
+            "type": "http"
+          },
+          "http": {
+            "method": "POST",
+            "url": "{{baseUrl}}/api/files/resolve",
+            "body": {
+              "type": "json",
+              "data": "{}"
+            },
+            "auth": {
+              "type": "bearer",
+              "token": "{{bearerToken}}"
+            }
+          },
+          "docs": "Resolve a gs:// storage URI to a temporary pre-signed download URL.\n\nThis is the **recommended endpoint** for downloading files from task outputs.\nSimply pass the `gs://` URI exactly as you received it—no parsing required.\n\nThe returned `download_url` is a pre-signed URL valid for **1 hour** that can\nbe used to download the file directly without additional authentication.\n\n**Why use POST instead of GET?**\n\nUsing POST keeps the URI out of server access logs and browser history,\nwhich is better fo"
+        },
+        {
+          "info": {
+            "name": "Download file by URI (with redirect)",
+            "type": "http"
+          },
+          "http": {
+            "method": "GET",
+            "url": "{{baseUrl}}/api/files/download",
+            "params": [
+              {
+                "name": "uri",
+                "value": "",
+                "type": "query",
+                "description": "The gs:// storage URI to download. Pass the exact URI from your task output (URL-encoded for special characters)."
+              },
+              {
+                "name": "redirect",
+                "value": "",
+                "type": "query",
+                "description": "If true (default), returns 302 redirect to download URL. If false, returns JSON with the download URL for programmatic use."
+              }
+            ],
+            "auth": {
+              "type": "bearer",
+              "token": "{{bearerToken}}"
+            }
+          },
+          "docs": "Download a file by resolving its gs:// storage URI.\n\nThis endpoint provides a convenient way to download files directly using curl\nor wget. By default, it returns a 302 redirect to a pre-signed download URL.\n\n**Quick download with curl:**\n```\ncurl -L -H \"X-API-Key: $KEY\" \"https://flows.super.ai/api/files/download?uri=gs://...\" -o file.pdf\n```\n\nThe `-L` flag tells curl to follow the redirect automatically.\n\n**Note:** The URI will appear in server access logs. For sensitive files,\nuse the POST `/a"
+        }
+      ]
+    }
+  ],
+  "bundled": true
+}

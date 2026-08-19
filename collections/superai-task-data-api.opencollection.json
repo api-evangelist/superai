@@ -1,0 +1,51 @@
+{
+  "opencollection": "1.0.0",
+  "info": {
+    "name": "SuperAI Flow Platform auth task-data API",
+    "version": "0.1.0"
+  },
+  "items": [
+    {
+      "info": {
+        "name": "task-data",
+        "type": "folder"
+      },
+      "items": [
+        {
+          "info": {
+            "name": "Analyze flow definition and extract schemas",
+            "type": "http"
+          },
+          "http": {
+            "method": "POST",
+            "url": "{{baseUrl}}/api/task-data",
+            "params": [
+              {
+                "name": "full_validation",
+                "value": "",
+                "type": "query",
+                "description": "Enable comprehensive semantic validation in addition to basic structural validation. When false (default): Only validates flow structure (required fields, data types, task executor existence). When true: Performs additional validation including: - Task parameter value validation (correct types, valid enums, etc.). - Task connection validation (input/output type compatibility). - Circular dependency detection. - External resource validation (e.g., checking if referenced files exist). Full validation may take longer and make external API calls. Use during flow save/publish operations. Use false (default) for faster validation during editing."
+              },
+              {
+                "name": "include_input_schema",
+                "value": "",
+                "type": "query",
+                "description": "Include JSON Schema definitions for input task executors' input structure. Calls get_input_model() to generate dynamic input schemas for form building. Adds ~10-50ms latency for schema generation."
+              }
+            ],
+            "body": {
+              "type": "json",
+              "data": "{}"
+            },
+            "auth": {
+              "type": "bearer",
+              "token": "{{bearerToken}}"
+            }
+          },
+          "docs": "Analyze a flow definition to extract task output schemas, dynamic data, and validation errors.\n\n**Overview**\nThis endpoint validates a flow definition and returns metadata needed for flow building,\nexecution planning, and UI generation. It processes all tasks in the flow definition to\nextract their output schemas (for type validation), dynamic configuration data (for UI\ndropdowns and conditional fields), and any structural or semantic validation errors.\n\n**Use Cases**\n- **Flow Builder UI**: Get "
+        }
+      ]
+    }
+  ],
+  "bundled": true
+}

@@ -1,0 +1,75 @@
+{
+  "opencollection": "1.0.0",
+  "info": {
+    "name": "SuperAI Flow Platform auth task-outputs API",
+    "version": "0.1.0"
+  },
+  "items": [
+    {
+      "info": {
+        "name": "task-outputs",
+        "type": "folder"
+      },
+      "items": [
+        {
+          "info": {
+            "name": "List all task outputs",
+            "type": "http"
+          },
+          "http": {
+            "method": "GET",
+            "url": "{{baseUrl}}/api/task-outputs",
+            "auth": {
+              "type": "bearer",
+              "token": "{{bearerToken}}"
+            }
+          },
+          "docs": "List all task outputs across all flow executions in your organization.\n\nRetrieve all task output records for your organization. Returns complete output data\nincluding summary, full output, tags, and status for each task that has produced output.\nResults are ordered by creation time (most recent first).\n\n## Important: No Pagination\n\nThis endpoint currently returns **ALL** task outputs in the organization without pagination.\nFor organizations with many flow executions, this may return large result"
+        },
+        {
+          "info": {
+            "name": "Create task output",
+            "type": "http"
+          },
+          "http": {
+            "method": "POST",
+            "url": "{{baseUrl}}/api/task-outputs",
+            "body": {
+              "type": "json",
+              "data": "{}"
+            },
+            "auth": {
+              "type": "bearer",
+              "token": "{{bearerToken}}"
+            }
+          },
+          "docs": "Create a task output record for a completed task and notify connected clients.\n\nTask outputs represent the processed, summarized results of task executions. Unlike\ntask executions which track the full execution lifecycle (input, output, error, status),\ntask outputs focus on the final output data formatted for display, downstream consumption,\nand workflow decisions.\n\n## What Are Task Outputs\n\nTask outputs serve multiple purposes:\n- **Structured Results**: Store task results in a queryable format "
+        },
+        {
+          "info": {
+            "name": "Get task output by ID",
+            "type": "http"
+          },
+          "http": {
+            "method": "GET",
+            "url": "{{baseUrl}}/api/task-outputs/:task_output_id",
+            "params": [
+              {
+                "name": "task_output_id",
+                "value": "",
+                "type": "path",
+                "description": "Unique identifier of the task output to retrieve. UUID assigned when task output was created. Task outputs are scoped to organization; attempting to access another organization's output returns 404."
+              }
+            ],
+            "auth": {
+              "type": "bearer",
+              "token": "{{bearerToken}}"
+            }
+          },
+          "docs": "Retrieve a specific task output by its unique identifier.\n\nFetch a single task output record with complete output data, summary, tags, and metadata.\nUsed for inspecting individual task results, debugging, and retrieving output for\ndownstream processing.\n\n## Resource Identification\n\nTask outputs are uniquely identified by UUID (id field). To find task outputs by\nother criteria (flow execution, task name), use `GET /flow-executions/{id}` or\n`GET /task-outputs` (list all).\n\n## What You'll Get\n\n- **"
+        }
+      ]
+    }
+  ],
+  "bundled": true
+}

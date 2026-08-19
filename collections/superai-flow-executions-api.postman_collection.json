@@ -1,0 +1,3407 @@
+{
+  "item": [
+    {
+      "id": "b0e732a2-8f64-4f87-989f-cbe3c576c3d4",
+      "name": "flow-executions",
+      "description": {
+        "content": "Flow execution operations for running and monitoring workflows.\n\nFlow executions represent runtime instances of flows. When you execute a flow, a new flow execution is created with its own unique ID, status, and execution context. Each execution is independent and maintains its own state, input data, and results.\n\n**Key concepts:**\n- **Execution Status**: Tracks the lifecycle (running, completed, failed, cancelled)\n- **Run Number**: Sequential identifier for executions of the same flow\n- **Execution Context**: Contains input parameters, user information, and metadata\n- **Task Results**: Stores outputs from each task within the execution\n\n**Use these endpoints to:**\n- Start new flow executions with custom input parameters\n- Monitor execution progress and status in real-time\n- Retrieve execution history and detailed results\n- Filter and search executions by status, date, or flow\n- Cancel running executions when needed\n- Access task-level execution details and outputs\n\nFlow executions transform flow definitions into actual work and deliverable results.",
+        "type": "text/plain"
+      },
+      "item": [
+        {
+          "id": "5e2125c8-716e-4272-bc71-fa3423febd72",
+          "name": "Create and start a flow execution",
+          "request": {
+            "name": "Create and start a flow execution",
+            "description": {
+              "content": "Create a new flow execution and start workflow processing.\n\nThis endpoint creates a flow execution record and attempts to start the associated\nworkflow processing. The execution is created with status 'queued' and atomically\npromoted to 'running' if the organization's concurrency limit allows.\n\nContext:\n    - Flow executions represent runtime instances of flow definitions\n    - Each execution is isolated and maintains its own state\n    - Input data must conform to the flow's input schema\n    - Executions are scoped to the user's organization\n    - WebSocket notifications are sent on creation for real-time updates\n\nInput Validation:\n    - Input data is validated against the flow's input task schema\n    - Validation occurs before database record creation or workflow start\n    - Invalid input returns 400 Bad Request with detailed error messages\n    - Validation errors include field location, type, and specific issue\n    - No flow execution record is created if validation fails\n\nExecution Flow:\n    1. Validates flow exists and user has access\n    2. Validates input data against flow's input schema\n    3. Creates execution record in database\n    4. Starts workflow processing asynchronously\n    5. Sends WebSocket notification to connected clients\n    6. Returns immediately (does not wait for completion)\n\nPerformance Notes:\n    - Response time: < 200ms (workflow starts asynchronously)\n    - Does not block on workflow completion\n    - WebSocket notifications sent in background task\n\nUse Cases:\n    - Trigger flow execution from UI dashboard\n    - Automated flow execution via API integration\n    - Batch processing of multiple documents\n    - Event-driven workflow automation\n\nRelated Endpoints:\n    - GET /flow-executions/{id} - Check execution status\n    - GET /flow-executions - List all executions for a flow\n    - POST /flow-executions/{id}/execute - Re-execute failed execution",
+              "type": "text/plain"
+            },
+            "url": {
+              "path": [
+                "api",
+                "flow-executions"
+              ],
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "query": [],
+              "variable": []
+            },
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "method": "POST",
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{bearerToken}}"
+                }
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"flow_id\": \"<uuid>\",\n  \"input\": {\n    \"key_0\": 6011.170495060551\n  },\n  \"input_task_name\": \"<string>\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": [
+            {
+              "id": "41b53ec4-b14c-4f0a-9ca8-92976eebcfdb",
+              "name": "Flow execution created and started successfully",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "api",
+                    "flow-executions"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [],
+                  "variable": []
+                },
+                "header": [
+                  {
+                    "description": {
+                      "content": "Added as a part of security scheme: bearer",
+                      "type": "text/plain"
+                    },
+                    "key": "Authorization",
+                    "value": "Bearer <token>"
+                  },
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "method": "POST",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"flow_id\": \"550e8400-e29b-41d4-a716-446655440000\",\n  \"input\": {\n    \"file_key\": \"documents/report.pdf\",\n    \"options\": {\n      \"language\": \"en\"\n    }\n  },\n  \"input_task_name\": \"<string>\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "status": "Created",
+              "code": 201,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"id\": \"1a6efbaa-9cd9-e61a-8b6d-5c8bb82bada7\",\n  \"created_at\": \"1982-02-28T06:15:17.326Z\",\n  \"updated_at\": \"1957-08-06T21:49:04.132Z\",\n  \"modified_by\": \"string\",\n  \"flow_id\": \"550e8400-e29b-41d4-a716-446655440000\",\n  \"flow_version\": 3,\n  \"status\": \"running\",\n  \"input\": {\n    \"file_key\": \"documents/abc123.pdf\",\n    \"metadata\": {\n      \"priority\": \"high\"\n    }\n  },\n  \"organization_id\": \"660e8400-e29b-41d4-a716-446655440001\",\n  \"pricing_config_id\": \"186800bd-30f7-58b9-98f1-e72e52fdc8e6\",\n  \"total_credits\": 7164,\n  \"triggered_task_executor_name\": \"string\"\n}",
+              "cookie": [],
+              "_postman_previewlanguage": "json"
+            },
+            {
+              "id": "761b6fe3-5303-4085-8d8e-da8b233108b3",
+              "name": "Bad Request - Invalid input data or missing required fields",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "api",
+                    "flow-executions"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [],
+                  "variable": []
+                },
+                "header": [
+                  {
+                    "description": {
+                      "content": "Added as a part of security scheme: bearer",
+                      "type": "text/plain"
+                    },
+                    "key": "Authorization",
+                    "value": "Bearer <token>"
+                  },
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "method": "POST",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"flow_id\": \"550e8400-e29b-41d4-a716-446655440000\",\n  \"input\": {\n    \"file_key\": \"documents/report.pdf\",\n    \"options\": {\n      \"language\": \"en\"\n    }\n  },\n  \"input_task_name\": \"<string>\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "status": "Bad Request",
+              "code": 400,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"error\": {\n    \"code\": \"not_found\",\n    \"message\": \"Resource not found\"\n  },\n  \"request_id\": \"01K8KABR6S16YETA2SZPVBS9SP\"\n}",
+              "cookie": [],
+              "_postman_previewlanguage": "json"
+            },
+            {
+              "id": "6271a754-5d6a-4644-9a53-13e93895dbcd",
+              "name": "Unauthorized - Missing or invalid authentication credentials",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "api",
+                    "flow-executions"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [],
+                  "variable": []
+                },
+                "header": [
+                  {
+                    "description": {
+                      "content": "Added as a part of security scheme: bearer",
+                      "type": "text/plain"
+                    },
+                    "key": "Authorization",
+                    "value": "Bearer <token>"
+                  },
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "method": "POST",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"flow_id\": \"550e8400-e29b-41d4-a716-446655440000\",\n  \"input\": {\n    \"file_key\": \"documents/report.pdf\",\n    \"options\": {\n      \"language\": \"en\"\n    }\n  },\n  \"input_task_name\": \"<string>\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "status": "Unauthorized",
+              "code": 401,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"error\": {\n    \"message\": \"Authentication required\",\n    \"code\": \"unauthorized\"\n  },\n  \"request_id\": \"01K8KABR6S16YETA2SZPVBS9SP\"\n}",
+              "cookie": [],
+              "_postman_previewlanguage": "json"
+            },
+            {
+              "id": "5b962751-07aa-4010-b7da-05aee0a54908",
+              "name": "Payment Required - Organization has exhausted its credit allocation",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "api",
+                    "flow-executions"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [],
+                  "variable": []
+                },
+                "header": [
+                  {
+                    "description": {
+                      "content": "Added as a part of security scheme: bearer",
+                      "type": "text/plain"
+                    },
+                    "key": "Authorization",
+                    "value": "Bearer <token>"
+                  },
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "method": "POST",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"flow_id\": \"550e8400-e29b-41d4-a716-446655440000\",\n  \"input\": {\n    \"file_key\": \"documents/report.pdf\",\n    \"options\": {\n      \"language\": \"en\"\n    }\n  },\n  \"input_task_name\": \"<string>\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "status": "Payment Required",
+              "code": 402,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"error\": {\n    \"message\": \"Your organization has exhausted its credit allocation.\",\n    \"code\": \"insufficient_credits\",\n    \"details\": {\n      \"credits_used\": 25000,\n      \"allocation\": 25000,\n      \"credits_remaining\": 0\n    }\n  },\n  \"request_id\": \"01K8KABR6S16YETA2SZPVBS9SP\"\n}",
+              "cookie": [],
+              "_postman_previewlanguage": "json"
+            },
+            {
+              "id": "21f92996-691f-4863-9000-b9c0f1f39e23",
+              "name": "Forbidden - User lacks permission to execute this flow",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "api",
+                    "flow-executions"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [],
+                  "variable": []
+                },
+                "header": [
+                  {
+                    "description": {
+                      "content": "Added as a part of security scheme: bearer",
+                      "type": "text/plain"
+                    },
+                    "key": "Authorization",
+                    "value": "Bearer <token>"
+                  },
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "method": "POST",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"flow_id\": \"550e8400-e29b-41d4-a716-446655440000\",\n  \"input\": {\n    \"file_key\": \"documents/report.pdf\",\n    \"options\": {\n      \"language\": \"en\"\n    }\n  },\n  \"input_task_name\": \"<string>\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "status": "Forbidden",
+              "code": 403,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"error\": {\n    \"code\": \"not_found\",\n    \"message\": \"Resource not found\"\n  },\n  \"request_id\": \"01K8KABR6S16YETA2SZPVBS9SP\"\n}",
+              "cookie": [],
+              "_postman_previewlanguage": "json"
+            },
+            {
+              "id": "25d82134-23be-49ba-aa77-66fb28978fc0",
+              "name": "Not Found - The requested resource does not exist",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "api",
+                    "flow-executions"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [],
+                  "variable": []
+                },
+                "header": [
+                  {
+                    "description": {
+                      "content": "Added as a part of security scheme: bearer",
+                      "type": "text/plain"
+                    },
+                    "key": "Authorization",
+                    "value": "Bearer <token>"
+                  },
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "method": "POST",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"flow_id\": \"550e8400-e29b-41d4-a716-446655440000\",\n  \"input\": {\n    \"file_key\": \"documents/report.pdf\",\n    \"options\": {\n      \"language\": \"en\"\n    }\n  },\n  \"input_task_name\": \"<string>\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "status": "Not Found",
+              "code": 404,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"error\": {\n    \"message\": \"Resource not found\",\n    \"code\": \"not_found\"\n  },\n  \"request_id\": \"01K8KABR6S16YETA2SZPVBS9SP\"\n}",
+              "cookie": [],
+              "_postman_previewlanguage": "json"
+            },
+            {
+              "id": "d670333f-1f6b-4775-ab8c-262cbec3e2ff",
+              "name": "Validation Error",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "api",
+                    "flow-executions"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [],
+                  "variable": []
+                },
+                "header": [
+                  {
+                    "description": {
+                      "content": "Added as a part of security scheme: bearer",
+                      "type": "text/plain"
+                    },
+                    "key": "Authorization",
+                    "value": "Bearer <token>"
+                  },
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "method": "POST",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"flow_id\": \"550e8400-e29b-41d4-a716-446655440000\",\n  \"input\": {\n    \"file_key\": \"documents/report.pdf\",\n    \"options\": {\n      \"language\": \"en\"\n    }\n  },\n  \"input_task_name\": \"<string>\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "status": "Unprocessable Entity (WebDAV) (RFC 4918)",
+              "code": 422,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"detail\": [\n    {\n      \"loc\": [\n        \"string\",\n        \"string\"\n      ],\n      \"msg\": \"string\",\n      \"type\": \"string\"\n    },\n    {\n      \"loc\": [\n        \"string\",\n        \"string\"\n      ],\n      \"msg\": \"string\",\n      \"type\": \"string\"\n    }\n  ]\n}",
+              "cookie": [],
+              "_postman_previewlanguage": "json"
+            },
+            {
+              "id": "036a0390-63bd-4e7e-adb1-3f648e9fb7b2",
+              "name": "Internal Server Error - An unexpected error occurred",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "api",
+                    "flow-executions"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [],
+                  "variable": []
+                },
+                "header": [
+                  {
+                    "description": {
+                      "content": "Added as a part of security scheme: bearer",
+                      "type": "text/plain"
+                    },
+                    "key": "Authorization",
+                    "value": "Bearer <token>"
+                  },
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "method": "POST",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"flow_id\": \"550e8400-e29b-41d4-a716-446655440000\",\n  \"input\": {\n    \"file_key\": \"documents/report.pdf\",\n    \"options\": {\n      \"language\": \"en\"\n    }\n  },\n  \"input_task_name\": \"<string>\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "status": "Internal Server Error",
+              "code": 500,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"error\": {\n    \"message\": \"Internal server error\",\n    \"code\": \"internal_error\"\n  },\n  \"request_id\": \"01K8KABR6S16YETA2SZPVBS9SP\"\n}",
+              "cookie": [],
+              "_postman_previewlanguage": "json"
+            }
+          ],
+          "event": [],
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          }
+        },
+        {
+          "id": "364c4222-cff4-4525-af9b-6f48bbe60b2d",
+          "name": "List flow executions with filtering and pagination",
+          "request": {
+            "name": "List flow executions with filtering and pagination",
+            "description": {
+              "content": "List flow executions with filtering, sorting, and pagination.\n\nRetrieve a paginated list of flow executions for a specific flow with support\nfor filtering by status, tags, and date ranges. Results can be sorted by\ncreation or update time and include optional run number calculation.\n\nContext:\n    - Returns executions for a single flow (specified by flow_id)\n    - Excludes soft-deleted executions from results\n    - Supports multiple filtering dimensions for flexible queries\n    - Pagination uses offset-based approach (page/page_size)\n    - Run numbers calculated on-demand (performance impact)\n\nFiltering Logic:\n    - Status filter: Returns executions containing tasks with ANY of specified statuses\n    - Tag filter: Returns executions containing tasks with ANY of specified tags\n    - Date range: created_after/created_before bound created_at;\n      updated_after/updated_before bound updated_at (all inclusive, ISO 8601)\n    - Multiple filters combined with AND logic\n    - Empty filters return all executions\n\nPagination:\n    - Offset-based: page=1, page_size=10 returns first 10 results\n    - Default: page=1, page_size=10\n    - Maximum page_size: 1000 results\n    - Maximum page: 10,000 (to prevent excessive database load)\n    - Use start_from_execution_id for cursor-like pagination\n\nRun Numbers:\n    - include_run_number=true: Calculates sequential number (1, 2, 3...)\n    - Based on creation time for the flow\n    - Includes deleted executions in count (may have gaps)\n    - Performance impact: Additional database query per execution\n    - Recommended: Use only when displaying in UI\n\nSorting:\n    - sort_field: 'created_at' (when execution was created) or\n                  'updated_at' (when execution was last modified)\n    - sort_direction: 'asc' (oldest first) or 'desc' (newest first)\n    - Default: sort by created_at desc (most recently created first)\n\nPerformance Considerations:\n    - Without run_number: ~50ms for 100 results\n    - With run_number: ~200ms for 100 results (N+1 query issue)\n    - Consider caching for frequently accessed pages\n    - Large page_size values increase response time linearly\n\nUse Cases:\n    - Display execution history in UI dashboard\n    - Monitor recent execution failures (filter by status='failed')\n    - Find executions by business context (filter by tags)\n    - Export execution audit trail\n    - Identify oldest pending executions (sort by created_at asc)\n\nExample Queries:\n    - Recent failures: ?flow_id=xxx&status=failed&sort_field=created_at&sort_direction=desc&page_size=20\n    - Tagged executions: ?flow_id=xxx&tags=priority:high&tags=customer:acme\n    - Paginated view: ?flow_id=xxx&page=2&page_size=50\n    - With run numbers: ?flow_id=xxx&include_run_number=true\n    - Completed in window: ?flow_id=xxx&status=completed&created_after=2026-06-18T08:00:00Z&created_before=2026-06-18T10:00:00Z\n\nRelated Endpoints:\n    - GET /flow-executions/{id} - Get single execution details\n    - POST /flow-executions - Create new execution\n    - GET /flows/{id} - Get flow definition details",
+              "type": "text/plain"
+            },
+            "url": {
+              "path": [
+                "api",
+                "flow-executions"
+              ],
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "query": [
+                {
+                  "disabled": false,
+                  "key": "flow_id",
+                  "value": "<uuid>",
+                  "description": "(Required) UUID of the flow to list executions for. Required parameter."
+                },
+                {
+                  "disabled": false,
+                  "key": "sort_field",
+                  "value": "<string>",
+                  "description": "Field to sort results by. Valid values: 'created_at', 'updated_at'. Defaults to 'created_at' for most recently modified first."
+                },
+                {
+                  "disabled": false,
+                  "key": "sort_direction",
+                  "value": "<string>",
+                  "description": "Sort order direction. Valid values: 'asc' (ascending), 'desc' (descending). Defaults to 'desc' for newest first."
+                },
+                {
+                  "disabled": false,
+                  "key": "status",
+                  "value": "<string>",
+                  "description": "Filter by flow execution status. Can specify multiple values. Valid values: 'queued', 'running', 'completed', 'failed', 'stale', 'awaiting_input', 'cancel_requested', 'cancelled', 'edited'. Returns executions whose overall status matches ANY of the specified values. Example: ?status=failed&status=running"
+                },
+                {
+                  "disabled": false,
+                  "key": "status",
+                  "value": "<string>",
+                  "description": "Filter by flow execution status. Can specify multiple values. Valid values: 'queued', 'running', 'completed', 'failed', 'stale', 'awaiting_input', 'cancel_requested', 'cancelled', 'edited'. Returns executions whose overall status matches ANY of the specified values. Example: ?status=failed&status=running"
+                },
+                {
+                  "disabled": false,
+                  "key": "status_exclude",
+                  "value": "<string>",
+                  "description": "Exclude flow executions whose status matches any of these values. Mirrors tags/tags_exclude. Combines with `status` using AND. Example: ?status_exclude=queued hides queued runs from the result and total count."
+                },
+                {
+                  "disabled": false,
+                  "key": "status_exclude",
+                  "value": "<string>",
+                  "description": "Exclude flow executions whose status matches any of these values. Mirrors tags/tags_exclude. Combines with `status` using AND. Example: ?status_exclude=queued hides queued runs from the result and total count."
+                },
+                {
+                  "disabled": false,
+                  "key": "tags",
+                  "value": "<string>",
+                  "description": "Filter by task tags. Can specify multiple values. Returns executions containing tasks with ANY of the specified tags. Tags use key:value format. Example: ?tags=priority:high&tags=env:prod"
+                },
+                {
+                  "disabled": false,
+                  "key": "tags",
+                  "value": "<string>",
+                  "description": "Filter by task tags. Can specify multiple values. Returns executions containing tasks with ANY of the specified tags. Tags use key:value format. Example: ?tags=priority:high&tags=env:prod"
+                },
+                {
+                  "disabled": false,
+                  "key": "include_run_number",
+                  "value": "false",
+                  "description": "Calculate sequential run number for each execution. Run numbers start at 1 and increment based on creation time. Warning: Adds performance overhead (~150ms per 100 executions). Recommended only for UI display purposes."
+                },
+                {
+                  "disabled": false,
+                  "key": "page",
+                  "value": "1",
+                  "description": "Page number for pagination (1-indexed). Minimum: 1, Maximum: 10,000. Works with page_size to implement offset-based pagination."
+                },
+                {
+                  "disabled": false,
+                  "key": "page_size",
+                  "value": "10",
+                  "description": "Number of results to return per page. Minimum: 1, Maximum: 1000. Larger values increase response time. Recommended: 10-100."
+                },
+                {
+                  "disabled": false,
+                  "key": "start_from_execution_id",
+                  "value": "<uuid>",
+                  "description": "Start listing after this execution ID. Provides cursor-like pagination. When combined with sort parameters, returns results after the specified execution. Useful for infinite scroll or keyset pagination patterns."
+                },
+                {
+                  "disabled": false,
+                  "key": "created_after",
+                  "value": "<dateTime>",
+                  "description": "Return executions created at or after this timestamp (inclusive). Accepts ISO 8601 (e.g. '2026-06-18T08:00:00Z'). Combined with other filters using AND."
+                },
+                {
+                  "disabled": false,
+                  "key": "created_before",
+                  "value": "<dateTime>",
+                  "description": "Return executions created at or before this timestamp (inclusive). Accepts ISO 8601 (e.g. '2026-06-18T10:00:00Z'). Combined with other filters using AND."
+                },
+                {
+                  "disabled": false,
+                  "key": "updated_after",
+                  "value": "<dateTime>",
+                  "description": "Return executions last updated at or after this timestamp (inclusive). Accepts ISO 8601. Combined with other filters using AND."
+                },
+                {
+                  "disabled": false,
+                  "key": "updated_before",
+                  "value": "<dateTime>",
+                  "description": "Return executions last updated at or before this timestamp (inclusive). Accepts ISO 8601. Combined with other filters using AND."
+                },
+                {
+                  "disabled": false,
+                  "key": "include_credits",
+                  "value": "false",
+                  "description": "Include total credits consumed by each execution in the response. When false (default), total_credits is null and the usage table is not queried. Adds a single bulk usage-table lookup for the page when enabled."
+                }
+              ],
+              "variable": []
+            },
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "method": "GET",
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{bearerToken}}"
+                }
+              ]
+            }
+          },
+          "response": [
+            {
+              "id": "921da16b-c3f7-4aad-81a7-a90b96ab2d49",
+              "name": "List of flow executions successfully retrieved",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "api",
+                    "flow-executions"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [
+                    {
+                      "key": "flow_id",
+                      "value": "550e8400-e29b-41d4-a716-446655440000"
+                    },
+                    {
+                      "key": "sort_field",
+                      "value": "<string>"
+                    },
+                    {
+                      "key": "sort_direction",
+                      "value": "<string>"
+                    },
+                    {
+                      "key": "status",
+                      "value": "<string>"
+                    },
+                    {
+                      "key": "status",
+                      "value": "<string>"
+                    },
+                    {
+                      "key": "status_exclude",
+                      "value": "<string>"
+                    },
+                    {
+                      "key": "status_exclude",
+                      "value": "<string>"
+                    },
+                    {
+                      "key": "tags",
+                      "value": "<string>"
+                    },
+                    {
+                      "key": "tags",
+                      "value": "<string>"
+                    },
+                    {
+                      "key": "include_run_number",
+                      "value": "false"
+                    },
+                    {
+                      "key": "page",
+                      "value": "1"
+                    },
+                    {
+                      "key": "page_size",
+                      "value": "10"
+                    },
+                    {
+                      "key": "start_from_execution_id",
+                      "value": "<uuid>"
+                    },
+                    {
+                      "key": "created_after",
+                      "value": "<dateTime>"
+                    },
+                    {
+                      "key": "created_before",
+                      "value": "<dateTime>"
+                    },
+                    {
+                      "key": "updated_after",
+                      "value": "<dateTime>"
+                    },
+                    {
+                      "key": "updated_before",
+                      "value": "<dateTime>"
+                    },
+                    {
+                      "key": "include_credits",
+                      "value": "false"
+                    }
+                  ],
+                  "variable": []
+                },
+                "header": [
+                  {
+                    "description": {
+                      "content": "Added as a part of security scheme: bearer",
+                      "type": "text/plain"
+                    },
+                    "key": "Authorization",
+                    "value": "Bearer <token>"
+                  },
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "method": "GET",
+                "body": {}
+              },
+              "status": "OK",
+              "code": 200,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "[\n  {\n    \"id\": \"ac14c240-0bf2-511e-2f21-447eea223fc8\",\n    \"created_at\": \"1984-06-27T10:06:13.679Z\",\n    \"updated_at\": \"1957-08-01T00:17:48.846Z\",\n    \"modified_by\": \"string\",\n    \"flow_id\": \"550e8400-e29b-41d4-a716-446655440000\",\n    \"flow_version\": 3,\n    \"status\": \"running\",\n    \"input\": {\n      \"file_key\": \"documents/abc123.pdf\",\n      \"metadata\": {\n        \"priority\": \"high\"\n      }\n    },\n    \"organization_id\": \"660e8400-e29b-41d4-a716-446655440001\",\n    \"pricing_config_id\": \"3dd4052f-d54a-1c1a-c746-9b63571ece6c\",\n    \"total_credits\": 3669,\n    \"triggered_task_executor_name\": \"string\",\n    \"run_number\": 3124\n  },\n  {\n    \"id\": \"da4ed629-05c2-d814-26ae-64e3acb455de\",\n    \"created_at\": \"2009-06-03T15:58:14.318Z\",\n    \"updated_at\": \"1984-12-22T18:07:42.520Z\",\n    \"modified_by\": \"string\",\n    \"flow_id\": \"550e8400-e29b-41d4-a716-446655440000\",\n    \"flow_version\": 3,\n    \"status\": \"running\",\n    \"input\": {\n      \"file_key\": \"documents/abc123.pdf\",\n      \"metadata\": {\n        \"priority\": \"high\"\n      }\n    },\n    \"organization_id\": \"660e8400-e29b-41d4-a716-446655440001\",\n    \"pricing_config_id\": \"a4798653-fc86-3cee-478d-f16effbadcbd\",\n    \"total_credits\": 7334,\n    \"triggered_task_executor_name\": \"string\",\n    \"run_number\": 4094\n  }\n]",
+              "cookie": [],
+              "_postman_previewlanguage": "json"
+            },
+            {
+              "id": "078baaa9-6720-4c2f-afda-2db036be1adb",
+              "name": "Bad Request - Invalid query parameters",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "api",
+                    "flow-executions"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [
+                    {
+                      "key": "flow_id",
+                      "value": "550e8400-e29b-41d4-a716-446655440000"
+                    },
+                    {
+                      "key": "sort_field",
+                      "value": "<string>"
+                    },
+                    {
+                      "key": "sort_direction",
+                      "value": "<string>"
+                    },
+                    {
+                      "key": "status",
+                      "value": "<string>"
+                    },
+                    {
+                      "key": "status",
+                      "value": "<string>"
+                    },
+                    {
+                      "key": "status_exclude",
+                      "value": "<string>"
+                    },
+                    {
+                      "key": "status_exclude",
+                      "value": "<string>"
+                    },
+                    {
+                      "key": "tags",
+                      "value": "<string>"
+                    },
+                    {
+                      "key": "tags",
+                      "value": "<string>"
+                    },
+                    {
+                      "key": "include_run_number",
+                      "value": "false"
+                    },
+                    {
+                      "key": "page",
+                      "value": "1"
+                    },
+                    {
+                      "key": "page_size",
+                      "value": "10"
+                    },
+                    {
+                      "key": "start_from_execution_id",
+                      "value": "<uuid>"
+                    },
+                    {
+                      "key": "created_after",
+                      "value": "<dateTime>"
+                    },
+                    {
+                      "key": "created_before",
+                      "value": "<dateTime>"
+                    },
+                    {
+                      "key": "updated_after",
+                      "value": "<dateTime>"
+                    },
+                    {
+                      "key": "updated_before",
+                      "value": "<dateTime>"
+                    },
+                    {
+                      "key": "include_credits",
+                      "value": "false"
+                    }
+                  ],
+                  "variable": []
+                },
+                "header": [
+                  {
+                    "description": {
+                      "content": "Added as a part of security scheme: bearer",
+                      "type": "text/plain"
+                    },
+                    "key": "Authorization",
+                    "value": "Bearer <token>"
+                  },
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "method": "GET",
+                "body": {}
+              },
+              "status": "Bad Request",
+              "code": 400,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"error\": {\n    \"code\": \"not_found\",\n    \"message\": \"Resource not found\"\n  },\n  \"request_id\": \"01K8KABR6S16YETA2SZPVBS9SP\"\n}",
+              "cookie": [],
+              "_postman_previewlanguage": "json"
+            },
+            {
+              "id": "006414f1-3f7b-45cd-989c-68156468136a",
+              "name": "Forbidden - User lacks permission to view this flow's executions",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "api",
+                    "flow-executions"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [
+                    {
+                      "key": "flow_id",
+                      "value": "550e8400-e29b-41d4-a716-446655440000"
+                    },
+                    {
+                      "key": "sort_field",
+                      "value": "<string>"
+                    },
+                    {
+                      "key": "sort_direction",
+                      "value": "<string>"
+                    },
+                    {
+                      "key": "status",
+                      "value": "<string>"
+                    },
+                    {
+                      "key": "status",
+                      "value": "<string>"
+                    },
+                    {
+                      "key": "status_exclude",
+                      "value": "<string>"
+                    },
+                    {
+                      "key": "status_exclude",
+                      "value": "<string>"
+                    },
+                    {
+                      "key": "tags",
+                      "value": "<string>"
+                    },
+                    {
+                      "key": "tags",
+                      "value": "<string>"
+                    },
+                    {
+                      "key": "include_run_number",
+                      "value": "false"
+                    },
+                    {
+                      "key": "page",
+                      "value": "1"
+                    },
+                    {
+                      "key": "page_size",
+                      "value": "10"
+                    },
+                    {
+                      "key": "start_from_execution_id",
+                      "value": "<uuid>"
+                    },
+                    {
+                      "key": "created_after",
+                      "value": "<dateTime>"
+                    },
+                    {
+                      "key": "created_before",
+                      "value": "<dateTime>"
+                    },
+                    {
+                      "key": "updated_after",
+                      "value": "<dateTime>"
+                    },
+                    {
+                      "key": "updated_before",
+                      "value": "<dateTime>"
+                    },
+                    {
+                      "key": "include_credits",
+                      "value": "false"
+                    }
+                  ],
+                  "variable": []
+                },
+                "header": [
+                  {
+                    "description": {
+                      "content": "Added as a part of security scheme: bearer",
+                      "type": "text/plain"
+                    },
+                    "key": "Authorization",
+                    "value": "Bearer <token>"
+                  },
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "method": "GET",
+                "body": {}
+              },
+              "status": "Forbidden",
+              "code": 403,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"error\": {\n    \"code\": \"not_found\",\n    \"message\": \"Resource not found\"\n  },\n  \"request_id\": \"01K8KABR6S16YETA2SZPVBS9SP\"\n}",
+              "cookie": [],
+              "_postman_previewlanguage": "json"
+            },
+            {
+              "id": "a14187e4-7cdf-4552-b4d8-e5653942797b",
+              "name": "Not Found - The requested resource does not exist",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "api",
+                    "flow-executions"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [
+                    {
+                      "key": "flow_id",
+                      "value": "550e8400-e29b-41d4-a716-446655440000"
+                    },
+                    {
+                      "key": "sort_field",
+                      "value": "<string>"
+                    },
+                    {
+                      "key": "sort_direction",
+                      "value": "<string>"
+                    },
+                    {
+                      "key": "status",
+                      "value": "<string>"
+                    },
+                    {
+                      "key": "status",
+                      "value": "<string>"
+                    },
+                    {
+                      "key": "status_exclude",
+                      "value": "<string>"
+                    },
+                    {
+                      "key": "status_exclude",
+                      "value": "<string>"
+                    },
+                    {
+                      "key": "tags",
+                      "value": "<string>"
+                    },
+                    {
+                      "key": "tags",
+                      "value": "<string>"
+                    },
+                    {
+                      "key": "include_run_number",
+                      "value": "false"
+                    },
+                    {
+                      "key": "page",
+                      "value": "1"
+                    },
+                    {
+                      "key": "page_size",
+                      "value": "10"
+                    },
+                    {
+                      "key": "start_from_execution_id",
+                      "value": "<uuid>"
+                    },
+                    {
+                      "key": "created_after",
+                      "value": "<dateTime>"
+                    },
+                    {
+                      "key": "created_before",
+                      "value": "<dateTime>"
+                    },
+                    {
+                      "key": "updated_after",
+                      "value": "<dateTime>"
+                    },
+                    {
+                      "key": "updated_before",
+                      "value": "<dateTime>"
+                    },
+                    {
+                      "key": "include_credits",
+                      "value": "false"
+                    }
+                  ],
+                  "variable": []
+                },
+                "header": [
+                  {
+                    "description": {
+                      "content": "Added as a part of security scheme: bearer",
+                      "type": "text/plain"
+                    },
+                    "key": "Authorization",
+                    "value": "Bearer <token>"
+                  },
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "method": "GET",
+                "body": {}
+              },
+              "status": "Not Found",
+              "code": 404,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"error\": {\n    \"message\": \"Resource not found\",\n    \"code\": \"not_found\"\n  },\n  \"request_id\": \"01K8KABR6S16YETA2SZPVBS9SP\"\n}",
+              "cookie": [],
+              "_postman_previewlanguage": "json"
+            },
+            {
+              "id": "c044cc11-e9ae-4eaa-88cf-445ec4a7728a",
+              "name": "Unprocessable Entity - Request validation failed",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "api",
+                    "flow-executions"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [
+                    {
+                      "key": "flow_id",
+                      "value": "550e8400-e29b-41d4-a716-446655440000"
+                    },
+                    {
+                      "key": "sort_field",
+                      "value": "<string>"
+                    },
+                    {
+                      "key": "sort_direction",
+                      "value": "<string>"
+                    },
+                    {
+                      "key": "status",
+                      "value": "<string>"
+                    },
+                    {
+                      "key": "status",
+                      "value": "<string>"
+                    },
+                    {
+                      "key": "status_exclude",
+                      "value": "<string>"
+                    },
+                    {
+                      "key": "status_exclude",
+                      "value": "<string>"
+                    },
+                    {
+                      "key": "tags",
+                      "value": "<string>"
+                    },
+                    {
+                      "key": "tags",
+                      "value": "<string>"
+                    },
+                    {
+                      "key": "include_run_number",
+                      "value": "false"
+                    },
+                    {
+                      "key": "page",
+                      "value": "1"
+                    },
+                    {
+                      "key": "page_size",
+                      "value": "10"
+                    },
+                    {
+                      "key": "start_from_execution_id",
+                      "value": "<uuid>"
+                    },
+                    {
+                      "key": "created_after",
+                      "value": "<dateTime>"
+                    },
+                    {
+                      "key": "created_before",
+                      "value": "<dateTime>"
+                    },
+                    {
+                      "key": "updated_after",
+                      "value": "<dateTime>"
+                    },
+                    {
+                      "key": "updated_before",
+                      "value": "<dateTime>"
+                    },
+                    {
+                      "key": "include_credits",
+                      "value": "false"
+                    }
+                  ],
+                  "variable": []
+                },
+                "header": [
+                  {
+                    "description": {
+                      "content": "Added as a part of security scheme: bearer",
+                      "type": "text/plain"
+                    },
+                    "key": "Authorization",
+                    "value": "Bearer <token>"
+                  },
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "method": "GET",
+                "body": {}
+              },
+              "status": "Unprocessable Entity (WebDAV) (RFC 4918)",
+              "code": 422,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"error\": {\n    \"message\": \"Request validation failed\",\n    \"code\": \"validation_error\",\n    \"details\": [\n      {\n        \"type\": \"missing\",\n        \"loc\": [\n          \"body\",\n          \"name\"\n        ],\n        \"msg\": \"Field required\"\n      }\n    ]\n  },\n  \"request_id\": \"01K8KABR6S16YETA2SZPVBS9SP\"\n}",
+              "cookie": [],
+              "_postman_previewlanguage": "json"
+            },
+            {
+              "id": "94d39bf2-786d-456a-9cf7-0c761f0ba570",
+              "name": "Internal Server Error - An unexpected error occurred",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "api",
+                    "flow-executions"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [
+                    {
+                      "key": "flow_id",
+                      "value": "550e8400-e29b-41d4-a716-446655440000"
+                    },
+                    {
+                      "key": "sort_field",
+                      "value": "<string>"
+                    },
+                    {
+                      "key": "sort_direction",
+                      "value": "<string>"
+                    },
+                    {
+                      "key": "status",
+                      "value": "<string>"
+                    },
+                    {
+                      "key": "status",
+                      "value": "<string>"
+                    },
+                    {
+                      "key": "status_exclude",
+                      "value": "<string>"
+                    },
+                    {
+                      "key": "status_exclude",
+                      "value": "<string>"
+                    },
+                    {
+                      "key": "tags",
+                      "value": "<string>"
+                    },
+                    {
+                      "key": "tags",
+                      "value": "<string>"
+                    },
+                    {
+                      "key": "include_run_number",
+                      "value": "false"
+                    },
+                    {
+                      "key": "page",
+                      "value": "1"
+                    },
+                    {
+                      "key": "page_size",
+                      "value": "10"
+                    },
+                    {
+                      "key": "start_from_execution_id",
+                      "value": "<uuid>"
+                    },
+                    {
+                      "key": "created_after",
+                      "value": "<dateTime>"
+                    },
+                    {
+                      "key": "created_before",
+                      "value": "<dateTime>"
+                    },
+                    {
+                      "key": "updated_after",
+                      "value": "<dateTime>"
+                    },
+                    {
+                      "key": "updated_before",
+                      "value": "<dateTime>"
+                    },
+                    {
+                      "key": "include_credits",
+                      "value": "false"
+                    }
+                  ],
+                  "variable": []
+                },
+                "header": [
+                  {
+                    "description": {
+                      "content": "Added as a part of security scheme: bearer",
+                      "type": "text/plain"
+                    },
+                    "key": "Authorization",
+                    "value": "Bearer <token>"
+                  },
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "method": "GET",
+                "body": {}
+              },
+              "status": "Internal Server Error",
+              "code": 500,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"error\": {\n    \"message\": \"Internal server error\",\n    \"code\": \"internal_error\"\n  },\n  \"request_id\": \"01K8KABR6S16YETA2SZPVBS9SP\"\n}",
+              "cookie": [],
+              "_postman_previewlanguage": "json"
+            }
+          ],
+          "event": [],
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          }
+        },
+        {
+          "id": "01719b33-5c58-4ede-b935-1c33c564814e",
+          "name": "Soft delete a flow execution",
+          "request": {
+            "name": "Soft delete a flow execution",
+            "description": {
+              "content": "Soft delete a flow execution by marking it as deleted.\n\nThis endpoint performs a soft delete by setting the execution status to 'deleted'.\nThe execution record remains in the database but is excluded from list operations\nand cannot be retrieved through standard endpoints.\n\nContext:\n    - Soft delete preserves audit trail and historical data\n    - Does NOT stop running workflows (use cancel endpoint for that)\n    - Deleted executions do not appear in GET /flow-executions list\n    - Operation is idempotent - deleting already deleted execution succeeds\n    - Deletion is permanent - no undelete functionality exists\n\nBehavior:\n    - Updates execution status to 'deleted' in database\n    - Maintains all execution data for audit purposes\n    - Removes from user-facing list queries\n    - Does not affect related task executions or outputs\n    - Triggers WebSocket notification for status change\n\nUse Cases:\n    - Remove test executions from production environment\n    - Clean up failed executions no longer needed\n    - Archive old executions while preserving data\n\nImportant Notes:\n    - To stop a RUNNING workflow, use cancel endpoint (not yet implemented)\n    - Soft delete does not free up workflow resources\n    - Consider hard delete for GDPR compliance (requires database migration)\n\nRelated Endpoints:\n    - GET /flow-executions - List excludes deleted executions\n    - POST /flow-executions - Create new execution",
+              "type": "text/plain"
+            },
+            "url": {
+              "path": [
+                "api",
+                "flow-executions",
+                ":flow_execution_id"
+              ],
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "query": [],
+              "variable": [
+                {
+                  "disabled": false,
+                  "type": "any",
+                  "value": "<uuid>",
+                  "key": "flow_execution_id",
+                  "description": "(Required) UUID of the flow execution to soft delete. Must be owned by your organization."
+                }
+              ]
+            },
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "method": "DELETE",
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{bearerToken}}"
+                }
+              ]
+            }
+          },
+          "response": [
+            {
+              "id": "424a7e15-e004-47e0-bff1-47f0ddc1e582",
+              "name": "Flow execution successfully soft deleted",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "api",
+                    "flow-executions",
+                    ":flow_execution_id"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [],
+                  "variable": [
+                    {
+                      "disabled": false,
+                      "type": "any",
+                      "value": "<uuid>",
+                      "key": "flow_execution_id",
+                      "description": "(Required) UUID of the flow execution to soft delete. Must be owned by your organization."
+                    }
+                  ]
+                },
+                "header": [
+                  {
+                    "description": {
+                      "content": "Added as a part of security scheme: bearer",
+                      "type": "text/plain"
+                    },
+                    "key": "Authorization",
+                    "value": "Bearer <token>"
+                  }
+                ],
+                "method": "DELETE",
+                "body": {}
+              },
+              "status": "No Content",
+              "code": 204,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "text/plain"
+                }
+              ],
+              "body": "",
+              "cookie": [],
+              "_postman_previewlanguage": "text"
+            },
+            {
+              "id": "48a74720-32b1-4ed4-ac50-00f88805b212",
+              "name": "Forbidden - User lacks permission to delete this execution",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "api",
+                    "flow-executions",
+                    ":flow_execution_id"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [],
+                  "variable": [
+                    {
+                      "disabled": false,
+                      "type": "any",
+                      "value": "<uuid>",
+                      "key": "flow_execution_id",
+                      "description": "(Required) UUID of the flow execution to soft delete. Must be owned by your organization."
+                    }
+                  ]
+                },
+                "header": [
+                  {
+                    "description": {
+                      "content": "Added as a part of security scheme: bearer",
+                      "type": "text/plain"
+                    },
+                    "key": "Authorization",
+                    "value": "Bearer <token>"
+                  },
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "method": "DELETE",
+                "body": {}
+              },
+              "status": "Forbidden",
+              "code": 403,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"error\": {\n    \"code\": \"not_found\",\n    \"message\": \"Resource not found\"\n  },\n  \"request_id\": \"01K8KABR6S16YETA2SZPVBS9SP\"\n}",
+              "cookie": [],
+              "_postman_previewlanguage": "json"
+            },
+            {
+              "id": "c2abef8e-d5af-476c-a2df-8f02084ecf7c",
+              "name": "Not Found - The requested resource does not exist",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "api",
+                    "flow-executions",
+                    ":flow_execution_id"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [],
+                  "variable": [
+                    {
+                      "disabled": false,
+                      "type": "any",
+                      "value": "<uuid>",
+                      "key": "flow_execution_id",
+                      "description": "(Required) UUID of the flow execution to soft delete. Must be owned by your organization."
+                    }
+                  ]
+                },
+                "header": [
+                  {
+                    "description": {
+                      "content": "Added as a part of security scheme: bearer",
+                      "type": "text/plain"
+                    },
+                    "key": "Authorization",
+                    "value": "Bearer <token>"
+                  },
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "method": "DELETE",
+                "body": {}
+              },
+              "status": "Not Found",
+              "code": 404,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"error\": {\n    \"message\": \"Resource not found\",\n    \"code\": \"not_found\"\n  },\n  \"request_id\": \"01K8KABR6S16YETA2SZPVBS9SP\"\n}",
+              "cookie": [],
+              "_postman_previewlanguage": "json"
+            },
+            {
+              "id": "e2763019-62b3-4099-af4a-1be636a9361f",
+              "name": "Validation Error",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "api",
+                    "flow-executions",
+                    ":flow_execution_id"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [],
+                  "variable": [
+                    {
+                      "disabled": false,
+                      "type": "any",
+                      "value": "<uuid>",
+                      "key": "flow_execution_id",
+                      "description": "(Required) UUID of the flow execution to soft delete. Must be owned by your organization."
+                    }
+                  ]
+                },
+                "header": [
+                  {
+                    "description": {
+                      "content": "Added as a part of security scheme: bearer",
+                      "type": "text/plain"
+                    },
+                    "key": "Authorization",
+                    "value": "Bearer <token>"
+                  },
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "method": "DELETE",
+                "body": {}
+              },
+              "status": "Unprocessable Entity (WebDAV) (RFC 4918)",
+              "code": 422,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"detail\": [\n    {\n      \"loc\": [\n        \"string\",\n        \"string\"\n      ],\n      \"msg\": \"string\",\n      \"type\": \"string\"\n    },\n    {\n      \"loc\": [\n        \"string\",\n        \"string\"\n      ],\n      \"msg\": \"string\",\n      \"type\": \"string\"\n    }\n  ]\n}",
+              "cookie": [],
+              "_postman_previewlanguage": "json"
+            },
+            {
+              "id": "f9fe80d5-ca60-4131-bc3e-a240d2bd567d",
+              "name": "Internal Server Error - An unexpected error occurred",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "api",
+                    "flow-executions",
+                    ":flow_execution_id"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [],
+                  "variable": [
+                    {
+                      "disabled": false,
+                      "type": "any",
+                      "value": "<uuid>",
+                      "key": "flow_execution_id",
+                      "description": "(Required) UUID of the flow execution to soft delete. Must be owned by your organization."
+                    }
+                  ]
+                },
+                "header": [
+                  {
+                    "description": {
+                      "content": "Added as a part of security scheme: bearer",
+                      "type": "text/plain"
+                    },
+                    "key": "Authorization",
+                    "value": "Bearer <token>"
+                  },
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "method": "DELETE",
+                "body": {}
+              },
+              "status": "Internal Server Error",
+              "code": 500,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"error\": {\n    \"message\": \"Internal server error\",\n    \"code\": \"internal_error\"\n  },\n  \"request_id\": \"01K8KABR6S16YETA2SZPVBS9SP\"\n}",
+              "cookie": [],
+              "_postman_previewlanguage": "json"
+            }
+          ],
+          "event": [],
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          }
+        },
+        {
+          "id": "9e9f8747-7d17-4ae5-95cd-dc29bfef7c0c",
+          "name": "Retrieve a specific flow execution",
+          "request": {
+            "name": "Retrieve a specific flow execution",
+            "description": {
+              "content": "Retrieve detailed information for a specific flow execution.\n\nFetch a single flow execution by its unique identifier. Returns execution\nmetadata including status, input data, timestamps, and optionally the\nsequential run number within its flow.\n\nContext:\n    - Retrieves single execution regardless of status (except deleted)\n    - Soft-deleted executions return 404 Not Found\n    - Includes full input data as provided at creation\n    - Run number calculated on-demand if requested\n    - Useful for monitoring execution progress\n\nRun Number Calculation:\n    - When include_run_number=true, calculates sequential position\n    - Based on creation timestamp among all executions for this flow\n    - Includes deleted executions (may have gaps in visible numbers)\n    - Performance: Adds ~10-20ms per request\n    - Useful for displaying \"Run #42\" in UI\n\nUse Cases:\n    - Check status of long-running execution\n    - Retrieve input data for debugging\n    - Display execution details in UI\n    - Audit execution history with run numbers\n    - Poll for execution completion\n\nPerformance Notes:\n    - Without run_number: ~10ms average response time\n    - With run_number: ~25ms average response time\n    - Highly cacheable (status changes infrequently)\n\nRelated Endpoints:\n    - GET /flow-executions - List all executions for a flow\n    - POST /flow-executions/{id}/execute - Re-execute this execution\n    - GET /task-executions?flow_execution_id={id} - Get task details\n    - DELETE /flow-executions/{id} - Delete this execution",
+              "type": "text/plain"
+            },
+            "url": {
+              "path": [
+                "api",
+                "flow-executions",
+                ":flow_execution_id"
+              ],
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "query": [
+                {
+                  "disabled": false,
+                  "key": "include_run_number",
+                  "value": "false",
+                  "description": "Calculate and include sequential run number. Adds ~10-20ms overhead. Recommended for UI display only."
+                },
+                {
+                  "disabled": false,
+                  "key": "include_credits",
+                  "value": "false",
+                  "description": "Include total credits consumed by this execution in the response. When false (default), total_credits is null and the usage table is not queried. Adds a usage-table lookup when enabled."
+                }
+              ],
+              "variable": [
+                {
+                  "disabled": false,
+                  "type": "any",
+                  "value": "<uuid>",
+                  "key": "flow_execution_id",
+                  "description": "(Required) UUID of the flow execution to retrieve. Must exist and not be soft-deleted."
+                }
+              ]
+            },
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "method": "GET",
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{bearerToken}}"
+                }
+              ]
+            }
+          },
+          "response": [
+            {
+              "id": "42f92ed1-a4f9-43d4-8a7f-a2c96c033344",
+              "name": "Flow execution successfully retrieved",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "api",
+                    "flow-executions",
+                    ":flow_execution_id"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [
+                    {
+                      "key": "include_run_number",
+                      "value": "false"
+                    },
+                    {
+                      "key": "include_credits",
+                      "value": "false"
+                    }
+                  ],
+                  "variable": [
+                    {
+                      "disabled": false,
+                      "type": "any",
+                      "value": "<uuid>",
+                      "key": "flow_execution_id",
+                      "description": "(Required) UUID of the flow execution to retrieve. Must exist and not be soft-deleted."
+                    }
+                  ]
+                },
+                "header": [
+                  {
+                    "description": {
+                      "content": "Added as a part of security scheme: bearer",
+                      "type": "text/plain"
+                    },
+                    "key": "Authorization",
+                    "value": "Bearer <token>"
+                  },
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "method": "GET",
+                "body": {}
+              },
+              "status": "OK",
+              "code": 200,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"id\": \"1a94af76-f0c6-a1f9-767c-5033bc241c84\",\n  \"created_at\": \"1995-05-05T17:35:30.327Z\",\n  \"updated_at\": \"1982-12-04T18:52:50.024Z\",\n  \"modified_by\": \"string\",\n  \"flow_id\": \"550e8400-e29b-41d4-a716-446655440000\",\n  \"flow_version\": 3,\n  \"status\": \"running\",\n  \"input\": {\n    \"file_key\": \"documents/abc123.pdf\",\n    \"metadata\": {\n      \"priority\": \"high\"\n    }\n  },\n  \"organization_id\": \"660e8400-e29b-41d4-a716-446655440001\",\n  \"pricing_config_id\": \"b134684f-17b4-4267-f5e2-eb187ea2e0e0\",\n  \"total_credits\": 7001,\n  \"triggered_task_executor_name\": \"string\",\n  \"run_number\": 2709\n}",
+              "cookie": [],
+              "_postman_previewlanguage": "json"
+            },
+            {
+              "id": "bb81e42c-94f5-4e60-b389-a2897814fbc2",
+              "name": "Bad Request - Invalid execution ID format",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "api",
+                    "flow-executions",
+                    ":flow_execution_id"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [
+                    {
+                      "key": "include_run_number",
+                      "value": "false"
+                    },
+                    {
+                      "key": "include_credits",
+                      "value": "false"
+                    }
+                  ],
+                  "variable": [
+                    {
+                      "disabled": false,
+                      "type": "any",
+                      "value": "<uuid>",
+                      "key": "flow_execution_id",
+                      "description": "(Required) UUID of the flow execution to retrieve. Must exist and not be soft-deleted."
+                    }
+                  ]
+                },
+                "header": [
+                  {
+                    "description": {
+                      "content": "Added as a part of security scheme: bearer",
+                      "type": "text/plain"
+                    },
+                    "key": "Authorization",
+                    "value": "Bearer <token>"
+                  },
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "method": "GET",
+                "body": {}
+              },
+              "status": "Bad Request",
+              "code": 400,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"error\": {\n    \"code\": \"not_found\",\n    \"message\": \"Resource not found\"\n  },\n  \"request_id\": \"01K8KABR6S16YETA2SZPVBS9SP\"\n}",
+              "cookie": [],
+              "_postman_previewlanguage": "json"
+            },
+            {
+              "id": "bc9b5a40-4f2b-4ee4-83d5-d63de22cf604",
+              "name": "Forbidden - User lacks permission to view this execution",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "api",
+                    "flow-executions",
+                    ":flow_execution_id"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [
+                    {
+                      "key": "include_run_number",
+                      "value": "false"
+                    },
+                    {
+                      "key": "include_credits",
+                      "value": "false"
+                    }
+                  ],
+                  "variable": [
+                    {
+                      "disabled": false,
+                      "type": "any",
+                      "value": "<uuid>",
+                      "key": "flow_execution_id",
+                      "description": "(Required) UUID of the flow execution to retrieve. Must exist and not be soft-deleted."
+                    }
+                  ]
+                },
+                "header": [
+                  {
+                    "description": {
+                      "content": "Added as a part of security scheme: bearer",
+                      "type": "text/plain"
+                    },
+                    "key": "Authorization",
+                    "value": "Bearer <token>"
+                  },
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "method": "GET",
+                "body": {}
+              },
+              "status": "Forbidden",
+              "code": 403,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"error\": {\n    \"code\": \"not_found\",\n    \"message\": \"Resource not found\"\n  },\n  \"request_id\": \"01K8KABR6S16YETA2SZPVBS9SP\"\n}",
+              "cookie": [],
+              "_postman_previewlanguage": "json"
+            },
+            {
+              "id": "fe604497-d7d5-4dd1-adcf-758b64823dae",
+              "name": "Not Found - The requested resource does not exist",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "api",
+                    "flow-executions",
+                    ":flow_execution_id"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [
+                    {
+                      "key": "include_run_number",
+                      "value": "false"
+                    },
+                    {
+                      "key": "include_credits",
+                      "value": "false"
+                    }
+                  ],
+                  "variable": [
+                    {
+                      "disabled": false,
+                      "type": "any",
+                      "value": "<uuid>",
+                      "key": "flow_execution_id",
+                      "description": "(Required) UUID of the flow execution to retrieve. Must exist and not be soft-deleted."
+                    }
+                  ]
+                },
+                "header": [
+                  {
+                    "description": {
+                      "content": "Added as a part of security scheme: bearer",
+                      "type": "text/plain"
+                    },
+                    "key": "Authorization",
+                    "value": "Bearer <token>"
+                  },
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "method": "GET",
+                "body": {}
+              },
+              "status": "Not Found",
+              "code": 404,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"error\": {\n    \"message\": \"Resource not found\",\n    \"code\": \"not_found\"\n  },\n  \"request_id\": \"01K8KABR6S16YETA2SZPVBS9SP\"\n}",
+              "cookie": [],
+              "_postman_previewlanguage": "json"
+            },
+            {
+              "id": "55aa6389-ee1a-44d5-9b52-bf3ba705c600",
+              "name": "Validation Error",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "api",
+                    "flow-executions",
+                    ":flow_execution_id"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [
+                    {
+                      "key": "include_run_number",
+                      "value": "false"
+                    },
+                    {
+                      "key": "include_credits",
+                      "value": "false"
+                    }
+                  ],
+                  "variable": [
+                    {
+                      "disabled": false,
+                      "type": "any",
+                      "value": "<uuid>",
+                      "key": "flow_execution_id",
+                      "description": "(Required) UUID of the flow execution to retrieve. Must exist and not be soft-deleted."
+                    }
+                  ]
+                },
+                "header": [
+                  {
+                    "description": {
+                      "content": "Added as a part of security scheme: bearer",
+                      "type": "text/plain"
+                    },
+                    "key": "Authorization",
+                    "value": "Bearer <token>"
+                  },
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "method": "GET",
+                "body": {}
+              },
+              "status": "Unprocessable Entity (WebDAV) (RFC 4918)",
+              "code": 422,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"detail\": [\n    {\n      \"loc\": [\n        \"string\",\n        \"string\"\n      ],\n      \"msg\": \"string\",\n      \"type\": \"string\"\n    },\n    {\n      \"loc\": [\n        \"string\",\n        \"string\"\n      ],\n      \"msg\": \"string\",\n      \"type\": \"string\"\n    }\n  ]\n}",
+              "cookie": [],
+              "_postman_previewlanguage": "json"
+            },
+            {
+              "id": "d9d36498-4978-4fb4-99dd-373ad9387432",
+              "name": "Internal Server Error - An unexpected error occurred",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "api",
+                    "flow-executions",
+                    ":flow_execution_id"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [
+                    {
+                      "key": "include_run_number",
+                      "value": "false"
+                    },
+                    {
+                      "key": "include_credits",
+                      "value": "false"
+                    }
+                  ],
+                  "variable": [
+                    {
+                      "disabled": false,
+                      "type": "any",
+                      "value": "<uuid>",
+                      "key": "flow_execution_id",
+                      "description": "(Required) UUID of the flow execution to retrieve. Must exist and not be soft-deleted."
+                    }
+                  ]
+                },
+                "header": [
+                  {
+                    "description": {
+                      "content": "Added as a part of security scheme: bearer",
+                      "type": "text/plain"
+                    },
+                    "key": "Authorization",
+                    "value": "Bearer <token>"
+                  },
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "method": "GET",
+                "body": {}
+              },
+              "status": "Internal Server Error",
+              "code": 500,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"error\": {\n    \"message\": \"Internal server error\",\n    \"code\": \"internal_error\"\n  },\n  \"request_id\": \"01K8KABR6S16YETA2SZPVBS9SP\"\n}",
+              "cookie": [],
+              "_postman_previewlanguage": "json"
+            }
+          ],
+          "event": [],
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          }
+        },
+        {
+          "id": "ca1626fb-c0ae-4bc9-b594-a93638bc83e2",
+          "name": "Cancel a flow execution",
+          "request": {
+            "name": "Cancel a flow execution",
+            "description": {
+              "content": "Cancel a running flow execution.",
+              "type": "text/plain"
+            },
+            "url": {
+              "path": [
+                "api",
+                "flow-executions",
+                ":flow_execution_id",
+                "cancel"
+              ],
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "query": [],
+              "variable": [
+                {
+                  "disabled": false,
+                  "type": "any",
+                  "value": "<uuid>",
+                  "key": "flow_execution_id",
+                  "description": "(Required) UUID of the flow execution to cancel."
+                }
+              ]
+            },
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "method": "POST",
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{bearerToken}}"
+                }
+              ]
+            }
+          },
+          "response": [
+            {
+              "id": "223fe32e-1bd8-4be1-af77-545892e006e4",
+              "name": "Flow execution cancel requested successfully",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "api",
+                    "flow-executions",
+                    ":flow_execution_id",
+                    "cancel"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [],
+                  "variable": [
+                    {
+                      "disabled": false,
+                      "type": "any",
+                      "value": "<uuid>",
+                      "key": "flow_execution_id",
+                      "description": "(Required) UUID of the flow execution to cancel."
+                    }
+                  ]
+                },
+                "header": [
+                  {
+                    "description": {
+                      "content": "Added as a part of security scheme: bearer",
+                      "type": "text/plain"
+                    },
+                    "key": "Authorization",
+                    "value": "Bearer <token>"
+                  }
+                ],
+                "method": "POST",
+                "body": {}
+              },
+              "status": "No Content",
+              "code": 204,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "text/plain"
+                }
+              ],
+              "body": "",
+              "cookie": [],
+              "_postman_previewlanguage": "text"
+            },
+            {
+              "id": "35aed175-37f5-4472-8c62-3b6f637b9233",
+              "name": "Not Found - The requested resource does not exist",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "api",
+                    "flow-executions",
+                    ":flow_execution_id",
+                    "cancel"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [],
+                  "variable": [
+                    {
+                      "disabled": false,
+                      "type": "any",
+                      "value": "<uuid>",
+                      "key": "flow_execution_id",
+                      "description": "(Required) UUID of the flow execution to cancel."
+                    }
+                  ]
+                },
+                "header": [
+                  {
+                    "description": {
+                      "content": "Added as a part of security scheme: bearer",
+                      "type": "text/plain"
+                    },
+                    "key": "Authorization",
+                    "value": "Bearer <token>"
+                  },
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "method": "POST",
+                "body": {}
+              },
+              "status": "Not Found",
+              "code": 404,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"error\": {\n    \"message\": \"Resource not found\",\n    \"code\": \"not_found\"\n  },\n  \"request_id\": \"01K8KABR6S16YETA2SZPVBS9SP\"\n}",
+              "cookie": [],
+              "_postman_previewlanguage": "json"
+            },
+            {
+              "id": "2deeaddf-9eb5-4b7f-8f00-352ffa5088f9",
+              "name": "Validation Error",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "api",
+                    "flow-executions",
+                    ":flow_execution_id",
+                    "cancel"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [],
+                  "variable": [
+                    {
+                      "disabled": false,
+                      "type": "any",
+                      "value": "<uuid>",
+                      "key": "flow_execution_id",
+                      "description": "(Required) UUID of the flow execution to cancel."
+                    }
+                  ]
+                },
+                "header": [
+                  {
+                    "description": {
+                      "content": "Added as a part of security scheme: bearer",
+                      "type": "text/plain"
+                    },
+                    "key": "Authorization",
+                    "value": "Bearer <token>"
+                  },
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "method": "POST",
+                "body": {}
+              },
+              "status": "Unprocessable Entity (WebDAV) (RFC 4918)",
+              "code": 422,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"detail\": [\n    {\n      \"loc\": [\n        \"string\",\n        \"string\"\n      ],\n      \"msg\": \"string\",\n      \"type\": \"string\"\n    },\n    {\n      \"loc\": [\n        \"string\",\n        \"string\"\n      ],\n      \"msg\": \"string\",\n      \"type\": \"string\"\n    }\n  ]\n}",
+              "cookie": [],
+              "_postman_previewlanguage": "json"
+            },
+            {
+              "id": "99f44e20-04c0-4cbe-94f2-07eb6993a67d",
+              "name": "Internal Server Error - An unexpected error occurred",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "api",
+                    "flow-executions",
+                    ":flow_execution_id",
+                    "cancel"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [],
+                  "variable": [
+                    {
+                      "disabled": false,
+                      "type": "any",
+                      "value": "<uuid>",
+                      "key": "flow_execution_id",
+                      "description": "(Required) UUID of the flow execution to cancel."
+                    }
+                  ]
+                },
+                "header": [
+                  {
+                    "description": {
+                      "content": "Added as a part of security scheme: bearer",
+                      "type": "text/plain"
+                    },
+                    "key": "Authorization",
+                    "value": "Bearer <token>"
+                  },
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "method": "POST",
+                "body": {}
+              },
+              "status": "Internal Server Error",
+              "code": 500,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"error\": {\n    \"message\": \"Internal server error\",\n    \"code\": \"internal_error\"\n  },\n  \"request_id\": \"01K8KABR6S16YETA2SZPVBS9SP\"\n}",
+              "cookie": [],
+              "_postman_previewlanguage": "json"
+            }
+          ],
+          "event": [],
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          }
+        },
+        {
+          "id": "7e56ec19-6a8a-4bc5-b72f-c171bfbd5522",
+          "name": "Re-execute a flow execution",
+          "request": {
+            "name": "Re-execute a flow execution",
+            "description": {
+              "content": "Re-execute a flow execution, optionally skipping cached results.\n\nThis endpoint triggers re-execution of an existing flow execution. It can\nselectively re-run failed tasks or re-run the entire flow from scratch.\nUseful for retrying failed executions or refreshing stale data.\n\nContext:\n    - Re-executes workflows that have completed or failed\n    - Can reuse successful task results (cached execution)\n    - Useful for handling transient failures\n    - Updates flow to latest version if changed since original execution\n    - Creates new workflow instance with same execution ID\n\nExecution Modes:\n    1. Full Re-execution (only_stale=false, default):\n       - Starts workflow from beginning\n       - All tasks execute regardless of previous state\n       - Previous results are discarded\n       - Use for: Complete retry after fixing flow definition\n\n    2. Stale-Only Re-execution (only_stale=true):\n       - Only re-runs tasks marked as 'stale'\n       - Reuses results from successful tasks\n       - Faster for partial failures\n       - Use for: Refreshing outdated data without full re-run\n\nBehavior:\n    - Terminates existing workflow if still running\n    - Updates flow_version to latest version\n    - Maintains same execution ID for traceability\n    - Status transitions: any → running\n    - Does not create new execution record\n\nPerformance Notes:\n    - Response time: < 200ms (workflow starts asynchronously)\n    - Stale-only mode significantly faster for large flows\n    - Full re-execution recalculates all task outputs\n\nUse Cases:\n    - Retry failed execution after fixing flow definition\n    - Refresh data after external system updates\n    - Resume execution after transient service outage\n    - Update execution to use latest flow version\n\nRelated Endpoints:\n    - GET /flow-executions/{id} - Check re-execution status\n    - POST /flow-executions - Create new execution instead of re-running",
+              "type": "text/plain"
+            },
+            "url": {
+              "path": [
+                "api",
+                "flow-executions",
+                ":flow_execution_id",
+                "execute"
+              ],
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "query": [
+                {
+                  "disabled": false,
+                  "key": "only_stale",
+                  "value": "false",
+                  "description": "If true, only re-executes tasks marked as 'stale'. If false (default), re-executes entire flow from beginning. Stale-only mode is faster for flows with many successful tasks."
+                }
+              ],
+              "variable": [
+                {
+                  "disabled": false,
+                  "type": "any",
+                  "value": "<uuid>",
+                  "key": "flow_execution_id",
+                  "description": "(Required) UUID of the flow execution to re-execute. Must be an existing execution owned by your organization."
+                }
+              ]
+            },
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "method": "POST",
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{bearerToken}}"
+                }
+              ]
+            }
+          },
+          "response": [
+            {
+              "id": "38e5498c-008c-4043-81b1-18738954fcb7",
+              "name": "Flow execution re-started successfully",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "api",
+                    "flow-executions",
+                    ":flow_execution_id",
+                    "execute"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [
+                    {
+                      "key": "only_stale",
+                      "value": "false"
+                    }
+                  ],
+                  "variable": [
+                    {
+                      "disabled": false,
+                      "type": "any",
+                      "value": "<uuid>",
+                      "key": "flow_execution_id",
+                      "description": "(Required) UUID of the flow execution to re-execute. Must be an existing execution owned by your organization."
+                    }
+                  ]
+                },
+                "header": [
+                  {
+                    "description": {
+                      "content": "Added as a part of security scheme: bearer",
+                      "type": "text/plain"
+                    },
+                    "key": "Authorization",
+                    "value": "Bearer <token>"
+                  }
+                ],
+                "method": "POST",
+                "body": {}
+              },
+              "status": "No Content",
+              "code": 204,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "text/plain"
+                }
+              ],
+              "body": "",
+              "cookie": [],
+              "_postman_previewlanguage": "text"
+            },
+            {
+              "id": "4b23843a-9e44-4470-9cc2-aaab6c195eb7",
+              "name": "Forbidden - User lacks permission to execute this flow",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "api",
+                    "flow-executions",
+                    ":flow_execution_id",
+                    "execute"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [
+                    {
+                      "key": "only_stale",
+                      "value": "false"
+                    }
+                  ],
+                  "variable": [
+                    {
+                      "disabled": false,
+                      "type": "any",
+                      "value": "<uuid>",
+                      "key": "flow_execution_id",
+                      "description": "(Required) UUID of the flow execution to re-execute. Must be an existing execution owned by your organization."
+                    }
+                  ]
+                },
+                "header": [
+                  {
+                    "description": {
+                      "content": "Added as a part of security scheme: bearer",
+                      "type": "text/plain"
+                    },
+                    "key": "Authorization",
+                    "value": "Bearer <token>"
+                  },
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "method": "POST",
+                "body": {}
+              },
+              "status": "Forbidden",
+              "code": 403,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"error\": {\n    \"code\": \"not_found\",\n    \"message\": \"Resource not found\"\n  },\n  \"request_id\": \"01K8KABR6S16YETA2SZPVBS9SP\"\n}",
+              "cookie": [],
+              "_postman_previewlanguage": "json"
+            },
+            {
+              "id": "0716801b-9a14-48b3-9583-9d6e070776b4",
+              "name": "Not Found - The requested resource does not exist",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "api",
+                    "flow-executions",
+                    ":flow_execution_id",
+                    "execute"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [
+                    {
+                      "key": "only_stale",
+                      "value": "false"
+                    }
+                  ],
+                  "variable": [
+                    {
+                      "disabled": false,
+                      "type": "any",
+                      "value": "<uuid>",
+                      "key": "flow_execution_id",
+                      "description": "(Required) UUID of the flow execution to re-execute. Must be an existing execution owned by your organization."
+                    }
+                  ]
+                },
+                "header": [
+                  {
+                    "description": {
+                      "content": "Added as a part of security scheme: bearer",
+                      "type": "text/plain"
+                    },
+                    "key": "Authorization",
+                    "value": "Bearer <token>"
+                  },
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "method": "POST",
+                "body": {}
+              },
+              "status": "Not Found",
+              "code": 404,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"error\": {\n    \"message\": \"Resource not found\",\n    \"code\": \"not_found\"\n  },\n  \"request_id\": \"01K8KABR6S16YETA2SZPVBS9SP\"\n}",
+              "cookie": [],
+              "_postman_previewlanguage": "json"
+            },
+            {
+              "id": "1c0efac5-8fd7-4589-a3f4-b1194f9c2c5c",
+              "name": "Conflict - Workflow is currently running and cannot be terminated",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "api",
+                    "flow-executions",
+                    ":flow_execution_id",
+                    "execute"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [
+                    {
+                      "key": "only_stale",
+                      "value": "false"
+                    }
+                  ],
+                  "variable": [
+                    {
+                      "disabled": false,
+                      "type": "any",
+                      "value": "<uuid>",
+                      "key": "flow_execution_id",
+                      "description": "(Required) UUID of the flow execution to re-execute. Must be an existing execution owned by your organization."
+                    }
+                  ]
+                },
+                "header": [
+                  {
+                    "description": {
+                      "content": "Added as a part of security scheme: bearer",
+                      "type": "text/plain"
+                    },
+                    "key": "Authorization",
+                    "value": "Bearer <token>"
+                  },
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "method": "POST",
+                "body": {}
+              },
+              "status": "Conflict",
+              "code": 409,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"error\": {\n    \"code\": \"not_found\",\n    \"message\": \"Resource not found\"\n  },\n  \"request_id\": \"01K8KABR6S16YETA2SZPVBS9SP\"\n}",
+              "cookie": [],
+              "_postman_previewlanguage": "json"
+            },
+            {
+              "id": "0938a968-1704-459c-bddb-61fe2deda956",
+              "name": "Validation Error",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "api",
+                    "flow-executions",
+                    ":flow_execution_id",
+                    "execute"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [
+                    {
+                      "key": "only_stale",
+                      "value": "false"
+                    }
+                  ],
+                  "variable": [
+                    {
+                      "disabled": false,
+                      "type": "any",
+                      "value": "<uuid>",
+                      "key": "flow_execution_id",
+                      "description": "(Required) UUID of the flow execution to re-execute. Must be an existing execution owned by your organization."
+                    }
+                  ]
+                },
+                "header": [
+                  {
+                    "description": {
+                      "content": "Added as a part of security scheme: bearer",
+                      "type": "text/plain"
+                    },
+                    "key": "Authorization",
+                    "value": "Bearer <token>"
+                  },
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "method": "POST",
+                "body": {}
+              },
+              "status": "Unprocessable Entity (WebDAV) (RFC 4918)",
+              "code": 422,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"detail\": [\n    {\n      \"loc\": [\n        \"string\",\n        \"string\"\n      ],\n      \"msg\": \"string\",\n      \"type\": \"string\"\n    },\n    {\n      \"loc\": [\n        \"string\",\n        \"string\"\n      ],\n      \"msg\": \"string\",\n      \"type\": \"string\"\n    }\n  ]\n}",
+              "cookie": [],
+              "_postman_previewlanguage": "json"
+            },
+            {
+              "id": "de376e35-65ba-46f4-a132-fc3df4b769b0",
+              "name": "Internal Server Error - An unexpected error occurred",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "api",
+                    "flow-executions",
+                    ":flow_execution_id",
+                    "execute"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [
+                    {
+                      "key": "only_stale",
+                      "value": "false"
+                    }
+                  ],
+                  "variable": [
+                    {
+                      "disabled": false,
+                      "type": "any",
+                      "value": "<uuid>",
+                      "key": "flow_execution_id",
+                      "description": "(Required) UUID of the flow execution to re-execute. Must be an existing execution owned by your organization."
+                    }
+                  ]
+                },
+                "header": [
+                  {
+                    "description": {
+                      "content": "Added as a part of security scheme: bearer",
+                      "type": "text/plain"
+                    },
+                    "key": "Authorization",
+                    "value": "Bearer <token>"
+                  },
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "method": "POST",
+                "body": {}
+              },
+              "status": "Internal Server Error",
+              "code": 500,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"error\": {\n    \"message\": \"Internal server error\",\n    \"code\": \"internal_error\"\n  },\n  \"request_id\": \"01K8KABR6S16YETA2SZPVBS9SP\"\n}",
+              "cookie": [],
+              "_postman_previewlanguage": "json"
+            }
+          ],
+          "event": [],
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          }
+        },
+        {
+          "id": "295fca8c-6552-435b-a3bb-f081c3317101",
+          "name": "Add task status updates (Internal API)",
+          "request": {
+            "name": "Add task status updates (Internal API)",
+            "description": {
+              "content": "Add task status updates to a flow execution (Internal API).\n\nThis endpoint is used by system workers to report task execution status changes.\nMultiple task statuses can be added in a single request for batch efficiency.\nStatus updates trigger state transitions and WebSocket notifications.\n\n⚠️  Internal API: This endpoint is designed for internal system communication.\n   Direct customer usage is not recommended. Use GET /task-executions instead.\n\nContext:\n    - Called by system workers during task execution\n    - Updates task status records in bulk for performance\n    - Triggers task output state calculations\n    - Sends WebSocket notifications asynchronously\n    - Worker receives immediate response without blocking on notifications\n\nBehavior:\n    1. Validates flow execution exists and is accessible\n    2. Creates status records for each task in batch\n    3. Updates related task output states in parallel\n    4. Sends WebSocket notifications in background task\n    5. Returns immediately to worker for low latency\n\nPerformance Optimizations:\n    - Batch inserts for multiple status updates (~50ms for 10 tasks)\n    - WebSocket notifications processed asynchronously\n    - Task output state updates use batch operations\n    - Response returns before notification delivery completes\n\nUse Cases:\n    - System workers reporting task start/completion\n    - Bulk status updates during execution\n    - Real-time execution monitoring via WebSocket\n\nImportant Notes:\n    - This endpoint does NOT retrieve task status (use GET /task-executions)\n    - Requires service-level authentication token\n    - Not intended for direct customer API integration\n    - WebSocket notifications may arrive after HTTP response\n\nBusiness Logic:\n    - Task output states recalculated based on new statuses\n    - Multiple status updates for same task create history\n    - Execution-level status synced to awaiting_input when any task is HITL-suspended\n    - Status transitions not validated (allows any status value)\n\nRelated Internal Endpoints:\n    - POST /flow-executions - Creates parent execution\n    - GET /task-executions - Retrieves task execution details\n    - WebSocket /ws/flows/{flow_id} - Receives status notifications",
+              "type": "text/plain"
+            },
+            "url": {
+              "path": [
+                "api",
+                "flow-executions",
+                ":flow_execution_id",
+                "task-status"
+              ],
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "query": [],
+              "variable": [
+                {
+                  "disabled": false,
+                  "type": "any",
+                  "value": "<uuid>",
+                  "key": "flow_execution_id",
+                  "description": "(Required) UUID of the flow execution receiving task status updates. Must be an active (non-deleted) execution."
+                }
+              ]
+            },
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "method": "POST",
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{bearerToken}}"
+                }
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"statuses\": [\n    {\n      \"task_name\": \"<string>\",\n      \"status\": \"<string>\"\n    }\n  ]\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": [
+            {
+              "id": "0c690739-6638-49d1-852a-8b43cfad43b8",
+              "name": "Task status updates successfully recorded",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "api",
+                    "flow-executions",
+                    ":flow_execution_id",
+                    "task-status"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [],
+                  "variable": [
+                    {
+                      "disabled": false,
+                      "type": "any",
+                      "value": "<uuid>",
+                      "key": "flow_execution_id",
+                      "description": "(Required) UUID of the flow execution receiving task status updates. Must be an active (non-deleted) execution."
+                    }
+                  ]
+                },
+                "header": [
+                  {
+                    "description": {
+                      "content": "Added as a part of security scheme: bearer",
+                      "type": "text/plain"
+                    },
+                    "key": "Authorization",
+                    "value": "Bearer <token>"
+                  },
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "method": "POST",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"statuses\": [\n    {\n      \"status\": \"completed\",\n      \"task_name\": \"extract_data\"\n    },\n    {\n      \"status\": \"running\",\n      \"task_name\": \"validate_results\"\n    }\n  ]\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "status": "OK",
+              "code": 200,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "[\n  {\n    \"id\": \"0141960b-1100-15e2-f99d-9fe5559da15b\",\n    \"flow_execution_id\": \"d89fba22-cf54-51c1-1337-9f873faff479\",\n    \"task_name\": \"string\",\n    \"status\": \"queued\",\n    \"organization_id\": \"aa899740-b083-82ed-f691-e8eb43d06594\",\n    \"created_at\": \"1967-04-12T15:16:33.257Z\"\n  },\n  {\n    \"id\": \"fdd4e297-95ca-4c2b-d6ae-b3fb7a1d7702\",\n    \"flow_execution_id\": \"267cdcd8-6421-b47b-abe3-bf9a015b5a84\",\n    \"task_name\": \"string\",\n    \"status\": \"deleted\",\n    \"organization_id\": \"f7e11e02-3194-9440-6218-a68dcde02bd7\",\n    \"created_at\": \"1961-01-16T16:47:22.004Z\"\n  }\n]",
+              "cookie": [],
+              "_postman_previewlanguage": "json"
+            },
+            {
+              "id": "37663e95-2528-45e5-918f-e9aa41150ff2",
+              "name": "Bad Request - Invalid request body or task names",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "api",
+                    "flow-executions",
+                    ":flow_execution_id",
+                    "task-status"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [],
+                  "variable": [
+                    {
+                      "disabled": false,
+                      "type": "any",
+                      "value": "<uuid>",
+                      "key": "flow_execution_id",
+                      "description": "(Required) UUID of the flow execution receiving task status updates. Must be an active (non-deleted) execution."
+                    }
+                  ]
+                },
+                "header": [
+                  {
+                    "description": {
+                      "content": "Added as a part of security scheme: bearer",
+                      "type": "text/plain"
+                    },
+                    "key": "Authorization",
+                    "value": "Bearer <token>"
+                  },
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "method": "POST",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"statuses\": [\n    {\n      \"status\": \"completed\",\n      \"task_name\": \"extract_data\"\n    },\n    {\n      \"status\": \"running\",\n      \"task_name\": \"validate_results\"\n    }\n  ]\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "status": "Bad Request",
+              "code": 400,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"error\": {\n    \"code\": \"not_found\",\n    \"message\": \"Resource not found\"\n  },\n  \"request_id\": \"01K8KABR6S16YETA2SZPVBS9SP\"\n}",
+              "cookie": [],
+              "_postman_previewlanguage": "json"
+            },
+            {
+              "id": "c48ca7f8-b8ea-4455-b4e6-5f5c5144643b",
+              "name": "Forbidden - Requires service-level authentication token",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "api",
+                    "flow-executions",
+                    ":flow_execution_id",
+                    "task-status"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [],
+                  "variable": [
+                    {
+                      "disabled": false,
+                      "type": "any",
+                      "value": "<uuid>",
+                      "key": "flow_execution_id",
+                      "description": "(Required) UUID of the flow execution receiving task status updates. Must be an active (non-deleted) execution."
+                    }
+                  ]
+                },
+                "header": [
+                  {
+                    "description": {
+                      "content": "Added as a part of security scheme: bearer",
+                      "type": "text/plain"
+                    },
+                    "key": "Authorization",
+                    "value": "Bearer <token>"
+                  },
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "method": "POST",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"statuses\": [\n    {\n      \"status\": \"completed\",\n      \"task_name\": \"extract_data\"\n    },\n    {\n      \"status\": \"running\",\n      \"task_name\": \"validate_results\"\n    }\n  ]\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "status": "Forbidden",
+              "code": 403,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"error\": {\n    \"code\": \"not_found\",\n    \"message\": \"Resource not found\"\n  },\n  \"request_id\": \"01K8KABR6S16YETA2SZPVBS9SP\"\n}",
+              "cookie": [],
+              "_postman_previewlanguage": "json"
+            },
+            {
+              "id": "125e2654-1144-4958-88e3-753e0730b7b3",
+              "name": "Not Found - The requested resource does not exist",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "api",
+                    "flow-executions",
+                    ":flow_execution_id",
+                    "task-status"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [],
+                  "variable": [
+                    {
+                      "disabled": false,
+                      "type": "any",
+                      "value": "<uuid>",
+                      "key": "flow_execution_id",
+                      "description": "(Required) UUID of the flow execution receiving task status updates. Must be an active (non-deleted) execution."
+                    }
+                  ]
+                },
+                "header": [
+                  {
+                    "description": {
+                      "content": "Added as a part of security scheme: bearer",
+                      "type": "text/plain"
+                    },
+                    "key": "Authorization",
+                    "value": "Bearer <token>"
+                  },
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "method": "POST",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"statuses\": [\n    {\n      \"status\": \"completed\",\n      \"task_name\": \"extract_data\"\n    },\n    {\n      \"status\": \"running\",\n      \"task_name\": \"validate_results\"\n    }\n  ]\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "status": "Not Found",
+              "code": 404,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"error\": {\n    \"message\": \"Resource not found\",\n    \"code\": \"not_found\"\n  },\n  \"request_id\": \"01K8KABR6S16YETA2SZPVBS9SP\"\n}",
+              "cookie": [],
+              "_postman_previewlanguage": "json"
+            },
+            {
+              "id": "832b0767-9026-440e-b577-256d4f91350b",
+              "name": "Validation Error",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "api",
+                    "flow-executions",
+                    ":flow_execution_id",
+                    "task-status"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [],
+                  "variable": [
+                    {
+                      "disabled": false,
+                      "type": "any",
+                      "value": "<uuid>",
+                      "key": "flow_execution_id",
+                      "description": "(Required) UUID of the flow execution receiving task status updates. Must be an active (non-deleted) execution."
+                    }
+                  ]
+                },
+                "header": [
+                  {
+                    "description": {
+                      "content": "Added as a part of security scheme: bearer",
+                      "type": "text/plain"
+                    },
+                    "key": "Authorization",
+                    "value": "Bearer <token>"
+                  },
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "method": "POST",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"statuses\": [\n    {\n      \"status\": \"completed\",\n      \"task_name\": \"extract_data\"\n    },\n    {\n      \"status\": \"running\",\n      \"task_name\": \"validate_results\"\n    }\n  ]\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "status": "Unprocessable Entity (WebDAV) (RFC 4918)",
+              "code": 422,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"detail\": [\n    {\n      \"loc\": [\n        \"string\",\n        \"string\"\n      ],\n      \"msg\": \"string\",\n      \"type\": \"string\"\n    },\n    {\n      \"loc\": [\n        \"string\",\n        \"string\"\n      ],\n      \"msg\": \"string\",\n      \"type\": \"string\"\n    }\n  ]\n}",
+              "cookie": [],
+              "_postman_previewlanguage": "json"
+            },
+            {
+              "id": "ed2fbd1e-3629-47b0-a078-790794260c61",
+              "name": "Internal Server Error - An unexpected error occurred",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "api",
+                    "flow-executions",
+                    ":flow_execution_id",
+                    "task-status"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [],
+                  "variable": [
+                    {
+                      "disabled": false,
+                      "type": "any",
+                      "value": "<uuid>",
+                      "key": "flow_execution_id",
+                      "description": "(Required) UUID of the flow execution receiving task status updates. Must be an active (non-deleted) execution."
+                    }
+                  ]
+                },
+                "header": [
+                  {
+                    "description": {
+                      "content": "Added as a part of security scheme: bearer",
+                      "type": "text/plain"
+                    },
+                    "key": "Authorization",
+                    "value": "Bearer <token>"
+                  },
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "method": "POST",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"statuses\": [\n    {\n      \"status\": \"completed\",\n      \"task_name\": \"extract_data\"\n    },\n    {\n      \"status\": \"running\",\n      \"task_name\": \"validate_results\"\n    }\n  ]\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "status": "Internal Server Error",
+              "code": 500,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"error\": {\n    \"message\": \"Internal server error\",\n    \"code\": \"internal_error\"\n  },\n  \"request_id\": \"01K8KABR6S16YETA2SZPVBS9SP\"\n}",
+              "cookie": [],
+              "_postman_previewlanguage": "json"
+            }
+          ],
+          "event": [],
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          }
+        },
+        {
+          "id": "344b059b-d76c-46d2-881f-21b247cf5fae",
+          "name": "Patch Flow Execution Status",
+          "request": {
+            "name": "Patch Flow Execution Status",
+            "description": {
+              "content": "Patch the status of a flow execution.",
+              "type": "text/plain"
+            },
+            "url": {
+              "path": [
+                "api",
+                "flow-executions",
+                ":flow_execution_id",
+                "status"
+              ],
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "query": [
+                {
+                  "disabled": false,
+                  "key": "status",
+                  "value": "<string>",
+                  "description": "(Required) "
+                }
+              ],
+              "variable": [
+                {
+                  "disabled": false,
+                  "type": "any",
+                  "value": "<uuid>",
+                  "key": "flow_execution_id",
+                  "description": "(Required) "
+                }
+              ]
+            },
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "method": "PATCH",
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{bearerToken}}"
+                }
+              ]
+            }
+          },
+          "response": [
+            {
+              "id": "d81c9bed-6c28-4a63-b707-8bf28733672f",
+              "name": "Successful Response",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "api",
+                    "flow-executions",
+                    ":flow_execution_id",
+                    "status"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [
+                    {
+                      "key": "status",
+                      "value": "stale"
+                    }
+                  ],
+                  "variable": [
+                    {
+                      "disabled": false,
+                      "type": "any",
+                      "value": "<uuid>",
+                      "key": "flow_execution_id",
+                      "description": "(Required) "
+                    }
+                  ]
+                },
+                "header": [
+                  {
+                    "description": {
+                      "content": "Added as a part of security scheme: bearer",
+                      "type": "text/plain"
+                    },
+                    "key": "Authorization",
+                    "value": "Bearer <token>"
+                  },
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "method": "PATCH",
+                "body": {}
+              },
+              "status": "OK",
+              "code": 200,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"id\": \"1a6efbaa-9cd9-e61a-8b6d-5c8bb82bada7\",\n  \"created_at\": \"1982-02-28T06:15:17.326Z\",\n  \"updated_at\": \"1957-08-06T21:49:04.132Z\",\n  \"modified_by\": \"string\",\n  \"flow_id\": \"550e8400-e29b-41d4-a716-446655440000\",\n  \"flow_version\": 3,\n  \"status\": \"running\",\n  \"input\": {\n    \"file_key\": \"documents/abc123.pdf\",\n    \"metadata\": {\n      \"priority\": \"high\"\n    }\n  },\n  \"organization_id\": \"660e8400-e29b-41d4-a716-446655440001\",\n  \"pricing_config_id\": \"186800bd-30f7-58b9-98f1-e72e52fdc8e6\",\n  \"total_credits\": 7164,\n  \"triggered_task_executor_name\": \"string\"\n}",
+              "cookie": [],
+              "_postman_previewlanguage": "json"
+            },
+            {
+              "id": "49070ab1-b0fe-4e0c-8d32-c07eeb9b8408",
+              "name": "Validation Error",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "api",
+                    "flow-executions",
+                    ":flow_execution_id",
+                    "status"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [
+                    {
+                      "key": "status",
+                      "value": "stale"
+                    }
+                  ],
+                  "variable": [
+                    {
+                      "disabled": false,
+                      "type": "any",
+                      "value": "<uuid>",
+                      "key": "flow_execution_id",
+                      "description": "(Required) "
+                    }
+                  ]
+                },
+                "header": [
+                  {
+                    "description": {
+                      "content": "Added as a part of security scheme: bearer",
+                      "type": "text/plain"
+                    },
+                    "key": "Authorization",
+                    "value": "Bearer <token>"
+                  },
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "method": "PATCH",
+                "body": {}
+              },
+              "status": "Unprocessable Entity (WebDAV) (RFC 4918)",
+              "code": 422,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"detail\": [\n    {\n      \"loc\": [\n        \"string\",\n        \"string\"\n      ],\n      \"msg\": \"string\",\n      \"type\": \"string\"\n    },\n    {\n      \"loc\": [\n        \"string\",\n        \"string\"\n      ],\n      \"msg\": \"string\",\n      \"type\": \"string\"\n    }\n  ]\n}",
+              "cookie": [],
+              "_postman_previewlanguage": "json"
+            }
+          ],
+          "event": [],
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          }
+        }
+      ],
+      "event": []
+    }
+  ],
+  "event": [],
+  "variable": [
+    {
+      "type": "string",
+      "value": "/",
+      "key": "baseUrl"
+    }
+  ],
+  "info": {
+    "_postman_id": "cc3d47b7-8fd2-4735-baa3-ab0deb5f72ae",
+    "name": "SuperAI Flow Platform auth flow-executions API",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "description": {
+      "content": "SuperAI Flows is a workflow orchestration platform that enables you to design, deploy, and monitor automated workflows at scale.\n\nBuild complex workflows using our declarative YAML DSL, execute them reliably, and integrate seamlessly with AI models, cloud storage, and enterprise systems.\n\n**Key Capabilities:**\n- **Workflow Management**: Define workflows as code with version control and automated execution\n- **Task Orchestration**: Chain together API calls, data processing, and AI operations\n- **Real-time Monitoring**: Track execution progress with WebSocket notifications and comprehensive logging\n- **Multi-tenant Architecture**: Organization-scoped resources with role-based access control\n\n**API Versioning and Breaking Changes:**\n\nWe follow a strict compatibility policy to ensure your integrations remain stable:\n\n- **Non-breaking changes** (safe, no action required):\n  - Adding new API endpoints\n  - Adding new optional query parameters to existing endpoints\n  - Adding new fields to API responses\n  - Adding new values to existing enums\n\n- **Breaking changes** (requires client updates):\n  - Removing or renaming API endpoints\n  - Removing query parameters or request fields\n  - Removing response fields\n  - Changing field types or validation rules\n  - Removing values from existing enums\n\n**Client Implementation Requirements:**\n\nYour API clients MUST be designed to gracefully handle additional fields in responses. We may add new fields to any response object without considering this a breaking change. Ensure your JSON parsers ignore unknown fields rather than raising errors.\n\n**Backward Compatibility Guarantee:**\n\nWe commit to maintaining backward compatibility for all non-breaking changes. Breaking changes will be:\n- Announced at least 15 days in advance\n- Documented in our changelog with migration guide\n\nFor the latest API updates and migration guides, see our changelog.",
+      "type": "text/plain"
+    }
+  }
+}

@@ -1,0 +1,696 @@
+{
+  "opencollection": "1.0.0",
+  "info": {
+    "name": "SuperAI Flow Platform auth plugins API",
+    "version": "0.1.0"
+  },
+  "items": [
+    {
+      "info": {
+        "name": "plugins",
+        "type": "folder"
+      },
+      "items": [
+        {
+          "info": {
+            "name": "List all registered plugins",
+            "type": "http"
+          },
+          "http": {
+            "method": "GET",
+            "url": "{{baseUrl}}/api/integrations/plugins/",
+            "auth": {
+              "type": "bearer",
+              "token": "{{bearerToken}}"
+            }
+          },
+          "docs": "List all registered plugins from the integration registry.\n\nReturns plugins available in the new plugin system only, excluding legacy integrations.\nEach plugin includes metadata about its capabilities, version, and status.\n\nUse Cases:\n    - Display available integrations to users\n    - Validate plugin availability before configuration\n    - Integration discovery and selection"
+        },
+        {
+          "info": {
+            "name": "Get plugin capabilities",
+            "type": "http"
+          },
+          "http": {
+            "method": "GET",
+            "url": "{{baseUrl}}/api/integrations/plugins/:plugin_name/capabilities",
+            "params": [
+              {
+                "name": "plugin_name",
+                "value": "",
+                "type": "path"
+              }
+            ],
+            "auth": {
+              "type": "bearer",
+              "token": "{{bearerToken}}"
+            }
+          },
+          "docs": "Retrieve detailed capabilities of a specific plugin.\n\nReturns comprehensive information about what the plugin can do, including:\n- Supported operations and execution models\n- Required authentication types\n- Configuration schema and metadata\n- Webhook support status\n\nUse Cases:\n    - Display plugin configuration UI\n    - Validate plugin compatibility with workflow\n    - Generate plugin documentation"
+        },
+        {
+          "info": {
+            "name": "Oauth Authorize Legacy",
+            "type": "http"
+          },
+          "http": {
+            "method": "POST",
+            "url": "{{baseUrl}}/api/integrations/plugins/:plugin_name/oauth/authorize",
+            "params": [
+              {
+                "name": "plugin_name",
+                "value": "",
+                "type": "path"
+              }
+            ],
+            "body": {
+              "type": "json",
+              "data": "{}"
+            },
+            "auth": {
+              "type": "bearer",
+              "token": "{{bearerToken}}"
+            }
+          },
+          "docs": "Oauth Authorize Legacy"
+        },
+        {
+          "info": {
+            "name": "Oauth Callback Legacy",
+            "type": "http"
+          },
+          "http": {
+            "method": "GET",
+            "url": "{{baseUrl}}/api/integrations/plugins/:plugin_name/oauth/callback",
+            "params": [
+              {
+                "name": "plugin_name",
+                "value": "",
+                "type": "path"
+              },
+              {
+                "name": "code",
+                "value": "",
+                "type": "query"
+              },
+              {
+                "name": "state",
+                "value": "",
+                "type": "query"
+              },
+              {
+                "name": "error",
+                "value": "",
+                "type": "query"
+              }
+            ],
+            "auth": {
+              "type": "bearer",
+              "token": "{{bearerToken}}"
+            }
+          },
+          "docs": "Oauth Callback Legacy"
+        },
+        {
+          "info": {
+            "name": "List Integration Instances",
+            "type": "http"
+          },
+          "http": {
+            "method": "GET",
+            "url": "{{baseUrl}}/api/integrations/plugins/:plugin_name/instances",
+            "params": [
+              {
+                "name": "plugin_name",
+                "value": "",
+                "type": "path"
+              },
+              {
+                "name": "flow_id",
+                "value": "",
+                "type": "query"
+              },
+              {
+                "name": "task_name",
+                "value": "",
+                "type": "query"
+              },
+              {
+                "name": "task_id",
+                "value": "",
+                "type": "query"
+              }
+            ],
+            "auth": {
+              "type": "bearer",
+              "token": "{{bearerToken}}"
+            }
+          },
+          "docs": "List Integration Instances"
+        },
+        {
+          "info": {
+            "name": "Create Integration Legacy",
+            "type": "http"
+          },
+          "http": {
+            "method": "POST",
+            "url": "{{baseUrl}}/api/integrations/plugins/:plugin_name/instances",
+            "params": [
+              {
+                "name": "plugin_name",
+                "value": "",
+                "type": "path"
+              }
+            ],
+            "body": {
+              "type": "json",
+              "data": "{}"
+            },
+            "auth": {
+              "type": "bearer",
+              "token": "{{bearerToken}}"
+            }
+          },
+          "docs": "Create Integration Legacy"
+        },
+        {
+          "info": {
+            "name": "Delete Integration Legacy",
+            "type": "http"
+          },
+          "http": {
+            "method": "DELETE",
+            "url": "{{baseUrl}}/api/integrations/plugins/:plugin_name/instances/:integration_id",
+            "params": [
+              {
+                "name": "integration_id",
+                "value": "",
+                "type": "path"
+              },
+              {
+                "name": "plugin_name",
+                "value": "",
+                "type": "path"
+              }
+            ],
+            "auth": {
+              "type": "bearer",
+              "token": "{{bearerToken}}"
+            }
+          },
+          "docs": "Delete Integration Legacy"
+        },
+        {
+          "info": {
+            "name": "Handle Webhook Legacy",
+            "type": "http"
+          },
+          "http": {
+            "method": "POST",
+            "url": "{{baseUrl}}/api/integrations/plugins/:plugin_name/instances/:integration_id/webhook/callback",
+            "params": [
+              {
+                "name": "plugin_name",
+                "value": "",
+                "type": "path"
+              },
+              {
+                "name": "integration_id",
+                "value": "",
+                "type": "path"
+              }
+            ],
+            "auth": {
+              "type": "bearer",
+              "token": "{{bearerToken}}"
+            }
+          },
+          "docs": "Handle Webhook Legacy"
+        },
+        {
+          "info": {
+            "name": "Move File",
+            "type": "http"
+          },
+          "http": {
+            "method": "POST",
+            "url": "{{baseUrl}}/api/integrations/plugins/:plugin_name/instances/:integration_id/files/move",
+            "params": [
+              {
+                "name": "plugin_name",
+                "value": "",
+                "type": "path"
+              },
+              {
+                "name": "integration_id",
+                "value": "",
+                "type": "path"
+              }
+            ],
+            "auth": {
+              "type": "bearer",
+              "token": "{{bearerToken}}"
+            }
+          },
+          "docs": "Move File"
+        },
+        {
+          "info": {
+            "name": "Delete File",
+            "type": "http"
+          },
+          "http": {
+            "method": "DELETE",
+            "url": "{{baseUrl}}/api/integrations/plugins/:plugin_name/instances/:integration_id/files",
+            "params": [
+              {
+                "name": "plugin_name",
+                "value": "",
+                "type": "path"
+              },
+              {
+                "name": "integration_id",
+                "value": "",
+                "type": "path"
+              }
+            ],
+            "auth": {
+              "type": "bearer",
+              "token": "{{bearerToken}}"
+            }
+          },
+          "docs": "Delete File"
+        },
+        {
+          "info": {
+            "name": "List Folders",
+            "type": "http"
+          },
+          "http": {
+            "method": "GET",
+            "url": "{{baseUrl}}/api/integrations/plugins/:plugin_name/folders",
+            "params": [
+              {
+                "name": "plugin_name",
+                "value": "",
+                "type": "path"
+              },
+              {
+                "name": "credential_id",
+                "value": "",
+                "type": "query"
+              }
+            ],
+            "auth": {
+              "type": "bearer",
+              "token": "{{bearerToken}}"
+            }
+          },
+          "docs": "List Folders"
+        },
+        {
+          "info": {
+            "name": "Get Sharepoint Sites",
+            "type": "http"
+          },
+          "http": {
+            "method": "GET",
+            "url": "{{baseUrl}}/api/integrations/plugins/sharepoint/sites",
+            "params": [
+              {
+                "name": "credential_id",
+                "value": "",
+                "type": "query"
+              }
+            ],
+            "auth": {
+              "type": "bearer",
+              "token": "{{bearerToken}}"
+            }
+          },
+          "docs": "Get Sharepoint Sites"
+        },
+        {
+          "info": {
+            "name": "Get Sharepoint Drives",
+            "type": "http"
+          },
+          "http": {
+            "method": "GET",
+            "url": "{{baseUrl}}/api/integrations/plugins/sharepoint/drives",
+            "params": [
+              {
+                "name": "credential_id",
+                "value": "",
+                "type": "query"
+              },
+              {
+                "name": "site_id",
+                "value": "",
+                "type": "query"
+              }
+            ],
+            "auth": {
+              "type": "bearer",
+              "token": "{{bearerToken}}"
+            }
+          },
+          "docs": "Get Sharepoint Drives"
+        },
+        {
+          "info": {
+            "name": "List Instances",
+            "type": "http"
+          },
+          "http": {
+            "method": "GET",
+            "url": "{{baseUrl}}/api/plugins/instances",
+            "params": [
+              {
+                "name": "flow_id",
+                "value": "",
+                "type": "query"
+              },
+              {
+                "name": "task_name",
+                "value": "",
+                "type": "query"
+              }
+            ],
+            "auth": {
+              "type": "bearer",
+              "token": "{{bearerToken}}"
+            }
+          },
+          "docs": "List Instances"
+        },
+        {
+          "info": {
+            "name": "Oauth Authorize",
+            "type": "http"
+          },
+          "http": {
+            "method": "POST",
+            "url": "{{baseUrl}}/api/plugins/:plugin_name/oauth/authorize",
+            "params": [
+              {
+                "name": "plugin_name",
+                "value": "",
+                "type": "path"
+              }
+            ],
+            "body": {
+              "type": "json",
+              "data": "{}"
+            },
+            "auth": {
+              "type": "bearer",
+              "token": "{{bearerToken}}"
+            }
+          },
+          "docs": "Oauth Authorize"
+        },
+        {
+          "info": {
+            "name": "Oauth Callback",
+            "type": "http"
+          },
+          "http": {
+            "method": "GET",
+            "url": "{{baseUrl}}/api/plugins/:plugin_name/:provider_name/oauth/callback",
+            "params": [
+              {
+                "name": "plugin_name",
+                "value": "",
+                "type": "path"
+              },
+              {
+                "name": "provider_name",
+                "value": "",
+                "type": "path"
+              },
+              {
+                "name": "code",
+                "value": "",
+                "type": "query"
+              },
+              {
+                "name": "state",
+                "value": "",
+                "type": "query"
+              },
+              {
+                "name": "error",
+                "value": "",
+                "type": "query"
+              }
+            ],
+            "auth": {
+              "type": "bearer",
+              "token": "{{bearerToken}}"
+            }
+          },
+          "docs": "Oauth Callback"
+        },
+        {
+          "info": {
+            "name": "List Integrations",
+            "type": "http"
+          },
+          "http": {
+            "method": "GET",
+            "url": "{{baseUrl}}/api/plugins/:plugin_name/instances",
+            "params": [
+              {
+                "name": "plugin_name",
+                "value": "",
+                "type": "path"
+              },
+              {
+                "name": "flow_id",
+                "value": "",
+                "type": "query"
+              },
+              {
+                "name": "task_name",
+                "value": "",
+                "type": "query"
+              }
+            ],
+            "auth": {
+              "type": "bearer",
+              "token": "{{bearerToken}}"
+            }
+          },
+          "docs": "List Integrations"
+        },
+        {
+          "info": {
+            "name": "Create Integration",
+            "type": "http"
+          },
+          "http": {
+            "method": "POST",
+            "url": "{{baseUrl}}/api/plugins/:plugin_name/instances",
+            "params": [
+              {
+                "name": "plugin_name",
+                "value": "",
+                "type": "path"
+              }
+            ],
+            "body": {
+              "type": "json",
+              "data": "{}"
+            },
+            "auth": {
+              "type": "bearer",
+              "token": "{{bearerToken}}"
+            }
+          },
+          "docs": "Create Integration"
+        },
+        {
+          "info": {
+            "name": "Update Integration",
+            "type": "http"
+          },
+          "http": {
+            "method": "PUT",
+            "url": "{{baseUrl}}/api/plugins/:plugin_name/instances/:integration_id",
+            "params": [
+              {
+                "name": "plugin_name",
+                "value": "",
+                "type": "path"
+              },
+              {
+                "name": "integration_id",
+                "value": "",
+                "type": "path"
+              }
+            ],
+            "body": {
+              "type": "json",
+              "data": "{}"
+            },
+            "auth": {
+              "type": "bearer",
+              "token": "{{bearerToken}}"
+            }
+          },
+          "docs": "Update Integration"
+        },
+        {
+          "info": {
+            "name": "Delete Integration",
+            "type": "http"
+          },
+          "http": {
+            "method": "DELETE",
+            "url": "{{baseUrl}}/api/plugins/:plugin_name/instances/:integration_id",
+            "params": [
+              {
+                "name": "plugin_name",
+                "value": "",
+                "type": "path"
+              },
+              {
+                "name": "integration_id",
+                "value": "",
+                "type": "path"
+              }
+            ],
+            "auth": {
+              "type": "bearer",
+              "token": "{{bearerToken}}"
+            }
+          },
+          "docs": "Delete Integration"
+        },
+        {
+          "info": {
+            "name": "Handle Webhook",
+            "type": "http"
+          },
+          "http": {
+            "method": "POST",
+            "url": "{{baseUrl}}/api/plugins/:plugin_name/instances/:integration_id/webhook/callback",
+            "params": [
+              {
+                "name": "plugin_name",
+                "value": "",
+                "type": "path"
+              },
+              {
+                "name": "integration_id",
+                "value": "",
+                "type": "path"
+              }
+            ],
+            "auth": {
+              "type": "bearer",
+              "token": "{{bearerToken}}"
+            }
+          },
+          "docs": "Handle Webhook"
+        },
+        {
+          "info": {
+            "name": "Poll Integration",
+            "type": "http"
+          },
+          "http": {
+            "method": "POST",
+            "url": "{{baseUrl}}/api/plugins/:plugin_name/instances/:integration_id/poll",
+            "params": [
+              {
+                "name": "plugin_name",
+                "value": "",
+                "type": "path"
+              },
+              {
+                "name": "integration_id",
+                "value": "",
+                "type": "path"
+              }
+            ],
+            "body": {
+              "type": "json",
+              "data": "{}"
+            },
+            "auth": {
+              "type": "bearer",
+              "token": "{{bearerToken}}"
+            }
+          },
+          "docs": "Execute scheduled polling for polling integration plugins.\n\nThis endpoint is called by the Temporal scheduled workflow to poll external systems\nfor new data. It handles file uploads, flow execution creation, and cleanup.\n\nRuns under RLS (``@transactional``, not ``bypass_rls``): the scheduled caller's\ntoken carries the deploying user's org and an ``app_user``/``org_admin`` role, so\nthe org-scoped policies on ``user_integrations``/``user_credentials`` resolve only\nthis org's rows. Another org's ``"
+        },
+        {
+          "info": {
+            "name": "Execute Integration",
+            "type": "http"
+          },
+          "http": {
+            "method": "POST",
+            "url": "{{baseUrl}}/api/plugins/:plugin_name/instances/:integration_id/execute",
+            "params": [
+              {
+                "name": "plugin_name",
+                "value": "",
+                "type": "path"
+              },
+              {
+                "name": "integration_id",
+                "value": "",
+                "type": "path"
+              }
+            ],
+            "body": {
+              "type": "json",
+              "data": "{}"
+            },
+            "auth": {
+              "type": "bearer",
+              "token": "{{bearerToken}}"
+            }
+          },
+          "docs": "Execute Integration"
+        },
+        {
+          "info": {
+            "name": "Get Ui Schema",
+            "type": "http"
+          },
+          "http": {
+            "method": "POST",
+            "url": "{{baseUrl}}/api/plugins/:plugin_name/instances/:integration_id/ui_schema",
+            "params": [
+              {
+                "name": "plugin_name",
+                "value": "",
+                "type": "path"
+              },
+              {
+                "name": "integration_id",
+                "value": "",
+                "type": "path"
+              }
+            ],
+            "body": {
+              "type": "json",
+              "data": "{}"
+            },
+            "auth": {
+              "type": "bearer",
+              "token": "{{bearerToken}}"
+            }
+          },
+          "docs": "Get Ui Schema"
+        }
+      ]
+    }
+  ],
+  "bundled": true
+}

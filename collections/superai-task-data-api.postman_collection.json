@@ -1,0 +1,346 @@
+{
+  "item": [
+    {
+      "id": "2a410f6c-d8fc-486f-93c5-ae10c48ec281",
+      "name": "task-data",
+      "description": {
+        "content": "Task data operations for flow validation, schema discovery, and dynamic configuration.\n\nThe task-data endpoint analyzes flow definitions to extract task output schemas, dynamic configuration options, and validation errors. This is essential for building flow configuration UIs, validating flows before execution, and understanding task data structures.\n\n**Primary Use Cases:**\n- **Flow Builder UI**: Get task output schemas for validating downstream task inputs\n- **Schema Discovery**: Understand the structure of data each task produces\n- **Dynamic Configuration**: Retrieve runtime-dependent options (e.g., available spreadsheets, database tables)\n- **Flow Validation**: Validate flow definitions programmatically before saving or executing\n- **Custom Integrations**: Build tools that work with SuperAI Flows programmatically\n\n**What You Get:**\n- **Output Schemas**: JSON Schema definitions for each task's output structure\n- **Dynamic Data**: Runtime-dependent configuration options (dropdown choices, conditional fields)\n- **Validation Errors**: Detailed error messages for invalid flow definitions\n\n**How It Works:**\n1. Submit a flow definition in SuperAI Flows DSL format\n2. The endpoint validates the structure and loads each task executor\n3. For each task, it extracts the output schema and any dynamic configuration data\n4. Returns all schemas, dynamic data, and any validation errors encountered\n\n**Key Concepts:**\n- **Output Schema**: JSON Schema describing the structure of data a task produces\n- **Dynamic Data**: Configuration options that depend on user credentials or external state (e.g., list of Google Sheets accessible with your credentials)\n- **Validation Levels**: Basic (structure only) vs Full (includes semantic validation)\n\n**Integration Notes:**\n- The flow builder frontend uses this endpoint to power the task configuration UI\n- Flows API uses this validation internally when creating/updating flows\n- Response includes validation errors even on HTTP 200 - always check `validation_errors` field\n- May make external API calls to fetch dynamic data, so response time varies (100ms-2s typical)\n\n**Related Endpoints:**\n- `GET /task-executors`: List available task executor types and their schemas\n- `POST /flows`: Create flow (uses task-data validation internally)\n- `PUT /flows/{flow_id}`: Update flow (uses task-data validation internally)",
+        "type": "text/plain"
+      },
+      "item": [
+        {
+          "id": "c98e1397-f15e-430d-b479-1a0779782305",
+          "name": "Analyze flow definition and extract schemas",
+          "request": {
+            "name": "Analyze flow definition and extract schemas",
+            "description": {
+              "content": "Analyze a flow definition to extract task output schemas, dynamic data, and validation errors.\n\n**Overview**\nThis endpoint validates a flow definition and returns metadata needed for flow building,\nexecution planning, and UI generation. It processes all tasks in the flow definition to\nextract their output schemas (for type validation), dynamic configuration data (for UI\ndropdowns and conditional fields), and any structural or semantic validation errors.\n\n**Use Cases**\n- **Flow Builder UI**: Get task output schemas for downstream task input validation\n- **Dynamic Configuration**: Retrieve runtime-dependent options (e.g., available spreadsheets, databases)\n- **Flow Validation**: Check for errors before saving or executing a flow\n- **Schema Discovery**: Understand what data each task will produce\n- **Custom Integrations**: Programmatically validate and analyze flow definitions\n\n**How It Works**\n1. Parses and validates the flow definition structure (basic validation)\n2. For each task in the flow:\n   - Loads the task executor implementation\n   - Calls the executor's `get_output_model()` to get the output schema\n   - Calls the executor's dynamic data methods (if available) to get runtime options\n   - Collects any errors encountered during schema/data extraction\n3. If `full_validation=true`, performs additional semantic validation (checks task\n   parameter values, validates connections between tasks, etc.)\n4. Returns all schemas, dynamic data, and validation errors in a single response\n\n**Dynamic Data Explained**\nDynamic data represents configuration options that depend on external state or user\ncredentials. For example:\n- Google Sheets task: List of spreadsheets accessible with user's credentials\n- Database task: List of available tables/columns\n- API task: Available endpoints or data models from connected service\n\n**Validation Levels**\n- **Basic (default)**: Structure validation only (required fields, data types)\n- **Full (`full_validation=true`)**: Includes semantic validation (valid references,\n  parameter constraints, external resource availability)\n\n**Performance Notes**\n- May make external API calls to fetch dynamic data (e.g., Google Sheets API)\n- Response time varies based on number of tasks and external service latency\n- Typical response time: 100ms-2s depending on task executors used\n\n**Related Endpoints**\n- `POST /flows` - Create flow (uses this endpoint's validation internally)\n- `PUT /flows/{flow_id}` - Update flow (uses this endpoint's validation internally)\n- `GET /task-executors` - List available task executors",
+              "type": "text/plain"
+            },
+            "url": {
+              "path": [
+                "api",
+                "task-data"
+              ],
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "query": [
+                {
+                  "disabled": false,
+                  "key": "full_validation",
+                  "value": "false",
+                  "description": "Enable comprehensive semantic validation in addition to basic structural validation. When false (default): Only validates flow structure (required fields, data types, task executor existence). When true: Performs additional validation including: - Task parameter value validation (correct types, valid enums, etc.). - Task connection validation (input/output type compatibility). - Circular dependency detection. - External resource validation (e.g., checking if referenced files exist). Full validation may take longer and make external API calls. Use during flow save/publish operations. Use false (default) for faster validation during editing."
+                },
+                {
+                  "disabled": false,
+                  "key": "include_input_schema",
+                  "value": "false",
+                  "description": "Include JSON Schema definitions for input task executors' input structure. Calls get_input_model() to generate dynamic input schemas for form building. Adds ~10-50ms latency for schema generation."
+                }
+              ],
+              "variable": []
+            },
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "method": "POST",
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{bearerToken}}"
+                }
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"flow_definition\": {\n    \"key_0\": \"string\",\n    \"key_1\": \"string\",\n    \"key_2\": \"string\"\n  }\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": [
+            {
+              "id": "0599593f-ffb8-4663-98c2-accbc34c5d04",
+              "name": "Flow definition successfully analyzed",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "api",
+                    "task-data"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [
+                    {
+                      "key": "full_validation",
+                      "value": "false"
+                    },
+                    {
+                      "key": "include_input_schema",
+                      "value": "false"
+                    }
+                  ],
+                  "variable": []
+                },
+                "header": [
+                  {
+                    "description": {
+                      "content": "Added as a part of security scheme: bearer",
+                      "type": "text/plain"
+                    },
+                    "key": "Authorization",
+                    "value": "Bearer <token>"
+                  },
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "method": "POST",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"flow_definition\": {\n    \"name\": \"my-workflow\",\n    \"tasks\": [\n      {\n        \"name\": \"fetch_data\",\n        \"parameters\": {\n          \"method\": \"GET\",\n          \"url\": \"https://api.example.com/data\"\n        },\n        \"task_executor_name\": \"http_request\"\n      },\n      {\n        \"name\": \"process_data\",\n        \"parameters\": {\n          \"code\": \"result = input_data['value'] * 2\"\n        },\n        \"task_executor_name\": \"python_code\"\n      }\n    ]\n  }\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "status": "OK",
+              "code": 200,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"output_schemas\": {\n    \"fetch_data\": {\n      \"properties\": {\n        \"status_code\": {\n          \"description\": \"HTTP response status\",\n          \"type\": \"integer\"\n        },\n        \"body\": {\n          \"description\": \"Response body as JSON\",\n          \"type\": \"object\"\n        }\n      },\n      \"required\": [\n        \"status_code\",\n        \"body\"\n      ],\n      \"title\": \"HttpRequestOutput\",\n      \"type\": \"object\"\n    }\n  },\n  \"input_schemas\": {\n    \"custom_form_input\": {\n      \"properties\": {\n        \"filename\": {\n          \"description\": \"Name of uploaded file\",\n          \"type\": \"string\"\n        },\n        \"mime_type\": {\n          \"description\": \"MIME type of uploaded file\",\n          \"type\": \"string\"\n        },\n        \"document_url\": {\n          \"description\": \"URL to uploaded document\",\n          \"type\": \"string\"\n        },\n        \"metadata\": {\n          \"description\": \"File metadata\",\n          \"type\": \"object\"\n        }\n      },\n      \"required\": [\n        \"filename\",\n        \"mime_type\",\n        \"document_url\"\n      ],\n      \"title\": \"CustomFormInput\",\n      \"type\": \"object\"\n    }\n  },\n  \"dynamic_data\": {\n    \"read_sheet\": {\n      \"spreadsheet_id\": {\n        \"options\": [\n          {\n            \"label\": \"Sales Data 2024\",\n            \"value\": \"abc123\"\n          },\n          {\n            \"label\": \"Customer List\",\n            \"value\": \"def456\"\n          }\n        ]\n      }\n    }\n  },\n  \"validation_errors\": [\n    \"Task 'invalid_task' uses unknown task executor 'nonexistent_executor'\"\n  ]\n}",
+              "cookie": [],
+              "_postman_previewlanguage": "json"
+            },
+            {
+              "id": "fa7e8e54-beae-46d3-8627-46e1ec41db6c",
+              "name": "Bad Request - Invalid flow definition structure",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "api",
+                    "task-data"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [
+                    {
+                      "key": "full_validation",
+                      "value": "false"
+                    },
+                    {
+                      "key": "include_input_schema",
+                      "value": "false"
+                    }
+                  ],
+                  "variable": []
+                },
+                "header": [
+                  {
+                    "description": {
+                      "content": "Added as a part of security scheme: bearer",
+                      "type": "text/plain"
+                    },
+                    "key": "Authorization",
+                    "value": "Bearer <token>"
+                  },
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "method": "POST",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"flow_definition\": {\n    \"name\": \"my-workflow\",\n    \"tasks\": [\n      {\n        \"name\": \"fetch_data\",\n        \"parameters\": {\n          \"method\": \"GET\",\n          \"url\": \"https://api.example.com/data\"\n        },\n        \"task_executor_name\": \"http_request\"\n      },\n      {\n        \"name\": \"process_data\",\n        \"parameters\": {\n          \"code\": \"result = input_data['value'] * 2\"\n        },\n        \"task_executor_name\": \"python_code\"\n      }\n    ]\n  }\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "status": "Bad Request",
+              "code": 400,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"error\": {\n    \"code\": \"not_found\",\n    \"message\": \"Resource not found\"\n  },\n  \"request_id\": \"01K8KABR6S16YETA2SZPVBS9SP\"\n}",
+              "cookie": [],
+              "_postman_previewlanguage": "json"
+            },
+            {
+              "id": "df96c57f-265f-441d-a8dd-45f2cbc2197c",
+              "name": "Validation Error",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "api",
+                    "task-data"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [
+                    {
+                      "key": "full_validation",
+                      "value": "false"
+                    },
+                    {
+                      "key": "include_input_schema",
+                      "value": "false"
+                    }
+                  ],
+                  "variable": []
+                },
+                "header": [
+                  {
+                    "description": {
+                      "content": "Added as a part of security scheme: bearer",
+                      "type": "text/plain"
+                    },
+                    "key": "Authorization",
+                    "value": "Bearer <token>"
+                  },
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "method": "POST",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"flow_definition\": {\n    \"name\": \"my-workflow\",\n    \"tasks\": [\n      {\n        \"name\": \"fetch_data\",\n        \"parameters\": {\n          \"method\": \"GET\",\n          \"url\": \"https://api.example.com/data\"\n        },\n        \"task_executor_name\": \"http_request\"\n      },\n      {\n        \"name\": \"process_data\",\n        \"parameters\": {\n          \"code\": \"result = input_data['value'] * 2\"\n        },\n        \"task_executor_name\": \"python_code\"\n      }\n    ]\n  }\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "status": "Unprocessable Entity (WebDAV) (RFC 4918)",
+              "code": 422,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"detail\": [\n    {\n      \"loc\": [\n        \"string\",\n        \"string\"\n      ],\n      \"msg\": \"string\",\n      \"type\": \"string\"\n    },\n    {\n      \"loc\": [\n        \"string\",\n        \"string\"\n      ],\n      \"msg\": \"string\",\n      \"type\": \"string\"\n    }\n  ]\n}",
+              "cookie": [],
+              "_postman_previewlanguage": "json"
+            },
+            {
+              "id": "c466610d-e088-467a-8973-1da1b4173bb1",
+              "name": "Internal Server Error - An unexpected error occurred",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "api",
+                    "task-data"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [
+                    {
+                      "key": "full_validation",
+                      "value": "false"
+                    },
+                    {
+                      "key": "include_input_schema",
+                      "value": "false"
+                    }
+                  ],
+                  "variable": []
+                },
+                "header": [
+                  {
+                    "description": {
+                      "content": "Added as a part of security scheme: bearer",
+                      "type": "text/plain"
+                    },
+                    "key": "Authorization",
+                    "value": "Bearer <token>"
+                  },
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "method": "POST",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"flow_definition\": {\n    \"name\": \"my-workflow\",\n    \"tasks\": [\n      {\n        \"name\": \"fetch_data\",\n        \"parameters\": {\n          \"method\": \"GET\",\n          \"url\": \"https://api.example.com/data\"\n        },\n        \"task_executor_name\": \"http_request\"\n      },\n      {\n        \"name\": \"process_data\",\n        \"parameters\": {\n          \"code\": \"result = input_data['value'] * 2\"\n        },\n        \"task_executor_name\": \"python_code\"\n      }\n    ]\n  }\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "status": "Internal Server Error",
+              "code": 500,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"error\": {\n    \"message\": \"Internal server error\",\n    \"code\": \"internal_error\"\n  },\n  \"request_id\": \"01K8KABR6S16YETA2SZPVBS9SP\"\n}",
+              "cookie": [],
+              "_postman_previewlanguage": "json"
+            }
+          ],
+          "event": [],
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          }
+        }
+      ],
+      "event": []
+    }
+  ],
+  "event": [],
+  "variable": [
+    {
+      "type": "string",
+      "value": "/",
+      "key": "baseUrl"
+    }
+  ],
+  "info": {
+    "_postman_id": "59552caf-00f1-47fd-be5b-c7bd34f762d3",
+    "name": "SuperAI Flow Platform auth task-data API",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "description": {
+      "content": "SuperAI Flows is a workflow orchestration platform that enables you to design, deploy, and monitor automated workflows at scale.\n\nBuild complex workflows using our declarative YAML DSL, execute them reliably, and integrate seamlessly with AI models, cloud storage, and enterprise systems.\n\n**Key Capabilities:**\n- **Workflow Management**: Define workflows as code with version control and automated execution\n- **Task Orchestration**: Chain together API calls, data processing, and AI operations\n- **Real-time Monitoring**: Track execution progress with WebSocket notifications and comprehensive logging\n- **Multi-tenant Architecture**: Organization-scoped resources with role-based access control\n\n**API Versioning and Breaking Changes:**\n\nWe follow a strict compatibility policy to ensure your integrations remain stable:\n\n- **Non-breaking changes** (safe, no action required):\n  - Adding new API endpoints\n  - Adding new optional query parameters to existing endpoints\n  - Adding new fields to API responses\n  - Adding new values to existing enums\n\n- **Breaking changes** (requires client updates):\n  - Removing or renaming API endpoints\n  - Removing query parameters or request fields\n  - Removing response fields\n  - Changing field types or validation rules\n  - Removing values from existing enums\n\n**Client Implementation Requirements:**\n\nYour API clients MUST be designed to gracefully handle additional fields in responses. We may add new fields to any response object without considering this a breaking change. Ensure your JSON parsers ignore unknown fields rather than raising errors.\n\n**Backward Compatibility Guarantee:**\n\nWe commit to maintaining backward compatibility for all non-breaking changes. Breaking changes will be:\n- Announced at least 15 days in advance\n- Documented in our changelog with migration guide\n\nFor the latest API updates and migration guides, see our changelog.",
+      "type": "text/plain"
+    }
+  }
+}

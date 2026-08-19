@@ -1,0 +1,1167 @@
+{
+  "opencollection": "1.0.0",
+  "info": {
+    "name": "SuperAI Flow Platform auth flows API",
+    "version": "0.1.0"
+  },
+  "items": [
+    {
+      "info": {
+        "name": "flows",
+        "type": "folder"
+      },
+      "items": [
+        {
+          "info": {
+            "name": "List all flows",
+            "type": "http"
+          },
+          "http": {
+            "method": "GET",
+            "url": "{{baseUrl}}/api/flows",
+            "params": [
+              {
+                "name": "search",
+                "value": "",
+                "type": "query",
+                "description": "Search flows by display name (case-insensitive)"
+              },
+              {
+                "name": "sort_field",
+                "value": "",
+                "type": "query",
+                "description": "Field to sort by"
+              },
+              {
+                "name": "sort_direction",
+                "value": "",
+                "type": "query",
+                "description": "Sort direction"
+              },
+              {
+                "name": "page",
+                "value": "",
+                "type": "query",
+                "description": "Page number"
+              },
+              {
+                "name": "page_size",
+                "value": "",
+                "type": "query",
+                "description": "Number of items per page"
+              },
+              {
+                "name": "tag_filters",
+                "value": "",
+                "type": "query",
+                "description": "JSON-encoded list of tag filter groups. Each group has 'mode' and 'values'."
+              },
+              {
+                "name": "is_cleanable",
+                "value": "",
+                "type": "query",
+                "description": "When true, returns only flows eligible for cleanup (0 tasks, older than 30 days)"
+              },
+              {
+                "name": "created_by_id",
+                "value": "",
+                "type": "query",
+                "description": "Filter flows by creator user ID."
+              },
+              {
+                "name": "organization_id",
+                "value": "",
+                "type": "query",
+                "description": "Restrict results to a single organization (backoffice cross-org views)."
+              },
+              {
+                "name": "include_latest_version_executions_count",
+                "value": "",
+                "type": "query",
+                "description": "When true, each flow includes latest_version_executions_count — runs on the most recent version that has any runs (the dataset calibration samples). Off by default to keep the default list query cheap."
+              },
+              {
+                "name": "include_ordered_task_names",
+                "value": "",
+                "type": "query",
+                "description": "Include topologically sorted list of task names in execution order. Useful for visualizing task dependencies. Adds ~50ms latency for complex flows with 20+ tasks."
+              },
+              {
+                "name": "include_validation_errors",
+                "value": "",
+                "type": "query",
+                "description": "Include DSL validation errors if the flow definition is malformed. Essential for debugging invalid flows during development. No performance impact as validation runs regardless."
+              },
+              {
+                "name": "include_dynamic_data",
+                "value": "",
+                "type": "query",
+                "description": "Include runtime configuration options for each task (e.g., dropdown values, available resources). Requires authentication to external services. May add 100-500ms latency depending on integration APIs."
+              },
+              {
+                "name": "include_output_schemas",
+                "value": "",
+                "type": "query",
+                "description": "Include JSON Schema definitions for each task's output structure. Required for building dynamic UIs or validating task connections. "
+              },
+              {
+                "name": "include_input_schema",
+                "value": "",
+                "type": "query",
+                "description": "Include JSON Schema definitions for input task executors' input structure. Calls get_input_model() to generate dynamic input schemas for form building. "
+              },
+              {
+                "name": "include_default_reference_modes",
+                "value": "",
+                "type": "query",
+                "description": "Include each task's default reference modes (single/collection) as the task-level 'default_reference_modes' property. Lets the UI show the resolved default instead of an ambiguous 'Default' option. Cheap to compute."
+              }
+            ],
+            "auth": {
+              "type": "bearer",
+              "token": "{{bearerToken}}"
+            }
+          },
+          "docs": "List all flows accessible to the authenticated user.\n\nReturns flows within the user's organization with pagination, sorting, and search support.\nEach flow includes its latest version by default.\n\n## Pagination\nResults are paginated with a default page size of 20. Use `page` and `page_size` parameters\nto navigate through results.\n\n## Sorting\nSort by `created_at` or `updated_at` in `asc` or `desc` direction.\nDefault: `created_at` descending (newest first).\n\n## Search\nUse `search` parameter for cas"
+        },
+        {
+          "info": {
+            "name": "Create a new flow",
+            "type": "http"
+          },
+          "http": {
+            "method": "POST",
+            "url": "{{baseUrl}}/api/flows",
+            "params": [
+              {
+                "name": "include_ordered_task_names",
+                "value": "",
+                "type": "query",
+                "description": "Include topologically sorted list of task names in execution order. Useful for visualizing task dependencies. Adds ~50ms latency for complex flows with 20+ tasks."
+              },
+              {
+                "name": "include_validation_errors",
+                "value": "",
+                "type": "query",
+                "description": "Include DSL validation errors if the flow definition is malformed. Essential for debugging invalid flows during development. No performance impact as validation runs regardless."
+              },
+              {
+                "name": "include_dynamic_data",
+                "value": "",
+                "type": "query",
+                "description": "Include runtime configuration options for each task (e.g., dropdown values, available resources). Requires authentication to external services. May add 100-500ms latency depending on integration APIs."
+              },
+              {
+                "name": "include_output_schemas",
+                "value": "",
+                "type": "query",
+                "description": "Include JSON Schema definitions for each task's output structure. Required for building dynamic UIs or validating task connections. "
+              },
+              {
+                "name": "include_input_schema",
+                "value": "",
+                "type": "query",
+                "description": "Include JSON Schema definitions for input task executors' input structure. Calls get_input_model() to generate dynamic input schemas for form building. "
+              },
+              {
+                "name": "include_default_reference_modes",
+                "value": "",
+                "type": "query",
+                "description": "Include each task's default reference modes (single/collection) as the task-level 'default_reference_modes' property. Lets the UI show the resolved default instead of an ambiguous 'Default' option. Cheap to compute."
+              }
+            ],
+            "body": {
+              "type": "json",
+              "data": "{}"
+            },
+            "auth": {
+              "type": "bearer",
+              "token": "{{bearerToken}}"
+            }
+          },
+          "docs": "Create a new flow in draft status.\n\nCreates a flow definition that can be executed via the flow executions API.\nNew flows are assigned version 1 and status 'draft', allowing iterative development\nbefore marking as 'published' for production use.\n\n## Flow Lifecycle\n1. **Draft**: Newly created flows start here. Editable and testable.\n2. **Published**: Ready for production. Can be executed by end users.\n\n## DSL Validation\nThe flow definition is validated against the DSL schema during creation.\nIf v"
+        },
+        {
+          "info": {
+            "name": "Get available flow tags for autocomplete",
+            "type": "http"
+          },
+          "http": {
+            "method": "GET",
+            "url": "{{baseUrl}}/api/flows/available-tags",
+            "params": [
+              {
+                "name": "search",
+                "value": "",
+                "type": "query",
+                "description": "Filter tags by substring (case-insensitive)"
+              }
+            ],
+            "auth": {
+              "type": "bearer",
+              "token": "{{bearerToken}}"
+            }
+          },
+          "docs": "Get available flow tags for autocomplete"
+        },
+        {
+          "info": {
+            "name": "Retrieve a flow by ID",
+            "type": "http"
+          },
+          "http": {
+            "method": "GET",
+            "url": "{{baseUrl}}/api/flows/:flow_id",
+            "params": [
+              {
+                "name": "flow_id",
+                "value": "",
+                "type": "path"
+              },
+              {
+                "name": "include_ordered_task_names",
+                "value": "",
+                "type": "query",
+                "description": "Include topologically sorted list of task names in execution order. Useful for visualizing task dependencies. Adds ~50ms latency for complex flows with 20+ tasks."
+              },
+              {
+                "name": "include_validation_errors",
+                "value": "",
+                "type": "query",
+                "description": "Include DSL validation errors if the flow definition is malformed. Essential for debugging invalid flows during development. No performance impact as validation runs regardless."
+              },
+              {
+                "name": "include_dynamic_data",
+                "value": "",
+                "type": "query",
+                "description": "Include runtime configuration options for each task (e.g., dropdown values, available resources). Requires authentication to external services. May add 100-500ms latency depending on integration APIs."
+              },
+              {
+                "name": "include_output_schemas",
+                "value": "",
+                "type": "query",
+                "description": "Include JSON Schema definitions for each task's output structure. Required for building dynamic UIs or validating task connections. "
+              },
+              {
+                "name": "include_input_schema",
+                "value": "",
+                "type": "query",
+                "description": "Include JSON Schema definitions for input task executors' input structure. Calls get_input_model() to generate dynamic input schemas for form building. "
+              },
+              {
+                "name": "include_default_reference_modes",
+                "value": "",
+                "type": "query",
+                "description": "Include each task's default reference modes (single/collection) as the task-level 'default_reference_modes' property. Lets the UI show the resolved default instead of an ambiguous 'Default' option. Cheap to compute."
+              }
+            ],
+            "auth": {
+              "type": "bearer",
+              "token": "{{bearerToken}}"
+            }
+          },
+          "docs": "Retrieve a specific flow by ID.\n\nReturns the latest version of a flow with its complete definition, metadata, and\noptional computed fields. This endpoint is typically used when displaying flow\ndetails or preparing to execute a flow.\n\n## Behavior\n- Always returns the latest version unless a specific version is requested via\n  `/flows/{flow_id}/versions/{version}`\n- Use expansion parameters to include computed fields (see FlowResponse model docs)\n\n## Use Cases\n- Display flow details in your applic"
+        },
+        {
+          "info": {
+            "name": "Partially update a flow",
+            "type": "http"
+          },
+          "http": {
+            "method": "PATCH",
+            "url": "{{baseUrl}}/api/flows/:flow_id",
+            "params": [
+              {
+                "name": "flow_id",
+                "value": "",
+                "type": "path"
+              },
+              {
+                "name": "include_ordered_task_names",
+                "value": "",
+                "type": "query",
+                "description": "Include topologically sorted list of task names in execution order. Useful for visualizing task dependencies. Adds ~50ms latency for complex flows with 20+ tasks."
+              },
+              {
+                "name": "include_validation_errors",
+                "value": "",
+                "type": "query",
+                "description": "Include DSL validation errors if the flow definition is malformed. Essential for debugging invalid flows during development. No performance impact as validation runs regardless."
+              },
+              {
+                "name": "include_dynamic_data",
+                "value": "",
+                "type": "query",
+                "description": "Include runtime configuration options for each task (e.g., dropdown values, available resources). Requires authentication to external services. May add 100-500ms latency depending on integration APIs."
+              },
+              {
+                "name": "include_output_schemas",
+                "value": "",
+                "type": "query",
+                "description": "Include JSON Schema definitions for each task's output structure. Required for building dynamic UIs or validating task connections. "
+              },
+              {
+                "name": "include_input_schema",
+                "value": "",
+                "type": "query",
+                "description": "Include JSON Schema definitions for input task executors' input structure. Calls get_input_model() to generate dynamic input schemas for form building. "
+              },
+              {
+                "name": "include_default_reference_modes",
+                "value": "",
+                "type": "query",
+                "description": "Include each task's default reference modes (single/collection) as the task-level 'default_reference_modes' property. Lets the UI show the resolved default instead of an ambiguous 'Default' option. Cheap to compute."
+              }
+            ],
+            "body": {
+              "type": "json",
+              "data": "{}"
+            },
+            "auth": {
+              "type": "bearer",
+              "token": "{{bearerToken}}"
+            }
+          },
+          "docs": "Partially update flow properties.\n\nUpdate specific fields of a flow without replacing the entire object.\nOnly provided fields will be modified; others remain unchanged.\n\n## Updateable Fields\n- `display_name`: Human-readable flow name\n- `description`: Flow description\n- `visibility`: Access control setting\n- `settings`: Flow-level configuration\n- `status`: Lifecycle status (draft or published)\n\n## Status Transitions\nCurrently the API allows any status transition. The valid status values are:\n- `d"
+        },
+        {
+          "info": {
+            "name": "Delete a flow",
+            "type": "http"
+          },
+          "http": {
+            "method": "DELETE",
+            "url": "{{baseUrl}}/api/flows/:flow_id",
+            "params": [
+              {
+                "name": "flow_id",
+                "value": "",
+                "type": "path"
+              }
+            ],
+            "auth": {
+              "type": "bearer",
+              "token": "{{bearerToken}}"
+            }
+          },
+          "docs": "Soft delete a flow.\n\nMarks a flow as deleted without permanently removing it from the database.\nDeleted flows are hidden from listings but can be recovered if needed.\n\n## Behavior\n- Flow is marked with `deleted=true` flag\n- Flow no longer appears in list/get operations\n- All versions of the flow are marked as deleted\n- Can be recovered by support team if needed\n\n## Important Notes\n- This is a soft delete, not a permanent deletion\n- Associated executions and files are NOT deleted\n- Deleted flows "
+        },
+        {
+          "info": {
+            "name": "Get clone info for a flow",
+            "type": "http"
+          },
+          "http": {
+            "method": "GET",
+            "url": "{{baseUrl}}/api/flows/:flow_id/clone-info",
+            "params": [
+              {
+                "name": "flow_id",
+                "value": "",
+                "type": "path"
+              }
+            ],
+            "auth": {
+              "type": "bearer",
+              "token": "{{bearerToken}}"
+            }
+          },
+          "docs": "Get clone info for a flow"
+        },
+        {
+          "info": {
+            "name": "List all versions of a flow",
+            "type": "http"
+          },
+          "http": {
+            "method": "GET",
+            "url": "{{baseUrl}}/api/flows/:flow_id/versions",
+            "params": [
+              {
+                "name": "flow_id",
+                "value": "",
+                "type": "path"
+              },
+              {
+                "name": "include_ordered_task_names",
+                "value": "",
+                "type": "query",
+                "description": "Include topologically sorted list of task names in execution order. Useful for visualizing task dependencies. Adds ~50ms latency for complex flows with 20+ tasks."
+              },
+              {
+                "name": "include_validation_errors",
+                "value": "",
+                "type": "query",
+                "description": "Include DSL validation errors if the flow definition is malformed. Essential for debugging invalid flows during development. No performance impact as validation runs regardless."
+              },
+              {
+                "name": "include_dynamic_data",
+                "value": "",
+                "type": "query",
+                "description": "Include runtime configuration options for each task (e.g., dropdown values, available resources). Requires authentication to external services. May add 100-500ms latency depending on integration APIs."
+              },
+              {
+                "name": "include_output_schemas",
+                "value": "",
+                "type": "query",
+                "description": "Include JSON Schema definitions for each task's output structure. Required for building dynamic UIs or validating task connections. "
+              },
+              {
+                "name": "include_input_schema",
+                "value": "",
+                "type": "query",
+                "description": "Include JSON Schema definitions for input task executors' input structure. Calls get_input_model() to generate dynamic input schemas for form building. "
+              },
+              {
+                "name": "include_default_reference_modes",
+                "value": "",
+                "type": "query",
+                "description": "Include each task's default reference modes (single/collection) as the task-level 'default_reference_modes' property. Lets the UI show the resolved default instead of an ambiguous 'Default' option. Cheap to compute."
+              }
+            ],
+            "auth": {
+              "type": "bearer",
+              "token": "{{bearerToken}}"
+            }
+          },
+          "docs": "List all versions of a specific flow.\n\nReturns complete version history for a flow, ordered by version number (newest first).\nEach version represents a snapshot of the flow definition at the time it was saved.\n\n## Versioning Behavior\n- Version numbers start at 1 and increment sequentially\n- Versions are immutable once created\n- Latest version is marked with `is_latest: true`\n\n## Use Cases\n- View flow evolution and change history\n- Compare different versions\n- Rollback to previous versions"
+        },
+        {
+          "info": {
+            "name": "Update flow definition",
+            "type": "http"
+          },
+          "http": {
+            "method": "PUT",
+            "url": "{{baseUrl}}/api/flows/:flow_id/definition",
+            "params": [
+              {
+                "name": "flow_id",
+                "value": "",
+                "type": "path"
+              },
+              {
+                "name": "include_ordered_task_names",
+                "value": "",
+                "type": "query",
+                "description": "Include topologically sorted list of task names in execution order. Useful for visualizing task dependencies. Adds ~50ms latency for complex flows with 20+ tasks."
+              },
+              {
+                "name": "include_validation_errors",
+                "value": "",
+                "type": "query",
+                "description": "Include DSL validation errors if the flow definition is malformed. Essential for debugging invalid flows during development. No performance impact as validation runs regardless."
+              },
+              {
+                "name": "include_dynamic_data",
+                "value": "",
+                "type": "query",
+                "description": "Include runtime configuration options for each task (e.g., dropdown values, available resources). Requires authentication to external services. May add 100-500ms latency depending on integration APIs."
+              },
+              {
+                "name": "include_output_schemas",
+                "value": "",
+                "type": "query",
+                "description": "Include JSON Schema definitions for each task's output structure. Required for building dynamic UIs or validating task connections. "
+              },
+              {
+                "name": "include_input_schema",
+                "value": "",
+                "type": "query",
+                "description": "Include JSON Schema definitions for input task executors' input structure. Calls get_input_model() to generate dynamic input schemas for form building. "
+              },
+              {
+                "name": "include_default_reference_modes",
+                "value": "",
+                "type": "query",
+                "description": "Include each task's default reference modes (single/collection) as the task-level 'default_reference_modes' property. Lets the UI show the resolved default instead of an ambiguous 'Default' option. Cheap to compute."
+              }
+            ],
+            "body": {
+              "type": "json",
+              "data": "{}"
+            },
+            "auth": {
+              "type": "bearer",
+              "token": "{{bearerToken}}"
+            }
+          },
+          "docs": "Update the complete definition of a flow.\n\nReplaces the entire flow definition with a new one. This operation is only\nallowed for flows in 'draft' status. Creates a new version of the flow.\n\n## Restrictions\n- Only flows with status 'draft' can be updated\n- Published flows cannot be modified\n- A new version is created with each update\n\n## Validation\n- New definition is validated before applying\n- If validation fails, the original definition remains unchanged\n- Use `include_validation_errors=true`"
+        },
+        {
+          "info": {
+            "name": "Validate a flow definition without persisting",
+            "type": "http"
+          },
+          "http": {
+            "method": "POST",
+            "url": "{{baseUrl}}/api/flows/:flow_id/validate",
+            "params": [
+              {
+                "name": "flow_id",
+                "value": "",
+                "type": "path"
+              },
+              {
+                "name": "include_dynamic_data",
+                "value": "",
+                "type": "query"
+              },
+              {
+                "name": "include_output_schemas",
+                "value": "",
+                "type": "query"
+              },
+              {
+                "name": "include_default_reference_modes",
+                "value": "",
+                "type": "query"
+              }
+            ],
+            "body": {
+              "type": "json",
+              "data": "{}"
+            },
+            "auth": {
+              "type": "bearer",
+              "token": "{{bearerToken}}"
+            }
+          },
+          "docs": "Validate a flow definition without persisting anything.\n\nRuns DSL validation and returns validation errors and ordered task names.\nUsed for real-time validation feedback during editing."
+        },
+        {
+          "info": {
+            "name": "List version summaries for a flow",
+            "type": "http"
+          },
+          "http": {
+            "method": "GET",
+            "url": "{{baseUrl}}/api/flows/:flow_id/versions/summary",
+            "params": [
+              {
+                "name": "flow_id",
+                "value": "",
+                "type": "path"
+              },
+              {
+                "name": "page",
+                "value": "",
+                "type": "query"
+              },
+              {
+                "name": "page_size",
+                "value": "",
+                "type": "query"
+              },
+              {
+                "name": "search",
+                "value": "",
+                "type": "query"
+              },
+              {
+                "name": "favourites_only",
+                "value": "",
+                "type": "query"
+              }
+            ],
+            "auth": {
+              "type": "bearer",
+              "token": "{{bearerToken}}"
+            }
+          },
+          "docs": "Get lightweight version metadata for the version history sidebar.\n\nReturns only metadata (version, timestamps, author, is_latest) without full definitions.\nOrdered by version descending (newest first). Supports pagination, search by name,\nand favourite filtering."
+        },
+        {
+          "info": {
+            "name": "Get specific flow version",
+            "type": "http"
+          },
+          "http": {
+            "method": "GET",
+            "url": "{{baseUrl}}/api/flows/:flow_id/versions/:version",
+            "params": [
+              {
+                "name": "flow_id",
+                "value": "",
+                "type": "path"
+              },
+              {
+                "name": "version",
+                "value": "",
+                "type": "path"
+              },
+              {
+                "name": "include_ordered_task_names",
+                "value": "",
+                "type": "query",
+                "description": "Include topologically sorted list of task names in execution order. Useful for visualizing task dependencies. Adds ~50ms latency for complex flows with 20+ tasks."
+              },
+              {
+                "name": "include_validation_errors",
+                "value": "",
+                "type": "query",
+                "description": "Include DSL validation errors if the flow definition is malformed. Essential for debugging invalid flows during development. No performance impact as validation runs regardless."
+              },
+              {
+                "name": "include_dynamic_data",
+                "value": "",
+                "type": "query",
+                "description": "Include runtime configuration options for each task (e.g., dropdown values, available resources). Requires authentication to external services. May add 100-500ms latency depending on integration APIs."
+              },
+              {
+                "name": "include_output_schemas",
+                "value": "",
+                "type": "query",
+                "description": "Include JSON Schema definitions for each task's output structure. Required for building dynamic UIs or validating task connections. "
+              },
+              {
+                "name": "include_input_schema",
+                "value": "",
+                "type": "query",
+                "description": "Include JSON Schema definitions for input task executors' input structure. Calls get_input_model() to generate dynamic input schemas for form building. "
+              },
+              {
+                "name": "include_default_reference_modes",
+                "value": "",
+                "type": "query",
+                "description": "Include each task's default reference modes (single/collection) as the task-level 'default_reference_modes' property. Lets the UI show the resolved default instead of an ambiguous 'Default' option. Cheap to compute."
+              }
+            ],
+            "auth": {
+              "type": "bearer",
+              "token": "{{bearerToken}}"
+            }
+          },
+          "docs": "Retrieve a specific version of a flow.\n\nAccess historical versions of a flow to view previous definitions,\ncompare changes, or rollback to a previous state.\n\n## Use Cases\n- View flow definition at a specific point in time\n- Compare versions to understand what changed\n- Reference the exact version used in a flow execution"
+        },
+        {
+          "info": {
+            "name": "Update version metadata",
+            "type": "http"
+          },
+          "http": {
+            "method": "PATCH",
+            "url": "{{baseUrl}}/api/flows/:flow_id/versions/:version",
+            "params": [
+              {
+                "name": "flow_id",
+                "value": "",
+                "type": "path"
+              },
+              {
+                "name": "version",
+                "value": "",
+                "type": "path"
+              }
+            ],
+            "body": {
+              "type": "json",
+              "data": "{}"
+            },
+            "auth": {
+              "type": "bearer",
+              "token": "{{bearerToken}}"
+            }
+          },
+          "docs": "Update version metadata"
+        },
+        {
+          "info": {
+            "name": "Restore a past version",
+            "type": "http"
+          },
+          "http": {
+            "method": "POST",
+            "url": "{{baseUrl}}/api/flows/:flow_id/versions/:version/restore",
+            "params": [
+              {
+                "name": "flow_id",
+                "value": "",
+                "type": "path"
+              },
+              {
+                "name": "version",
+                "value": "",
+                "type": "path"
+              },
+              {
+                "name": "include_ordered_task_names",
+                "value": "",
+                "type": "query",
+                "description": "Include topologically sorted list of task names in execution order. Useful for visualizing task dependencies. Adds ~50ms latency for complex flows with 20+ tasks."
+              },
+              {
+                "name": "include_validation_errors",
+                "value": "",
+                "type": "query",
+                "description": "Include DSL validation errors if the flow definition is malformed. Essential for debugging invalid flows during development. No performance impact as validation runs regardless."
+              },
+              {
+                "name": "include_dynamic_data",
+                "value": "",
+                "type": "query",
+                "description": "Include runtime configuration options for each task (e.g., dropdown values, available resources). Requires authentication to external services. May add 100-500ms latency depending on integration APIs."
+              },
+              {
+                "name": "include_output_schemas",
+                "value": "",
+                "type": "query",
+                "description": "Include JSON Schema definitions for each task's output structure. Required for building dynamic UIs or validating task connections. "
+              },
+              {
+                "name": "include_input_schema",
+                "value": "",
+                "type": "query",
+                "description": "Include JSON Schema definitions for input task executors' input structure. Calls get_input_model() to generate dynamic input schemas for form building. "
+              },
+              {
+                "name": "include_default_reference_modes",
+                "value": "",
+                "type": "query",
+                "description": "Include each task's default reference modes (single/collection) as the task-level 'default_reference_modes' property. Lets the UI show the resolved default instead of an ambiguous 'Default' option. Cheap to compute."
+              }
+            ],
+            "auth": {
+              "type": "bearer",
+              "token": "{{bearerToken}}"
+            }
+          },
+          "docs": "Restore a past version as the new latest version.\n\nCreates a new version with the same definition as the specified historical version.\nThe restored version becomes the new latest version with an incremented version number."
+        },
+        {
+          "info": {
+            "name": "Update a single task in flow",
+            "type": "http"
+          },
+          "http": {
+            "method": "PUT",
+            "url": "{{baseUrl}}/api/flows/:flow_id/task",
+            "params": [
+              {
+                "name": "flow_id",
+                "value": "",
+                "type": "path"
+              },
+              {
+                "name": "include_ordered_task_names",
+                "value": "",
+                "type": "query",
+                "description": "Include topologically sorted list of task names in execution order. Useful for visualizing task dependencies. Adds ~50ms latency for complex flows with 20+ tasks."
+              },
+              {
+                "name": "include_validation_errors",
+                "value": "",
+                "type": "query",
+                "description": "Include DSL validation errors if the flow definition is malformed. Essential for debugging invalid flows during development. No performance impact as validation runs regardless."
+              },
+              {
+                "name": "include_dynamic_data",
+                "value": "",
+                "type": "query",
+                "description": "Include runtime configuration options for each task (e.g., dropdown values, available resources). Requires authentication to external services. May add 100-500ms latency depending on integration APIs."
+              },
+              {
+                "name": "include_output_schemas",
+                "value": "",
+                "type": "query",
+                "description": "Include JSON Schema definitions for each task's output structure. Required for building dynamic UIs or validating task connections. "
+              },
+              {
+                "name": "include_input_schema",
+                "value": "",
+                "type": "query",
+                "description": "Include JSON Schema definitions for input task executors' input structure. Calls get_input_model() to generate dynamic input schemas for form building. "
+              },
+              {
+                "name": "include_default_reference_modes",
+                "value": "",
+                "type": "query",
+                "description": "Include each task's default reference modes (single/collection) as the task-level 'default_reference_modes' property. Lets the UI show the resolved default instead of an ambiguous 'Default' option. Cheap to compute."
+              }
+            ],
+            "body": {
+              "type": "json",
+              "data": "{}"
+            },
+            "auth": {
+              "type": "bearer",
+              "token": "{{bearerToken}}"
+            }
+          },
+          "docs": "Update a single task within a flow definition.\n\nUpdates one task while preserving the rest of the flow definition.\nMore efficient than replacing the entire definition when modifying a single task.\n\n## Behavior\n- Task is identified by the `name` field in the task definition\n- If task doesn't exist, it will be added\n- If task exists, it will be replaced\n- Only available for flows in 'draft' status"
+        },
+        {
+          "info": {
+            "name": "Generate file upload URL",
+            "type": "http"
+          },
+          "http": {
+            "method": "POST",
+            "url": "{{baseUrl}}/api/flows/:flow_id/upload-url",
+            "params": [
+              {
+                "name": "flow_id",
+                "value": "",
+                "type": "path"
+              },
+              {
+                "name": "content_type",
+                "value": "",
+                "type": "query",
+                "description": "MIME type of file to upload (e.g., 'application/pdf', 'image/png')"
+              }
+            ],
+            "auth": {
+              "type": "bearer",
+              "token": "{{bearerToken}}"
+            }
+          },
+          "docs": "Generate pre-signed URL for uploading files to a flow.\n\nCreates a temporary upload URL that allows direct file upload to cloud storage\nwithout exposing storage credentials. Each URL is valid for 1 hour.\n\n## Upload Process\n1. Call this endpoint to receive an upload URL\n2. Use PUT request to upload your file to the returned `upload_url`\n3. Save the returned `file_key` to reference the file later\n4. File becomes accessible via the flow immediately after upload\n\n## Supported File Types\n- Documents: "
+        },
+        {
+          "info": {
+            "name": "List flow files",
+            "type": "http"
+          },
+          "http": {
+            "method": "GET",
+            "url": "{{baseUrl}}/api/flows/:flow_id/files",
+            "params": [
+              {
+                "name": "flow_id",
+                "value": "",
+                "type": "path"
+              }
+            ],
+            "auth": {
+              "type": "bearer",
+              "token": "{{bearerToken}}"
+            }
+          },
+          "docs": "List all files associated with a flow.\n\nReturns metadata for all files that have been uploaded to this flow,\nincluding original filenames, sizes, and custom metadata.\n\n## Use Cases\n- Display uploaded files in UI\n- Verify file uploads completed successfully\n- Retrieve file keys for download URL generation"
+        },
+        {
+          "info": {
+            "name": "List task summaries for flow version",
+            "type": "http"
+          },
+          "http": {
+            "method": "GET",
+            "url": "{{baseUrl}}/api/flows/:flow_id/versions/:version/summary",
+            "params": [
+              {
+                "name": "flow_id",
+                "value": "",
+                "type": "path"
+              },
+              {
+                "name": "version",
+                "value": "",
+                "type": "path"
+              }
+            ],
+            "auth": {
+              "type": "bearer",
+              "token": "{{bearerToken}}"
+            }
+          },
+          "docs": "List task execution summaries for a specific flow version.\n\nReturns lightweight task summaries without full output data, reducing\nnetwork overhead when you only need execution metadata.\n\n## Performance Benefits\n- Excludes potentially large task output fields\n- Significantly faster response times for flows with large outputs\n- Ideal for listing/summary views\n\n## Use Cases\n- Display execution history in a table/list\n- Check task statuses without downloading full outputs\n- Build dashboards showing "
+        },
+        {
+          "info": {
+            "name": "Get tags for flow executions",
+            "type": "http"
+          },
+          "http": {
+            "method": "GET",
+            "url": "{{baseUrl}}/api/flows/:flow_id/tags",
+            "params": [
+              {
+                "name": "flow_id",
+                "value": "",
+                "type": "path"
+              },
+              {
+                "name": "task_name",
+                "value": "",
+                "type": "query",
+                "description": "Optional task name to scope tags to a specific task"
+              }
+            ],
+            "auth": {
+              "type": "bearer",
+              "token": "{{bearerToken}}"
+            }
+          },
+          "docs": "Get all unique tag values from task outputs for a specific flow.\n\nReturns distinct tag strings from TaskOutput.tags across all active\nflow executions. Used to populate tag filter dropdowns dynamically.\nWhen task_name is provided, only returns tags from that specific task."
+        },
+        {
+          "info": {
+            "name": "Get distinct metadata keys for a flow",
+            "type": "http"
+          },
+          "http": {
+            "method": "GET",
+            "url": "{{baseUrl}}/api/flows/:flow_id/metadata/keys",
+            "params": [
+              {
+                "name": "flow_id",
+                "value": "",
+                "type": "path"
+              },
+              {
+                "name": "key_like",
+                "value": "",
+                "type": "query",
+                "description": "Search filter for key (case-insensitive, supports partial match)"
+              },
+              {
+                "name": "limit",
+                "value": "",
+                "type": "query",
+                "description": "Maximum number of keys to return"
+              },
+              {
+                "name": "order_by",
+                "value": "",
+                "type": "query",
+                "description": "Field to order by"
+              },
+              {
+                "name": "order_direction",
+                "value": "",
+                "type": "query",
+                "description": "Sort direction"
+              }
+            ],
+            "auth": {
+              "type": "bearer",
+              "token": "{{bearerToken}}"
+            }
+          },
+          "docs": "Get all distinct metadata keys used in runs for this flow.\n\nRetrieve distinct metadata keys with optional search-as-you-type autocomplete.\nReturns up to `limit` keys ordered by the specified field and direction.\n\nExample responses:\n- No search: [{\"key\": \"project\", \"count\": 42}, {\"key\": \"department\", \"count\": 15}]\n- Search \"pro\": [{\"key\": \"project\", \"count\": 42}, {\"key\": \"product\", \"count\": 10}]"
+        },
+        {
+          "info": {
+            "name": "Get distinct values for a metadata key",
+            "type": "http"
+          },
+          "http": {
+            "method": "GET",
+            "url": "{{baseUrl}}/api/flows/:flow_id/metadata/values",
+            "params": [
+              {
+                "name": "flow_id",
+                "value": "",
+                "type": "path"
+              },
+              {
+                "name": "key",
+                "value": "",
+                "type": "query",
+                "description": "Metadata key to get values for (case-insensitive)"
+              },
+              {
+                "name": "value_like",
+                "value": "",
+                "type": "query",
+                "description": "Search filter for value (case-insensitive, supports partial match)"
+              },
+              {
+                "name": "limit",
+                "value": "",
+                "type": "query",
+                "description": "Maximum number of values to return"
+              },
+              {
+                "name": "order_by",
+                "value": "",
+                "type": "query",
+                "description": "Field to order by"
+              },
+              {
+                "name": "order_direction",
+                "value": "",
+                "type": "query",
+                "description": "Sort direction"
+              }
+            ],
+            "auth": {
+              "type": "bearer",
+              "token": "{{bearerToken}}"
+            }
+          },
+          "docs": "Get all distinct values for a specific metadata key across all runs.\n\nRetrieve distinct values with optional search-as-you-type autocomplete.\nReturns up to `limit` values ordered by the specified field and direction.\n\nExample: GET /flows/{id}/metadata/values?key=project\nResponse: [{\"value\": \"Alpha\", \"count\": 30}, {\"value\": \"Beta\", \"count\": 12}]\n\nExample with search: GET /flows/{id}/metadata/values?key=project&value_like=alp\nResponse: [{\"value\": \"Alpha\", \"count\": 30}, {\"value\": \"Alpine\", \"count\":"
+        },
+        {
+          "info": {
+            "name": "Generate file download URL",
+            "type": "http"
+          },
+          "http": {
+            "method": "POST",
+            "url": "{{baseUrl}}/api/flows/download-url",
+            "body": {
+              "type": "json",
+              "data": "{}"
+            },
+            "auth": {
+              "type": "bearer",
+              "token": "{{bearerToken}}"
+            }
+          },
+          "docs": "Generate pre-signed URL for downloading a file.\n\nCreates a temporary download URL (valid 1 hour) for a previously uploaded\nfile. The requested `file_key` is authorized against the caller's org before\nsigning — a key belonging to another organization returns 404.\n\n## Download Process\n1. Get file_key from file listing or upload response\n2. Call this endpoint with the file_key\n3. Use returned URL in browser or GET request to download file"
+        },
+        {
+          "info": {
+            "name": "List flow invitations",
+            "type": "http"
+          },
+          "http": {
+            "method": "GET",
+            "url": "{{baseUrl}}/api/flows/:flow_id/invitations",
+            "params": [
+              {
+                "name": "flow_id",
+                "value": "",
+                "type": "path"
+              }
+            ],
+            "auth": {
+              "type": "bearer",
+              "token": "{{bearerToken}}"
+            }
+          },
+          "docs": "List all invitations for a specific flow.\n\nReturns all users who have been invited to access this flow.\n\n## Permissions\n- Only org_admin role can view invitations\n- User must belong to the same organization as the flow"
+        },
+        {
+          "info": {
+            "name": "Upsert user invitations to a flow",
+            "type": "http"
+          },
+          "http": {
+            "method": "PUT",
+            "url": "{{baseUrl}}/api/flows/:flow_id/invitations",
+            "params": [
+              {
+                "name": "flow_id",
+                "value": "",
+                "type": "path"
+              }
+            ],
+            "body": {
+              "type": "json",
+              "data": "{}"
+            },
+            "auth": {
+              "type": "bearer",
+              "token": "{{bearerToken}}"
+            }
+          },
+          "docs": "Upsert invitations for multiple users to access a flow.\n\nThis endpoint allows admins to invite worker users to specific flows.\nOnly users with the **worker role** will be invited - other users are automatically filtered out.\nInvited users will be able to access the flow and its executions through\nthe RLS policies enforced at the database level.\n\n## Permissions\n- Only org_admin role can create/update invitations\n- Users must belong to the same organization as the flow\n\n## Behavior\n- **Upsert sema"
+        },
+        {
+          "info": {
+            "name": "Remove user invitations from a flow",
+            "type": "http"
+          },
+          "http": {
+            "method": "DELETE",
+            "url": "{{baseUrl}}/api/flows/:flow_id/invitations",
+            "params": [
+              {
+                "name": "flow_id",
+                "value": "",
+                "type": "path"
+              }
+            ],
+            "body": {
+              "type": "json",
+              "data": "{}"
+            },
+            "auth": {
+              "type": "bearer",
+              "token": "{{bearerToken}}"
+            }
+          },
+          "docs": "Remove invitations for specific users from a flow.\n\nThis endpoint allows admins to revoke access for worker users to specific flows.\nOnce removed, users will no longer be able to access the flow and its executions\nthrough the RLS policies enforced at the database level.\n\n## Permissions\n- Only org_admin role can remove invitations\n- Users must belong to the same organization as the flow\n\n## Behavior\n- Removes invitations for all specified user IDs\n- Non-existent invitations are silently ignored\n-"
+        },
+        {
+          "info": {
+            "name": "List team invitations for a flow",
+            "type": "http"
+          },
+          "http": {
+            "method": "GET",
+            "url": "{{baseUrl}}/api/flows/:flow_id/team-invitations",
+            "params": [
+              {
+                "name": "flow_id",
+                "value": "",
+                "type": "path"
+              }
+            ],
+            "auth": {
+              "type": "bearer",
+              "token": "{{bearerToken}}"
+            }
+          },
+          "docs": "List every team invited to the flow, with current member counts."
+        },
+        {
+          "info": {
+            "name": "Upsert team (worker group) invitations to a flow",
+            "type": "http"
+          },
+          "http": {
+            "method": "PUT",
+            "url": "{{baseUrl}}/api/flows/:flow_id/team-invitations",
+            "params": [
+              {
+                "name": "flow_id",
+                "value": "",
+                "type": "path"
+              }
+            ],
+            "body": {
+              "type": "json",
+              "data": "{}"
+            },
+            "auth": {
+              "type": "bearer",
+              "token": "{{bearerToken}}"
+            }
+          },
+          "docs": "Invite one or more worker groups (teams) to a flow.\n\nEvery current member of the referenced team gains flow visibility via\nthe RLS join on `worker_group_members` — no per-member rows are written,\nso membership changes propagate automatically."
+        },
+        {
+          "info": {
+            "name": "Remove team invitations from a flow",
+            "type": "http"
+          },
+          "http": {
+            "method": "DELETE",
+            "url": "{{baseUrl}}/api/flows/:flow_id/team-invitations",
+            "params": [
+              {
+                "name": "flow_id",
+                "value": "",
+                "type": "path"
+              }
+            ],
+            "body": {
+              "type": "json",
+              "data": "{}"
+            },
+            "auth": {
+              "type": "bearer",
+              "token": "{{bearerToken}}"
+            }
+          },
+          "docs": "Remove team invitations; members lose access unless they're invited individually\nor via another team still on the flow."
+        }
+      ]
+    }
+  ],
+  "bundled": true
+}

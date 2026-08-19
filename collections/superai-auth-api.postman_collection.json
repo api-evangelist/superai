@@ -1,0 +1,1136 @@
+{
+  "item": [
+    {
+      "id": "0659539d-0c7c-40f9-8726-509cc791e4fe",
+      "name": "auth",
+      "description": {
+        "content": "Authentication operations for user authentication, authorization, and session management.\n\nAuthentication endpoints handle user identity verification, token generation, and access control throughout the platform. The system uses JWT (JSON Web Token) based authentication managed through core.flows.super.ai.\n\n**Authentication flow:**\n1. Obtain credentials from your account at core.flows.super.ai\n2. Authenticate to receive JWT access token and refresh token\n3. Include access token in API requests via Authorization header\n4. API validates tokens and extracts user identity and organization context\n5. Tokens expire after 1 hour and must be refreshed\n\n**Key concepts:**\n- **Bearer Tokens**: Short-lived JWT tokens (1 hour) used for API requests\n- **Anon-Key**: Long-lived API key used to authenticate to the authentication API.\n- **Refresh Tokens**: Long-lived tokens used to obtain new access tokens\n- **Protected Routes**: Most endpoints require valid authentication\n- **Public Endpoints**: Limited whitelisted paths accessible without auth\n\n**Getting started with authentication:**\n\n1. **Obtain your Anonymous Key** (public endpoint - no authentication required):\n   ```bash\n   curl https://flows.super.ai/api/auth/anon-key\n   ```\n\n2. **Authenticate** to receive your tokens:\n   ```bash\n   curl -X POST 'https://core.flows.super.ai/auth/v1/token?grant_type=password' \\\n     -H 'Content-Type: application/json' \\\n     -H 'apikey: ANON_KEY' \\\n     -d '{\"email\": \"you@example.com\", \"password\": \"your-password\"}'\n   ```\n   This will return a JWT access token and refresh token.\n\n3. **Use the access token** in your requests:\n   ```bash\n   curl -H \"Authorization: Bearer YOUR_ACCESS_TOKEN\" \\\n        https://flows.super.ai/api/flows\n   ```\n\n**Token management:**\n- Access tokens expire after 1 hour\n- Use refresh tokens to obtain new access tokens without re-authenticating\n- Store tokens securely and never commit them to version control\n\nAll API endpoints (except whitelisted public paths) require authentication. Include your bearer token in the Authorization header: `Bearer <token>`",
+        "type": "text/plain"
+      },
+      "item": [
+        {
+          "id": "ac6bfceb-88f7-4380-a808-3d66d0d49b76",
+          "name": "Reset Password",
+          "request": {
+            "name": "Reset Password",
+            "description": {
+              "content": "",
+              "type": "text/plain"
+            },
+            "url": {
+              "path": [
+                "api",
+                "auth",
+                "reset-password"
+              ],
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "query": [],
+              "variable": []
+            },
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "method": "POST",
+            "auth": null,
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"<email>\",\n  \"redirect_to\": \"<string>\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": [
+            {
+              "id": "64d1da4c-813f-4326-98d2-aeb84714d12a",
+              "name": "Password reset request processed",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "api",
+                    "auth",
+                    "reset-password"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [],
+                  "variable": []
+                },
+                "header": [
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "method": "POST",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"email\": \"<email>\",\n  \"redirect_to\": \"<string>\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "status": "OK",
+              "code": 200,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"message\": \"string\"\n}",
+              "cookie": [],
+              "_postman_previewlanguage": "json"
+            },
+            {
+              "id": "2f6e9c85-8d5b-43fd-a17a-b36df4281e6e",
+              "name": "Unprocessable Entity - Request validation failed",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "api",
+                    "auth",
+                    "reset-password"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [],
+                  "variable": []
+                },
+                "header": [
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "method": "POST",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"email\": \"<email>\",\n  \"redirect_to\": \"<string>\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "status": "Unprocessable Entity (WebDAV) (RFC 4918)",
+              "code": 422,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"error\": {\n    \"message\": \"Request validation failed\",\n    \"code\": \"validation_error\",\n    \"details\": [\n      {\n        \"type\": \"missing\",\n        \"loc\": [\n          \"body\",\n          \"name\"\n        ],\n        \"msg\": \"Field required\"\n      }\n    ]\n  },\n  \"request_id\": \"01K8KABR6S16YETA2SZPVBS9SP\"\n}",
+              "cookie": [],
+              "_postman_previewlanguage": "json"
+            }
+          ],
+          "event": [],
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          }
+        },
+        {
+          "id": "b57fd6dc-8ba4-4108-bec7-04f4e732f582",
+          "name": "Resend user invitation email",
+          "request": {
+            "name": "Resend user invitation email",
+            "description": {
+              "content": "Resend invitation email to an existing user account.\n\nFor pending users whose Supabase invite token has expired, this deletes\nthe stale user from both Supabase and our database, then re-creates and\nre-invites them with a fresh token. For active users, it simply triggers\na new invite email.",
+              "type": "text/plain"
+            },
+            "url": {
+              "path": [
+                "api",
+                "auth",
+                "resend-invite"
+              ],
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "query": [],
+              "variable": []
+            },
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "method": "POST",
+            "auth": null,
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"<email>\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": [
+            {
+              "id": "22ce687c-792b-48cd-9b0a-deab825d1409",
+              "name": "Invitation email successfully queued for delivery",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "api",
+                    "auth",
+                    "resend-invite"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [],
+                  "variable": []
+                },
+                "header": [
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "method": "POST",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"email\": \"user@example.com\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "status": "OK",
+              "code": 200,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"success\": true,\n  \"message\": \"Invitation has been resent successfully\",\n  \"email\": \"user@example.com\"\n}",
+              "cookie": [],
+              "_postman_previewlanguage": "json"
+            },
+            {
+              "id": "8dec4316-3b1b-4648-a679-6dc00b94cbfe",
+              "name": "User with specified email address does not exist",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "api",
+                    "auth",
+                    "resend-invite"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [],
+                  "variable": []
+                },
+                "header": [
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "method": "POST",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"email\": \"user@example.com\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "status": "Not Found",
+              "code": 404,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"error\": {\n    \"code\": \"not_found\",\n    \"message\": \"Resource not found\"\n  },\n  \"request_id\": \"01K8KABR6S16YETA2SZPVBS9SP\"\n}",
+              "cookie": [],
+              "_postman_previewlanguage": "json"
+            },
+            {
+              "id": "977cd5b0-6298-4890-a573-8061149b838b",
+              "name": "Unprocessable Entity - Request validation failed",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "api",
+                    "auth",
+                    "resend-invite"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [],
+                  "variable": []
+                },
+                "header": [
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "method": "POST",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"email\": \"user@example.com\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "status": "Unprocessable Entity (WebDAV) (RFC 4918)",
+              "code": 422,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"error\": {\n    \"message\": \"Request validation failed\",\n    \"code\": \"validation_error\",\n    \"details\": [\n      {\n        \"type\": \"missing\",\n        \"loc\": [\n          \"body\",\n          \"name\"\n        ],\n        \"msg\": \"Field required\"\n      }\n    ]\n  },\n  \"request_id\": \"01K8KABR6S16YETA2SZPVBS9SP\"\n}",
+              "cookie": [],
+              "_postman_previewlanguage": "json"
+            },
+            {
+              "id": "539d9661-8395-4e43-959d-cb5fd6b77c22",
+              "name": "Authentication service unavailable or email delivery failed",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "api",
+                    "auth",
+                    "resend-invite"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [],
+                  "variable": []
+                },
+                "header": [
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "method": "POST",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"email\": \"user@example.com\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "status": "Internal Server Error",
+              "code": 500,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"error\": {\n    \"code\": \"not_found\",\n    \"message\": \"Resource not found\"\n  },\n  \"request_id\": \"01K8KABR6S16YETA2SZPVBS9SP\"\n}",
+              "cookie": [],
+              "_postman_previewlanguage": "json"
+            }
+          ],
+          "event": [],
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          }
+        },
+        {
+          "id": "c73b7dc0-8dab-48fa-956f-43e0422c4e36",
+          "name": "Resolve login method for an email",
+          "request": {
+            "name": "Resolve login method for an email",
+            "description": {
+              "content": "Pre-flight check used by the login form before invoking Supabase sign-in.\n\nThis endpoint is unauthenticated; it only reveals whether a given email's\ndomain is configured for strict SSO. Hard enforcement lives in the auth\nmiddleware — clients bypassing this check still get rejected on the first\nauthenticated request.",
+              "type": "text/plain"
+            },
+            "url": {
+              "path": [
+                "api",
+                "auth",
+                "login-method"
+              ],
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "query": [
+                {
+                  "disabled": false,
+                  "key": "email",
+                  "value": "<email>",
+                  "description": "(Required) Email address to evaluate"
+                }
+              ],
+              "variable": []
+            },
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "method": "GET",
+            "auth": null
+          },
+          "response": [
+            {
+              "id": "bfd72fa9-5a6e-4ca2-94ed-4ea3472e7e97",
+              "name": "Returns 'sso_required' when the email's domain belongs to an organization that enforces strict SSO; 'password_ok' otherwise.",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "api",
+                    "auth",
+                    "login-method"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [
+                    {
+                      "key": "email",
+                      "value": "<email>"
+                    }
+                  ],
+                  "variable": []
+                },
+                "header": [
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "method": "GET",
+                "body": {}
+              },
+              "status": "OK",
+              "code": 200,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"method\": \"password_ok\"\n}",
+              "cookie": [],
+              "_postman_previewlanguage": "json"
+            },
+            {
+              "id": "158c9077-800e-4b3e-9c3d-e6e7ca4be449",
+              "name": "Unprocessable Entity - Request validation failed",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "api",
+                    "auth",
+                    "login-method"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [
+                    {
+                      "key": "email",
+                      "value": "<email>"
+                    }
+                  ],
+                  "variable": []
+                },
+                "header": [
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "method": "GET",
+                "body": {}
+              },
+              "status": "Unprocessable Entity (WebDAV) (RFC 4918)",
+              "code": 422,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"error\": {\n    \"message\": \"Request validation failed\",\n    \"code\": \"validation_error\",\n    \"details\": [\n      {\n        \"type\": \"missing\",\n        \"loc\": [\n          \"body\",\n          \"name\"\n        ],\n        \"msg\": \"Field required\"\n      }\n    ]\n  },\n  \"request_id\": \"01K8KABR6S16YETA2SZPVBS9SP\"\n}",
+              "cookie": [],
+              "_postman_previewlanguage": "json"
+            }
+          ],
+          "event": [],
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          }
+        },
+        {
+          "id": "6099ec01-4597-49db-a173-4ad41ba15b92",
+          "name": "Retrieve authentication API key",
+          "request": {
+            "name": "Retrieve authentication API key",
+            "description": {
+              "content": "Retrieve the anonymous authentication key required for client authentication.\n\nReturns the authentication key that client applications need to authenticate\nwith the authentication API at core.flows.super.ai. This key enables clients\nto perform password-based authentication and obtain JWT access tokens.\n\nContext:\n    - This key is required to make authentication requests to core.flows.super.ai\n    - The key is safe for use in client-side applications (browsers, mobile apps)\n    - Does not grant admin privileges or direct API access\n    - Only enables authentication operations (login, token refresh)\n    - Same key is used across all clients and organizations\n    - Key is long-lived and rarely rotated\n\nAuthentication Flow:\n    1. Client retrieves anonymous key from this endpoint\n    2. Client sends authentication request to core.flows.super.ai\n    3. Include anonymous key in 'apikey' header\n    4. Authentication service validates credentials and returns JWT tokens\n    5. Client uses JWT access token for subsequent API requests\n\nUse Cases:\n    - Web application initialization requiring user authentication\n    - Mobile app setup for authentication integration\n    - Testing authentication flow in development\n    - Building custom authentication UI\n    - Integrating third-party applications with authentication service\n\nSecurity Considerations:\n    - This key is public and safe for client-side applications\n    - Does not provide access to user data or administrative functions\n    - Only enables authentication API operations\n    - Users must still provide valid credentials (email/password)\n    - Rate limiting applied at authentication service level\n    - Key rotation handled by platform administrators\n\nIntegration Example:\n    After retrieving this key, use it to authenticate users:\n\n    Step 1: Get the anonymous key (this endpoint)\n    Step 2: Use the key to authenticate users at core.flows.super.ai\n    Step 3: Receive JWT tokens for API access\n\nRelated Endpoints:\n    - POST /auth/resend-invite - Resend invitation to existing users\n    - GET /profile/me - Retrieve authenticated user profile\n    - See authentication tag description for complete authentication guide\n\nError Handling:\n    - Returns 500 if key is not configured on server\n    - Indicates server misconfiguration requiring administrator attention\n    - Contact platform support if persistent errors occur",
+              "type": "text/plain"
+            },
+            "url": {
+              "path": [
+                "api",
+                "auth",
+                "anon-key"
+              ],
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "query": [],
+              "variable": []
+            },
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "method": "GET",
+            "auth": null
+          },
+          "response": [
+            {
+              "id": "6cbcba95-e7af-4f34-8016-e4e56b9e8add",
+              "name": "Authentication key successfully retrieved",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "api",
+                    "auth",
+                    "anon-key"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [],
+                  "variable": []
+                },
+                "header": [
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "method": "GET",
+                "body": {}
+              },
+              "status": "OK",
+              "code": 200,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"anon_key\": \"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImFiY2RlZmdoaWprbG1ub3BxcnN0Iiwicm9sZSI6ImFub24iLCJpYXQiOjE2ODkwMDAwMDAsImV4cCI6MTg0Njc2ODAwMH0.signature\"\n}",
+              "cookie": [],
+              "_postman_previewlanguage": "json"
+            },
+            {
+              "id": "761b9fe9-7d15-4ba0-a8f7-219338fb69bb",
+              "name": "Unprocessable Entity - Request validation failed",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "api",
+                    "auth",
+                    "anon-key"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [],
+                  "variable": []
+                },
+                "header": [
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "method": "GET",
+                "body": {}
+              },
+              "status": "Unprocessable Entity (WebDAV) (RFC 4918)",
+              "code": 422,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"error\": {\n    \"message\": \"Request validation failed\",\n    \"code\": \"validation_error\",\n    \"details\": [\n      {\n        \"type\": \"missing\",\n        \"loc\": [\n          \"body\",\n          \"name\"\n        ],\n        \"msg\": \"Field required\"\n      }\n    ]\n  },\n  \"request_id\": \"01K8KABR6S16YETA2SZPVBS9SP\"\n}",
+              "cookie": [],
+              "_postman_previewlanguage": "json"
+            },
+            {
+              "id": "de3f48d8-e240-4e4b-8509-2f1f66613988",
+              "name": "Authentication key not configured on server",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "api",
+                    "auth",
+                    "anon-key"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [],
+                  "variable": []
+                },
+                "header": [
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "method": "GET",
+                "body": {}
+              },
+              "status": "Internal Server Error",
+              "code": 500,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"error\": {\n    \"code\": \"not_found\",\n    \"message\": \"Resource not found\"\n  },\n  \"request_id\": \"01K8KABR6S16YETA2SZPVBS9SP\"\n}",
+              "cookie": [],
+              "_postman_previewlanguage": "json"
+            }
+          ],
+          "event": [],
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          }
+        },
+        {
+          "id": "d44d08b0-cdbd-4114-a043-14687eaab585",
+          "name": "Pre-flight signup email policy check for magic link",
+          "request": {
+            "name": "Pre-flight signup email policy check for magic link",
+            "description": {
+              "content": "Pre-flight UX check used by the signup form before sending a magic link.\n\nUnauthenticated and purely domain-list based — it performs no account\nlookup, so it cannot be used to enumerate accounts. Hard enforcement stays\nin POST /auth/self-service/complete; clients bypassing this check are still\nrejected there. Mirrors the GET /auth/login-method pre-flight pattern.",
+              "type": "text/plain"
+            },
+            "url": {
+              "path": [
+                "api",
+                "auth",
+                "signup-email-policy"
+              ],
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "query": [
+                {
+                  "disabled": false,
+                  "key": "email",
+                  "value": "<email>",
+                  "description": "(Required) Email address to evaluate"
+                }
+              ],
+              "variable": []
+            },
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "method": "GET",
+            "auth": null
+          },
+          "response": [
+            {
+              "id": "b253f672-c69e-4150-bd9b-a1312588bda3",
+              "name": "Policy evaluated",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "api",
+                    "auth",
+                    "signup-email-policy"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [
+                    {
+                      "key": "email",
+                      "value": "<email>"
+                    }
+                  ],
+                  "variable": []
+                },
+                "header": [
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "method": "GET",
+                "body": {}
+              },
+              "status": "OK",
+              "code": 200,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"allowed\": false,\n  \"reason\": \"academic_email_not_allowed\"\n}",
+              "cookie": [],
+              "_postman_previewlanguage": "json"
+            },
+            {
+              "id": "7a5d0a38-4417-403b-b857-e6a3415c5f77",
+              "name": "Unprocessable Entity - Request validation failed",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "api",
+                    "auth",
+                    "signup-email-policy"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [
+                    {
+                      "key": "email",
+                      "value": "<email>"
+                    }
+                  ],
+                  "variable": []
+                },
+                "header": [
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "method": "GET",
+                "body": {}
+              },
+              "status": "Unprocessable Entity (WebDAV) (RFC 4918)",
+              "code": 422,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"error\": {\n    \"message\": \"Request validation failed\",\n    \"code\": \"validation_error\",\n    \"details\": [\n      {\n        \"type\": \"missing\",\n        \"loc\": [\n          \"body\",\n          \"name\"\n        ],\n        \"msg\": \"Field required\"\n      }\n    ]\n  },\n  \"request_id\": \"01K8KABR6S16YETA2SZPVBS9SP\"\n}",
+              "cookie": [],
+              "_postman_previewlanguage": "json"
+            }
+          ],
+          "event": [],
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          }
+        },
+        {
+          "id": "b316fede-cb7e-42f2-b387-9595ce4dac9f",
+          "name": "Complete self-service signup for an authenticated Supabase user",
+          "request": {
+            "name": "Complete self-service signup for an authenticated Supabase user",
+            "description": {
+              "content": "Provision a free-tier org + org-admin user for a freshly-authenticated Supabase user.\n\nThe caller has already signed in with Supabase (OAuth provider or magic link)\nbut has no row in our users table yet, so their token carries null\n``org_id``/``role`` claims and cannot pass the normal auth middleware — hence\nthis endpoint is whitelisted and validates the raw Supabase token (sent as the\nstandard ``Authorization`` bearer header by the client) itself.\n\nThe client should call ``supabase.auth.refreshSession()`` after a success so\nthe access-token hook re-issues a token carrying the new ``org_id``/``role``.",
+              "type": "text/plain"
+            },
+            "url": {
+              "path": [
+                "api",
+                "auth",
+                "self-service",
+                "complete"
+              ],
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "query": [],
+              "variable": []
+            },
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "method": "POST",
+            "auth": null
+          },
+          "response": [
+            {
+              "id": "8f4f26eb-0a95-4721-ad2c-63238e130c4b",
+              "name": "Account provisioned or already existed",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "api",
+                    "auth",
+                    "self-service",
+                    "complete"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [],
+                  "variable": []
+                },
+                "header": [
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "method": "POST",
+                "body": {}
+              },
+              "status": "OK",
+              "code": 200,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"organization_id\": \"e0090d35-6d37-ba21-05b0-5d98c28eb980\",\n  \"organization_name\": \"string\",\n  \"user_id\": \"4d84619e-600e-31d0-1f5f-03a4f10552de\",\n  \"email\": \"eingDxNuTelqO@BoXuHFlGRSoMMIPF.uc\",\n  \"created\": true\n}",
+              "cookie": [],
+              "_postman_previewlanguage": "json"
+            },
+            {
+              "id": "767ca69e-ee16-4764-9c3f-2376765573dd",
+              "name": "Token is missing required claims, or the email was rejected by signup policy. The error `code` is `disposable_email`, `personal_email_not_allowed`, or `invalid_signup_token`.",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "api",
+                    "auth",
+                    "self-service",
+                    "complete"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [],
+                  "variable": []
+                },
+                "header": [
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "method": "POST",
+                "body": {}
+              },
+              "status": "Bad Request",
+              "code": 400,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"error\": {\n    \"code\": \"not_found\",\n    \"message\": \"Resource not found\"\n  },\n  \"request_id\": \"01K8KABR6S16YETA2SZPVBS9SP\"\n}",
+              "cookie": [],
+              "_postman_previewlanguage": "json"
+            },
+            {
+              "id": "20acca4c-962d-492f-a6e2-de78981bd688",
+              "name": "Missing, invalid, or expired authentication token",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "api",
+                    "auth",
+                    "self-service",
+                    "complete"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [],
+                  "variable": []
+                },
+                "header": [
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "method": "POST",
+                "body": {}
+              },
+              "status": "Unauthorized",
+              "code": 401,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"error\": {\n    \"code\": \"not_found\",\n    \"message\": \"Resource not found\"\n  },\n  \"request_id\": \"01K8KABR6S16YETA2SZPVBS9SP\"\n}",
+              "cookie": [],
+              "_postman_previewlanguage": "json"
+            },
+            {
+              "id": "a94af969-867f-4211-907f-c0316d205933",
+              "name": "Unprocessable Entity - Request validation failed",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "api",
+                    "auth",
+                    "self-service",
+                    "complete"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [],
+                  "variable": []
+                },
+                "header": [
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "method": "POST",
+                "body": {}
+              },
+              "status": "Unprocessable Entity (WebDAV) (RFC 4918)",
+              "code": 422,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"error\": {\n    \"message\": \"Request validation failed\",\n    \"code\": \"validation_error\",\n    \"details\": [\n      {\n        \"type\": \"missing\",\n        \"loc\": [\n          \"body\",\n          \"name\"\n        ],\n        \"msg\": \"Field required\"\n      }\n    ]\n  },\n  \"request_id\": \"01K8KABR6S16YETA2SZPVBS9SP\"\n}",
+              "cookie": [],
+              "_postman_previewlanguage": "json"
+            }
+          ],
+          "event": [],
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          }
+        },
+        {
+          "id": "318cbde1-7f57-4e92-9fa1-74287a0230e2",
+          "name": "Submit a self-service access request",
+          "request": {
+            "name": "Submit a self-service access request",
+            "description": {
+              "content": "Record an access request from a visitor whose email failed the signup policy.\n\nUnauthenticated and whitelisted — the caller has no account. The submission\nis persisted (source of truth, one row per email — a resubmit upserts) and a\nSlack notification to the self-service channel is fired as a background task\nso a slow or failing webhook never blocks or fails the response. Only a\ngenuinely new request notifies, so a resubmit (or a double-click) won't\nre-ping the channel.\n\nThe response is a constant acknowledgement regardless of whether the request\nwas new or already existed, so it can't be used to enumerate which emails\nhave requested access.",
+              "type": "text/plain"
+            },
+            "url": {
+              "path": [
+                "api",
+                "auth",
+                "access-request"
+              ],
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "query": [],
+              "variable": []
+            },
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "method": "POST",
+            "auth": null,
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"<email>\",\n  \"full_name\": \"<string>\",\n  \"use_case\": \"<string>\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": [
+            {
+              "id": "00c50190-86a8-4d21-9e3f-4ee350437c32",
+              "name": "Access request received",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "api",
+                    "auth",
+                    "access-request"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [],
+                  "variable": []
+                },
+                "header": [
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "method": "POST",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"email\": \"<email>\",\n  \"full_name\": \"<string>\",\n  \"use_case\": \"<string>\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "status": "OK",
+              "code": 200,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"status\": \"received\"\n}",
+              "cookie": [],
+              "_postman_previewlanguage": "json"
+            },
+            {
+              "id": "b28f6280-f13f-4e08-aafc-739e2a7dee00",
+              "name": "Unprocessable Entity - Request validation failed",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "api",
+                    "auth",
+                    "access-request"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [],
+                  "variable": []
+                },
+                "header": [
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "method": "POST",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"email\": \"<email>\",\n  \"full_name\": \"<string>\",\n  \"use_case\": \"<string>\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "status": "Unprocessable Entity (WebDAV) (RFC 4918)",
+              "code": 422,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"error\": {\n    \"message\": \"Request validation failed\",\n    \"code\": \"validation_error\",\n    \"details\": [\n      {\n        \"type\": \"missing\",\n        \"loc\": [\n          \"body\",\n          \"name\"\n        ],\n        \"msg\": \"Field required\"\n      }\n    ]\n  },\n  \"request_id\": \"01K8KABR6S16YETA2SZPVBS9SP\"\n}",
+              "cookie": [],
+              "_postman_previewlanguage": "json"
+            }
+          ],
+          "event": [],
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          }
+        }
+      ],
+      "event": []
+    }
+  ],
+  "event": [],
+  "variable": [
+    {
+      "type": "string",
+      "value": "/",
+      "key": "baseUrl"
+    }
+  ],
+  "info": {
+    "_postman_id": "bd67b48c-a57d-4f9a-945b-7177fda862ac",
+    "name": "SuperAI Flow Platform auth API",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "description": {
+      "content": "SuperAI Flows is a workflow orchestration platform that enables you to design, deploy, and monitor automated workflows at scale.\n\nBuild complex workflows using our declarative YAML DSL, execute them reliably, and integrate seamlessly with AI models, cloud storage, and enterprise systems.\n\n**Key Capabilities:**\n- **Workflow Management**: Define workflows as code with version control and automated execution\n- **Task Orchestration**: Chain together API calls, data processing, and AI operations\n- **Real-time Monitoring**: Track execution progress with WebSocket notifications and comprehensive logging\n- **Multi-tenant Architecture**: Organization-scoped resources with role-based access control\n\n**API Versioning and Breaking Changes:**\n\nWe follow a strict compatibility policy to ensure your integrations remain stable:\n\n- **Non-breaking changes** (safe, no action required):\n  - Adding new API endpoints\n  - Adding new optional query parameters to existing endpoints\n  - Adding new fields to API responses\n  - Adding new values to existing enums\n\n- **Breaking changes** (requires client updates):\n  - Removing or renaming API endpoints\n  - Removing query parameters or request fields\n  - Removing response fields\n  - Changing field types or validation rules\n  - Removing values from existing enums\n\n**Client Implementation Requirements:**\n\nYour API clients MUST be designed to gracefully handle additional fields in responses. We may add new fields to any response object without considering this a breaking change. Ensure your JSON parsers ignore unknown fields rather than raising errors.\n\n**Backward Compatibility Guarantee:**\n\nWe commit to maintaining backward compatibility for all non-breaking changes. Breaking changes will be:\n- Announced at least 15 days in advance\n- Documented in our changelog with migration guide\n\nFor the latest API updates and migration guides, see our changelog.",
+      "type": "text/plain"
+    }
+  }
+}

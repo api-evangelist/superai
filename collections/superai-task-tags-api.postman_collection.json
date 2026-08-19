@@ -1,0 +1,618 @@
+{
+  "item": [
+    {
+      "id": "abcc7c85-b82c-4981-9bf6-f86d576b7ed2",
+      "name": "task-tags",
+      "description": {
+        "content": "Task tag operations for categorizing and organizing tasks with metadata.\n\nTask tags provide metadata and categorization for tasks within flow executions. Tags enable flexible organization, filtering, and grouping of tasks beyond their structural relationships.\n\n**What tags enable:**\n- **Categorization**: Group related tasks across different flows\n- **Filtering**: Query executions by tag criteria\n- **Metadata**: Attach custom key-value pairs to tasks\n- **Organization**: Create logical groupings for reporting\n\n**Use these endpoints to:**\n- Manage task labels and categories\n- Add organizational metadata to tasks\n- Query tasks by tag criteria\n- Build custom views and dashboards\n\nTask tags provide flexible organization capabilities that enhance workflow management and analysis.",
+        "type": "text/plain"
+      },
+      "item": [
+        {
+          "id": "6762f689-7fe4-4296-8a6e-02f6a0058af9",
+          "name": "Add or remove task tags in batch",
+          "request": {
+            "name": "Add or remove task tags in batch",
+            "description": {
+              "content": "Add or remove tags from task executions in batch operations.\n\n**Overview**\nTask tags provide flexible categorization and workflow state tracking for task executions.\nTags enable custom workflows like review/approval processes, quality assurance, and\nbusiness-specific categorization. This endpoint supports batch operations to efficiently\nadd or remove multiple tags in a single request.\n\n**What are Task Tags?**\nTask tags are key-value metadata attached to task executions for:\n- Workflow state tracking: 'reviewed', 'approved', 'rejected'\n- Quality assurance: 'quality_checked', 'flagged', 'verified'\n- Custom categorization: 'priority_high', 'customer_vip', 'requires_attention'\n- Audit trails: Track who reviewed what and when (via tag_metadata)\n\n**Batch Operations**\nThis endpoint accepts an array of tag operations in a single request:\n- operation='add': Creates new tag (idempotent - returns 'already_exists' if duplicate)\n- operation='remove': Soft-deletes tag (sets status='deleted')\n- Mixed operations: Can add and remove different tags in same request\n- Atomic processing: All operations succeed or all fail\n\n**Idempotency**\nAdding an existing tag returns status='already_exists' without error.\nRemoving a non-existent tag returns status='not_found' without error.\nThis enables safe retries and prevents duplicate tag creation.\n\n**Soft Delete Behavior**\nTags are never hard-deleted. Removal sets status='deleted' and records:\n- updated_at: Timestamp of deletion\n- modified_by: User/service that performed deletion\nSoft-deleted tags are excluded from all list queries automatically.\n\n**Use Cases**\n1. Human-in-the-loop workflows: Tag tasks as 'reviewed' after manual inspection\n2. Approval chains: Track 'pending_approval', 'approved', 'rejected' states\n3. Quality control: Flag suspicious outputs with 'requires_review' tag\n4. Custom business logic: Apply domain-specific tags for routing/filtering\n\n**Error Scenarios**\n- 404 Not Found: flow_execution_id doesn't exist or belongs to different organization\n- 403 Forbidden: User lacks permission to modify tags in this organization\n- 400 Bad Request: Invalid operation value or malformed request\n\n**Performance Notes**\nBatch operations are optimized with a single database transaction.\nAll tag additions/removals commit atomically. WebSocket notifications\nare sent after commit to notify connected clients of tag changes.\n\n**Related Endpoints**\n- GET /task-tags - List tags for a flow execution\n- GET /task-executions - View task executions with their tags\n- PUT /task-executions - Update task execution (separate from tagging)",
+              "type": "text/plain"
+            },
+            "url": {
+              "path": [
+                "api",
+                "task-tags"
+              ],
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "query": [],
+              "variable": []
+            },
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "method": "PATCH",
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{bearerToken}}"
+                }
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"tags\": [\n    {\n      \"operation\": \"<string>\",\n      \"flow_execution_id\": \"<uuid>\",\n      \"task_name\": \"<string>\",\n      \"tag\": \"<string>\",\n      \"tag_type\": \"<string>\",\n      \"tag_metadata\": {}\n    }\n  ]\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": [
+            {
+              "id": "3288481a-fa9a-45b1-ae79-3b8a3834c822",
+              "name": "Task tags successfully updated",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "api",
+                    "task-tags"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [],
+                  "variable": []
+                },
+                "header": [
+                  {
+                    "description": {
+                      "content": "Added as a part of security scheme: bearer",
+                      "type": "text/plain"
+                    },
+                    "key": "Authorization",
+                    "value": "Bearer <token>"
+                  },
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "method": "PATCH",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"tags\": [\n    {\n      \"flow_execution_id\": \"123e4567-e89b-12d3-a456-426614174000\",\n      \"operation\": \"add\",\n      \"tag\": \"reviewed\",\n      \"tag_metadata\": {\n        \"reviewer\": \"user@example.com\"\n      },\n      \"tag_type\": \"review_status\",\n      \"task_name\": \"extract_data\"\n    },\n    {\n      \"flow_execution_id\": \"123e4567-e89b-12d3-a456-426614174000\",\n      \"operation\": \"remove\",\n      \"tag\": \"pending_review\",\n      \"tag_type\": \"review_status\",\n      \"task_name\": \"extract_data\"\n    }\n  ]\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "status": "OK",
+              "code": 200,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"tags\": [\n    {\n      \"status\": \"added\"\n    },\n    {\n      \"status\": \"removed\"\n    },\n    {\n      \"status\": \"already_exists\"\n    }\n  ]\n}",
+              "cookie": [],
+              "_postman_previewlanguage": "json"
+            },
+            {
+              "id": "dcfbc093-3a1a-4c2a-9934-d402079dcd1b",
+              "name": "Bad Request - Invalid tag operation or missing required fields",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "api",
+                    "task-tags"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [],
+                  "variable": []
+                },
+                "header": [
+                  {
+                    "description": {
+                      "content": "Added as a part of security scheme: bearer",
+                      "type": "text/plain"
+                    },
+                    "key": "Authorization",
+                    "value": "Bearer <token>"
+                  },
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "method": "PATCH",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"tags\": [\n    {\n      \"flow_execution_id\": \"123e4567-e89b-12d3-a456-426614174000\",\n      \"operation\": \"add\",\n      \"tag\": \"reviewed\",\n      \"tag_metadata\": {\n        \"reviewer\": \"user@example.com\"\n      },\n      \"tag_type\": \"review_status\",\n      \"task_name\": \"extract_data\"\n    },\n    {\n      \"flow_execution_id\": \"123e4567-e89b-12d3-a456-426614174000\",\n      \"operation\": \"remove\",\n      \"tag\": \"pending_review\",\n      \"tag_type\": \"review_status\",\n      \"task_name\": \"extract_data\"\n    }\n  ]\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "status": "Bad Request",
+              "code": 400,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"error\": {\n    \"code\": \"not_found\",\n    \"message\": \"Resource not found\"\n  },\n  \"request_id\": \"01K8KABR6S16YETA2SZPVBS9SP\"\n}",
+              "cookie": [],
+              "_postman_previewlanguage": "json"
+            },
+            {
+              "id": "f097fc96-5b8e-45da-ba18-6a1a6d42e0e0",
+              "name": "Not Found - The requested resource does not exist",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "api",
+                    "task-tags"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [],
+                  "variable": []
+                },
+                "header": [
+                  {
+                    "description": {
+                      "content": "Added as a part of security scheme: bearer",
+                      "type": "text/plain"
+                    },
+                    "key": "Authorization",
+                    "value": "Bearer <token>"
+                  },
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "method": "PATCH",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"tags\": [\n    {\n      \"flow_execution_id\": \"123e4567-e89b-12d3-a456-426614174000\",\n      \"operation\": \"add\",\n      \"tag\": \"reviewed\",\n      \"tag_metadata\": {\n        \"reviewer\": \"user@example.com\"\n      },\n      \"tag_type\": \"review_status\",\n      \"task_name\": \"extract_data\"\n    },\n    {\n      \"flow_execution_id\": \"123e4567-e89b-12d3-a456-426614174000\",\n      \"operation\": \"remove\",\n      \"tag\": \"pending_review\",\n      \"tag_type\": \"review_status\",\n      \"task_name\": \"extract_data\"\n    }\n  ]\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "status": "Not Found",
+              "code": 404,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"error\": {\n    \"message\": \"Resource not found\",\n    \"code\": \"not_found\"\n  },\n  \"request_id\": \"01K8KABR6S16YETA2SZPVBS9SP\"\n}",
+              "cookie": [],
+              "_postman_previewlanguage": "json"
+            },
+            {
+              "id": "fbfaedee-cc16-44ec-bb84-3827337cc7c3",
+              "name": "Validation Error",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "api",
+                    "task-tags"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [],
+                  "variable": []
+                },
+                "header": [
+                  {
+                    "description": {
+                      "content": "Added as a part of security scheme: bearer",
+                      "type": "text/plain"
+                    },
+                    "key": "Authorization",
+                    "value": "Bearer <token>"
+                  },
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "method": "PATCH",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"tags\": [\n    {\n      \"flow_execution_id\": \"123e4567-e89b-12d3-a456-426614174000\",\n      \"operation\": \"add\",\n      \"tag\": \"reviewed\",\n      \"tag_metadata\": {\n        \"reviewer\": \"user@example.com\"\n      },\n      \"tag_type\": \"review_status\",\n      \"task_name\": \"extract_data\"\n    },\n    {\n      \"flow_execution_id\": \"123e4567-e89b-12d3-a456-426614174000\",\n      \"operation\": \"remove\",\n      \"tag\": \"pending_review\",\n      \"tag_type\": \"review_status\",\n      \"task_name\": \"extract_data\"\n    }\n  ]\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "status": "Unprocessable Entity (WebDAV) (RFC 4918)",
+              "code": 422,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"detail\": [\n    {\n      \"loc\": [\n        \"string\",\n        \"string\"\n      ],\n      \"msg\": \"string\",\n      \"type\": \"string\"\n    },\n    {\n      \"loc\": [\n        \"string\",\n        \"string\"\n      ],\n      \"msg\": \"string\",\n      \"type\": \"string\"\n    }\n  ]\n}",
+              "cookie": [],
+              "_postman_previewlanguage": "json"
+            },
+            {
+              "id": "46048cd1-9833-4578-844c-33e2b4fc41e0",
+              "name": "Internal Server Error - An unexpected error occurred",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "api",
+                    "task-tags"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [],
+                  "variable": []
+                },
+                "header": [
+                  {
+                    "description": {
+                      "content": "Added as a part of security scheme: bearer",
+                      "type": "text/plain"
+                    },
+                    "key": "Authorization",
+                    "value": "Bearer <token>"
+                  },
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "method": "PATCH",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"tags\": [\n    {\n      \"flow_execution_id\": \"123e4567-e89b-12d3-a456-426614174000\",\n      \"operation\": \"add\",\n      \"tag\": \"reviewed\",\n      \"tag_metadata\": {\n        \"reviewer\": \"user@example.com\"\n      },\n      \"tag_type\": \"review_status\",\n      \"task_name\": \"extract_data\"\n    },\n    {\n      \"flow_execution_id\": \"123e4567-e89b-12d3-a456-426614174000\",\n      \"operation\": \"remove\",\n      \"tag\": \"pending_review\",\n      \"tag_type\": \"review_status\",\n      \"task_name\": \"extract_data\"\n    }\n  ]\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "status": "Internal Server Error",
+              "code": 500,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"error\": {\n    \"message\": \"Internal server error\",\n    \"code\": \"internal_error\"\n  },\n  \"request_id\": \"01K8KABR6S16YETA2SZPVBS9SP\"\n}",
+              "cookie": [],
+              "_postman_previewlanguage": "json"
+            }
+          ],
+          "event": [],
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          }
+        },
+        {
+          "id": "c8d80af3-66b7-446f-bfd1-b8575a763260",
+          "name": "List active task tags for a flow execution",
+          "request": {
+            "name": "List active task tags for a flow execution",
+            "description": {
+              "content": "List all active tags for task executions within a flow execution.\n\n**Overview**\nRetrieve tags associated with task executions in a specific flow execution.\nResults can be filtered to a single task or return all tasks' tags. Only\nactive tags are returned; soft-deleted tags (status='deleted') are excluded.\n\n**What are Task Tags?**\nTask tags provide flexible categorization and workflow state for task executions:\n- Review status: 'reviewed', 'approved', 'rejected'\n- Quality flags: 'quality_checked', 'flagged', 'verified'\n- Custom categories: 'priority_high', 'customer_acme', 'requires_attention'\nEach tag includes optional metadata for context (reviewer name, notes, etc.)\n\n**Filtering Logic**\nQuery parameters combine with AND logic:\n- flow_execution_id (required): Return tags for this flow execution\n- task_name (optional): Filter to tags for a specific task\nWithout task_name: Returns all tags across all tasks in the flow execution\n\n**Common Query Patterns**\n1. All tags in flow execution:\n   GET /task-tags?flow_execution_id={id}\n\n2. Tags for specific task:\n   GET /task-tags?flow_execution_id={id}&task_name=send_email\n\n3. Check if task reviewed:\n   GET /task-tags?flow_execution_id={id}&task_name=extract_data\n   Filter results where tag='reviewed'\n\n**Response Format**\nReturns array of FlowTaskTagAPI objects with:\n- Tag identification: tag, tag_type, task_name\n- Metadata: tag_metadata (JSON object for custom data)\n- Lifecycle: created_at, updated_at, modified_by\n- Status: Always 'active' (deleted tags excluded)\n- Organization context: organization_id for tenant isolation\n\n**Tag Types and Usage**\nCommon tag_type values:\n- 'review_status': Workflow state ('reviewed', 'approved', 'rejected')\n- 'quality': Quality assurance ('quality_checked', 'flagged')\n- 'priority': Business priority ('high', 'medium', 'low')\n- 'custom': Domain-specific categories\n\n**Performance Considerations**\n- Queries scoped by organization_id via RLS (automatic filtering)\n- Indexes on (flow_execution_id, task_name, status) for fast lookups\n- Typical response: 5-50 tags per flow execution\n- Soft-deleted tags excluded at query time (no filtering overhead)\n\n**Use Cases**\n- Display task status in UI (show 'reviewed' badge)\n- Filter tasks by approval state (find all 'approved' tasks)\n- Audit workflow progression (who reviewed what, when)\n- Custom business logic (trigger actions based on tag presence)\n\n**Error Scenarios**\n- 400 Bad Request: Invalid UUID format for flow_execution_id\n- 403 Forbidden: User lacks permission to access flow execution's organization\n- 404 Not Found: flow_execution_id doesn't exist\nNote: Missing task_name is NOT an error; returns empty array\n\n**Related Endpoints**\n- PATCH /task-tags - Add/remove tags\n- GET /task-executions - List task executions (includes tags via TaskExecutionWithTagsAPI)\n- GET /flow-executions/{id} - View parent flow execution",
+              "type": "text/plain"
+            },
+            "url": {
+              "path": [
+                "api",
+                "task-tags"
+              ],
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "query": [
+                {
+                  "disabled": false,
+                  "key": "flow_execution_id",
+                  "value": "<uuid>",
+                  "description": "(Required) Unique identifier of the flow execution to query tags from. Required parameter; returns all active tags for this execution. Combine with task_name to filter to a specific task. \n\nFiltering: Queries automatically scoped to user's organization via RLS. Attempting to access another organization's execution returns 404. \n\nResponse: All active tags (status='active') for the execution. Soft-deleted tags (status='deleted') are excluded automatically."
+                },
+                {
+                  "disabled": false,
+                  "key": "task_name",
+                  "value": "<string>",
+                  "description": "Optional task name to filter tags by specific task. Case-sensitive; must match task name exactly as defined in flow YAML. Omit to return tags for all tasks in the flow execution. \n\nFiltering behavior:\n- Specified: Returns only tags for this task_name\n- Omitted: Returns tags for all tasks in flow execution\n\nCombines with flow_execution_id using AND logic. \n\nExample: task_name='extract_data' returns tags only for that task. Useful for checking task-specific workflow states (is task reviewed?)."
+                }
+              ],
+              "variable": []
+            },
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "method": "GET",
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{bearerToken}}"
+                }
+              ]
+            }
+          },
+          "response": [
+            {
+              "id": "416fb336-4a3b-4a45-8841-ae5b08448ffe",
+              "name": "List of task tags successfully retrieved",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "api",
+                    "task-tags"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [
+                    {
+                      "key": "flow_execution_id",
+                      "value": "<uuid>"
+                    },
+                    {
+                      "key": "task_name",
+                      "value": "<string>"
+                    }
+                  ],
+                  "variable": []
+                },
+                "header": [
+                  {
+                    "description": {
+                      "content": "Added as a part of security scheme: bearer",
+                      "type": "text/plain"
+                    },
+                    "key": "Authorization",
+                    "value": "Bearer <token>"
+                  },
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "method": "GET",
+                "body": {}
+              },
+              "status": "OK",
+              "code": 200,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "[\n  {\n    \"id\": \"123e4567-e89b-12d3-a456-426614174000\",\n    \"flow_execution_id\": \"223e4567-e89b-12d3-a456-426614174000\",\n    \"task_name\": \"send_email\",\n    \"tag\": \"reviewed\",\n    \"tag_type\": \"review_status\",\n    \"organization_id\": \"323e4567-e89b-12d3-a456-426614174000\",\n    \"tag_metadata\": {},\n    \"status\": \"string\",\n    \"created_at\": \"2025-11-18T03:40:10.493Z\",\n    \"updated_at\": \"1972-09-08T01:48:36.545Z\",\n    \"modified_by\": \"string\"\n  },\n  {\n    \"id\": \"123e4567-e89b-12d3-a456-426614174000\",\n    \"flow_execution_id\": \"223e4567-e89b-12d3-a456-426614174000\",\n    \"task_name\": \"send_email\",\n    \"tag\": \"reviewed\",\n    \"tag_type\": \"review_status\",\n    \"organization_id\": \"323e4567-e89b-12d3-a456-426614174000\",\n    \"tag_metadata\": {},\n    \"status\": \"string\",\n    \"created_at\": \"1996-09-14T14:51:44.947Z\",\n    \"updated_at\": \"2010-10-20T21:38:13.923Z\",\n    \"modified_by\": \"string\"\n  }\n]",
+              "cookie": [],
+              "_postman_previewlanguage": "json"
+            },
+            {
+              "id": "4e3d57bd-394f-4f54-adcc-c22267b54e5c",
+              "name": "Not Found - The requested resource does not exist",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "api",
+                    "task-tags"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [
+                    {
+                      "key": "flow_execution_id",
+                      "value": "<uuid>"
+                    },
+                    {
+                      "key": "task_name",
+                      "value": "<string>"
+                    }
+                  ],
+                  "variable": []
+                },
+                "header": [
+                  {
+                    "description": {
+                      "content": "Added as a part of security scheme: bearer",
+                      "type": "text/plain"
+                    },
+                    "key": "Authorization",
+                    "value": "Bearer <token>"
+                  },
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "method": "GET",
+                "body": {}
+              },
+              "status": "Not Found",
+              "code": 404,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"error\": {\n    \"message\": \"Resource not found\",\n    \"code\": \"not_found\"\n  },\n  \"request_id\": \"01K8KABR6S16YETA2SZPVBS9SP\"\n}",
+              "cookie": [],
+              "_postman_previewlanguage": "json"
+            },
+            {
+              "id": "17c5924f-71f5-4c8b-ad55-0785bb0628d3",
+              "name": "Validation Error",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "api",
+                    "task-tags"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [
+                    {
+                      "key": "flow_execution_id",
+                      "value": "<uuid>"
+                    },
+                    {
+                      "key": "task_name",
+                      "value": "<string>"
+                    }
+                  ],
+                  "variable": []
+                },
+                "header": [
+                  {
+                    "description": {
+                      "content": "Added as a part of security scheme: bearer",
+                      "type": "text/plain"
+                    },
+                    "key": "Authorization",
+                    "value": "Bearer <token>"
+                  },
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "method": "GET",
+                "body": {}
+              },
+              "status": "Unprocessable Entity (WebDAV) (RFC 4918)",
+              "code": 422,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"detail\": [\n    {\n      \"loc\": [\n        \"string\",\n        \"string\"\n      ],\n      \"msg\": \"string\",\n      \"type\": \"string\"\n    },\n    {\n      \"loc\": [\n        \"string\",\n        \"string\"\n      ],\n      \"msg\": \"string\",\n      \"type\": \"string\"\n    }\n  ]\n}",
+              "cookie": [],
+              "_postman_previewlanguage": "json"
+            },
+            {
+              "id": "8a592790-d8a6-4ad1-a1ec-697965ce1748",
+              "name": "Internal Server Error - An unexpected error occurred",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "api",
+                    "task-tags"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [
+                    {
+                      "key": "flow_execution_id",
+                      "value": "<uuid>"
+                    },
+                    {
+                      "key": "task_name",
+                      "value": "<string>"
+                    }
+                  ],
+                  "variable": []
+                },
+                "header": [
+                  {
+                    "description": {
+                      "content": "Added as a part of security scheme: bearer",
+                      "type": "text/plain"
+                    },
+                    "key": "Authorization",
+                    "value": "Bearer <token>"
+                  },
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "method": "GET",
+                "body": {}
+              },
+              "status": "Internal Server Error",
+              "code": 500,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"error\": {\n    \"message\": \"Internal server error\",\n    \"code\": \"internal_error\"\n  },\n  \"request_id\": \"01K8KABR6S16YETA2SZPVBS9SP\"\n}",
+              "cookie": [],
+              "_postman_previewlanguage": "json"
+            }
+          ],
+          "event": [],
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          }
+        }
+      ],
+      "event": []
+    }
+  ],
+  "event": [],
+  "variable": [
+    {
+      "type": "string",
+      "value": "/",
+      "key": "baseUrl"
+    }
+  ],
+  "info": {
+    "_postman_id": "f7ec3c1c-3c4c-4d9f-aae8-4f5e062475c5",
+    "name": "SuperAI Flow Platform auth task-tags API",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "description": {
+      "content": "SuperAI Flows is a workflow orchestration platform that enables you to design, deploy, and monitor automated workflows at scale.\n\nBuild complex workflows using our declarative YAML DSL, execute them reliably, and integrate seamlessly with AI models, cloud storage, and enterprise systems.\n\n**Key Capabilities:**\n- **Workflow Management**: Define workflows as code with version control and automated execution\n- **Task Orchestration**: Chain together API calls, data processing, and AI operations\n- **Real-time Monitoring**: Track execution progress with WebSocket notifications and comprehensive logging\n- **Multi-tenant Architecture**: Organization-scoped resources with role-based access control\n\n**API Versioning and Breaking Changes:**\n\nWe follow a strict compatibility policy to ensure your integrations remain stable:\n\n- **Non-breaking changes** (safe, no action required):\n  - Adding new API endpoints\n  - Adding new optional query parameters to existing endpoints\n  - Adding new fields to API responses\n  - Adding new values to existing enums\n\n- **Breaking changes** (requires client updates):\n  - Removing or renaming API endpoints\n  - Removing query parameters or request fields\n  - Removing response fields\n  - Changing field types or validation rules\n  - Removing values from existing enums\n\n**Client Implementation Requirements:**\n\nYour API clients MUST be designed to gracefully handle additional fields in responses. We may add new fields to any response object without considering this a breaking change. Ensure your JSON parsers ignore unknown fields rather than raising errors.\n\n**Backward Compatibility Guarantee:**\n\nWe commit to maintaining backward compatibility for all non-breaking changes. Breaking changes will be:\n- Announced at least 15 days in advance\n- Documented in our changelog with migration guide\n\nFor the latest API updates and migration guides, see our changelog.",
+      "type": "text/plain"
+    }
+  }
+}

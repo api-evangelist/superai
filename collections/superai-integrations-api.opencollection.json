@@ -1,0 +1,1137 @@
+{
+  "opencollection": "1.0.0",
+  "info": {
+    "name": "SuperAI Flow Platform auth integrations API",
+    "version": "0.1.0"
+  },
+  "items": [
+    {
+      "info": {
+        "name": "integrations",
+        "type": "folder"
+      },
+      "items": [
+        {
+          "info": {
+            "name": "List user databases",
+            "type": "http"
+          },
+          "http": {
+            "method": "GET",
+            "url": "{{baseUrl}}/api/integrations/database",
+            "auth": {
+              "type": "bearer",
+              "token": "{{bearerToken}}"
+            }
+          },
+          "docs": "List all databases accessible to the authenticated user.\n\nReturns all databases, including:\n- Database metadata and configuration\n- Row and column counts\n- Creation and update timestamps\n- Current status\n\nUse Cases:\n    - Display databases in UI\n    - Select database for workflow configuration\n    - Monitor database integration status"
+        },
+        {
+          "info": {
+            "name": "Create Database",
+            "type": "http"
+          },
+          "http": {
+            "method": "POST",
+            "url": "{{baseUrl}}/api/integrations/database",
+            "body": {
+              "type": "json",
+              "data": "{}"
+            },
+            "auth": {
+              "type": "bearer",
+              "token": "{{bearerToken}}"
+            }
+          },
+          "docs": "Create a new CSV database instance."
+        },
+        {
+          "info": {
+            "name": "Create managed database",
+            "type": "http"
+          },
+          "http": {
+            "method": "POST",
+            "url": "{{baseUrl}}/api/integrations/database/managed",
+            "auth": {
+              "type": "bearer",
+              "token": "{{bearerToken}}"
+            }
+          },
+          "docs": "Create a managed PostgreSQL database for the organization.\n\nCreates a dedicated database on the customer Cloud SQL instance with:\n- Database name: tenant_{org_id}\n- Role: tenant_{org_id}_rw with ALL PRIVILEGES\n- app_admin user can CONNECT and SET ROLE to access the database\n\nOnly one managed database per organization is allowed.\n\nUse Cases:\n    - Create isolated database for organization data\n    - Store structured data with SQL queries\n    - Enable multi-tenant data isolation"
+        },
+        {
+          "info": {
+            "name": "List tables in managed database",
+            "type": "http"
+          },
+          "http": {
+            "method": "GET",
+            "url": "{{baseUrl}}/api/integrations/database/managed/tables",
+            "auth": {
+              "type": "bearer",
+              "token": "{{bearerToken}}"
+            }
+          },
+          "docs": "List all tables in a managed database with row counts.\n\nReturns table names and their row counts for schema management.\nUses organization_id from user context to identify the database.\n\nUse Cases:\n    - Display available tables in schema management UI\n    - Monitor table sizes"
+        },
+        {
+          "info": {
+            "name": "Create table in managed database",
+            "type": "http"
+          },
+          "http": {
+            "method": "POST",
+            "url": "{{baseUrl}}/api/integrations/database/managed/tables",
+            "body": {
+              "type": "json",
+              "data": "{}"
+            },
+            "auth": {
+              "type": "bearer",
+              "token": "{{bearerToken}}"
+            }
+          },
+          "docs": "Create a new table in a managed database.\n\nCreates a table with specified columns using tenant_admin credentials.\nUses organization_id from user context to identify the database.\n\nUse Cases:\n    - Add new tables to managed database\n    - Define custom schema for organization data"
+        },
+        {
+          "info": {
+            "name": "Get table columns from managed database",
+            "type": "http"
+          },
+          "http": {
+            "method": "GET",
+            "url": "{{baseUrl}}/api/integrations/database/managed/tables/:table_name/columns",
+            "params": [
+              {
+                "name": "table_name",
+                "value": "",
+                "type": "path"
+              }
+            ],
+            "auth": {
+              "type": "bearer",
+              "token": "{{bearerToken}}"
+            }
+          },
+          "docs": "Get column definitions from a table in a managed database.\n\nReturns column names and types for foreign key reference selection.\n\nUse Cases:\n    - Display available columns for foreign key selection\n    - Validate foreign key references"
+        },
+        {
+          "info": {
+            "name": "Get table data from managed database",
+            "type": "http"
+          },
+          "http": {
+            "method": "GET",
+            "url": "{{baseUrl}}/api/integrations/database/managed/tables/:table_name/data",
+            "params": [
+              {
+                "name": "table_name",
+                "value": "",
+                "type": "path"
+              }
+            ],
+            "auth": {
+              "type": "bearer",
+              "token": "{{bearerToken}}"
+            }
+          },
+          "docs": "Get all data from a table in a managed database.\n\nUses app_admin with SET ROLE to fetch data with read-only access.\nUses organization_id from user context to identify the database.\n\nUse Cases:\n    - Display table contents in schema management UI\n    - View organization data"
+        },
+        {
+          "info": {
+            "name": "Insert one row into a managed-DB table",
+            "type": "http"
+          },
+          "http": {
+            "method": "POST",
+            "url": "{{baseUrl}}/api/integrations/database/managed/tables/:table_name/rows",
+            "params": [
+              {
+                "name": "table_name",
+                "value": "",
+                "type": "path"
+              }
+            ],
+            "body": {
+              "type": "json",
+              "data": "{}"
+            },
+            "auth": {
+              "type": "bearer",
+              "token": "{{bearerToken}}"
+            }
+          },
+          "docs": "Insert a single row into a managed-DB table and return the inserted row.\n\nColumn names in `values` must match the table schema. Values are bound via parameterised SQL."
+        },
+        {
+          "info": {
+            "name": "Query a managed-DB table with exact-match filters",
+            "type": "http"
+          },
+          "http": {
+            "method": "POST",
+            "url": "{{baseUrl}}/api/integrations/database/managed/tables/:table_name/query",
+            "params": [
+              {
+                "name": "table_name",
+                "value": "",
+                "type": "path"
+              }
+            ],
+            "body": {
+              "type": "json",
+              "data": "{}"
+            },
+            "auth": {
+              "type": "bearer",
+              "token": "{{bearerToken}}"
+            }
+          },
+          "docs": "Run a parameterised SELECT against a managed-DB table.\n\nSupports a list of match clauses against columns. Each clause is either a 'whole' exact-match\nor a 'json_keys' match against keys inside a JSONB column. Clauses combine via `combinator` at\nthe top level (AND or OR; defaults to AND). Returns rows ordered by `order_by` if provided,\ncapped to `limit` (max 1000). The API surface is generic — ICL is the first consumer (\"Write\nTo Database\" + ICL Retrieve tasks); future use cases reuse it without "
+        },
+        {
+          "info": {
+            "name": "Get database by ID",
+            "type": "http"
+          },
+          "http": {
+            "method": "GET",
+            "url": "{{baseUrl}}/api/integrations/database/:db_id",
+            "params": [
+              {
+                "name": "db_id",
+                "value": "",
+                "type": "path"
+              }
+            ],
+            "auth": {
+              "type": "bearer",
+              "token": "{{bearerToken}}"
+            }
+          },
+          "docs": "Retrieve detailed information for a specific database.\n\nReturns complete database configuration including:\n- Database metadata (name, description, status)\n- File information (location, size)\n- Schema details (row count, column count)\n- Timestamps and audit information\n\nUse Cases:\n    - Display database details in UI\n    - Validate database exists before operations\n    - Retrieve configuration for workflow tasks"
+        },
+        {
+          "info": {
+            "name": "Delete database",
+            "type": "http"
+          },
+          "http": {
+            "method": "DELETE",
+            "url": "{{baseUrl}}/api/integrations/database/:db_id",
+            "params": [
+              {
+                "name": "db_id",
+                "value": "",
+                "type": "path"
+              }
+            ],
+            "auth": {
+              "type": "bearer",
+              "token": "{{bearerToken}}"
+            }
+          },
+          "docs": "Delete a database integration.\n\nRemoves the database integration and its associated CSV file from storage.\nThis operation may affect workflows that reference this database.\n\nPermissions enforced at RLS level:\n- Admins can delete any database within their organization.\n- Non-admin users can only delete databases they uploaded themselves."
+        },
+        {
+          "info": {
+            "name": "Get Download Url",
+            "type": "http"
+          },
+          "http": {
+            "method": "GET",
+            "url": "{{baseUrl}}/api/integrations/database/:db_id/download",
+            "params": [
+              {
+                "name": "db_id",
+                "value": "",
+                "type": "path"
+              }
+            ],
+            "auth": {
+              "type": "bearer",
+              "token": "{{bearerToken}}"
+            }
+          },
+          "docs": "Generate pre-signed URL for downloading the database CSV file."
+        },
+        {
+          "info": {
+            "name": "Get database columns",
+            "type": "http"
+          },
+          "http": {
+            "method": "GET",
+            "url": "{{baseUrl}}/api/integrations/database/:db_id/columns",
+            "params": [
+              {
+                "name": "db_id",
+                "value": "",
+                "type": "path"
+              }
+            ],
+            "auth": {
+              "type": "bearer",
+              "token": "{{bearerToken}}"
+            }
+          },
+          "docs": "Retrieve column names from a specific database.\n\nReturns the list of columns available in the database, useful for:\n- Building query interfaces\n- Configuring data mappings\n- Validating field references in workflows\n\nUse Cases:\n    - Display available columns in query builder\n    - Configure column mappings for data transformation\n    - Validate workflow field references"
+        },
+        {
+          "info": {
+            "name": "Generate database upload URL",
+            "type": "http"
+          },
+          "http": {
+            "method": "POST",
+            "url": "{{baseUrl}}/api/integrations/database/:db_id/upload-url",
+            "params": [
+              {
+                "name": "db_id",
+                "value": "",
+                "type": "path"
+              },
+              {
+                "name": "content_type",
+                "value": "",
+                "type": "query"
+              }
+            ],
+            "auth": {
+              "type": "bearer",
+              "token": "{{bearerToken}}"
+            }
+          },
+          "docs": "Generate a pre-signed URL for uploading files to a database.\n\nCreates a temporary upload URL that allows direct file uploads to cloud storage\nwithout routing data through the API server. The URL expires after 1 hour.\n\nThis is the first step in the multi-step upload workflow:\n1. Generate upload URL (this endpoint)\n2. Upload file directly to cloud storage using the URL\n3. Preview uploaded file (optional)\n4. Complete upload and process file\n\nUse Cases:\n    - Upload CSV files for data import\n    - U"
+        },
+        {
+          "info": {
+            "name": "Preview CSV file before import",
+            "type": "http"
+          },
+          "http": {
+            "method": "POST",
+            "url": "{{baseUrl}}/api/integrations/database/:db_id/upload/preview",
+            "params": [
+              {
+                "name": "db_id",
+                "value": "",
+                "type": "path"
+              }
+            ],
+            "body": {
+              "type": "json",
+              "data": "{}"
+            },
+            "auth": {
+              "type": "bearer",
+              "token": "{{bearerToken}}"
+            }
+          },
+          "docs": "Preview CSV file before final import.\n\nShows the first 5 rows and file metadata to help users:\n- Verify correct file was uploaded\n- Confirm header row detection\n- Check delimiter parsing\n- Review column names\n- Validate data format\n\nThis is step 3 in the upload workflow (optional):\n1. Generate upload URL\n2. Upload file to cloud storage\n3. Preview file (this endpoint)\n4. Complete upload and process\n\nUse Cases:\n    - Verify file structure before import\n    - Confirm CSV parsing settings\n    - Prev"
+        },
+        {
+          "info": {
+            "name": "Compare Csv For Replace",
+            "type": "http"
+          },
+          "http": {
+            "method": "POST",
+            "url": "{{baseUrl}}/api/integrations/database/:db_id/upload/compare",
+            "params": [
+              {
+                "name": "db_id",
+                "value": "",
+                "type": "path"
+              }
+            ],
+            "body": {
+              "type": "json",
+              "data": "{}"
+            },
+            "auth": {
+              "type": "bearer",
+              "token": "{{bearerToken}}"
+            }
+          },
+          "docs": "Compare existing CSV with new CSV for replace operation."
+        },
+        {
+          "info": {
+            "name": "Complete File Upload",
+            "type": "http"
+          },
+          "http": {
+            "method": "POST",
+            "url": "{{baseUrl}}/api/integrations/database/:db_id/upload/complete",
+            "params": [
+              {
+                "name": "db_id",
+                "value": "",
+                "type": "path"
+              }
+            ],
+            "body": {
+              "type": "json",
+              "data": "{}"
+            },
+            "auth": {
+              "type": "bearer",
+              "token": "{{bearerToken}}"
+            }
+          },
+          "docs": "Complete file upload and process the file."
+        },
+        {
+          "info": {
+            "name": "Replace File Upload",
+            "type": "http"
+          },
+          "http": {
+            "method": "POST",
+            "url": "{{baseUrl}}/api/integrations/database/:db_id/upload/replace",
+            "params": [
+              {
+                "name": "db_id",
+                "value": "",
+                "type": "path"
+              }
+            ],
+            "body": {
+              "type": "json",
+              "data": "{}"
+            },
+            "auth": {
+              "type": "bearer",
+              "token": "{{bearerToken}}"
+            }
+          },
+          "docs": "Replace existing database data with new file upload."
+        },
+        {
+          "info": {
+            "name": "Get Database Integration Health",
+            "type": "http"
+          },
+          "http": {
+            "method": "GET",
+            "url": "{{baseUrl}}/api/integrations/database/health",
+            "auth": {
+              "type": "bearer",
+              "token": "{{bearerToken}}"
+            }
+          },
+          "docs": "Get health status of database integration."
+        },
+        {
+          "info": {
+            "name": "Test Postgres Connection",
+            "type": "http"
+          },
+          "http": {
+            "method": "POST",
+            "url": "{{baseUrl}}/api/integrations/postgres/test-connection",
+            "body": {
+              "type": "json",
+              "data": "{}"
+            },
+            "auth": {
+              "type": "bearer",
+              "token": "{{bearerToken}}"
+            }
+          },
+          "docs": "Test PostgreSQL connection (proxied to legacy system)."
+        },
+        {
+          "info": {
+            "name": "Test Postgres Connection By Credential Id",
+            "type": "http"
+          },
+          "http": {
+            "method": "POST",
+            "url": "{{baseUrl}}/api/integrations/postgres/test-connection/:credential_id",
+            "params": [
+              {
+                "name": "credential_id",
+                "value": "",
+                "type": "path"
+              }
+            ],
+            "auth": {
+              "type": "bearer",
+              "token": "{{bearerToken}}"
+            }
+          },
+          "docs": "Test PostgreSQL connection by credential ID (proxied to legacy system)."
+        },
+        {
+          "info": {
+            "name": "Create Email Task",
+            "type": "http"
+          },
+          "http": {
+            "method": "POST",
+            "url": "{{baseUrl}}/api/integrations/email/tasks",
+            "body": {
+              "type": "json",
+              "data": "{}"
+            },
+            "auth": {
+              "type": "bearer",
+              "token": "{{bearerToken}}"
+            }
+          },
+          "docs": "Create a new email task with a unique email address."
+        },
+        {
+          "info": {
+            "name": "Deactivate Email Task",
+            "type": "http"
+          },
+          "http": {
+            "method": "DELETE",
+            "url": "{{baseUrl}}/api/integrations/email/tasks",
+            "params": [
+              {
+                "name": "flow_id",
+                "value": "",
+                "type": "query"
+              }
+            ],
+            "auth": {
+              "type": "bearer",
+              "token": "{{bearerToken}}"
+            }
+          },
+          "docs": "Deactivate the email integration for a removed task.\n\nCalled when a receive_email task is removed from a flow definition."
+        },
+        {
+          "info": {
+            "name": "Get Email Task Status",
+            "type": "http"
+          },
+          "http": {
+            "method": "GET",
+            "url": "{{baseUrl}}/api/integrations/email/tasks/:task_id",
+            "params": [
+              {
+                "name": "task_id",
+                "value": "",
+                "type": "path"
+              }
+            ],
+            "auth": {
+              "type": "bearer",
+              "token": "{{bearerToken}}"
+            }
+          },
+          "docs": "Get status of an email task."
+        },
+        {
+          "info": {
+            "name": "Process Emails",
+            "type": "http"
+          },
+          "http": {
+            "method": "POST",
+            "url": "{{baseUrl}}/api/integrations/email/process",
+            "auth": {
+              "type": "bearer",
+              "token": "{{bearerToken}}"
+            }
+          },
+          "docs": "Manually trigger email processing (for testing)."
+        },
+        {
+          "info": {
+            "name": "Get Email Integration Health",
+            "type": "http"
+          },
+          "http": {
+            "method": "GET",
+            "url": "{{baseUrl}}/api/integrations/email/health",
+            "auth": {
+              "type": "bearer",
+              "token": "{{bearerToken}}"
+            }
+          },
+          "docs": "Get health status of email integration."
+        },
+        {
+          "info": {
+            "name": "List user credentials",
+            "type": "http"
+          },
+          "http": {
+            "method": "GET",
+            "url": "{{baseUrl}}/api/integrations/credentials",
+            "auth": {
+              "type": "bearer",
+              "token": "{{bearerToken}}"
+            }
+          },
+          "docs": "Retrieve all integration credentials for the authenticated user.\n\nReturns stored credentials for various integration providers including Google Drive,\nSharePoint, SFTP servers, PostgreSQL databases, and other external services. Each\ncredential contains metadata about the integration but excludes sensitive authentication\ndata (passwords, tokens, API keys) by default.\n\nContext:\n    - Credentials are scoped to the authenticated user and their organization\n    - Returns only active (non-deleted) cre"
+        },
+        {
+          "info": {
+            "name": "Create integration credentials",
+            "type": "http"
+          },
+          "http": {
+            "method": "POST",
+            "url": "{{baseUrl}}/api/integrations/credentials",
+            "body": {
+              "type": "json",
+              "data": "{}"
+            },
+            "auth": {
+              "type": "bearer",
+              "token": "{{bearerToken}}"
+            }
+          },
+          "docs": "Create new integration credentials for connecting to external services.\n\nStores encrypted credentials for connecting to third-party services like Google Drive,\nSharePoint, SFTP servers, or PostgreSQL databases. Credentials are encrypted at rest\nusing AES-256-GCM and scoped to the user's organization for security isolation.\n\nContext:\n    This endpoint is the primary mechanism for establishing connections to external integrations.\n    After credentials are created, they can be used in:\n    - Flow "
+        },
+        {
+          "info": {
+            "name": "List credentials by provider",
+            "type": "http"
+          },
+          "http": {
+            "method": "GET",
+            "url": "{{baseUrl}}/api/integrations/credentials/provider/:provider",
+            "params": [
+              {
+                "name": "provider",
+                "value": "sharepoint",
+                "type": "path",
+                "description": "Integration provider to filter credentials by. Valid providers: microsoft, sharepoint, sftp, aws_ses, google, postgresql, internal_postgresql. Returns only credentials matching the specified provider."
+              }
+            ],
+            "auth": {
+              "type": "bearer",
+              "token": "{{bearerToken}}"
+            }
+          },
+          "docs": "Retrieve user credentials filtered by integration provider.\n\nReturns credentials for a specific integration provider. This is useful when you need to\nfind credentials for a particular service without fetching all credentials.\n\nContext:\n    This endpoint provides filtered access to credentials, commonly used when:\n    - Checking if a user has connected to a specific provider (e.g., SharePoint)\n    - Populating provider-specific integration configuration UI\n    - Validating credential availability"
+        },
+        {
+          "info": {
+            "name": "Get credential secrets",
+            "type": "http"
+          },
+          "http": {
+            "method": "GET",
+            "url": "{{baseUrl}}/api/integrations/credentials/:credential_id/credentials",
+            "params": [
+              {
+                "name": "credential_id",
+                "value": "123e4567-e89b-12d3-a456-426614174000",
+                "type": "path",
+                "description": "UUID of the credential to retrieve sensitive data from. User must own this credential or have service account permissions."
+              }
+            ],
+            "auth": {
+              "type": "bearer",
+              "token": "{{bearerToken}}"
+            }
+          },
+          "docs": "Retrieve decrypted credential secrets for integration use.\n\nReturns the actual credential data (passwords, tokens, keys) in decrypted form. This endpoint\nis restricted to service accounts only for security. Regular users cannot retrieve plaintext\ncredentials after creation.\n\nContext:\n    This endpoint provides access to sensitive credential data for system-level operations.\n    It is primarily used by:\n    - Service accounts executing workflows that need integration credentials\n    - Internal se"
+        },
+        {
+          "info": {
+            "name": "Get credential by ID",
+            "type": "http"
+          },
+          "http": {
+            "method": "GET",
+            "url": "{{baseUrl}}/api/integrations/credentials/:credential_id",
+            "params": [
+              {
+                "name": "credential_id",
+                "value": "123e4567-e89b-12d3-a456-426614174000",
+                "type": "path",
+                "description": "UUID of the credential to retrieve. Must belong to the authenticated user's organization."
+              }
+            ],
+            "auth": {
+              "type": "bearer",
+              "token": "{{bearerToken}}"
+            }
+          },
+          "docs": "Retrieve metadata for a specific integration credential.\n\nReturns credential metadata without sensitive data. Use this endpoint to check credential\nstatus, provider type, and creation date without exposing passwords or tokens.\n\nContext:\n    This endpoint provides safe access to credential information for UI display and\n    validation purposes. Common use cases include:\n    - Displaying credential details in integration settings pages\n    - Verifying credential ownership before performing operati"
+        },
+        {
+          "info": {
+            "name": "Update credential",
+            "type": "http"
+          },
+          "http": {
+            "method": "PATCH",
+            "url": "{{baseUrl}}/api/integrations/credentials/:credential_id",
+            "params": [
+              {
+                "name": "credential_id",
+                "value": "123e4567-e89b-12d3-a456-426614174000",
+                "type": "path",
+                "description": "UUID of the credential to update. Must belong to the authenticated user's organization."
+              }
+            ],
+            "body": {
+              "type": "json",
+              "data": "{}"
+            },
+            "auth": {
+              "type": "bearer",
+              "token": "{{bearerToken}}"
+            }
+          },
+          "docs": "Update existing integration credentials with new values.\n\nReplaces credential data (passwords, tokens, connection details) for an existing credential.\nUse this endpoint to rotate passwords, update connection strings, or refresh OAuth tokens.\n\nContext:\n    Credential updates are necessary for several operational scenarios:\n    - Password rotation policies require periodic credential updates\n    - SFTP server configuration changes (hostname, port)\n    - Database connection string modifications\n   "
+        },
+        {
+          "info": {
+            "name": "Delete credential",
+            "type": "http"
+          },
+          "http": {
+            "method": "DELETE",
+            "url": "{{baseUrl}}/api/integrations/credentials/:credential_id",
+            "params": [
+              {
+                "name": "credential_id",
+                "value": "123e4567-e89b-12d3-a456-426614174000",
+                "type": "path",
+                "description": "UUID of the credential to delete. Must belong to the authenticated user's organization."
+              }
+            ],
+            "auth": {
+              "type": "bearer",
+              "token": "{{bearerToken}}"
+            }
+          },
+          "docs": "Soft-delete an integration credential.\n\nMarks the credential as deleted without physically removing it from the database.\nDeleted credentials are excluded from list queries and cannot be used in workflows.\n\nContext:\n    This endpoint safely removes credentials while preserving audit trail. Common scenarios:\n    - User disconnects an integration from settings UI\n    - Credential compromise detected (delete and recreate)\n    - Integration no longer needed for workflows\n    - OAuth token revoked by"
+        },
+        {
+          "info": {
+            "name": "List all registered plugins",
+            "type": "http"
+          },
+          "http": {
+            "method": "GET",
+            "url": "{{baseUrl}}/api/integrations/plugins/",
+            "auth": {
+              "type": "bearer",
+              "token": "{{bearerToken}}"
+            }
+          },
+          "docs": "List all registered plugins from the integration registry.\n\nReturns plugins available in the new plugin system only, excluding legacy integrations.\nEach plugin includes metadata about its capabilities, version, and status.\n\nUse Cases:\n    - Display available integrations to users\n    - Validate plugin availability before configuration\n    - Integration discovery and selection"
+        },
+        {
+          "info": {
+            "name": "Get plugin capabilities",
+            "type": "http"
+          },
+          "http": {
+            "method": "GET",
+            "url": "{{baseUrl}}/api/integrations/plugins/:plugin_name/capabilities",
+            "params": [
+              {
+                "name": "plugin_name",
+                "value": "",
+                "type": "path"
+              }
+            ],
+            "auth": {
+              "type": "bearer",
+              "token": "{{bearerToken}}"
+            }
+          },
+          "docs": "Retrieve detailed capabilities of a specific plugin.\n\nReturns comprehensive information about what the plugin can do, including:\n- Supported operations and execution models\n- Required authentication types\n- Configuration schema and metadata\n- Webhook support status\n\nUse Cases:\n    - Display plugin configuration UI\n    - Validate plugin compatibility with workflow\n    - Generate plugin documentation"
+        },
+        {
+          "info": {
+            "name": "Oauth Authorize Legacy",
+            "type": "http"
+          },
+          "http": {
+            "method": "POST",
+            "url": "{{baseUrl}}/api/integrations/plugins/:plugin_name/oauth/authorize",
+            "params": [
+              {
+                "name": "plugin_name",
+                "value": "",
+                "type": "path"
+              }
+            ],
+            "body": {
+              "type": "json",
+              "data": "{}"
+            },
+            "auth": {
+              "type": "bearer",
+              "token": "{{bearerToken}}"
+            }
+          },
+          "docs": "Oauth Authorize Legacy"
+        },
+        {
+          "info": {
+            "name": "Oauth Callback Legacy",
+            "type": "http"
+          },
+          "http": {
+            "method": "GET",
+            "url": "{{baseUrl}}/api/integrations/plugins/:plugin_name/oauth/callback",
+            "params": [
+              {
+                "name": "plugin_name",
+                "value": "",
+                "type": "path"
+              },
+              {
+                "name": "code",
+                "value": "",
+                "type": "query"
+              },
+              {
+                "name": "state",
+                "value": "",
+                "type": "query"
+              },
+              {
+                "name": "error",
+                "value": "",
+                "type": "query"
+              }
+            ],
+            "auth": {
+              "type": "bearer",
+              "token": "{{bearerToken}}"
+            }
+          },
+          "docs": "Oauth Callback Legacy"
+        },
+        {
+          "info": {
+            "name": "List Integration Instances",
+            "type": "http"
+          },
+          "http": {
+            "method": "GET",
+            "url": "{{baseUrl}}/api/integrations/plugins/:plugin_name/instances",
+            "params": [
+              {
+                "name": "plugin_name",
+                "value": "",
+                "type": "path"
+              },
+              {
+                "name": "flow_id",
+                "value": "",
+                "type": "query"
+              },
+              {
+                "name": "task_name",
+                "value": "",
+                "type": "query"
+              },
+              {
+                "name": "task_id",
+                "value": "",
+                "type": "query"
+              }
+            ],
+            "auth": {
+              "type": "bearer",
+              "token": "{{bearerToken}}"
+            }
+          },
+          "docs": "List Integration Instances"
+        },
+        {
+          "info": {
+            "name": "Create Integration Legacy",
+            "type": "http"
+          },
+          "http": {
+            "method": "POST",
+            "url": "{{baseUrl}}/api/integrations/plugins/:plugin_name/instances",
+            "params": [
+              {
+                "name": "plugin_name",
+                "value": "",
+                "type": "path"
+              }
+            ],
+            "body": {
+              "type": "json",
+              "data": "{}"
+            },
+            "auth": {
+              "type": "bearer",
+              "token": "{{bearerToken}}"
+            }
+          },
+          "docs": "Create Integration Legacy"
+        },
+        {
+          "info": {
+            "name": "Delete Integration Legacy",
+            "type": "http"
+          },
+          "http": {
+            "method": "DELETE",
+            "url": "{{baseUrl}}/api/integrations/plugins/:plugin_name/instances/:integration_id",
+            "params": [
+              {
+                "name": "integration_id",
+                "value": "",
+                "type": "path"
+              },
+              {
+                "name": "plugin_name",
+                "value": "",
+                "type": "path"
+              }
+            ],
+            "auth": {
+              "type": "bearer",
+              "token": "{{bearerToken}}"
+            }
+          },
+          "docs": "Delete Integration Legacy"
+        },
+        {
+          "info": {
+            "name": "Handle Webhook Legacy",
+            "type": "http"
+          },
+          "http": {
+            "method": "POST",
+            "url": "{{baseUrl}}/api/integrations/plugins/:plugin_name/instances/:integration_id/webhook/callback",
+            "params": [
+              {
+                "name": "plugin_name",
+                "value": "",
+                "type": "path"
+              },
+              {
+                "name": "integration_id",
+                "value": "",
+                "type": "path"
+              }
+            ],
+            "auth": {
+              "type": "bearer",
+              "token": "{{bearerToken}}"
+            }
+          },
+          "docs": "Handle Webhook Legacy"
+        },
+        {
+          "info": {
+            "name": "Move File",
+            "type": "http"
+          },
+          "http": {
+            "method": "POST",
+            "url": "{{baseUrl}}/api/integrations/plugins/:plugin_name/instances/:integration_id/files/move",
+            "params": [
+              {
+                "name": "plugin_name",
+                "value": "",
+                "type": "path"
+              },
+              {
+                "name": "integration_id",
+                "value": "",
+                "type": "path"
+              }
+            ],
+            "auth": {
+              "type": "bearer",
+              "token": "{{bearerToken}}"
+            }
+          },
+          "docs": "Move File"
+        },
+        {
+          "info": {
+            "name": "Delete File",
+            "type": "http"
+          },
+          "http": {
+            "method": "DELETE",
+            "url": "{{baseUrl}}/api/integrations/plugins/:plugin_name/instances/:integration_id/files",
+            "params": [
+              {
+                "name": "plugin_name",
+                "value": "",
+                "type": "path"
+              },
+              {
+                "name": "integration_id",
+                "value": "",
+                "type": "path"
+              }
+            ],
+            "auth": {
+              "type": "bearer",
+              "token": "{{bearerToken}}"
+            }
+          },
+          "docs": "Delete File"
+        },
+        {
+          "info": {
+            "name": "List Folders",
+            "type": "http"
+          },
+          "http": {
+            "method": "GET",
+            "url": "{{baseUrl}}/api/integrations/plugins/:plugin_name/folders",
+            "params": [
+              {
+                "name": "plugin_name",
+                "value": "",
+                "type": "path"
+              },
+              {
+                "name": "credential_id",
+                "value": "",
+                "type": "query"
+              }
+            ],
+            "auth": {
+              "type": "bearer",
+              "token": "{{bearerToken}}"
+            }
+          },
+          "docs": "List Folders"
+        },
+        {
+          "info": {
+            "name": "Get Sharepoint Sites",
+            "type": "http"
+          },
+          "http": {
+            "method": "GET",
+            "url": "{{baseUrl}}/api/integrations/plugins/sharepoint/sites",
+            "params": [
+              {
+                "name": "credential_id",
+                "value": "",
+                "type": "query"
+              }
+            ],
+            "auth": {
+              "type": "bearer",
+              "token": "{{bearerToken}}"
+            }
+          },
+          "docs": "Get Sharepoint Sites"
+        },
+        {
+          "info": {
+            "name": "Get Sharepoint Drives",
+            "type": "http"
+          },
+          "http": {
+            "method": "GET",
+            "url": "{{baseUrl}}/api/integrations/plugins/sharepoint/drives",
+            "params": [
+              {
+                "name": "credential_id",
+                "value": "",
+                "type": "query"
+              },
+              {
+                "name": "site_id",
+                "value": "",
+                "type": "query"
+              }
+            ],
+            "auth": {
+              "type": "bearer",
+              "token": "{{bearerToken}}"
+            }
+          },
+          "docs": "Get Sharepoint Drives"
+        },
+        {
+          "info": {
+            "name": "Test Sftp Connection",
+            "type": "http"
+          },
+          "http": {
+            "method": "POST",
+            "url": "{{baseUrl}}/api/integrations/sftp/test-connection",
+            "body": {
+              "type": "json",
+              "data": "{}"
+            },
+            "auth": {
+              "type": "bearer",
+              "token": "{{bearerToken}}"
+            }
+          },
+          "docs": "Test SFTP connection by attempting to connect and write a test file."
+        },
+        {
+          "info": {
+            "name": "List integration catalog",
+            "type": "http"
+          },
+          "http": {
+            "method": "GET",
+            "url": "{{baseUrl}}/api/integrations/catalog",
+            "auth": {
+              "type": "bearer",
+              "token": "{{bearerToken}}"
+            }
+          },
+          "docs": "Retrieve the catalog of available third-party integrations.\n\nReturns a comprehensive list of all integration providers supported by SuperAI Flows.\nEach integration includes metadata about authentication requirements, capabilities,\nand categorization to help users discover and connect external services to their workflows.\n\nContext:\n    - The integration catalog is the primary discovery mechanism for available services\n    - Dynamically generated from the plugin registry (no database storage overh"
+        },
+        {
+          "info": {
+            "name": "Test Postgres Plugin Connection",
+            "type": "http"
+          },
+          "http": {
+            "method": "POST",
+            "url": "{{baseUrl}}/api/integrations/plugins/postgres/test-connection",
+            "body": {
+              "type": "json",
+              "data": "{}"
+            },
+            "auth": {
+              "type": "bearer",
+              "token": "{{bearerToken}}"
+            }
+          },
+          "docs": "Test PostgreSQL connection using the new plugin system."
+        },
+        {
+          "info": {
+            "name": "Execute Postgres Plugin Task",
+            "type": "http"
+          },
+          "http": {
+            "method": "POST",
+            "url": "{{baseUrl}}/api/integrations/plugins/postgres/execute",
+            "body": {
+              "type": "json",
+              "data": "{}"
+            },
+            "auth": {
+              "type": "bearer",
+              "token": "{{bearerToken}}"
+            }
+          },
+          "docs": "Execute PostgreSQL task using the new plugin system."
+        }
+      ]
+    }
+  ],
+  "bundled": true
+}

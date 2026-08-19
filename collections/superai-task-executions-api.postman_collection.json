@@ -1,0 +1,1242 @@
+{
+  "item": [
+    {
+      "id": "70de867d-0759-490c-a52b-b5462f6da531",
+      "name": "task-executions",
+      "description": {
+        "content": "Task execution operations for tracking individual task runs within flow executions.\n\nTask executions represent individual task runs within a flow execution. Each task in a flow execution has its own task execution record that tracks its lifecycle, inputs, outputs, and status.\n\n**What is tracked:**\n- **Status**: Current state (pending, running, completed, failed, skipped)\n- **Input/Output**: Data passed to and produced by the task\n- **Timing**: Start time, end time, and duration\n- **Errors**: Failure details and error messages\n- **Tags**: Metadata and categorization\n\n**Use these endpoints to:**\n- Query task execution status for debugging\n- Retrieve task outputs for analysis\n- Debug task failures with detailed error information\n- Track task performance and timing\n- Monitor task execution progress within flows\n\nTask executions provide granular visibility into workflow execution, essential for debugging and optimization.",
+        "type": "text/plain"
+      },
+      "item": [
+        {
+          "id": "0c4fcb46-42f6-4e17-a79e-9c894281ce61",
+          "name": "Create a task execution record",
+          "request": {
+            "name": "Create a task execution record",
+            "description": {
+              "content": "Create a new task execution record for a specific task within a flow execution.\n\n**Overview**\nTask executions represent individual task invocations within a flow execution. Each task\nin a flow can be executed multiple times (retries, loops), tracked by task_execution_idx.\nThis endpoint is primarily used by system workers to report task execution state.\n\n**Resource Hierarchy**\nOrganization → Flow → Flow Execution → Task Execution\n\n**Lifecycle**\nTask executions progress through states: queued → running → completed/failed\n- queued: Task scheduled but not yet started\n- running: Task currently executing\n- completed: Task finished successfully with output\n- failed: Task encountered an error\n\n**Use Cases**\n- Workers reporting task execution start/completion\n- Recording task outputs for downstream tasks\n- Tracking task execution history and retries\n- Debugging failed workflow executions\n\n**Idempotency**\nThis endpoint is idempotent based on (flow_execution_id, task_name, task_execution_idx).\nIf a task execution with these identifiers exists, it will be updated rather than creating\na duplicate.\n\n**Performance Notes**\nWebSocket notifications are processed in the background to ensure fast worker responses.\nThe endpoint returns immediately after database write; notifications are async.\n\n**Related Endpoints**\n- GET /task-executions - List task executions with filtering\n- PUT /task-executions - Update existing task execution and optionally re-execute flow\n- GET /flow-executions/{id} - View parent flow execution",
+              "type": "text/plain"
+            },
+            "url": {
+              "path": [
+                "api",
+                "task-executions"
+              ],
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "query": [],
+              "variable": []
+            },
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "method": "POST",
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{bearerToken}}"
+                }
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"flow_execution_id\": \"<uuid>\",\n  \"task_name\": \"<string>\",\n  \"task_execution_idx\": \"<integer>\",\n  \"processing_status\": \"<string>\",\n  \"input\": {},\n  \"output\": {},\n  \"error\": {},\n  \"source_task_executions\": {},\n  \"started_at\": \"<dateTime>\",\n  \"completed_at\": \"<dateTime>\",\n  \"terminal_task_status\": \"<string>\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": [
+            {
+              "id": "16b1e6f5-10cf-47e9-b403-0147549af19f",
+              "name": "Task execution created successfully",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "api",
+                    "task-executions"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [],
+                  "variable": []
+                },
+                "header": [
+                  {
+                    "description": {
+                      "content": "Added as a part of security scheme: bearer",
+                      "type": "text/plain"
+                    },
+                    "key": "Authorization",
+                    "value": "Bearer <token>"
+                  },
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "method": "POST",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"flow_execution_id\": \"123e4567-e89b-12d3-a456-426614174000\",\n  \"task_name\": \"send_email\",\n  \"task_execution_idx\": 0,\n  \"processing_status\": \"running\",\n  \"input\": {},\n  \"output\": {},\n  \"error\": {},\n  \"source_task_executions\": {},\n  \"started_at\": \"<dateTime>\",\n  \"completed_at\": \"<dateTime>\",\n  \"terminal_task_status\": \"<string>\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "status": "Created",
+              "code": 201,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"id\": \"123e4567-e89b-12d3-a456-426614174000\",\n  \"flow_execution_id\": \"223e4567-e89b-12d3-a456-426614174000\",\n  \"task_execution_idx\": 0,\n  \"task_name\": \"send_email\",\n  \"processing_status\": \"queued\",\n  \"edited_status\": \"not_edited\",\n  \"stale_status\": \"consistent\",\n  \"organization_id\": \"323e4567-e89b-12d3-a456-426614174000\",\n  \"created_at\": \"1952-10-27T10:52:03.805Z\",\n  \"updated_at\": \"1971-11-23T14:29:51.415Z\",\n  \"modified_by\": \"system\",\n  \"input\": {},\n  \"output\": {},\n  \"error\": {},\n  \"source_task_executions\": {},\n  \"started_at\": \"1976-04-04T23:52:28.712Z\",\n  \"completed_at\": \"1984-04-09T07:36:56.962Z\",\n  \"credits\": 7235\n}",
+              "cookie": [],
+              "_postman_previewlanguage": "json"
+            },
+            {
+              "id": "b05b96b8-d902-48a9-8bb8-449a9842b126",
+              "name": "Bad Request - Invalid status value or missing required fields",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "api",
+                    "task-executions"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [],
+                  "variable": []
+                },
+                "header": [
+                  {
+                    "description": {
+                      "content": "Added as a part of security scheme: bearer",
+                      "type": "text/plain"
+                    },
+                    "key": "Authorization",
+                    "value": "Bearer <token>"
+                  },
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "method": "POST",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"flow_execution_id\": \"123e4567-e89b-12d3-a456-426614174000\",\n  \"task_name\": \"send_email\",\n  \"task_execution_idx\": 0,\n  \"processing_status\": \"running\",\n  \"input\": {},\n  \"output\": {},\n  \"error\": {},\n  \"source_task_executions\": {},\n  \"started_at\": \"<dateTime>\",\n  \"completed_at\": \"<dateTime>\",\n  \"terminal_task_status\": \"<string>\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "status": "Bad Request",
+              "code": 400,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"error\": {\n    \"code\": \"not_found\",\n    \"message\": \"Resource not found\"\n  },\n  \"request_id\": \"01K8KABR6S16YETA2SZPVBS9SP\"\n}",
+              "cookie": [],
+              "_postman_previewlanguage": "json"
+            },
+            {
+              "id": "2390a7eb-705e-4af8-9c32-bbbb168989d0",
+              "name": "Not Found - The requested resource does not exist",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "api",
+                    "task-executions"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [],
+                  "variable": []
+                },
+                "header": [
+                  {
+                    "description": {
+                      "content": "Added as a part of security scheme: bearer",
+                      "type": "text/plain"
+                    },
+                    "key": "Authorization",
+                    "value": "Bearer <token>"
+                  },
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "method": "POST",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"flow_execution_id\": \"123e4567-e89b-12d3-a456-426614174000\",\n  \"task_name\": \"send_email\",\n  \"task_execution_idx\": 0,\n  \"processing_status\": \"running\",\n  \"input\": {},\n  \"output\": {},\n  \"error\": {},\n  \"source_task_executions\": {},\n  \"started_at\": \"<dateTime>\",\n  \"completed_at\": \"<dateTime>\",\n  \"terminal_task_status\": \"<string>\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "status": "Not Found",
+              "code": 404,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"error\": {\n    \"message\": \"Resource not found\",\n    \"code\": \"not_found\"\n  },\n  \"request_id\": \"01K8KABR6S16YETA2SZPVBS9SP\"\n}",
+              "cookie": [],
+              "_postman_previewlanguage": "json"
+            },
+            {
+              "id": "3f45b1ae-f540-40cb-8f9f-e11fd6cb8657",
+              "name": "Validation Error",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "api",
+                    "task-executions"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [],
+                  "variable": []
+                },
+                "header": [
+                  {
+                    "description": {
+                      "content": "Added as a part of security scheme: bearer",
+                      "type": "text/plain"
+                    },
+                    "key": "Authorization",
+                    "value": "Bearer <token>"
+                  },
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "method": "POST",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"flow_execution_id\": \"123e4567-e89b-12d3-a456-426614174000\",\n  \"task_name\": \"send_email\",\n  \"task_execution_idx\": 0,\n  \"processing_status\": \"running\",\n  \"input\": {},\n  \"output\": {},\n  \"error\": {},\n  \"source_task_executions\": {},\n  \"started_at\": \"<dateTime>\",\n  \"completed_at\": \"<dateTime>\",\n  \"terminal_task_status\": \"<string>\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "status": "Unprocessable Entity (WebDAV) (RFC 4918)",
+              "code": 422,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"detail\": [\n    {\n      \"loc\": [\n        \"string\",\n        \"string\"\n      ],\n      \"msg\": \"string\",\n      \"type\": \"string\"\n    },\n    {\n      \"loc\": [\n        \"string\",\n        \"string\"\n      ],\n      \"msg\": \"string\",\n      \"type\": \"string\"\n    }\n  ]\n}",
+              "cookie": [],
+              "_postman_previewlanguage": "json"
+            },
+            {
+              "id": "501b6feb-d891-49b8-afcb-ac1a0252b42c",
+              "name": "Internal Server Error - An unexpected error occurred",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "api",
+                    "task-executions"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [],
+                  "variable": []
+                },
+                "header": [
+                  {
+                    "description": {
+                      "content": "Added as a part of security scheme: bearer",
+                      "type": "text/plain"
+                    },
+                    "key": "Authorization",
+                    "value": "Bearer <token>"
+                  },
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "method": "POST",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"flow_execution_id\": \"123e4567-e89b-12d3-a456-426614174000\",\n  \"task_name\": \"send_email\",\n  \"task_execution_idx\": 0,\n  \"processing_status\": \"running\",\n  \"input\": {},\n  \"output\": {},\n  \"error\": {},\n  \"source_task_executions\": {},\n  \"started_at\": \"<dateTime>\",\n  \"completed_at\": \"<dateTime>\",\n  \"terminal_task_status\": \"<string>\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "status": "Internal Server Error",
+              "code": 500,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"error\": {\n    \"message\": \"Internal server error\",\n    \"code\": \"internal_error\"\n  },\n  \"request_id\": \"01K8KABR6S16YETA2SZPVBS9SP\"\n}",
+              "cookie": [],
+              "_postman_previewlanguage": "json"
+            }
+          ],
+          "event": [],
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          }
+        },
+        {
+          "id": "c22b6d93-5d67-4427-b5d6-a276bb56074d",
+          "name": "Update task execution and optionally re-execute flow",
+          "request": {
+            "name": "Update task execution and optionally re-execute flow",
+            "description": {
+              "content": "Update an existing task execution and optionally trigger flow re-execution.\n\n**Overview**\nThis endpoint updates a task execution's output, status, or other fields, and can\nautomatically propagate changes to downstream tasks by re-executing the flow.\nCommonly used for human-in-the-loop workflows or manual corrections.\n\n**Update Behavior**\nWhen updating a task execution, the system:\n1. Validates task output against the task's output model\n2. Updates the task execution record in the database\n3. Recalculates task output summaries for the parent flow execution\n4. Identifies downstream tasks that depend on the updated task (stale tasks)\n5. Optionally re-executes those stale tasks if execute_flow=true\n\n**Stale Task Detection**\nTasks become \"stale\" when an upstream task they depend on changes. The system\nanalyzes task dependencies from the flow definition to determine affected tasks.\nOnly stale tasks are re-executed, not the entire flow.\n\n**Use Cases**\n- Correcting task outputs after manual review (human-in-the-loop)\n- Updating task results based on external feedback\n- Fixing data quality issues in completed tasks\n- Triggering partial flow re-execution after corrections\n\n**Concurrency**\nUpdates use optimistic locking via updated_at timestamp. Concurrent updates to the\nsame task execution may result in last-write-wins behavior.\n\n**Related Endpoints**\n- POST /task-executions - Create new task execution\n- POST /flow-executions/{id}/execute - Re-execute entire flow\n- GET /task-executions - List task executions with filtering",
+              "type": "text/plain"
+            },
+            "url": {
+              "path": [
+                "api",
+                "task-executions"
+              ],
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "query": [
+                {
+                  "disabled": false,
+                  "key": "execute_flow",
+                  "value": "false",
+                  "description": "Whether to re-execute downstream tasks after updating this task execution. If true, identifies all tasks that depend on this task (stale tasks) and triggers their re-execution with updated inputs. If false, only updates the task execution record without propagation. Default: false for safety (explicit opt-in for re-execution)."
+                }
+              ],
+              "variable": []
+            },
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "method": "PUT",
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{bearerToken}}"
+                }
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"id\": \"<uuid>\",\n  \"flow_execution_id\": \"<uuid>\",\n  \"task_execution_idx\": \"<integer>\",\n  \"task_name\": \"<string>\",\n  \"processing_status\": \"<string>\",\n  \"edited_status\": \"<string>\",\n  \"stale_status\": \"<string>\",\n  \"organization_id\": \"<uuid>\",\n  \"created_at\": \"<dateTime>\",\n  \"updated_at\": \"<dateTime>\",\n  \"modified_by\": \"system\",\n  \"input\": {},\n  \"output\": {},\n  \"error\": {},\n  \"source_task_executions\": {},\n  \"started_at\": \"<dateTime>\",\n  \"completed_at\": \"<dateTime>\",\n  \"credits\": \"<integer>\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": [
+            {
+              "id": "8b430ec3-5b60-49a9-9d4e-c066fd943d10",
+              "name": "Task execution updated successfully",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "api",
+                    "task-executions"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [
+                    {
+                      "key": "execute_flow",
+                      "value": "false"
+                    }
+                  ],
+                  "variable": []
+                },
+                "header": [
+                  {
+                    "description": {
+                      "content": "Added as a part of security scheme: bearer",
+                      "type": "text/plain"
+                    },
+                    "key": "Authorization",
+                    "value": "Bearer <token>"
+                  },
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "method": "PUT",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"id\": \"123e4567-e89b-12d3-a456-426614174000\",\n  \"flow_execution_id\": \"223e4567-e89b-12d3-a456-426614174000\",\n  \"task_execution_idx\": 0,\n  \"task_name\": \"send_email\",\n  \"processing_status\": \"queued\",\n  \"edited_status\": \"not_edited\",\n  \"stale_status\": \"consistent\",\n  \"organization_id\": \"323e4567-e89b-12d3-a456-426614174000\",\n  \"created_at\": \"<dateTime>\",\n  \"updated_at\": \"<dateTime>\",\n  \"modified_by\": \"system\",\n  \"input\": {},\n  \"output\": {},\n  \"error\": {},\n  \"source_task_executions\": {},\n  \"started_at\": \"<dateTime>\",\n  \"completed_at\": \"<dateTime>\",\n  \"credits\": \"<integer>\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "status": "OK",
+              "code": 200,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"id\": \"123e4567-e89b-12d3-a456-426614174000\",\n  \"flow_execution_id\": \"223e4567-e89b-12d3-a456-426614174000\",\n  \"task_execution_idx\": 0,\n  \"task_name\": \"send_email\",\n  \"processing_status\": \"queued\",\n  \"edited_status\": \"not_edited\",\n  \"stale_status\": \"consistent\",\n  \"organization_id\": \"323e4567-e89b-12d3-a456-426614174000\",\n  \"created_at\": \"1952-10-27T10:52:03.805Z\",\n  \"updated_at\": \"1971-11-23T14:29:51.415Z\",\n  \"modified_by\": \"system\",\n  \"input\": {},\n  \"output\": {},\n  \"error\": {},\n  \"source_task_executions\": {},\n  \"started_at\": \"1976-04-04T23:52:28.712Z\",\n  \"completed_at\": \"1984-04-09T07:36:56.962Z\",\n  \"credits\": 7235\n}",
+              "cookie": [],
+              "_postman_previewlanguage": "json"
+            },
+            {
+              "id": "256190d9-f2e7-422c-bec5-5461db6d1a26",
+              "name": "Bad Request - Invalid output data or validation failed",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "api",
+                    "task-executions"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [
+                    {
+                      "key": "execute_flow",
+                      "value": "false"
+                    }
+                  ],
+                  "variable": []
+                },
+                "header": [
+                  {
+                    "description": {
+                      "content": "Added as a part of security scheme: bearer",
+                      "type": "text/plain"
+                    },
+                    "key": "Authorization",
+                    "value": "Bearer <token>"
+                  },
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "method": "PUT",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"id\": \"123e4567-e89b-12d3-a456-426614174000\",\n  \"flow_execution_id\": \"223e4567-e89b-12d3-a456-426614174000\",\n  \"task_execution_idx\": 0,\n  \"task_name\": \"send_email\",\n  \"processing_status\": \"queued\",\n  \"edited_status\": \"not_edited\",\n  \"stale_status\": \"consistent\",\n  \"organization_id\": \"323e4567-e89b-12d3-a456-426614174000\",\n  \"created_at\": \"<dateTime>\",\n  \"updated_at\": \"<dateTime>\",\n  \"modified_by\": \"system\",\n  \"input\": {},\n  \"output\": {},\n  \"error\": {},\n  \"source_task_executions\": {},\n  \"started_at\": \"<dateTime>\",\n  \"completed_at\": \"<dateTime>\",\n  \"credits\": \"<integer>\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "status": "Bad Request",
+              "code": 400,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"error\": {\n    \"code\": \"not_found\",\n    \"message\": \"Resource not found\"\n  },\n  \"request_id\": \"01K8KABR6S16YETA2SZPVBS9SP\"\n}",
+              "cookie": [],
+              "_postman_previewlanguage": "json"
+            },
+            {
+              "id": "0fbaa44e-2f35-4297-b3c9-4b6f4b0255fd",
+              "name": "Not Found - The requested resource does not exist",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "api",
+                    "task-executions"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [
+                    {
+                      "key": "execute_flow",
+                      "value": "false"
+                    }
+                  ],
+                  "variable": []
+                },
+                "header": [
+                  {
+                    "description": {
+                      "content": "Added as a part of security scheme: bearer",
+                      "type": "text/plain"
+                    },
+                    "key": "Authorization",
+                    "value": "Bearer <token>"
+                  },
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "method": "PUT",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"id\": \"123e4567-e89b-12d3-a456-426614174000\",\n  \"flow_execution_id\": \"223e4567-e89b-12d3-a456-426614174000\",\n  \"task_execution_idx\": 0,\n  \"task_name\": \"send_email\",\n  \"processing_status\": \"queued\",\n  \"edited_status\": \"not_edited\",\n  \"stale_status\": \"consistent\",\n  \"organization_id\": \"323e4567-e89b-12d3-a456-426614174000\",\n  \"created_at\": \"<dateTime>\",\n  \"updated_at\": \"<dateTime>\",\n  \"modified_by\": \"system\",\n  \"input\": {},\n  \"output\": {},\n  \"error\": {},\n  \"source_task_executions\": {},\n  \"started_at\": \"<dateTime>\",\n  \"completed_at\": \"<dateTime>\",\n  \"credits\": \"<integer>\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "status": "Not Found",
+              "code": 404,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"error\": {\n    \"message\": \"Resource not found\",\n    \"code\": \"not_found\"\n  },\n  \"request_id\": \"01K8KABR6S16YETA2SZPVBS9SP\"\n}",
+              "cookie": [],
+              "_postman_previewlanguage": "json"
+            },
+            {
+              "id": "78ee0e55-9838-49b4-bbcf-e0690bad62f1",
+              "name": "Validation Error",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "api",
+                    "task-executions"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [
+                    {
+                      "key": "execute_flow",
+                      "value": "false"
+                    }
+                  ],
+                  "variable": []
+                },
+                "header": [
+                  {
+                    "description": {
+                      "content": "Added as a part of security scheme: bearer",
+                      "type": "text/plain"
+                    },
+                    "key": "Authorization",
+                    "value": "Bearer <token>"
+                  },
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "method": "PUT",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"id\": \"123e4567-e89b-12d3-a456-426614174000\",\n  \"flow_execution_id\": \"223e4567-e89b-12d3-a456-426614174000\",\n  \"task_execution_idx\": 0,\n  \"task_name\": \"send_email\",\n  \"processing_status\": \"queued\",\n  \"edited_status\": \"not_edited\",\n  \"stale_status\": \"consistent\",\n  \"organization_id\": \"323e4567-e89b-12d3-a456-426614174000\",\n  \"created_at\": \"<dateTime>\",\n  \"updated_at\": \"<dateTime>\",\n  \"modified_by\": \"system\",\n  \"input\": {},\n  \"output\": {},\n  \"error\": {},\n  \"source_task_executions\": {},\n  \"started_at\": \"<dateTime>\",\n  \"completed_at\": \"<dateTime>\",\n  \"credits\": \"<integer>\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "status": "Unprocessable Entity (WebDAV) (RFC 4918)",
+              "code": 422,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"detail\": [\n    {\n      \"loc\": [\n        \"string\",\n        \"string\"\n      ],\n      \"msg\": \"string\",\n      \"type\": \"string\"\n    },\n    {\n      \"loc\": [\n        \"string\",\n        \"string\"\n      ],\n      \"msg\": \"string\",\n      \"type\": \"string\"\n    }\n  ]\n}",
+              "cookie": [],
+              "_postman_previewlanguage": "json"
+            },
+            {
+              "id": "2924dc93-ae89-43d8-ba15-96d5bd5d6ba0",
+              "name": "Internal Server Error - An unexpected error occurred",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "api",
+                    "task-executions"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [
+                    {
+                      "key": "execute_flow",
+                      "value": "false"
+                    }
+                  ],
+                  "variable": []
+                },
+                "header": [
+                  {
+                    "description": {
+                      "content": "Added as a part of security scheme: bearer",
+                      "type": "text/plain"
+                    },
+                    "key": "Authorization",
+                    "value": "Bearer <token>"
+                  },
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "method": "PUT",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"id\": \"123e4567-e89b-12d3-a456-426614174000\",\n  \"flow_execution_id\": \"223e4567-e89b-12d3-a456-426614174000\",\n  \"task_execution_idx\": 0,\n  \"task_name\": \"send_email\",\n  \"processing_status\": \"queued\",\n  \"edited_status\": \"not_edited\",\n  \"stale_status\": \"consistent\",\n  \"organization_id\": \"323e4567-e89b-12d3-a456-426614174000\",\n  \"created_at\": \"<dateTime>\",\n  \"updated_at\": \"<dateTime>\",\n  \"modified_by\": \"system\",\n  \"input\": {},\n  \"output\": {},\n  \"error\": {},\n  \"source_task_executions\": {},\n  \"started_at\": \"<dateTime>\",\n  \"completed_at\": \"<dateTime>\",\n  \"credits\": \"<integer>\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "status": "Internal Server Error",
+              "code": 500,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"error\": {\n    \"message\": \"Internal server error\",\n    \"code\": \"internal_error\"\n  },\n  \"request_id\": \"01K8KABR6S16YETA2SZPVBS9SP\"\n}",
+              "cookie": [],
+              "_postman_previewlanguage": "json"
+            }
+          ],
+          "event": [],
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          }
+        },
+        {
+          "id": "ca99a88e-7a7d-4dee-865e-b19c100483cf",
+          "name": "List task executions with filtering",
+          "request": {
+            "name": "List task executions with filtering",
+            "description": {
+              "content": "List task executions with optional filtering by flow execution, task name, or execution index.\n\n**Overview**\nRetrieve task executions across all flows in your organization. Results can be filtered\nby parent flow execution, specific task name, or execution index. Returns task executions\nwith their associated tags for categorization and filtering.\n\n**Filtering Logic**\nMultiple filters are combined with AND logic:\n- flow_execution_id AND task_name → All executions of a specific task in a flow\n- flow_execution_id AND task_execution_idx → All tasks at a specific execution index\n- All three filters → Exact task execution lookup (equivalent to GET /{id})\n\n**Common Query Patterns**\n1. All tasks in a flow execution: ?flow_execution_id={id}\n2. Specific task across retries: ?flow_execution_id={id}&task_name=send_email\n3. First execution of all tasks: ?flow_execution_id={id}&task_execution_idx=0\n4. All task executions (no filters): Returns all executions in organization\n\n**Response Format**\nReturns TaskExecutionWithTagsAPI objects containing:\n- Full task execution details (input, output, error, status)\n- Associated tags (e.g., reviewed, approved, flagged)\n- Metadata (created_at, updated_at, modified_by)\n- Organization context for multi-tenant isolation\n\n**Performance Considerations**\n- Queries are scoped to organization_id via RLS policies (automatic filtering)\n- Add flow_execution_id filter for better query performance on large datasets\n- Unfiltered queries may return large result sets; pagination planned for future\n\n**Tags**\nTask tags provide categorization and workflow state:\n- Tag types: 'review_status', 'approval', 'quality', 'custom'\n- Tags are returned with each task execution for filtering and display\n- Soft-deleted tags are excluded from results\n\n**Related Endpoints**\n- GET /task-executions/{id} - Get single task execution by ID\n- GET /task-tags - List all tags for a flow execution\n- POST /task-executions - Create new task execution",
+              "type": "text/plain"
+            },
+            "url": {
+              "path": [
+                "api",
+                "task-executions"
+              ],
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "query": [
+                {
+                  "disabled": false,
+                  "key": "flow_execution_id",
+                  "value": "<uuid>",
+                  "description": "Filter task executions by parent flow execution ID. Returns only tasks belonging to the specified flow execution. Combines with other filters using AND logic. Omit to search across all flow executions in your organization."
+                },
+                {
+                  "disabled": false,
+                  "key": "task_name",
+                  "value": "<string>",
+                  "description": "Filter task executions by exact task name (case-sensitive). Returns all execution attempts of the named task. Useful for tracking retries or finding specific task types. Must match task name exactly as defined in flow definition YAML."
+                },
+                {
+                  "disabled": false,
+                  "key": "task_execution_idx",
+                  "value": "<integer>",
+                  "description": "Filter task executions by execution index (zero-based). Returns tasks at a specific execution attempt number. Index 0 = first execution, 1 = first retry, 2 = second retry, etc. Useful for comparing initial vs retry executions or finding specific attempts."
+                },
+                {
+                  "disabled": false,
+                  "key": "include_credits",
+                  "value": "false",
+                  "description": "Include credits consumed by each task execution in the response. When false (default), credits is null and the usage table is not queried. Only takes effect together with flow_execution_id."
+                }
+              ],
+              "variable": []
+            },
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "method": "GET",
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{bearerToken}}"
+                }
+              ]
+            }
+          },
+          "response": [
+            {
+              "id": "ae7ea4c0-197b-43e3-bf26-7e38a042df8c",
+              "name": "List of task executions successfully retrieved",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "api",
+                    "task-executions"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [
+                    {
+                      "key": "flow_execution_id",
+                      "value": "<uuid>"
+                    },
+                    {
+                      "key": "task_name",
+                      "value": "<string>"
+                    },
+                    {
+                      "key": "task_execution_idx",
+                      "value": "<integer>"
+                    },
+                    {
+                      "key": "include_credits",
+                      "value": "false"
+                    }
+                  ],
+                  "variable": []
+                },
+                "header": [
+                  {
+                    "description": {
+                      "content": "Added as a part of security scheme: bearer",
+                      "type": "text/plain"
+                    },
+                    "key": "Authorization",
+                    "value": "Bearer <token>"
+                  },
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "method": "GET",
+                "body": {}
+              },
+              "status": "OK",
+              "code": 200,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"task_executions\": [\n    {\n      \"id\": \"123e4567-e89b-12d3-a456-426614174000\",\n      \"flow_execution_id\": \"223e4567-e89b-12d3-a456-426614174000\",\n      \"task_execution_idx\": 0,\n      \"task_name\": \"send_email\",\n      \"processing_status\": \"queued\",\n      \"edited_status\": \"not_edited\",\n      \"stale_status\": \"consistent\",\n      \"organization_id\": \"323e4567-e89b-12d3-a456-426614174000\",\n      \"created_at\": \"1976-03-09T07:23:09.418Z\",\n      \"updated_at\": \"1971-07-21T14:28:58.939Z\",\n      \"modified_by\": \"system\",\n      \"input\": {},\n      \"output\": {},\n      \"error\": {},\n      \"source_task_executions\": {},\n      \"started_at\": \"2017-06-26T16:00:33.422Z\",\n      \"completed_at\": \"2010-08-29T16:21:22.119Z\",\n      \"tags\": [\n        {\n          \"id\": \"123e4567-e89b-12d3-a456-426614174000\",\n          \"flow_execution_id\": \"223e4567-e89b-12d3-a456-426614174000\",\n          \"task_name\": \"send_email\",\n          \"tag\": \"reviewed\",\n          \"tag_type\": \"review_status\",\n          \"organization_id\": \"323e4567-e89b-12d3-a456-426614174000\",\n          \"tag_metadata\": {},\n          \"status\": \"string\",\n          \"created_at\": \"1947-11-08T06:37:18.038Z\",\n          \"updated_at\": \"2003-07-15T00:59:32.801Z\",\n          \"modified_by\": \"string\"\n        },\n        {\n          \"id\": \"123e4567-e89b-12d3-a456-426614174000\",\n          \"flow_execution_id\": \"223e4567-e89b-12d3-a456-426614174000\",\n          \"task_name\": \"send_email\",\n          \"tag\": \"reviewed\",\n          \"tag_type\": \"review_status\",\n          \"organization_id\": \"323e4567-e89b-12d3-a456-426614174000\",\n          \"tag_metadata\": {},\n          \"status\": \"string\",\n          \"created_at\": \"2007-02-20T07:07:33.585Z\",\n          \"updated_at\": \"1991-11-01T11:43:59.024Z\",\n          \"modified_by\": \"string\"\n        }\n      ],\n      \"credits\": 3718\n    },\n    {\n      \"id\": \"123e4567-e89b-12d3-a456-426614174000\",\n      \"flow_execution_id\": \"223e4567-e89b-12d3-a456-426614174000\",\n      \"task_execution_idx\": 0,\n      \"task_name\": \"send_email\",\n      \"processing_status\": \"queued\",\n      \"edited_status\": \"not_edited\",\n      \"stale_status\": \"consistent\",\n      \"organization_id\": \"323e4567-e89b-12d3-a456-426614174000\",\n      \"created_at\": \"1954-07-25T06:20:41.186Z\",\n      \"updated_at\": \"1996-10-16T09:55:36.953Z\",\n      \"modified_by\": \"system\",\n      \"input\": {},\n      \"output\": {},\n      \"error\": {},\n      \"source_task_executions\": {},\n      \"started_at\": \"2012-07-14T13:13:40.099Z\",\n      \"completed_at\": \"1990-07-12T08:50:28.645Z\",\n      \"tags\": [\n        {\n          \"id\": \"123e4567-e89b-12d3-a456-426614174000\",\n          \"flow_execution_id\": \"223e4567-e89b-12d3-a456-426614174000\",\n          \"task_name\": \"send_email\",\n          \"tag\": \"reviewed\",\n          \"tag_type\": \"review_status\",\n          \"organization_id\": \"323e4567-e89b-12d3-a456-426614174000\",\n          \"tag_metadata\": {},\n          \"status\": \"string\",\n          \"created_at\": \"2012-09-14T21:25:21.894Z\",\n          \"updated_at\": \"1991-01-18T17:21:50.593Z\",\n          \"modified_by\": \"string\"\n        },\n        {\n          \"id\": \"123e4567-e89b-12d3-a456-426614174000\",\n          \"flow_execution_id\": \"223e4567-e89b-12d3-a456-426614174000\",\n          \"task_name\": \"send_email\",\n          \"tag\": \"reviewed\",\n          \"tag_type\": \"review_status\",\n          \"organization_id\": \"323e4567-e89b-12d3-a456-426614174000\",\n          \"tag_metadata\": {},\n          \"status\": \"string\",\n          \"created_at\": \"2000-03-13T10:38:30.066Z\",\n          \"updated_at\": \"1985-05-22T08:02:31.263Z\",\n          \"modified_by\": \"string\"\n        }\n      ],\n      \"credits\": 2720\n    }\n  ]\n}",
+              "cookie": [],
+              "_postman_previewlanguage": "json"
+            },
+            {
+              "id": "a72697db-1ce0-4d37-a15a-168b3e8adc4f",
+              "name": "Validation Error",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "api",
+                    "task-executions"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [
+                    {
+                      "key": "flow_execution_id",
+                      "value": "<uuid>"
+                    },
+                    {
+                      "key": "task_name",
+                      "value": "<string>"
+                    },
+                    {
+                      "key": "task_execution_idx",
+                      "value": "<integer>"
+                    },
+                    {
+                      "key": "include_credits",
+                      "value": "false"
+                    }
+                  ],
+                  "variable": []
+                },
+                "header": [
+                  {
+                    "description": {
+                      "content": "Added as a part of security scheme: bearer",
+                      "type": "text/plain"
+                    },
+                    "key": "Authorization",
+                    "value": "Bearer <token>"
+                  },
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "method": "GET",
+                "body": {}
+              },
+              "status": "Unprocessable Entity (WebDAV) (RFC 4918)",
+              "code": 422,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"detail\": [\n    {\n      \"loc\": [\n        \"string\",\n        \"string\"\n      ],\n      \"msg\": \"string\",\n      \"type\": \"string\"\n    },\n    {\n      \"loc\": [\n        \"string\",\n        \"string\"\n      ],\n      \"msg\": \"string\",\n      \"type\": \"string\"\n    }\n  ]\n}",
+              "cookie": [],
+              "_postman_previewlanguage": "json"
+            },
+            {
+              "id": "89c2f409-87c5-4f11-82f6-05e5751e8f77",
+              "name": "Internal Server Error - An unexpected error occurred",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "api",
+                    "task-executions"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [
+                    {
+                      "key": "flow_execution_id",
+                      "value": "<uuid>"
+                    },
+                    {
+                      "key": "task_name",
+                      "value": "<string>"
+                    },
+                    {
+                      "key": "task_execution_idx",
+                      "value": "<integer>"
+                    },
+                    {
+                      "key": "include_credits",
+                      "value": "false"
+                    }
+                  ],
+                  "variable": []
+                },
+                "header": [
+                  {
+                    "description": {
+                      "content": "Added as a part of security scheme: bearer",
+                      "type": "text/plain"
+                    },
+                    "key": "Authorization",
+                    "value": "Bearer <token>"
+                  },
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "method": "GET",
+                "body": {}
+              },
+              "status": "Internal Server Error",
+              "code": 500,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"error\": {\n    \"message\": \"Internal server error\",\n    \"code\": \"internal_error\"\n  },\n  \"request_id\": \"01K8KABR6S16YETA2SZPVBS9SP\"\n}",
+              "cookie": [],
+              "_postman_previewlanguage": "json"
+            }
+          ],
+          "event": [],
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          }
+        },
+        {
+          "id": "b5f94d80-88cd-43c1-af19-98d315db0183",
+          "name": "Retrieve a specific task execution",
+          "request": {
+            "name": "Retrieve a specific task execution",
+            "description": {
+              "content": "Retrieve a specific task execution by its unique identifier.\n\n**Overview**\nFetches a single task execution record with all details including input parameters,\noutput data, error information, and execution metadata. Used for detailed inspection\nof task execution results and debugging.\n\n**Resource Identification**\nTask executions are uniquely identified by UUID (id field). This is distinct from\nthe composite key (flow_execution_id, task_name, task_execution_idx) used for\ncreation and filtering.\n\n**Use Cases**\n- Debugging failed task executions (inspect error field and stack trace)\n- Retrieving task output for display or downstream processing\n- Auditing task execution history and modifications\n- Viewing detailed execution metadata (timestamps, modified_by)\n\n**Related Endpoints**\n- GET /task-executions - List task executions with filtering\n- PUT /task-executions - Update task execution\n- GET /flow-executions/{id} - View parent flow execution with all tasks",
+              "type": "text/plain"
+            },
+            "url": {
+              "path": [
+                "api",
+                "task-executions",
+                ":task_execution_id"
+              ],
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "query": [
+                {
+                  "disabled": false,
+                  "key": "include_credits",
+                  "value": "false",
+                  "description": "Include credits consumed by this task execution in the response. When false (default), credits is null and the usage table is not queried."
+                }
+              ],
+              "variable": [
+                {
+                  "disabled": false,
+                  "type": "any",
+                  "value": "<uuid>",
+                  "key": "task_execution_id",
+                  "description": "(Required) Unique identifier of the task execution to retrieve. This is the UUID assigned when the task execution was created. Task executions are scoped to organization via RLS; attempting to access another organization's task execution returns 404."
+                }
+              ]
+            },
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "method": "GET",
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{bearerToken}}"
+                }
+              ]
+            }
+          },
+          "response": [
+            {
+              "id": "b53653f8-2ee2-4061-8932-9142853a9ae0",
+              "name": "Task execution successfully retrieved",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "api",
+                    "task-executions",
+                    ":task_execution_id"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [
+                    {
+                      "key": "include_credits",
+                      "value": "false"
+                    }
+                  ],
+                  "variable": [
+                    {
+                      "disabled": false,
+                      "type": "any",
+                      "value": "<uuid>",
+                      "key": "task_execution_id",
+                      "description": "(Required) Unique identifier of the task execution to retrieve. This is the UUID assigned when the task execution was created. Task executions are scoped to organization via RLS; attempting to access another organization's task execution returns 404."
+                    }
+                  ]
+                },
+                "header": [
+                  {
+                    "description": {
+                      "content": "Added as a part of security scheme: bearer",
+                      "type": "text/plain"
+                    },
+                    "key": "Authorization",
+                    "value": "Bearer <token>"
+                  },
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "method": "GET",
+                "body": {}
+              },
+              "status": "OK",
+              "code": 200,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"id\": \"123e4567-e89b-12d3-a456-426614174000\",\n  \"flow_execution_id\": \"223e4567-e89b-12d3-a456-426614174000\",\n  \"task_execution_idx\": 0,\n  \"task_name\": \"send_email\",\n  \"processing_status\": \"queued\",\n  \"edited_status\": \"not_edited\",\n  \"stale_status\": \"consistent\",\n  \"organization_id\": \"323e4567-e89b-12d3-a456-426614174000\",\n  \"created_at\": \"1952-10-27T10:52:03.805Z\",\n  \"updated_at\": \"1971-11-23T14:29:51.415Z\",\n  \"modified_by\": \"system\",\n  \"input\": {},\n  \"output\": {},\n  \"error\": {},\n  \"source_task_executions\": {},\n  \"started_at\": \"1976-04-04T23:52:28.712Z\",\n  \"completed_at\": \"1984-04-09T07:36:56.962Z\",\n  \"credits\": 7235\n}",
+              "cookie": [],
+              "_postman_previewlanguage": "json"
+            },
+            {
+              "id": "6894ca67-e402-4a45-9880-59f5d8f04627",
+              "name": "Forbidden - User lacks permission to access this task execution",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "api",
+                    "task-executions",
+                    ":task_execution_id"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [
+                    {
+                      "key": "include_credits",
+                      "value": "false"
+                    }
+                  ],
+                  "variable": [
+                    {
+                      "disabled": false,
+                      "type": "any",
+                      "value": "<uuid>",
+                      "key": "task_execution_id",
+                      "description": "(Required) Unique identifier of the task execution to retrieve. This is the UUID assigned when the task execution was created. Task executions are scoped to organization via RLS; attempting to access another organization's task execution returns 404."
+                    }
+                  ]
+                },
+                "header": [
+                  {
+                    "description": {
+                      "content": "Added as a part of security scheme: bearer",
+                      "type": "text/plain"
+                    },
+                    "key": "Authorization",
+                    "value": "Bearer <token>"
+                  },
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "method": "GET",
+                "body": {}
+              },
+              "status": "Forbidden",
+              "code": 403,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"error\": {\n    \"code\": \"not_found\",\n    \"message\": \"Resource not found\"\n  },\n  \"request_id\": \"01K8KABR6S16YETA2SZPVBS9SP\"\n}",
+              "cookie": [],
+              "_postman_previewlanguage": "json"
+            },
+            {
+              "id": "b8bdb00a-1ae5-4993-a719-26b86645beb7",
+              "name": "Not Found - The requested resource does not exist",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "api",
+                    "task-executions",
+                    ":task_execution_id"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [
+                    {
+                      "key": "include_credits",
+                      "value": "false"
+                    }
+                  ],
+                  "variable": [
+                    {
+                      "disabled": false,
+                      "type": "any",
+                      "value": "<uuid>",
+                      "key": "task_execution_id",
+                      "description": "(Required) Unique identifier of the task execution to retrieve. This is the UUID assigned when the task execution was created. Task executions are scoped to organization via RLS; attempting to access another organization's task execution returns 404."
+                    }
+                  ]
+                },
+                "header": [
+                  {
+                    "description": {
+                      "content": "Added as a part of security scheme: bearer",
+                      "type": "text/plain"
+                    },
+                    "key": "Authorization",
+                    "value": "Bearer <token>"
+                  },
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "method": "GET",
+                "body": {}
+              },
+              "status": "Not Found",
+              "code": 404,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"error\": {\n    \"message\": \"Resource not found\",\n    \"code\": \"not_found\"\n  },\n  \"request_id\": \"01K8KABR6S16YETA2SZPVBS9SP\"\n}",
+              "cookie": [],
+              "_postman_previewlanguage": "json"
+            },
+            {
+              "id": "d6b23326-9ccc-4fdd-8b6a-07eaa6f371f3",
+              "name": "Validation Error",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "api",
+                    "task-executions",
+                    ":task_execution_id"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [
+                    {
+                      "key": "include_credits",
+                      "value": "false"
+                    }
+                  ],
+                  "variable": [
+                    {
+                      "disabled": false,
+                      "type": "any",
+                      "value": "<uuid>",
+                      "key": "task_execution_id",
+                      "description": "(Required) Unique identifier of the task execution to retrieve. This is the UUID assigned when the task execution was created. Task executions are scoped to organization via RLS; attempting to access another organization's task execution returns 404."
+                    }
+                  ]
+                },
+                "header": [
+                  {
+                    "description": {
+                      "content": "Added as a part of security scheme: bearer",
+                      "type": "text/plain"
+                    },
+                    "key": "Authorization",
+                    "value": "Bearer <token>"
+                  },
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "method": "GET",
+                "body": {}
+              },
+              "status": "Unprocessable Entity (WebDAV) (RFC 4918)",
+              "code": 422,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"detail\": [\n    {\n      \"loc\": [\n        \"string\",\n        \"string\"\n      ],\n      \"msg\": \"string\",\n      \"type\": \"string\"\n    },\n    {\n      \"loc\": [\n        \"string\",\n        \"string\"\n      ],\n      \"msg\": \"string\",\n      \"type\": \"string\"\n    }\n  ]\n}",
+              "cookie": [],
+              "_postman_previewlanguage": "json"
+            }
+          ],
+          "event": [],
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          }
+        }
+      ],
+      "event": []
+    }
+  ],
+  "event": [],
+  "variable": [
+    {
+      "type": "string",
+      "value": "/",
+      "key": "baseUrl"
+    }
+  ],
+  "info": {
+    "_postman_id": "0d3fdbb1-a529-4012-a7f3-428d82d2987f",
+    "name": "SuperAI Flow Platform auth task-executions API",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "description": {
+      "content": "SuperAI Flows is a workflow orchestration platform that enables you to design, deploy, and monitor automated workflows at scale.\n\nBuild complex workflows using our declarative YAML DSL, execute them reliably, and integrate seamlessly with AI models, cloud storage, and enterprise systems.\n\n**Key Capabilities:**\n- **Workflow Management**: Define workflows as code with version control and automated execution\n- **Task Orchestration**: Chain together API calls, data processing, and AI operations\n- **Real-time Monitoring**: Track execution progress with WebSocket notifications and comprehensive logging\n- **Multi-tenant Architecture**: Organization-scoped resources with role-based access control\n\n**API Versioning and Breaking Changes:**\n\nWe follow a strict compatibility policy to ensure your integrations remain stable:\n\n- **Non-breaking changes** (safe, no action required):\n  - Adding new API endpoints\n  - Adding new optional query parameters to existing endpoints\n  - Adding new fields to API responses\n  - Adding new values to existing enums\n\n- **Breaking changes** (requires client updates):\n  - Removing or renaming API endpoints\n  - Removing query parameters or request fields\n  - Removing response fields\n  - Changing field types or validation rules\n  - Removing values from existing enums\n\n**Client Implementation Requirements:**\n\nYour API clients MUST be designed to gracefully handle additional fields in responses. We may add new fields to any response object without considering this a breaking change. Ensure your JSON parsers ignore unknown fields rather than raising errors.\n\n**Backward Compatibility Guarantee:**\n\nWe commit to maintaining backward compatibility for all non-breaking changes. Breaking changes will be:\n- Announced at least 15 days in advance\n- Documented in our changelog with migration guide\n\nFor the latest API updates and migration guides, see our changelog.",
+      "type": "text/plain"
+    }
+  }
+}

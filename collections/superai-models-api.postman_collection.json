@@ -1,0 +1,181 @@
+{
+  "item": [
+    {
+      "id": "54dab21a-31bb-4aab-96e0-5f62eedbeb64",
+      "name": "models",
+      "description": {
+        "content": "Model operations for querying available AI models and their configurations.\n\nModel endpoints provide information about the AI models available through the platform. These endpoints enable discovery of models, their capabilities, and regional availability.\n\n**Key features:**\n- **Model Discovery**: List all available AI models\n- **Regional Filtering**: Query models by geographic region (EU, Global)\n- **Model Metadata**: Access model information including provider, location, and capabilities\n\n**Use these endpoints to:**\n- Discover available AI models for your workflows\n- Filter models by region for compliance or latency requirements\n- Retrieve model metadata for configuration and selection\n- Build dynamic model selection UIs\n\n**Regional filtering:**\n- `eu`: Models deployed in European regions (West Europe, France Central, Germany, Sweden)\n- `global`: Models deployed in US and other global regions\n\nModel endpoints enable intelligent model selection and routing based on your requirements for compliance, performance, and cost.",
+        "type": "text/plain"
+      },
+      "item": [
+        {
+          "id": "5060573c-729d-413c-88c5-905fd88e99a1",
+          "name": "List available models",
+          "request": {
+            "name": "List available models",
+            "description": {
+              "content": "Retrieve a list of available AI models, deduplicated by model name and optionally filtered by region.\n\n    Each model entry aggregates information from all available endpoints:\n    - **regions**: All regions where this model is deployed\n    - **locations**: All specific locations (e.g., westeurope, eastus)\n    - **providers**: All providers offering this model\n    - **endpoint_count**: Total number of endpoints available\n\n    Use the `region` parameter to filter models by deployment region:\n    - `eu`: Only models with at least one EU endpoint\n    - `global`: Only models with at least one global/US endpoint\n\n    If no region is specified, all models are returned.",
+              "type": "text/plain"
+            },
+            "url": {
+              "path": [
+                "api",
+                "models"
+              ],
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "query": [
+                {
+                  "disabled": false,
+                  "key": "region",
+                  "value": "<string>",
+                  "description": "Filter models by region. If not specified, returns all models."
+                }
+              ],
+              "variable": []
+            },
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "method": "GET",
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{bearerToken}}"
+                }
+              ]
+            }
+          },
+          "response": [
+            {
+              "id": "566ba893-ca11-485f-ad9f-4f646b28c34f",
+              "name": "Successful Response",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "api",
+                    "models"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [
+                    {
+                      "key": "region",
+                      "value": "eu"
+                    }
+                  ],
+                  "variable": []
+                },
+                "header": [
+                  {
+                    "description": {
+                      "content": "Added as a part of security scheme: bearer",
+                      "type": "text/plain"
+                    },
+                    "key": "Authorization",
+                    "value": "Bearer <token>"
+                  },
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "method": "GET",
+                "body": {}
+              },
+              "status": "OK",
+              "code": 200,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"models\": [\n    {\n      \"model_name\": \"string\",\n      \"regions\": [\n        \"eu\",\n        \"global\"\n      ],\n      \"locations\": [\n        \"string\",\n        \"string\"\n      ],\n      \"providers\": [\n        \"string\",\n        \"string\"\n      ],\n      \"endpoint_count\": 4699,\n      \"supports_bounding_boxes\": true,\n      \"supports_confidence_scores\": true\n    },\n    {\n      \"model_name\": \"string\",\n      \"regions\": [\n        \"eu\",\n        \"eu\"\n      ],\n      \"locations\": [\n        \"string\",\n        \"string\"\n      ],\n      \"providers\": [\n        \"string\",\n        \"string\"\n      ],\n      \"endpoint_count\": 397,\n      \"supports_bounding_boxes\": true,\n      \"supports_confidence_scores\": false\n    }\n  ],\n  \"count\": 5958\n}",
+              "cookie": [],
+              "_postman_previewlanguage": "json"
+            },
+            {
+              "id": "6b81b9ef-1d53-4627-b1de-3ba1921c348a",
+              "name": "Validation Error",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "api",
+                    "models"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [
+                    {
+                      "key": "region",
+                      "value": "eu"
+                    }
+                  ],
+                  "variable": []
+                },
+                "header": [
+                  {
+                    "description": {
+                      "content": "Added as a part of security scheme: bearer",
+                      "type": "text/plain"
+                    },
+                    "key": "Authorization",
+                    "value": "Bearer <token>"
+                  },
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "method": "GET",
+                "body": {}
+              },
+              "status": "Unprocessable Entity (WebDAV) (RFC 4918)",
+              "code": 422,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"detail\": [\n    {\n      \"loc\": [\n        \"string\",\n        \"string\"\n      ],\n      \"msg\": \"string\",\n      \"type\": \"string\"\n    },\n    {\n      \"loc\": [\n        \"string\",\n        \"string\"\n      ],\n      \"msg\": \"string\",\n      \"type\": \"string\"\n    }\n  ]\n}",
+              "cookie": [],
+              "_postman_previewlanguage": "json"
+            }
+          ],
+          "event": [],
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          }
+        }
+      ],
+      "event": []
+    }
+  ],
+  "event": [],
+  "variable": [
+    {
+      "type": "string",
+      "value": "/",
+      "key": "baseUrl"
+    }
+  ],
+  "info": {
+    "_postman_id": "02371f4a-96dd-4db5-b3d4-7e64bed62174",
+    "name": "SuperAI Flow Platform auth models API",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "description": {
+      "content": "SuperAI Flows is a workflow orchestration platform that enables you to design, deploy, and monitor automated workflows at scale.\n\nBuild complex workflows using our declarative YAML DSL, execute them reliably, and integrate seamlessly with AI models, cloud storage, and enterprise systems.\n\n**Key Capabilities:**\n- **Workflow Management**: Define workflows as code with version control and automated execution\n- **Task Orchestration**: Chain together API calls, data processing, and AI operations\n- **Real-time Monitoring**: Track execution progress with WebSocket notifications and comprehensive logging\n- **Multi-tenant Architecture**: Organization-scoped resources with role-based access control\n\n**API Versioning and Breaking Changes:**\n\nWe follow a strict compatibility policy to ensure your integrations remain stable:\n\n- **Non-breaking changes** (safe, no action required):\n  - Adding new API endpoints\n  - Adding new optional query parameters to existing endpoints\n  - Adding new fields to API responses\n  - Adding new values to existing enums\n\n- **Breaking changes** (requires client updates):\n  - Removing or renaming API endpoints\n  - Removing query parameters or request fields\n  - Removing response fields\n  - Changing field types or validation rules\n  - Removing values from existing enums\n\n**Client Implementation Requirements:**\n\nYour API clients MUST be designed to gracefully handle additional fields in responses. We may add new fields to any response object without considering this a breaking change. Ensure your JSON parsers ignore unknown fields rather than raising errors.\n\n**Backward Compatibility Guarantee:**\n\nWe commit to maintaining backward compatibility for all non-breaking changes. Breaking changes will be:\n- Announced at least 15 days in advance\n- Documented in our changelog with migration guide\n\nFor the latest API updates and migration guides, see our changelog.",
+      "type": "text/plain"
+    }
+  }
+}

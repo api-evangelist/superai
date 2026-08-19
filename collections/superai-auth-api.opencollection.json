@@ -1,0 +1,123 @@
+{
+  "opencollection": "1.0.0",
+  "info": {
+    "name": "SuperAI Flow Platform auth API",
+    "version": "0.1.0"
+  },
+  "items": [
+    {
+      "info": {
+        "name": "auth",
+        "type": "folder"
+      },
+      "items": [
+        {
+          "info": {
+            "name": "Reset Password",
+            "type": "http"
+          },
+          "http": {
+            "method": "POST",
+            "url": "{{baseUrl}}/api/auth/reset-password",
+            "body": {
+              "type": "json",
+              "data": "{}"
+            }
+          },
+          "docs": "Reset Password"
+        },
+        {
+          "info": {
+            "name": "Resend user invitation email",
+            "type": "http"
+          },
+          "http": {
+            "method": "POST",
+            "url": "{{baseUrl}}/api/auth/resend-invite",
+            "body": {
+              "type": "json",
+              "data": "{}"
+            }
+          },
+          "docs": "Resend invitation email to an existing user account.\n\nFor pending users whose Supabase invite token has expired, this deletes\nthe stale user from both Supabase and our database, then re-creates and\nre-invites them with a fresh token. For active users, it simply triggers\na new invite email."
+        },
+        {
+          "info": {
+            "name": "Resolve login method for an email",
+            "type": "http"
+          },
+          "http": {
+            "method": "GET",
+            "url": "{{baseUrl}}/api/auth/login-method",
+            "params": [
+              {
+                "name": "email",
+                "value": "",
+                "type": "query",
+                "description": "Email address to evaluate"
+              }
+            ]
+          },
+          "docs": "Pre-flight check used by the login form before invoking Supabase sign-in.\n\nThis endpoint is unauthenticated; it only reveals whether a given email's\ndomain is configured for strict SSO. Hard enforcement lives in the auth\nmiddleware — clients bypassing this check still get rejected on the first\nauthenticated request."
+        },
+        {
+          "info": {
+            "name": "Retrieve authentication API key",
+            "type": "http"
+          },
+          "http": {
+            "method": "GET",
+            "url": "{{baseUrl}}/api/auth/anon-key"
+          },
+          "docs": "Retrieve the anonymous authentication key required for client authentication.\n\nReturns the authentication key that client applications need to authenticate\nwith the authentication API at core.flows.super.ai. This key enables clients\nto perform password-based authentication and obtain JWT access tokens.\n\nContext:\n    - This key is required to make authentication requests to core.flows.super.ai\n    - The key is safe for use in client-side applications (browsers, mobile apps)\n    - Does not grant a"
+        },
+        {
+          "info": {
+            "name": "Pre-flight signup email policy check for magic link",
+            "type": "http"
+          },
+          "http": {
+            "method": "GET",
+            "url": "{{baseUrl}}/api/auth/signup-email-policy",
+            "params": [
+              {
+                "name": "email",
+                "value": "",
+                "type": "query",
+                "description": "Email address to evaluate"
+              }
+            ]
+          },
+          "docs": "Pre-flight UX check used by the signup form before sending a magic link.\n\nUnauthenticated and purely domain-list based — it performs no account\nlookup, so it cannot be used to enumerate accounts. Hard enforcement stays\nin POST /auth/self-service/complete; clients bypassing this check are still\nrejected there. Mirrors the GET /auth/login-method pre-flight pattern."
+        },
+        {
+          "info": {
+            "name": "Complete self-service signup for an authenticated Supabase user",
+            "type": "http"
+          },
+          "http": {
+            "method": "POST",
+            "url": "{{baseUrl}}/api/auth/self-service/complete"
+          },
+          "docs": "Provision a free-tier org + org-admin user for a freshly-authenticated Supabase user.\n\nThe caller has already signed in with Supabase (OAuth provider or magic link)\nbut has no row in our users table yet, so their token carries null\n``org_id``/``role`` claims and cannot pass the normal auth middleware — hence\nthis endpoint is whitelisted and validates the raw Supabase token (sent as the\nstandard ``Authorization`` bearer header by the client) itself.\n\nThe client should call ``supabase.auth.refresh"
+        },
+        {
+          "info": {
+            "name": "Submit a self-service access request",
+            "type": "http"
+          },
+          "http": {
+            "method": "POST",
+            "url": "{{baseUrl}}/api/auth/access-request",
+            "body": {
+              "type": "json",
+              "data": "{}"
+            }
+          },
+          "docs": "Record an access request from a visitor whose email failed the signup policy.\n\nUnauthenticated and whitelisted — the caller has no account. The submission\nis persisted (source of truth, one row per email — a resubmit upserts) and a\nSlack notification to the self-service channel is fired as a background task\nso a slow or failing webhook never blocks or fails the response. Only a\ngenuinely new request notifies, so a resubmit (or a double-click) won't\nre-ping the channel.\n\nThe response is a constan"
+        }
+      ]
+    }
+  ],
+  "bundled": true
+}

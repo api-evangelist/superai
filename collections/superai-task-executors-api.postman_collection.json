@@ -1,0 +1,164 @@
+{
+  "item": [
+    {
+      "id": "7e2c6827-068b-42a3-9005-2dae61767ede",
+      "name": "task-executors",
+      "description": {
+        "content": "Task executor operations for discovering available task types and their capabilities.\n\nTask executors define the available task types that can be used in flow definitions. Each executor specifies its input schema, execution behavior, and capabilities. This endpoint enables programmatic discovery of task types for building flows dynamically.\n\n**What task executors provide:**\n- **Input Schema**: JSON Schema defining required and optional parameters\n- **Output Schema**: Expected output structure and data types\n- **Description**: Human-readable explanation of functionality\n- **Agent Prompts**: Instructions for AI-powered flow generation\n\n**Use these endpoints to:**\n- Discover available task types for flow building\n- View task input/output schemas for validation\n- Understand task capabilities and requirements\n- Build flow builder UIs with dynamic task lists\n- Enable AI agents to select appropriate tasks\n\nTask executors enable dynamic, flexible workflow creation by providing a registry of available operations.",
+        "type": "text/plain"
+      },
+      "item": [
+        {
+          "id": "ff2aea59-9b9f-4a42-8446-ddf09178c29f",
+          "name": "List all available task executors",
+          "request": {
+            "name": "List all available task executors",
+            "description": {
+              "content": "List all available task executors for workflow composition.\n\n**Overview**\nTask executors are reusable building blocks for workflows. Each executor performs\na specific operation (send email, extract data, classify documents, etc.). This\nendpoint provides discovery of all registered executors with their schemas,\nenabling programmatic flow builder UIs and validation.\n\n**What are Task Executors?**\nTask executors are typed workflow components that:\n- Accept configuration parameters (e.g., API keys, endpoints, templates)\n- Optionally receive runtime input data (for input executors)\n- Perform an operation (API call, data transformation, ML inference)\n- Return structured output for downstream tasks\n- Support scheduling (for compatible executors)\n\n**Executor Categories**\n1. Input Executors (is_input_task_executor=true):\n   - Trigger flows from external sources\n   - Examples: receive_email, webhook_receive, receive_file\n   - Have flow_input_schema defining incoming data\n\n2. Processing Executors (is_input_task_executor=false):\n   - Transform data within flows\n   - Examples: doc_to_structured, classify_text, format_data\n   - No flow_input_schema (work on task outputs)\n\n3. Output Executors:\n   - Send data to external systems\n   - Examples: send_email, webhook_notification, external_db\n   - Can be terminal tasks in flows\n\n4. Schedulable Executors (is_schedulable_executor=true):\n   - Support time-based triggers\n   - Examples: scheduled_db_query\n   - Can run on cron schedules\n\n**Response Format**\nReturns array of TaskExecutorResponse objects containing:\n- Executor metadata (name, description, agent prompt)\n- Configuration schema (parameters_schema) - JSON Schema for static config\n- Runtime input schema (flow_input_schema) - JSON Schema for dynamic data\n- Capability flags (is_input_task_executor, is_schedulable_executor)\n\n**Schema Usage**\n- parameters_schema: Generate configuration UI, validate flow definitions\n- flow_input_schema: Validate incoming webhook/email/file data\n- Both schemas follow JSON Schema Draft 2020-12 specification\n\n**Use Cases**\n- Flow Builder UI: Display available task types with autocomplete\n- AI Agents: Use agent_prompt to intelligently select executors\n- Validation: Check flow definitions against executor schemas\n- Documentation: Generate API reference from executor metadata\n- Client SDKs: Generate type-safe executor configuration classes\n\n**Executor Registration**\nTask executors are registered via TaskExecutorsManager (flow-sdk).\nTo add custom executors, see flow-sdk/src/flow_sdk/task_executors/README.md\n\n**Performance Notes**\n- Response cached for 5 minutes (executors rarely change)\n- Typical response size: ~50-100 executors, 200-500KB\n- Schemas can be large (1-10KB per executor)\n- Consider client-side caching for production use\n\n**Related Endpoints**\n- POST /flows - Create flow using discovered executors\n- GET /flows/{id} - View flow definition with executor references\n- POST /task-data - Get task output schemas for flow validation",
+              "type": "text/plain"
+            },
+            "url": {
+              "path": [
+                "api",
+                "task-executors"
+              ],
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "query": [],
+              "variable": []
+            },
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "method": "GET",
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{bearerToken}}"
+                }
+              ]
+            }
+          },
+          "response": [
+            {
+              "id": "ab284e6c-7730-401f-8e17-acb4afcbf421",
+              "name": "List of task executors successfully retrieved",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "api",
+                    "task-executors"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [],
+                  "variable": []
+                },
+                "header": [
+                  {
+                    "description": {
+                      "content": "Added as a part of security scheme: bearer",
+                      "type": "text/plain"
+                    },
+                    "key": "Authorization",
+                    "value": "Bearer <token>"
+                  },
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "method": "GET",
+                "body": {}
+              },
+              "status": "OK",
+              "code": 200,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "[\n  {\n    \"is_input_task_executor\": false,\n    \"is_schedulable_executor\": false,\n    \"parameters_schema\": {\n      \"properties\": {\n        \"schema\": {\n          \"description\": \"Field definitions to extract from documents\",\n          \"type\": \"object\"\n        },\n        \"model\": {\n          \"default\": \"gpt-4-vision\",\n          \"description\": \"AI model to use for extraction\",\n          \"enum\": [\n            \"gpt-4-vision\",\n            \"claude-3-opus\"\n          ],\n          \"type\": \"string\"\n        }\n      },\n      \"required\": [\n        \"schema\"\n      ],\n      \"type\": \"object\"\n    },\n    \"task_executor_agent_prompt\": \"Use this executor to extract specific fields from documents. Define a schema with field names, types, and descriptions. The executor will use AI to locate and extract those fields from uploaded documents.\",\n    \"task_executor_description\": \"Extracts structured data from documents using vision-language models and OCR\",\n    \"task_executor_name\": \"doc_to_structured\"\n  },\n  {\n    \"is_input_task_executor\": false,\n    \"is_schedulable_executor\": false,\n    \"parameters_schema\": {\n      \"properties\": {\n        \"schema\": {\n          \"description\": \"Field definitions to extract from documents\",\n          \"type\": \"object\"\n        },\n        \"model\": {\n          \"default\": \"gpt-4-vision\",\n          \"description\": \"AI model to use for extraction\",\n          \"enum\": [\n            \"gpt-4-vision\",\n            \"claude-3-opus\"\n          ],\n          \"type\": \"string\"\n        }\n      },\n      \"required\": [\n        \"schema\"\n      ],\n      \"type\": \"object\"\n    },\n    \"task_executor_agent_prompt\": \"Use this executor to extract specific fields from documents. Define a schema with field names, types, and descriptions. The executor will use AI to locate and extract those fields from uploaded documents.\",\n    \"task_executor_description\": \"Extracts structured data from documents using vision-language models and OCR\",\n    \"task_executor_name\": \"doc_to_structured\"\n  }\n]",
+              "cookie": [],
+              "_postman_previewlanguage": "json"
+            },
+            {
+              "id": "7b8687dc-3e19-4cd8-8bb5-70b0f05da0ce",
+              "name": "Internal Server Error - An unexpected error occurred",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "api",
+                    "task-executors"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [],
+                  "variable": []
+                },
+                "header": [
+                  {
+                    "description": {
+                      "content": "Added as a part of security scheme: bearer",
+                      "type": "text/plain"
+                    },
+                    "key": "Authorization",
+                    "value": "Bearer <token>"
+                  },
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "method": "GET",
+                "body": {}
+              },
+              "status": "Internal Server Error",
+              "code": 500,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"error\": {\n    \"message\": \"Internal server error\",\n    \"code\": \"internal_error\"\n  },\n  \"request_id\": \"01K8KABR6S16YETA2SZPVBS9SP\"\n}",
+              "cookie": [],
+              "_postman_previewlanguage": "json"
+            }
+          ],
+          "event": [],
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          }
+        }
+      ],
+      "event": []
+    }
+  ],
+  "event": [],
+  "variable": [
+    {
+      "type": "string",
+      "value": "/",
+      "key": "baseUrl"
+    }
+  ],
+  "info": {
+    "_postman_id": "a556b9ea-8585-4ea1-9c92-9750f3eb6270",
+    "name": "SuperAI Flow Platform auth task-executors API",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "description": {
+      "content": "SuperAI Flows is a workflow orchestration platform that enables you to design, deploy, and monitor automated workflows at scale.\n\nBuild complex workflows using our declarative YAML DSL, execute them reliably, and integrate seamlessly with AI models, cloud storage, and enterprise systems.\n\n**Key Capabilities:**\n- **Workflow Management**: Define workflows as code with version control and automated execution\n- **Task Orchestration**: Chain together API calls, data processing, and AI operations\n- **Real-time Monitoring**: Track execution progress with WebSocket notifications and comprehensive logging\n- **Multi-tenant Architecture**: Organization-scoped resources with role-based access control\n\n**API Versioning and Breaking Changes:**\n\nWe follow a strict compatibility policy to ensure your integrations remain stable:\n\n- **Non-breaking changes** (safe, no action required):\n  - Adding new API endpoints\n  - Adding new optional query parameters to existing endpoints\n  - Adding new fields to API responses\n  - Adding new values to existing enums\n\n- **Breaking changes** (requires client updates):\n  - Removing or renaming API endpoints\n  - Removing query parameters or request fields\n  - Removing response fields\n  - Changing field types or validation rules\n  - Removing values from existing enums\n\n**Client Implementation Requirements:**\n\nYour API clients MUST be designed to gracefully handle additional fields in responses. We may add new fields to any response object without considering this a breaking change. Ensure your JSON parsers ignore unknown fields rather than raising errors.\n\n**Backward Compatibility Guarantee:**\n\nWe commit to maintaining backward compatibility for all non-breaking changes. Breaking changes will be:\n- Announced at least 15 days in advance\n- Documented in our changelog with migration guide\n\nFor the latest API updates and migration guides, see our changelog.",
+      "type": "text/plain"
+    }
+  }
+}

@@ -1,0 +1,134 @@
+{
+  "opencollection": "1.0.0",
+  "info": {
+    "name": "SuperAI Flow Platform auth task-executions API",
+    "version": "0.1.0"
+  },
+  "items": [
+    {
+      "info": {
+        "name": "task-executions",
+        "type": "folder"
+      },
+      "items": [
+        {
+          "info": {
+            "name": "List task executions with filtering",
+            "type": "http"
+          },
+          "http": {
+            "method": "GET",
+            "url": "{{baseUrl}}/api/task-executions",
+            "params": [
+              {
+                "name": "flow_execution_id",
+                "value": "",
+                "type": "query",
+                "description": "Filter task executions by parent flow execution ID. Returns only tasks belonging to the specified flow execution. Combines with other filters using AND logic. Omit to search across all flow executions in your organization."
+              },
+              {
+                "name": "task_name",
+                "value": "",
+                "type": "query",
+                "description": "Filter task executions by exact task name (case-sensitive). Returns all execution attempts of the named task. Useful for tracking retries or finding specific task types. Must match task name exactly as defined in flow definition YAML."
+              },
+              {
+                "name": "task_execution_idx",
+                "value": "",
+                "type": "query",
+                "description": "Filter task executions by execution index (zero-based). Returns tasks at a specific execution attempt number. Index 0 = first execution, 1 = first retry, 2 = second retry, etc. Useful for comparing initial vs retry executions or finding specific attempts."
+              },
+              {
+                "name": "include_credits",
+                "value": "false",
+                "type": "query",
+                "description": "Include credits consumed by each task execution in the response. When false (default), credits is null and the usage table is not queried. Only takes effect together with flow_execution_id."
+              }
+            ],
+            "auth": {
+              "type": "bearer",
+              "token": "{{bearerToken}}"
+            }
+          },
+          "docs": "List task executions with optional filtering by flow execution, task name, or execution index.\n\n**Overview**\nRetrieve task executions across all flows in your organization. Results can be filtered\nby parent flow execution, specific task name, or execution index. Returns task executions\nwith their associated tags for categorization and filtering.\n\n**Filtering Logic**\nMultiple filters are combined with AND logic:\n- flow_execution_id AND task_name → All executions of a specific task in a flow\n- flo"
+        },
+        {
+          "info": {
+            "name": "Create a task execution record",
+            "type": "http"
+          },
+          "http": {
+            "method": "POST",
+            "url": "{{baseUrl}}/api/task-executions",
+            "body": {
+              "type": "json",
+              "data": "{}"
+            },
+            "auth": {
+              "type": "bearer",
+              "token": "{{bearerToken}}"
+            }
+          },
+          "docs": "Create a new task execution record for a specific task within a flow execution.\n\n**Overview**\nTask executions represent individual task invocations within a flow execution. Each task\nin a flow can be executed multiple times (retries, loops), tracked by task_execution_idx.\nThis endpoint is primarily used by system workers to report task execution state.\n\n**Resource Hierarchy**\nOrganization → Flow → Flow Execution → Task Execution\n\n**Lifecycle**\nTask executions progress through states: queued → ru"
+        },
+        {
+          "info": {
+            "name": "Update task execution and optionally re-execute flow",
+            "type": "http"
+          },
+          "http": {
+            "method": "PUT",
+            "url": "{{baseUrl}}/api/task-executions",
+            "params": [
+              {
+                "name": "execute_flow",
+                "value": "",
+                "type": "query",
+                "description": "Whether to re-execute downstream tasks after updating this task execution. If true, identifies all tasks that depend on this task (stale tasks) and triggers their re-execution with updated inputs. If false, only updates the task execution record without propagation. Default: false for safety (explicit opt-in for re-execution)."
+              }
+            ],
+            "body": {
+              "type": "json",
+              "data": "{}"
+            },
+            "auth": {
+              "type": "bearer",
+              "token": "{{bearerToken}}"
+            }
+          },
+          "docs": "Update an existing task execution and optionally trigger flow re-execution.\n\n**Overview**\nThis endpoint updates a task execution's output, status, or other fields, and can\nautomatically propagate changes to downstream tasks by re-executing the flow.\nCommonly used for human-in-the-loop workflows or manual corrections.\n\n**Update Behavior**\nWhen updating a task execution, the system:\n1. Validates task output against the task's output model\n2. Updates the task execution record in the database\n3. Rec"
+        },
+        {
+          "info": {
+            "name": "Retrieve a specific task execution",
+            "type": "http"
+          },
+          "http": {
+            "method": "GET",
+            "url": "{{baseUrl}}/api/task-executions/:task_execution_id",
+            "params": [
+              {
+                "name": "task_execution_id",
+                "value": "",
+                "type": "path",
+                "description": "Unique identifier of the task execution to retrieve. This is the UUID assigned when the task execution was created. Task executions are scoped to organization via RLS; attempting to access another organization's task execution returns 404."
+              },
+              {
+                "name": "include_credits",
+                "value": "false",
+                "type": "query",
+                "description": "Include credits consumed by this task execution in the response. When false (default), credits is null and the usage table is not queried."
+              }
+            ],
+            "auth": {
+              "type": "bearer",
+              "token": "{{bearerToken}}"
+            }
+          },
+          "docs": "Retrieve a specific task execution by its unique identifier.\n\n**Overview**\nFetches a single task execution record with all details including input parameters,\noutput data, error information, and execution metadata. Used for detailed inspection\nof task execution results and debugging.\n\n**Resource Identification**\nTask executions are uniquely identified by UUID (id field). This is distinct from\nthe composite key (flow_execution_id, task_name, task_execution_idx) used for\ncreation and filtering.\n\n*"
+        }
+      ]
+    }
+  ],
+  "bundled": true
+}

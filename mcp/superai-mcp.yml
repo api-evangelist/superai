@@ -468,3 +468,9 @@ tools:
 - name: proxy_saml_metadata_api_sso_metadata_get
   description: Proxy SAML metadata to avoid CORS issues
   source_operation: openapi/superai-flows-openapi-original.json#proxy_saml_metadata_api_sso_metadata_get
+deployment:
+  mode: none
+  verified: derived
+  tools: 153
+  checked: '2026-08-12'
+  source: catalog MCP census

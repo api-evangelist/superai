@@ -1,0 +1,124 @@
+{
+  "opencollection": "1.0.0",
+  "info": {
+    "name": "SuperAI Flow Platform auth sso API",
+    "version": "0.1.0"
+  },
+  "items": [
+    {
+      "info": {
+        "name": "sso",
+        "type": "folder"
+      },
+      "items": [
+        {
+          "info": {
+            "name": "Get SSO configuration for organization",
+            "type": "http"
+          },
+          "http": {
+            "method": "GET",
+            "url": "{{baseUrl}}/api/sso",
+            "auth": {
+              "type": "bearer",
+              "token": "{{bearerToken}}"
+            }
+          },
+          "docs": "Get SSO configuration for the current user's organization.\n\nReturns the current SAML SSO configuration including domains, metadata settings,\nand attribute mappings.\n\nContext:\n    - Returns SSO configuration for the authenticated user's organization\n    - Includes both active and inactive configurations\n    - Shows configuration stored in local database\n\nResponse Data:\n    - sso_provider_id: Supabase SSO provider identifier\n    - domains: Email domains using this SSO provider\n    - metadata_url: "
+        },
+        {
+          "info": {
+            "name": "Create SSO configuration for organization",
+            "type": "http"
+          },
+          "http": {
+            "method": "POST",
+            "url": "{{baseUrl}}/api/sso",
+            "body": {
+              "type": "json",
+              "data": "{}"
+            },
+            "auth": {
+              "type": "bearer",
+              "token": "{{bearerToken}}"
+            }
+          },
+          "docs": "Create SSO configuration for the current user's organization.\n\nCreates a new SAML SSO provider in Supabase and stores the configuration locally.\nThis is a transactional operation that ensures both Supabase and local database\nare updated atomically.\n\nContext:\n    - Only organization administrators can create SSO configurations\n    - Each organization can have only one SSO configuration\n\nSAML Configuration:\n    - Provide either metadata_url OR metadata_xml, not both\n    - metadata_url: URL where S"
+        },
+        {
+          "info": {
+            "name": "Update SSO metadata configuration",
+            "type": "http"
+          },
+          "http": {
+            "method": "PATCH",
+            "url": "{{baseUrl}}/api/sso",
+            "body": {
+              "type": "json",
+              "data": "{}"
+            },
+            "auth": {
+              "type": "bearer",
+              "token": "{{bearerToken}}"
+            }
+          },
+          "docs": "Update SSO metadata configuration for the current user's organization.\n\nUpdates metadata-related fields only. This endpoint is restricted to updating:\n- metadata_url: URL for fetching SAML metadata\n- metadata_xml: Raw SAML metadata XML content\n- domains: Email domains that should use this SSO provider\n- attribute_mapping: SAML attribute to user profile field mappings\n\nContext:\n    - Only metadata-related fields can be updated via this endpoint\n    - Updates both Supabase SSO provider and local d"
+        },
+        {
+          "info": {
+            "name": "Remove SSO configuration for organization",
+            "type": "http"
+          },
+          "http": {
+            "method": "DELETE",
+            "url": "{{baseUrl}}/api/sso",
+            "auth": {
+              "type": "bearer",
+              "token": "{{bearerToken}}"
+            }
+          },
+          "docs": "Remove SSO configuration for the current user's organization.\n\nDisables the SSO configuration by setting is_active=False. This is a soft delete\nthat preserves the configuration for potential future reactivation.\n\nContext:\n    - Soft delete (sets is_active=False, preserves data)\n    - Users will fall back to password authentication\n    - Configuration can be reactivated by creating a new SSO config\n    - Does not delete the Supabase SSO provider\n\nImpact:\n    - Immediate: Users can no longer authe"
+        },
+        {
+          "info": {
+            "name": "Get Supabase SAML service-provider URLs",
+            "type": "http"
+          },
+          "http": {
+            "method": "GET",
+            "url": "{{baseUrl}}/api/sso/service-provider-details",
+            "auth": {
+              "type": "bearer",
+              "token": "{{bearerToken}}"
+            }
+          },
+          "docs": "Get the Supabase SAML service-provider (SP) URLs for IdP configuration.\n\nThese URLs depend only on the Supabase project and are the same for every\norganization. They are available before any SSO configuration exists, so the\nsetup UI can pre-fill the read-only SP fields the customer must copy into\ntheir Identity Provider.\n\nResponse Data:\n    - entity_id: SAML SP EntityID (same value as metadata_url)\n    - metadata_url: SAML SP metadata URL\n    - acs_url: Assertion Consumer Service (ACS) URL\n    -"
+        },
+        {
+          "info": {
+            "name": "Proxy SAML metadata to avoid CORS issues",
+            "type": "http"
+          },
+          "http": {
+            "method": "GET",
+            "url": "{{baseUrl}}/api/sso/metadata",
+            "params": [
+              {
+                "name": "url",
+                "value": "",
+                "type": "query",
+                "description": "SAML metadata URL to fetch"
+              }
+            ],
+            "auth": {
+              "type": "bearer",
+              "token": "{{bearerToken}}"
+            }
+          },
+          "docs": "Fetches SAML metadata from external URLs to avoid browser CORS restrictions"
+        }
+      ]
+    }
+  ],
+  "bundled": true
+}

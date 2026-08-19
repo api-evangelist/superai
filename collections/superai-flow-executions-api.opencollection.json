@@ -1,0 +1,308 @@
+{
+  "opencollection": "1.0.0",
+  "info": {
+    "name": "SuperAI Flow Platform auth flow-executions API",
+    "version": "0.1.0"
+  },
+  "items": [
+    {
+      "info": {
+        "name": "flow-executions",
+        "type": "folder"
+      },
+      "items": [
+        {
+          "info": {
+            "name": "List flow executions with filtering and pagination",
+            "type": "http"
+          },
+          "http": {
+            "method": "GET",
+            "url": "{{baseUrl}}/api/flow-executions",
+            "params": [
+              {
+                "name": "flow_id",
+                "value": "550e8400-e29b-41d4-a716-446655440000",
+                "type": "query",
+                "description": "UUID of the flow to list executions for. Required parameter."
+              },
+              {
+                "name": "sort_field",
+                "value": "created_at",
+                "type": "query",
+                "description": "Field to sort results by. Valid values: 'created_at', 'updated_at'. Defaults to 'created_at' for most recently modified first."
+              },
+              {
+                "name": "sort_direction",
+                "value": "desc",
+                "type": "query",
+                "description": "Sort order direction. Valid values: 'asc' (ascending), 'desc' (descending). Defaults to 'desc' for newest first."
+              },
+              {
+                "name": "status",
+                "value": "running,completed",
+                "type": "query",
+                "description": "Filter by flow execution status. Can specify multiple values. Valid values: 'queued', 'running', 'completed', 'failed', 'stale', 'awaiting_input', 'cancel_requested', 'cancelled', 'edited'. Returns executions whose overall status matches ANY of the specified values. Example: ?status=failed&status=running"
+              },
+              {
+                "name": "status_exclude",
+                "value": "queued",
+                "type": "query",
+                "description": "Exclude flow executions whose status matches any of these values. Mirrors tags/tags_exclude. Combines with `status` using AND. Example: ?status_exclude=queued hides queued runs from the result and total count."
+              },
+              {
+                "name": "tags",
+                "value": "priority:high,department:finance",
+                "type": "query",
+                "description": "Filter by task tags. Can specify multiple values. Returns executions containing tasks with ANY of the specified tags. Tags use key:value format. Example: ?tags=priority:high&tags=env:prod"
+              },
+              {
+                "name": "include_run_number",
+                "value": "false",
+                "type": "query",
+                "description": "Calculate sequential run number for each execution. Run numbers start at 1 and increment based on creation time. Warning: Adds performance overhead (~150ms per 100 executions). Recommended only for UI display purposes."
+              },
+              {
+                "name": "page",
+                "value": "1",
+                "type": "query",
+                "description": "Page number for pagination (1-indexed). Minimum: 1, Maximum: 10,000. Works with page_size to implement offset-based pagination."
+              },
+              {
+                "name": "page_size",
+                "value": "10",
+                "type": "query",
+                "description": "Number of results to return per page. Minimum: 1, Maximum: 1000. Larger values increase response time. Recommended: 10-100."
+              },
+              {
+                "name": "start_from_execution_id",
+                "value": "550e8400-e29b-41d4-a716-446655440000",
+                "type": "query",
+                "description": "Start listing after this execution ID. Provides cursor-like pagination. When combined with sort parameters, returns results after the specified execution. Useful for infinite scroll or keyset pagination patterns."
+              },
+              {
+                "name": "created_after",
+                "value": "2026-06-18T08:00:00Z",
+                "type": "query",
+                "description": "Return executions created at or after this timestamp (inclusive). Accepts ISO 8601 (e.g. '2026-06-18T08:00:00Z'). Combined with other filters using AND."
+              },
+              {
+                "name": "created_before",
+                "value": "2026-06-18T10:00:00Z",
+                "type": "query",
+                "description": "Return executions created at or before this timestamp (inclusive). Accepts ISO 8601 (e.g. '2026-06-18T10:00:00Z'). Combined with other filters using AND."
+              },
+              {
+                "name": "updated_after",
+                "value": "2026-06-18T08:00:00Z",
+                "type": "query",
+                "description": "Return executions last updated at or after this timestamp (inclusive). Accepts ISO 8601. Combined with other filters using AND."
+              },
+              {
+                "name": "updated_before",
+                "value": "2026-06-18T10:00:00Z",
+                "type": "query",
+                "description": "Return executions last updated at or before this timestamp (inclusive). Accepts ISO 8601. Combined with other filters using AND."
+              },
+              {
+                "name": "include_credits",
+                "value": "false",
+                "type": "query",
+                "description": "Include total credits consumed by each execution in the response. When false (default), total_credits is null and the usage table is not queried. Adds a single bulk usage-table lookup for the page when enabled."
+              }
+            ],
+            "auth": {
+              "type": "bearer",
+              "token": "{{bearerToken}}"
+            }
+          },
+          "docs": "List flow executions with filtering, sorting, and pagination.\n\nRetrieve a paginated list of flow executions for a specific flow with support\nfor filtering by status, tags, and date ranges. Results can be sorted by\ncreation or update time and include optional run number calculation.\n\nContext:\n    - Returns executions for a single flow (specified by flow_id)\n    - Excludes soft-deleted executions from results\n    - Supports multiple filtering dimensions for flexible queries\n    - Pagination uses o"
+        },
+        {
+          "info": {
+            "name": "Create and start a flow execution",
+            "type": "http"
+          },
+          "http": {
+            "method": "POST",
+            "url": "{{baseUrl}}/api/flow-executions",
+            "body": {
+              "type": "json",
+              "data": "{}"
+            },
+            "auth": {
+              "type": "bearer",
+              "token": "{{bearerToken}}"
+            }
+          },
+          "docs": "Create a new flow execution and start workflow processing.\n\nThis endpoint creates a flow execution record and attempts to start the associated\nworkflow processing. The execution is created with status 'queued' and atomically\npromoted to 'running' if the organization's concurrency limit allows.\n\nContext:\n    - Flow executions represent runtime instances of flow definitions\n    - Each execution is isolated and maintains its own state\n    - Input data must conform to the flow's input schema\n    - E"
+        },
+        {
+          "info": {
+            "name": "Retrieve a specific flow execution",
+            "type": "http"
+          },
+          "http": {
+            "method": "GET",
+            "url": "{{baseUrl}}/api/flow-executions/:flow_execution_id",
+            "params": [
+              {
+                "name": "flow_execution_id",
+                "value": "550e8400-e29b-41d4-a716-446655440000",
+                "type": "path",
+                "description": "UUID of the flow execution to retrieve. Must exist and not be soft-deleted."
+              },
+              {
+                "name": "include_run_number",
+                "value": "false",
+                "type": "query",
+                "description": "Calculate and include sequential run number. Adds ~10-20ms overhead. Recommended for UI display only."
+              },
+              {
+                "name": "include_credits",
+                "value": "false",
+                "type": "query",
+                "description": "Include total credits consumed by this execution in the response. When false (default), total_credits is null and the usage table is not queried. Adds a usage-table lookup when enabled."
+              }
+            ],
+            "auth": {
+              "type": "bearer",
+              "token": "{{bearerToken}}"
+            }
+          },
+          "docs": "Retrieve detailed information for a specific flow execution.\n\nFetch a single flow execution by its unique identifier. Returns execution\nmetadata including status, input data, timestamps, and optionally the\nsequential run number within its flow.\n\nContext:\n    - Retrieves single execution regardless of status (except deleted)\n    - Soft-deleted executions return 404 Not Found\n    - Includes full input data as provided at creation\n    - Run number calculated on-demand if requested\n    - Useful for "
+        },
+        {
+          "info": {
+            "name": "Soft delete a flow execution",
+            "type": "http"
+          },
+          "http": {
+            "method": "DELETE",
+            "url": "{{baseUrl}}/api/flow-executions/:flow_execution_id",
+            "params": [
+              {
+                "name": "flow_execution_id",
+                "value": "550e8400-e29b-41d4-a716-446655440000",
+                "type": "path",
+                "description": "UUID of the flow execution to soft delete. Must be owned by your organization."
+              }
+            ],
+            "auth": {
+              "type": "bearer",
+              "token": "{{bearerToken}}"
+            }
+          },
+          "docs": "Soft delete a flow execution by marking it as deleted.\n\nThis endpoint performs a soft delete by setting the execution status to 'deleted'.\nThe execution record remains in the database but is excluded from list operations\nand cannot be retrieved through standard endpoints.\n\nContext:\n    - Soft delete preserves audit trail and historical data\n    - Does NOT stop running workflows (use cancel endpoint for that)\n    - Deleted executions do not appear in GET /flow-executions list\n    - Operation is i"
+        },
+        {
+          "info": {
+            "name": "Cancel a flow execution",
+            "type": "http"
+          },
+          "http": {
+            "method": "POST",
+            "url": "{{baseUrl}}/api/flow-executions/:flow_execution_id/cancel",
+            "params": [
+              {
+                "name": "flow_execution_id",
+                "value": "550e8400-e29b-41d4-a716-446655440000",
+                "type": "path",
+                "description": "UUID of the flow execution to cancel."
+              }
+            ],
+            "auth": {
+              "type": "bearer",
+              "token": "{{bearerToken}}"
+            }
+          },
+          "docs": "Cancel a running flow execution."
+        },
+        {
+          "info": {
+            "name": "Re-execute a flow execution",
+            "type": "http"
+          },
+          "http": {
+            "method": "POST",
+            "url": "{{baseUrl}}/api/flow-executions/:flow_execution_id/execute",
+            "params": [
+              {
+                "name": "flow_execution_id",
+                "value": "550e8400-e29b-41d4-a716-446655440000",
+                "type": "path",
+                "description": "UUID of the flow execution to re-execute. Must be an existing execution owned by your organization."
+              },
+              {
+                "name": "only_stale",
+                "value": "false",
+                "type": "query",
+                "description": "If true, only re-executes tasks marked as 'stale'. If false (default), re-executes entire flow from beginning. Stale-only mode is faster for flows with many successful tasks."
+              }
+            ],
+            "auth": {
+              "type": "bearer",
+              "token": "{{bearerToken}}"
+            }
+          },
+          "docs": "Re-execute a flow execution, optionally skipping cached results.\n\nThis endpoint triggers re-execution of an existing flow execution. It can\nselectively re-run failed tasks or re-run the entire flow from scratch.\nUseful for retrying failed executions or refreshing stale data.\n\nContext:\n    - Re-executes workflows that have completed or failed\n    - Can reuse successful task results (cached execution)\n    - Useful for handling transient failures\n    - Updates flow to latest version if changed sinc"
+        },
+        {
+          "info": {
+            "name": "Add task status updates (Internal API)",
+            "type": "http"
+          },
+          "http": {
+            "method": "POST",
+            "url": "{{baseUrl}}/api/flow-executions/:flow_execution_id/task-status",
+            "params": [
+              {
+                "name": "flow_execution_id",
+                "value": "550e8400-e29b-41d4-a716-446655440000",
+                "type": "path",
+                "description": "UUID of the flow execution receiving task status updates. Must be an active (non-deleted) execution."
+              }
+            ],
+            "body": {
+              "type": "json",
+              "data": "{}"
+            },
+            "auth": {
+              "type": "bearer",
+              "token": "{{bearerToken}}"
+            }
+          },
+          "docs": "Add task status updates to a flow execution (Internal API).\n\nThis endpoint is used by system workers to report task execution status changes.\nMultiple task statuses can be added in a single request for batch efficiency.\nStatus updates trigger state transitions and WebSocket notifications.\n\n⚠️  Internal API: This endpoint is designed for internal system communication.\n   Direct customer usage is not recommended. Use GET /task-executions instead.\n\nContext:\n    - Called by system workers during tas"
+        },
+        {
+          "info": {
+            "name": "Patch Flow Execution Status",
+            "type": "http"
+          },
+          "http": {
+            "method": "PATCH",
+            "url": "{{baseUrl}}/api/flow-executions/:flow_execution_id/status",
+            "params": [
+              {
+                "name": "flow_execution_id",
+                "value": "",
+                "type": "path"
+              },
+              {
+                "name": "status",
+                "value": "",
+                "type": "query"
+              }
+            ],
+            "auth": {
+              "type": "bearer",
+              "token": "{{bearerToken}}"
+            }
+          },
+          "docs": "Patch the status of a flow execution."
+        }
+      ]
+    }
+  ],
+  "bundled": true
+}

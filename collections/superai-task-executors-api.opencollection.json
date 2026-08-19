@@ -1,0 +1,33 @@
+{
+  "opencollection": "1.0.0",
+  "info": {
+    "name": "SuperAI Flow Platform auth task-executors API",
+    "version": "0.1.0"
+  },
+  "items": [
+    {
+      "info": {
+        "name": "task-executors",
+        "type": "folder"
+      },
+      "items": [
+        {
+          "info": {
+            "name": "List all available task executors",
+            "type": "http"
+          },
+          "http": {
+            "method": "GET",
+            "url": "{{baseUrl}}/api/task-executors",
+            "auth": {
+              "type": "bearer",
+              "token": "{{bearerToken}}"
+            }
+          },
+          "docs": "List all available task executors for workflow composition.\n\n**Overview**\nTask executors are reusable building blocks for workflows. Each executor performs\na specific operation (send email, extract data, classify documents, etc.). This\nendpoint provides discovery of all registered executors with their schemas,\nenabling programmatic flow builder UIs and validation.\n\n**What are Task Executors?**\nTask executors are typed workflow components that:\n- Accept configuration parameters (e.g., API keys, e"
+        }
+      ]
+    }
+  ],
+  "bundled": true
+}

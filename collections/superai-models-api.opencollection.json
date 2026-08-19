@@ -1,0 +1,41 @@
+{
+  "opencollection": "1.0.0",
+  "info": {
+    "name": "SuperAI Flow Platform auth models API",
+    "version": "0.1.0"
+  },
+  "items": [
+    {
+      "info": {
+        "name": "models",
+        "type": "folder"
+      },
+      "items": [
+        {
+          "info": {
+            "name": "List available models",
+            "type": "http"
+          },
+          "http": {
+            "method": "GET",
+            "url": "{{baseUrl}}/api/models",
+            "params": [
+              {
+                "name": "region",
+                "value": "",
+                "type": "query",
+                "description": "Filter models by region. If not specified, returns all models."
+              }
+            ],
+            "auth": {
+              "type": "bearer",
+              "token": "{{bearerToken}}"
+            }
+          },
+          "docs": "Retrieve a list of available AI models, deduplicated by model name and optionally filtered by region.\n\n    Each model entry aggregates information from all available endpoints:\n    - **regions**: All regions where this model is deployed\n    - **locations**: All specific locations (e.g., westeurope, eastus)\n    - **providers**: All providers offering this model\n    - **endpoint_count**: Total number of endpoints available\n\n    Use the `region` parameter to filter models by deployment region:\n    "
+        }
+      ]
+    }
+  ],
+  "bundled": true
+}

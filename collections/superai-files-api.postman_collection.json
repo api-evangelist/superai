@@ -1,0 +1,953 @@
+{
+  "item": [
+    {
+      "id": "db2f601b-50bc-4a66-87ef-a6ba7e69aa24",
+      "name": "files",
+      "description": {
+        "content": "File download operations for retrieving files from gs:// storage URIs.\n\nWhen Super.AI Flows processes documents, task outputs often include file references as `gs://` URIs pointing to Google Cloud Storage. These endpoints let you download those files without needing to understand GCS internals or parse storage URLs.\n\n**The problem these endpoints solve:**\n\nPreviously, downloading a file required:\n1. Recognizing the URL as a GCS reference\n2. Parsing out the file key from the URI\n3. Calling a separate endpoint to get a signed URL\n4. Downloading using that signed URL\n\n**Now it's simple:** Pass the `gs://` URI exactly as received and get your file.\n\n**Two ways to download:**\n\n1. **Direct download** (`GET /files/download`): Returns a redirect to the file. Perfect for curl with `-L` flag.\n   ```\n   curl -L -H \"X-API-Key: saf_xxx\" \"https://flows.super.ai/api/files/download?uri=gs://...\" -o file.pdf\n   ```\n\n2. **Resolve first** (`POST /files/resolve`): Returns a JSON response with the download URL. Better for programmatic use and sensitive files (keeps URI out of logs).\n   ```\n   curl -X POST \"https://flows.super.ai/api/files/resolve\" \\\n     -H \"X-API-Key: saf_xxx\" \\\n     -H \"Content-Type: application/json\" \\\n     -d '{\"uri\": \"gs://...\"}'\n   ```\n\n**Security:**\n- Files are organization-scoped: you can only download files from flows your organization owns\n- URIs are validated to prevent path traversal attacks\n- Download URLs expire after 1 hour\n\n**Common use cases:**\n- Download processed documents from completed flow executions\n- Retrieve extracted data files from task outputs\n- Integrate file downloads into automated pipelines",
+        "type": "text/plain"
+      },
+      "item": [
+        {
+          "id": "43fb044a-da5e-4a80-b6c2-29fb137fda5a",
+          "name": "Resolve storage URI to download URL",
+          "request": {
+            "name": "Resolve storage URI to download URL",
+            "description": {
+              "content": "Resolve a gs:// storage URI to a temporary pre-signed download URL.\n\nThis is the **recommended endpoint** for downloading files from task outputs.\nSimply pass the `gs://` URI exactly as you received it—no parsing required.\n\nThe returned `download_url` is a pre-signed URL valid for **1 hour** that can\nbe used to download the file directly without additional authentication.\n\n**Why use POST instead of GET?**\n\nUsing POST keeps the URI out of server access logs and browser history,\nwhich is better for security when dealing with sensitive files.",
+              "type": "text/plain"
+            },
+            "url": {
+              "path": [
+                "api",
+                "files",
+                "resolve"
+              ],
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "query": [],
+              "variable": []
+            },
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "method": "POST",
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{bearerToken}}"
+                }
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"uri\": \"<string>\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": [
+            {
+              "id": "7704358a-901a-46c1-9b35-3d0a2da65b56",
+              "name": "URI resolved successfully",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "api",
+                    "files",
+                    "resolve"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [],
+                  "variable": []
+                },
+                "header": [
+                  {
+                    "description": {
+                      "content": "Added as a part of security scheme: bearer",
+                      "type": "text/plain"
+                    },
+                    "key": "Authorization",
+                    "value": "Bearer <token>"
+                  },
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "method": "POST",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"uri\": \"gs://superai-file-upload-prod-eu/flows/255a17d0-5c21-47d9-8e0b-a08b48436f0a/documents/f8230da2-4136-4ffb-acfe-db9318970ea2\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "status": "OK",
+              "code": 200,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"download_url\": \"https://storage.googleapis.com/superai-file-upload-prod-eu/flows/255a17d0-5c21-47d9-8e0b-a08b48436f0a/documents/f8230da2-4136-4ffb-acfe-db9318970ea2?X-Goog-Algorithm=GOOG4-RSA-SHA256&X-Goog-Credential=...&X-Goog-Date=...&X-Goog-Expires=3600&X-Goog-Signature=...\",\n  \"expires_at\": \"2025-01-15T15:00:00+00:00\",\n  \"expires_in_seconds\": 3600\n}",
+              "cookie": [],
+              "_postman_previewlanguage": "json"
+            },
+            {
+              "id": "ca0c6ccb-4031-4c78-a37f-8ac98d2f6988",
+              "name": "Invalid URI format, unsupported scheme, or path traversal attempt",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "api",
+                    "files",
+                    "resolve"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [],
+                  "variable": []
+                },
+                "header": [
+                  {
+                    "description": {
+                      "content": "Added as a part of security scheme: bearer",
+                      "type": "text/plain"
+                    },
+                    "key": "Authorization",
+                    "value": "Bearer <token>"
+                  },
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "method": "POST",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"uri\": \"gs://superai-file-upload-prod-eu/flows/255a17d0-5c21-47d9-8e0b-a08b48436f0a/documents/f8230da2-4136-4ffb-acfe-db9318970ea2\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "status": "Bad Request",
+              "code": 400,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"error\": {\n    \"message\": \"Invalid URI scheme. Must start with 'gs://'\",\n    \"code\": \"bad_request\"\n  },\n  \"request_id\": \"01K8KABR6S16YETA2SZPVBS9SP\"\n}",
+              "cookie": [],
+              "_postman_previewlanguage": "json"
+            },
+            {
+              "id": "483c8cb4-6ac6-48ac-94db-2b996410423d",
+              "name": "Unauthorized - Missing or invalid authentication credentials",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "api",
+                    "files",
+                    "resolve"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [],
+                  "variable": []
+                },
+                "header": [
+                  {
+                    "description": {
+                      "content": "Added as a part of security scheme: bearer",
+                      "type": "text/plain"
+                    },
+                    "key": "Authorization",
+                    "value": "Bearer <token>"
+                  },
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "method": "POST",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"uri\": \"gs://superai-file-upload-prod-eu/flows/255a17d0-5c21-47d9-8e0b-a08b48436f0a/documents/f8230da2-4136-4ffb-acfe-db9318970ea2\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "status": "Unauthorized",
+              "code": 401,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"error\": {\n    \"message\": \"Authentication required\",\n    \"code\": \"unauthorized\"\n  },\n  \"request_id\": \"01K8KABR6S16YETA2SZPVBS9SP\"\n}",
+              "cookie": [],
+              "_postman_previewlanguage": "json"
+            },
+            {
+              "id": "c8cd904d-dded-46d6-86ea-cd1f792dcb2a",
+              "name": "Access denied - user does not have permission to access this file",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "api",
+                    "files",
+                    "resolve"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [],
+                  "variable": []
+                },
+                "header": [
+                  {
+                    "description": {
+                      "content": "Added as a part of security scheme: bearer",
+                      "type": "text/plain"
+                    },
+                    "key": "Authorization",
+                    "value": "Bearer <token>"
+                  },
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "method": "POST",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"uri\": \"gs://superai-file-upload-prod-eu/flows/255a17d0-5c21-47d9-8e0b-a08b48436f0a/documents/f8230da2-4136-4ffb-acfe-db9318970ea2\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "status": "Forbidden",
+              "code": 403,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"error\": {\n    \"message\": \"Access denied: you do not have access to this file\",\n    \"code\": \"forbidden\"\n  },\n  \"request_id\": \"01K8KABR6S16YETA2SZPVBS9SP\"\n}",
+              "cookie": [],
+              "_postman_previewlanguage": "json"
+            },
+            {
+              "id": "b34dac07-5eee-4a21-afa6-30164dc33fc5",
+              "name": "The flow or file does not exist",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "api",
+                    "files",
+                    "resolve"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [],
+                  "variable": []
+                },
+                "header": [
+                  {
+                    "description": {
+                      "content": "Added as a part of security scheme: bearer",
+                      "type": "text/plain"
+                    },
+                    "key": "Authorization",
+                    "value": "Bearer <token>"
+                  },
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "method": "POST",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"uri\": \"gs://superai-file-upload-prod-eu/flows/255a17d0-5c21-47d9-8e0b-a08b48436f0a/documents/f8230da2-4136-4ffb-acfe-db9318970ea2\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "status": "Not Found",
+              "code": 404,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"error\": {\n    \"message\": \"Flow not found\",\n    \"code\": \"not_found\"\n  },\n  \"request_id\": \"01K8KABR6S16YETA2SZPVBS9SP\"\n}",
+              "cookie": [],
+              "_postman_previewlanguage": "json"
+            },
+            {
+              "id": "b155c1dc-4611-4700-9e0a-c55172c5515a",
+              "name": "Validation Error",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "api",
+                    "files",
+                    "resolve"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [],
+                  "variable": []
+                },
+                "header": [
+                  {
+                    "description": {
+                      "content": "Added as a part of security scheme: bearer",
+                      "type": "text/plain"
+                    },
+                    "key": "Authorization",
+                    "value": "Bearer <token>"
+                  },
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "method": "POST",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"uri\": \"gs://superai-file-upload-prod-eu/flows/255a17d0-5c21-47d9-8e0b-a08b48436f0a/documents/f8230da2-4136-4ffb-acfe-db9318970ea2\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "status": "Unprocessable Entity (WebDAV) (RFC 4918)",
+              "code": 422,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"detail\": [\n    {\n      \"loc\": [\n        \"string\",\n        \"string\"\n      ],\n      \"msg\": \"string\",\n      \"type\": \"string\"\n    },\n    {\n      \"loc\": [\n        \"string\",\n        \"string\"\n      ],\n      \"msg\": \"string\",\n      \"type\": \"string\"\n    }\n  ]\n}",
+              "cookie": [],
+              "_postman_previewlanguage": "json"
+            },
+            {
+              "id": "d664f528-344f-4d41-afa8-451e5b837231",
+              "name": "Internal Server Error - An unexpected error occurred",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "api",
+                    "files",
+                    "resolve"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [],
+                  "variable": []
+                },
+                "header": [
+                  {
+                    "description": {
+                      "content": "Added as a part of security scheme: bearer",
+                      "type": "text/plain"
+                    },
+                    "key": "Authorization",
+                    "value": "Bearer <token>"
+                  },
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "method": "POST",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"uri\": \"gs://superai-file-upload-prod-eu/flows/255a17d0-5c21-47d9-8e0b-a08b48436f0a/documents/f8230da2-4136-4ffb-acfe-db9318970ea2\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "status": "Internal Server Error",
+              "code": 500,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"error\": {\n    \"message\": \"Internal server error\",\n    \"code\": \"internal_error\"\n  },\n  \"request_id\": \"01K8KABR6S16YETA2SZPVBS9SP\"\n}",
+              "cookie": [],
+              "_postman_previewlanguage": "json"
+            }
+          ],
+          "event": [],
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          }
+        },
+        {
+          "id": "9e4d9249-15ac-41ca-934d-cea1a7548d78",
+          "name": "Download file by URI (with redirect)",
+          "request": {
+            "name": "Download file by URI (with redirect)",
+            "description": {
+              "content": "Download a file by resolving its gs:// storage URI.\n\nThis endpoint provides a convenient way to download files directly using curl\nor wget. By default, it returns a 302 redirect to a pre-signed download URL.\n\n**Quick download with curl:**\n```\ncurl -L -H \"X-API-Key: $KEY\" \"https://flows.super.ai/api/files/download?uri=gs://...\" -o file.pdf\n```\n\nThe `-L` flag tells curl to follow the redirect automatically.\n\n**Note:** The URI will appear in server access logs. For sensitive files,\nuse the POST `/api/files/resolve` endpoint instead.",
+              "type": "text/plain"
+            },
+            "url": {
+              "path": [
+                "api",
+                "files",
+                "download"
+              ],
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "query": [
+                {
+                  "disabled": false,
+                  "key": "uri",
+                  "value": "<string>",
+                  "description": "(Required) The gs:// storage URI to download. Pass the exact URI from your task output (URL-encoded for special characters)."
+                },
+                {
+                  "disabled": false,
+                  "key": "redirect",
+                  "value": "true",
+                  "description": "If true (default), returns 302 redirect to download URL. If false, returns JSON with the download URL for programmatic use."
+                }
+              ],
+              "variable": []
+            },
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "method": "GET",
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{bearerToken}}"
+                }
+              ]
+            }
+          },
+          "response": [
+            {
+              "id": "defbf14d-ecc8-47e3-8bb7-40e14e55caa4",
+              "name": "JSON response with download URL (when redirect=false)",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "api",
+                    "files",
+                    "download"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [
+                    {
+                      "key": "uri",
+                      "value": "gs://superai-file-upload-prod-eu/flows/255a17d0-5c21-47d9-8e0b-a08b48436f0a/documents/f8230da2-4136-4ffb-acfe-db9318970ea2"
+                    },
+                    {
+                      "key": "redirect",
+                      "value": "true"
+                    }
+                  ],
+                  "variable": []
+                },
+                "header": [
+                  {
+                    "description": {
+                      "content": "Added as a part of security scheme: bearer",
+                      "type": "text/plain"
+                    },
+                    "key": "Authorization",
+                    "value": "Bearer <token>"
+                  },
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "method": "GET",
+                "body": {}
+              },
+              "status": "OK",
+              "code": 200,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"download_url\": \"https://storage.googleapis.com/superai-file-upload-prod-eu/flows/255a17d0-5c21-47d9-8e0b-a08b48436f0a/documents/f8230da2-4136-4ffb-acfe-db9318970ea2?X-Goog-Algorithm=GOOG4-RSA-SHA256&X-Goog-Credential=...&X-Goog-Date=...&X-Goog-Expires=3600&X-Goog-Signature=...\",\n  \"expires_at\": \"2025-01-15T15:00:00+00:00\",\n  \"expires_in_seconds\": 3600\n}",
+              "cookie": [],
+              "_postman_previewlanguage": "json"
+            },
+            {
+              "id": "b7bcdd92-d970-4f74-964c-6ca768e10f74",
+              "name": "Redirect to pre-signed download URL. Follow this redirect to download the file.",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "api",
+                    "files",
+                    "download"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [
+                    {
+                      "key": "uri",
+                      "value": "gs://superai-file-upload-prod-eu/flows/255a17d0-5c21-47d9-8e0b-a08b48436f0a/documents/f8230da2-4136-4ffb-acfe-db9318970ea2"
+                    },
+                    {
+                      "key": "redirect",
+                      "value": "true"
+                    }
+                  ],
+                  "variable": []
+                },
+                "header": [
+                  {
+                    "description": {
+                      "content": "Added as a part of security scheme: bearer",
+                      "type": "text/plain"
+                    },
+                    "key": "Authorization",
+                    "value": "Bearer <token>"
+                  }
+                ],
+                "method": "GET",
+                "body": {}
+              },
+              "status": "Found",
+              "code": 302,
+              "header": [
+                {
+                  "disabled": false,
+                  "description": "Pre-signed download URL (valid for 1 hour)",
+                  "key": "Location",
+                  "value": "http://tPB.ziepFvdZLq,7wtJQaR2hk3OohHnE+DyLJ,Za"
+                },
+                {
+                  "key": "Content-Type",
+                  "value": "text/plain"
+                }
+              ],
+              "body": "",
+              "cookie": [],
+              "_postman_previewlanguage": "text"
+            },
+            {
+              "id": "82876232-e7d4-4824-89a6-682ef7df0f21",
+              "name": "Invalid URI format, unsupported scheme, or path traversal attempt",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "api",
+                    "files",
+                    "download"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [
+                    {
+                      "key": "uri",
+                      "value": "gs://superai-file-upload-prod-eu/flows/255a17d0-5c21-47d9-8e0b-a08b48436f0a/documents/f8230da2-4136-4ffb-acfe-db9318970ea2"
+                    },
+                    {
+                      "key": "redirect",
+                      "value": "true"
+                    }
+                  ],
+                  "variable": []
+                },
+                "header": [
+                  {
+                    "description": {
+                      "content": "Added as a part of security scheme: bearer",
+                      "type": "text/plain"
+                    },
+                    "key": "Authorization",
+                    "value": "Bearer <token>"
+                  },
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "method": "GET",
+                "body": {}
+              },
+              "status": "Bad Request",
+              "code": 400,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"error\": {\n    \"message\": \"Invalid URI scheme. Must start with 'gs://'\",\n    \"code\": \"bad_request\"\n  },\n  \"request_id\": \"01K8KABR6S16YETA2SZPVBS9SP\"\n}",
+              "cookie": [],
+              "_postman_previewlanguage": "json"
+            },
+            {
+              "id": "16f9f430-169c-41d8-9b37-baebbd994996",
+              "name": "Unauthorized - Missing or invalid authentication credentials",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "api",
+                    "files",
+                    "download"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [
+                    {
+                      "key": "uri",
+                      "value": "gs://superai-file-upload-prod-eu/flows/255a17d0-5c21-47d9-8e0b-a08b48436f0a/documents/f8230da2-4136-4ffb-acfe-db9318970ea2"
+                    },
+                    {
+                      "key": "redirect",
+                      "value": "true"
+                    }
+                  ],
+                  "variable": []
+                },
+                "header": [
+                  {
+                    "description": {
+                      "content": "Added as a part of security scheme: bearer",
+                      "type": "text/plain"
+                    },
+                    "key": "Authorization",
+                    "value": "Bearer <token>"
+                  },
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "method": "GET",
+                "body": {}
+              },
+              "status": "Unauthorized",
+              "code": 401,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"error\": {\n    \"message\": \"Authentication required\",\n    \"code\": \"unauthorized\"\n  },\n  \"request_id\": \"01K8KABR6S16YETA2SZPVBS9SP\"\n}",
+              "cookie": [],
+              "_postman_previewlanguage": "json"
+            },
+            {
+              "id": "57fbdabb-8d9b-443f-9881-b15c961c4738",
+              "name": "Access denied - user does not have permission to access this file",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "api",
+                    "files",
+                    "download"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [
+                    {
+                      "key": "uri",
+                      "value": "gs://superai-file-upload-prod-eu/flows/255a17d0-5c21-47d9-8e0b-a08b48436f0a/documents/f8230da2-4136-4ffb-acfe-db9318970ea2"
+                    },
+                    {
+                      "key": "redirect",
+                      "value": "true"
+                    }
+                  ],
+                  "variable": []
+                },
+                "header": [
+                  {
+                    "description": {
+                      "content": "Added as a part of security scheme: bearer",
+                      "type": "text/plain"
+                    },
+                    "key": "Authorization",
+                    "value": "Bearer <token>"
+                  },
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "method": "GET",
+                "body": {}
+              },
+              "status": "Forbidden",
+              "code": 403,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"error\": {\n    \"message\": \"Access denied: you do not have access to this file\",\n    \"code\": \"forbidden\"\n  },\n  \"request_id\": \"01K8KABR6S16YETA2SZPVBS9SP\"\n}",
+              "cookie": [],
+              "_postman_previewlanguage": "json"
+            },
+            {
+              "id": "93101c13-18e8-45b8-97ee-8779d31f911f",
+              "name": "The flow or file does not exist",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "api",
+                    "files",
+                    "download"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [
+                    {
+                      "key": "uri",
+                      "value": "gs://superai-file-upload-prod-eu/flows/255a17d0-5c21-47d9-8e0b-a08b48436f0a/documents/f8230da2-4136-4ffb-acfe-db9318970ea2"
+                    },
+                    {
+                      "key": "redirect",
+                      "value": "true"
+                    }
+                  ],
+                  "variable": []
+                },
+                "header": [
+                  {
+                    "description": {
+                      "content": "Added as a part of security scheme: bearer",
+                      "type": "text/plain"
+                    },
+                    "key": "Authorization",
+                    "value": "Bearer <token>"
+                  },
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "method": "GET",
+                "body": {}
+              },
+              "status": "Not Found",
+              "code": 404,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"error\": {\n    \"message\": \"Flow not found\",\n    \"code\": \"not_found\"\n  },\n  \"request_id\": \"01K8KABR6S16YETA2SZPVBS9SP\"\n}",
+              "cookie": [],
+              "_postman_previewlanguage": "json"
+            },
+            {
+              "id": "70759785-d8b0-402b-a3a1-783c7fdf7aac",
+              "name": "Validation Error",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "api",
+                    "files",
+                    "download"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [
+                    {
+                      "key": "uri",
+                      "value": "gs://superai-file-upload-prod-eu/flows/255a17d0-5c21-47d9-8e0b-a08b48436f0a/documents/f8230da2-4136-4ffb-acfe-db9318970ea2"
+                    },
+                    {
+                      "key": "redirect",
+                      "value": "true"
+                    }
+                  ],
+                  "variable": []
+                },
+                "header": [
+                  {
+                    "description": {
+                      "content": "Added as a part of security scheme: bearer",
+                      "type": "text/plain"
+                    },
+                    "key": "Authorization",
+                    "value": "Bearer <token>"
+                  },
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "method": "GET",
+                "body": {}
+              },
+              "status": "Unprocessable Entity (WebDAV) (RFC 4918)",
+              "code": 422,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"detail\": [\n    {\n      \"loc\": [\n        \"string\",\n        \"string\"\n      ],\n      \"msg\": \"string\",\n      \"type\": \"string\"\n    },\n    {\n      \"loc\": [\n        \"string\",\n        \"string\"\n      ],\n      \"msg\": \"string\",\n      \"type\": \"string\"\n    }\n  ]\n}",
+              "cookie": [],
+              "_postman_previewlanguage": "json"
+            },
+            {
+              "id": "80d3c048-08ad-4019-b2ca-57369c78fa17",
+              "name": "Internal Server Error - An unexpected error occurred",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "api",
+                    "files",
+                    "download"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [
+                    {
+                      "key": "uri",
+                      "value": "gs://superai-file-upload-prod-eu/flows/255a17d0-5c21-47d9-8e0b-a08b48436f0a/documents/f8230da2-4136-4ffb-acfe-db9318970ea2"
+                    },
+                    {
+                      "key": "redirect",
+                      "value": "true"
+                    }
+                  ],
+                  "variable": []
+                },
+                "header": [
+                  {
+                    "description": {
+                      "content": "Added as a part of security scheme: bearer",
+                      "type": "text/plain"
+                    },
+                    "key": "Authorization",
+                    "value": "Bearer <token>"
+                  },
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "method": "GET",
+                "body": {}
+              },
+              "status": "Internal Server Error",
+              "code": 500,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"error\": {\n    \"message\": \"Internal server error\",\n    \"code\": \"internal_error\"\n  },\n  \"request_id\": \"01K8KABR6S16YETA2SZPVBS9SP\"\n}",
+              "cookie": [],
+              "_postman_previewlanguage": "json"
+            }
+          ],
+          "event": [],
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          }
+        }
+      ],
+      "event": []
+    }
+  ],
+  "event": [],
+  "variable": [
+    {
+      "type": "string",
+      "value": "/",
+      "key": "baseUrl"
+    }
+  ],
+  "info": {
+    "_postman_id": "2384e726-0e2c-47ad-8aef-693407dc0310",
+    "name": "SuperAI Flow Platform auth files API",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "description": {
+      "content": "SuperAI Flows is a workflow orchestration platform that enables you to design, deploy, and monitor automated workflows at scale.\n\nBuild complex workflows using our declarative YAML DSL, execute them reliably, and integrate seamlessly with AI models, cloud storage, and enterprise systems.\n\n**Key Capabilities:**\n- **Workflow Management**: Define workflows as code with version control and automated execution\n- **Task Orchestration**: Chain together API calls, data processing, and AI operations\n- **Real-time Monitoring**: Track execution progress with WebSocket notifications and comprehensive logging\n- **Multi-tenant Architecture**: Organization-scoped resources with role-based access control\n\n**API Versioning and Breaking Changes:**\n\nWe follow a strict compatibility policy to ensure your integrations remain stable:\n\n- **Non-breaking changes** (safe, no action required):\n  - Adding new API endpoints\n  - Adding new optional query parameters to existing endpoints\n  - Adding new fields to API responses\n  - Adding new values to existing enums\n\n- **Breaking changes** (requires client updates):\n  - Removing or renaming API endpoints\n  - Removing query parameters or request fields\n  - Removing response fields\n  - Changing field types or validation rules\n  - Removing values from existing enums\n\n**Client Implementation Requirements:**\n\nYour API clients MUST be designed to gracefully handle additional fields in responses. We may add new fields to any response object without considering this a breaking change. Ensure your JSON parsers ignore unknown fields rather than raising errors.\n\n**Backward Compatibility Guarantee:**\n\nWe commit to maintaining backward compatibility for all non-breaking changes. Breaking changes will be:\n- Announced at least 15 days in advance\n- Documented in our changelog with migration guide\n\nFor the latest API updates and migration guides, see our changelog.",
+      "type": "text/plain"
+    }
+  }
+}

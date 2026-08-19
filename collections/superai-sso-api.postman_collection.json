@@ -1,0 +1,1503 @@
+{
+  "item": [
+    {
+      "id": "136537bb-c30f-4e63-87b7-1a746f727976",
+      "name": "sso",
+      "description": {
+        "content": "Single Sign-On operations for configuring SAML-based SSO authentication.",
+        "type": "text/plain"
+      },
+      "item": [
+        {
+          "id": "94aaf42b-cf44-41c7-b2a5-1a3af4ca72e5",
+          "name": "Get SSO configuration for organization",
+          "request": {
+            "name": "Get SSO configuration for organization",
+            "description": {
+              "content": "Get SSO configuration for the current user's organization.\n\nReturns the current SAML SSO configuration including domains, metadata settings,\nand attribute mappings.\n\nContext:\n    - Returns SSO configuration for the authenticated user's organization\n    - Includes both active and inactive configurations\n    - Shows configuration stored in local database\n\nResponse Data:\n    - sso_provider_id: Supabase SSO provider identifier\n    - domains: Email domains using this SSO provider\n    - metadata_url: URL for SAML metadata (if configured)\n    - attribute_mapping: SAML attribute to user field mappings\n    - is_active: Whether the SSO provider is currently enabled\n\nUse Cases:\n    - Reviewing current SSO configuration\n    - Checking SSO status before updates\n    - Auditing SSO provider settings\n\nRelated Endpoints:\n    - POST /auth/sso - Create SSO configuration\n    - PATCH /auth/sso - Update SSO metadata",
+              "type": "text/plain"
+            },
+            "url": {
+              "path": [
+                "api",
+                "sso"
+              ],
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "query": [],
+              "variable": []
+            },
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "method": "GET",
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{bearerToken}}"
+                }
+              ]
+            }
+          },
+          "response": [
+            {
+              "id": "ecb4c291-6b3d-4301-9ae4-62788c0a1c6e",
+              "name": "SSO configuration retrieved successfully",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "api",
+                    "sso"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [],
+                  "variable": []
+                },
+                "header": [
+                  {
+                    "description": {
+                      "content": "Added as a part of security scheme: bearer",
+                      "type": "text/plain"
+                    },
+                    "key": "Authorization",
+                    "value": "Bearer <token>"
+                  },
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "method": "GET",
+                "body": {}
+              },
+              "status": "OK",
+              "code": 200,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"sso_provider_id\": \"string\",\n  \"created_at\": \"1972-04-29T16:25:44.288Z\",\n  \"updated_at\": \"2014-01-03T23:30:37.523Z\",\n  \"organization_id\": \"13165dc0-ebb8-7b1a-01b4-c8c5c3dae181\",\n  \"domains\": [\n    \"string\",\n    \"string\"\n  ],\n  \"metadata_url\": \"string\",\n  \"metadata_xml_hash\": \"string\",\n  \"attribute_mapping\": {\n    \"key_0\": false,\n    \"key_1\": \"string\"\n  },\n  \"is_active\": true\n}",
+              "cookie": [],
+              "_postman_previewlanguage": "json"
+            },
+            {
+              "id": "49951d85-5802-4af9-a008-718b167f2a5f",
+              "name": "Unauthorized - Missing or invalid authentication credentials",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "api",
+                    "sso"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [],
+                  "variable": []
+                },
+                "header": [
+                  {
+                    "description": {
+                      "content": "Added as a part of security scheme: bearer",
+                      "type": "text/plain"
+                    },
+                    "key": "Authorization",
+                    "value": "Bearer <token>"
+                  },
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "method": "GET",
+                "body": {}
+              },
+              "status": "Unauthorized",
+              "code": 401,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"error\": {\n    \"message\": \"Authentication required\",\n    \"code\": \"unauthorized\"\n  },\n  \"request_id\": \"01K8KABR6S16YETA2SZPVBS9SP\"\n}",
+              "cookie": [],
+              "_postman_previewlanguage": "json"
+            },
+            {
+              "id": "c613620a-40de-4553-8b75-ba52fffd8413",
+              "name": "SSO configuration not found for organization",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "api",
+                    "sso"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [],
+                  "variable": []
+                },
+                "header": [
+                  {
+                    "description": {
+                      "content": "Added as a part of security scheme: bearer",
+                      "type": "text/plain"
+                    },
+                    "key": "Authorization",
+                    "value": "Bearer <token>"
+                  },
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "method": "GET",
+                "body": {}
+              },
+              "status": "Not Found",
+              "code": 404,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"error\": {\n    \"code\": \"not_found\",\n    \"message\": \"Resource not found\"\n  },\n  \"request_id\": \"01K8KABR6S16YETA2SZPVBS9SP\"\n}",
+              "cookie": [],
+              "_postman_previewlanguage": "json"
+            }
+          ],
+          "event": [],
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          }
+        },
+        {
+          "id": "9636d77b-62ba-45ff-8231-7977f34b0ea9",
+          "name": "Create SSO configuration for organization",
+          "request": {
+            "name": "Create SSO configuration for organization",
+            "description": {
+              "content": "Create SSO configuration for the current user's organization.\n\nCreates a new SAML SSO provider in Supabase and stores the configuration locally.\nThis is a transactional operation that ensures both Supabase and local database\nare updated atomically.\n\nContext:\n    - Only organization administrators can create SSO configurations\n    - Each organization can have only one SSO configuration\n\nSAML Configuration:\n    - Provide either metadata_url OR metadata_xml, not both\n    - metadata_url: URL where Supabase can fetch SAML metadata\n    - metadata_xml: Raw SAML metadata XML content\n    - domains: Email domains that should authenticate via this provider\n    - attribute_mapping: Maps SAML attributes to user profile fields\n\nRelated Endpoints:\n    - GET /auth/sso - Get current SSO configuration\n    - PATCH /auth/sso - Update SSO metadata\n    - DELETE /auth/sso - Remove SSO configuration",
+              "type": "text/plain"
+            },
+            "url": {
+              "path": [
+                "api",
+                "sso"
+              ],
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "query": [],
+              "variable": []
+            },
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "method": "POST",
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{bearerToken}}"
+                }
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"domains\": [\n    \"<string>\",\n    \"<string>\"\n  ],\n  \"type\": \"saml\",\n  \"metadata_url\": \"<uri>\",\n  \"metadata_xml\": \"<string>\",\n  \"attribute_mapping\": {\n    \"key_0\": 7610\n  }\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": [
+            {
+              "id": "71e76705-195d-4e36-9252-13ba6f8c97c7",
+              "name": "SSO configuration created successfully",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "api",
+                    "sso"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [],
+                  "variable": []
+                },
+                "header": [
+                  {
+                    "description": {
+                      "content": "Added as a part of security scheme: bearer",
+                      "type": "text/plain"
+                    },
+                    "key": "Authorization",
+                    "value": "Bearer <token>"
+                  },
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "method": "POST",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"domains\": [\n    \"<string>\",\n    \"<string>\"\n  ],\n  \"type\": \"saml\",\n  \"metadata_url\": \"<uri>\",\n  \"metadata_xml\": \"<string>\",\n  \"attribute_mapping\": {\n    \"key_0\": 6729,\n    \"key_1\": \"string\",\n    \"key_2\": \"string\"\n  }\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "status": "Created",
+              "code": 201,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"sso_provider_id\": \"string\",\n  \"created_at\": \"1972-04-29T16:25:44.288Z\",\n  \"updated_at\": \"2014-01-03T23:30:37.523Z\",\n  \"organization_id\": \"13165dc0-ebb8-7b1a-01b4-c8c5c3dae181\",\n  \"domains\": [\n    \"string\",\n    \"string\"\n  ],\n  \"metadata_url\": \"string\",\n  \"metadata_xml_hash\": \"string\",\n  \"attribute_mapping\": {\n    \"key_0\": false,\n    \"key_1\": \"string\"\n  },\n  \"is_active\": true\n}",
+              "cookie": [],
+              "_postman_previewlanguage": "json"
+            },
+            {
+              "id": "ad3f7bf4-186f-4d95-8c79-e75eb84a471f",
+              "name": "Bad Request - Invalid SSO configuration or organization already has SSO",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "api",
+                    "sso"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [],
+                  "variable": []
+                },
+                "header": [
+                  {
+                    "description": {
+                      "content": "Added as a part of security scheme: bearer",
+                      "type": "text/plain"
+                    },
+                    "key": "Authorization",
+                    "value": "Bearer <token>"
+                  },
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "method": "POST",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"domains\": [\n    \"<string>\",\n    \"<string>\"\n  ],\n  \"type\": \"saml\",\n  \"metadata_url\": \"<uri>\",\n  \"metadata_xml\": \"<string>\",\n  \"attribute_mapping\": {\n    \"key_0\": 6729,\n    \"key_1\": \"string\",\n    \"key_2\": \"string\"\n  }\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "status": "Bad Request",
+              "code": 400,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"error\": {\n    \"code\": \"not_found\",\n    \"message\": \"Resource not found\"\n  },\n  \"request_id\": \"01K8KABR6S16YETA2SZPVBS9SP\"\n}",
+              "cookie": [],
+              "_postman_previewlanguage": "json"
+            },
+            {
+              "id": "5f281b65-498e-46a4-a257-17936092e0c2",
+              "name": "Unauthorized - Missing or invalid authentication credentials",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "api",
+                    "sso"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [],
+                  "variable": []
+                },
+                "header": [
+                  {
+                    "description": {
+                      "content": "Added as a part of security scheme: bearer",
+                      "type": "text/plain"
+                    },
+                    "key": "Authorization",
+                    "value": "Bearer <token>"
+                  },
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "method": "POST",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"domains\": [\n    \"<string>\",\n    \"<string>\"\n  ],\n  \"type\": \"saml\",\n  \"metadata_url\": \"<uri>\",\n  \"metadata_xml\": \"<string>\",\n  \"attribute_mapping\": {\n    \"key_0\": 6729,\n    \"key_1\": \"string\",\n    \"key_2\": \"string\"\n  }\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "status": "Unauthorized",
+              "code": 401,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"error\": {\n    \"message\": \"Authentication required\",\n    \"code\": \"unauthorized\"\n  },\n  \"request_id\": \"01K8KABR6S16YETA2SZPVBS9SP\"\n}",
+              "cookie": [],
+              "_postman_previewlanguage": "json"
+            },
+            {
+              "id": "d59be1a4-bd46-4f95-bfb6-920590b4f99a",
+              "name": "Unprocessable Entity - Request validation failed",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "api",
+                    "sso"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [],
+                  "variable": []
+                },
+                "header": [
+                  {
+                    "description": {
+                      "content": "Added as a part of security scheme: bearer",
+                      "type": "text/plain"
+                    },
+                    "key": "Authorization",
+                    "value": "Bearer <token>"
+                  },
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "method": "POST",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"domains\": [\n    \"<string>\",\n    \"<string>\"\n  ],\n  \"type\": \"saml\",\n  \"metadata_url\": \"<uri>\",\n  \"metadata_xml\": \"<string>\",\n  \"attribute_mapping\": {\n    \"key_0\": 6729,\n    \"key_1\": \"string\",\n    \"key_2\": \"string\"\n  }\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "status": "Unprocessable Entity (WebDAV) (RFC 4918)",
+              "code": 422,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"error\": {\n    \"message\": \"Request validation failed\",\n    \"code\": \"validation_error\",\n    \"details\": [\n      {\n        \"type\": \"missing\",\n        \"loc\": [\n          \"body\",\n          \"name\"\n        ],\n        \"msg\": \"Field required\"\n      }\n    ]\n  },\n  \"request_id\": \"01K8KABR6S16YETA2SZPVBS9SP\"\n}",
+              "cookie": [],
+              "_postman_previewlanguage": "json"
+            },
+            {
+              "id": "5a4f68d5-2e24-443f-b5f1-b249a45fe7e5",
+              "name": "Supabase API error or service unavailable",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "api",
+                    "sso"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [],
+                  "variable": []
+                },
+                "header": [
+                  {
+                    "description": {
+                      "content": "Added as a part of security scheme: bearer",
+                      "type": "text/plain"
+                    },
+                    "key": "Authorization",
+                    "value": "Bearer <token>"
+                  },
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "method": "POST",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"domains\": [\n    \"<string>\",\n    \"<string>\"\n  ],\n  \"type\": \"saml\",\n  \"metadata_url\": \"<uri>\",\n  \"metadata_xml\": \"<string>\",\n  \"attribute_mapping\": {\n    \"key_0\": 6729,\n    \"key_1\": \"string\",\n    \"key_2\": \"string\"\n  }\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "status": "Internal Server Error",
+              "code": 500,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"error\": {\n    \"code\": \"not_found\",\n    \"message\": \"Resource not found\"\n  },\n  \"request_id\": \"01K8KABR6S16YETA2SZPVBS9SP\"\n}",
+              "cookie": [],
+              "_postman_previewlanguage": "json"
+            }
+          ],
+          "event": [],
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          }
+        },
+        {
+          "id": "0add31fb-91a2-4ac0-a686-cb64c1cdeba8",
+          "name": "Remove SSO configuration for organization",
+          "request": {
+            "name": "Remove SSO configuration for organization",
+            "description": {
+              "content": "Remove SSO configuration for the current user's organization.\n\nDisables the SSO configuration by setting is_active=False. This is a soft delete\nthat preserves the configuration for potential future reactivation.\n\nContext:\n    - Soft delete (sets is_active=False, preserves data)\n    - Users will fall back to password authentication\n    - Configuration can be reactivated by creating a new SSO config\n    - Does not delete the Supabase SSO provider\n\nImpact:\n    - Immediate: Users can no longer authenticate via SSO\n    - Existing sessions may remain active until expiration\n    - Users must use password authentication\n    - Organization admins can recreate SSO configuration\n\nSecurity Considerations:\n    - Disabling SSO immediately affects all users in configured domains\n    - Ensure alternative authentication methods are available\n    - Consider communication to affected users before disabling\n\nUse Cases:\n    - Temporary SSO maintenance or troubleshooting\n    - Migrating to a different SSO provider\n    - Emergency access restoration via password auth\n    - Decommissioning SSO integration\n\nRelated Endpoints:\n    - POST /auth/sso - Create new SSO configuration\n    - GET /auth/sso - Check current configuration status",
+              "type": "text/plain"
+            },
+            "url": {
+              "path": [
+                "api",
+                "sso"
+              ],
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "query": [],
+              "variable": []
+            },
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "method": "DELETE",
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{bearerToken}}"
+                }
+              ]
+            }
+          },
+          "response": [
+            {
+              "id": "47480d0b-b05e-4125-8b8e-b43ad38623af",
+              "name": "SSO configuration disabled successfully",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "api",
+                    "sso"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [],
+                  "variable": []
+                },
+                "header": [
+                  {
+                    "description": {
+                      "content": "Added as a part of security scheme: bearer",
+                      "type": "text/plain"
+                    },
+                    "key": "Authorization",
+                    "value": "Bearer <token>"
+                  }
+                ],
+                "method": "DELETE",
+                "body": {}
+              },
+              "status": "No Content",
+              "code": 204,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "text/plain"
+                }
+              ],
+              "body": "",
+              "cookie": [],
+              "_postman_previewlanguage": "text"
+            },
+            {
+              "id": "07a74140-20f0-4c82-9089-5b5f06965bfd",
+              "name": "Unauthorized - Missing or invalid authentication credentials",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "api",
+                    "sso"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [],
+                  "variable": []
+                },
+                "header": [
+                  {
+                    "description": {
+                      "content": "Added as a part of security scheme: bearer",
+                      "type": "text/plain"
+                    },
+                    "key": "Authorization",
+                    "value": "Bearer <token>"
+                  },
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "method": "DELETE",
+                "body": {}
+              },
+              "status": "Unauthorized",
+              "code": 401,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"error\": {\n    \"message\": \"Authentication required\",\n    \"code\": \"unauthorized\"\n  },\n  \"request_id\": \"01K8KABR6S16YETA2SZPVBS9SP\"\n}",
+              "cookie": [],
+              "_postman_previewlanguage": "json"
+            },
+            {
+              "id": "22af9d3e-cbc8-4078-8e5e-ad113950eef0",
+              "name": "SSO configuration not found for organization",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "api",
+                    "sso"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [],
+                  "variable": []
+                },
+                "header": [
+                  {
+                    "description": {
+                      "content": "Added as a part of security scheme: bearer",
+                      "type": "text/plain"
+                    },
+                    "key": "Authorization",
+                    "value": "Bearer <token>"
+                  },
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "method": "DELETE",
+                "body": {}
+              },
+              "status": "Not Found",
+              "code": 404,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"error\": {\n    \"code\": \"not_found\",\n    \"message\": \"Resource not found\"\n  },\n  \"request_id\": \"01K8KABR6S16YETA2SZPVBS9SP\"\n}",
+              "cookie": [],
+              "_postman_previewlanguage": "json"
+            }
+          ],
+          "event": [],
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          }
+        },
+        {
+          "id": "aff1d421-da3d-402d-8e18-920441a019ed",
+          "name": "Update SSO metadata configuration",
+          "request": {
+            "name": "Update SSO metadata configuration",
+            "description": {
+              "content": "Update SSO metadata configuration for the current user's organization.\n\nUpdates metadata-related fields only. This endpoint is restricted to updating:\n- metadata_url: URL for fetching SAML metadata\n- metadata_xml: Raw SAML metadata XML content\n- domains: Email domains that should use this SSO provider\n- attribute_mapping: SAML attribute to user profile field mappings\n\nContext:\n    - Only metadata-related fields can be updated via this endpoint\n    - Updates both Supabase SSO provider and local database\n    - Changes are applied immediately\n    - Cannot update provider ID or organization association\n\nMetadata Update Rules:\n    - Provide either metadata_url OR metadata_xml, not both\n    - Setting metadata_url clears any existing metadata_xml\n    - Setting metadata_xml clears any existing metadata_url\n    - Domains can be added, removed, or modified\n    - Attribute mappings are completely replaced if provided\n\nUse Cases:\n    - Updating SAML metadata after IdP changes\n    - Adding or removing email domains\n    - Modifying attribute mapping for user profiles\n    - Rotating SAML certificates or endpoints\n\nRelated Endpoints:\n    - GET /auth/sso - Get current configuration\n    - DELETE /auth/sso - Remove SSO configuration",
+              "type": "text/plain"
+            },
+            "url": {
+              "path": [
+                "api",
+                "sso"
+              ],
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "query": [],
+              "variable": []
+            },
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "method": "PATCH",
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{bearerToken}}"
+                }
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"metadata_url\": \"<uri>\",\n  \"metadata_xml\": \"<string>\",\n  \"domains\": [\n    \"<string>\",\n    \"<string>\"\n  ],\n  \"attribute_mapping\": {\n    \"key_0\": 360\n  },\n  \"is_active\": \"<boolean>\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": [
+            {
+              "id": "99b64429-e6eb-4067-9c39-79d450a5021e",
+              "name": "SSO configuration updated successfully",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "api",
+                    "sso"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [],
+                  "variable": []
+                },
+                "header": [
+                  {
+                    "description": {
+                      "content": "Added as a part of security scheme: bearer",
+                      "type": "text/plain"
+                    },
+                    "key": "Authorization",
+                    "value": "Bearer <token>"
+                  },
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "method": "PATCH",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"metadata_url\": \"<uri>\",\n  \"metadata_xml\": \"<string>\",\n  \"domains\": [\n    \"<string>\",\n    \"<string>\"\n  ],\n  \"attribute_mapping\": {\n    \"key_0\": \"string\",\n    \"key_1\": 4634\n  },\n  \"is_active\": \"<boolean>\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "status": "OK",
+              "code": 200,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"sso_provider_id\": \"string\",\n  \"created_at\": \"1972-04-29T16:25:44.288Z\",\n  \"updated_at\": \"2014-01-03T23:30:37.523Z\",\n  \"organization_id\": \"13165dc0-ebb8-7b1a-01b4-c8c5c3dae181\",\n  \"domains\": [\n    \"string\",\n    \"string\"\n  ],\n  \"metadata_url\": \"string\",\n  \"metadata_xml_hash\": \"string\",\n  \"attribute_mapping\": {\n    \"key_0\": false,\n    \"key_1\": \"string\"\n  },\n  \"is_active\": true\n}",
+              "cookie": [],
+              "_postman_previewlanguage": "json"
+            },
+            {
+              "id": "19516261-1b2d-411c-8b78-7d13d6e8239f",
+              "name": "Bad Request - Invalid metadata configuration",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "api",
+                    "sso"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [],
+                  "variable": []
+                },
+                "header": [
+                  {
+                    "description": {
+                      "content": "Added as a part of security scheme: bearer",
+                      "type": "text/plain"
+                    },
+                    "key": "Authorization",
+                    "value": "Bearer <token>"
+                  },
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "method": "PATCH",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"metadata_url\": \"<uri>\",\n  \"metadata_xml\": \"<string>\",\n  \"domains\": [\n    \"<string>\",\n    \"<string>\"\n  ],\n  \"attribute_mapping\": {\n    \"key_0\": \"string\",\n    \"key_1\": 4634\n  },\n  \"is_active\": \"<boolean>\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "status": "Bad Request",
+              "code": 400,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"error\": {\n    \"code\": \"not_found\",\n    \"message\": \"Resource not found\"\n  },\n  \"request_id\": \"01K8KABR6S16YETA2SZPVBS9SP\"\n}",
+              "cookie": [],
+              "_postman_previewlanguage": "json"
+            },
+            {
+              "id": "2da0195e-8db2-4dc8-aad7-4539f6a67bdb",
+              "name": "Unauthorized - Missing or invalid authentication credentials",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "api",
+                    "sso"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [],
+                  "variable": []
+                },
+                "header": [
+                  {
+                    "description": {
+                      "content": "Added as a part of security scheme: bearer",
+                      "type": "text/plain"
+                    },
+                    "key": "Authorization",
+                    "value": "Bearer <token>"
+                  },
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "method": "PATCH",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"metadata_url\": \"<uri>\",\n  \"metadata_xml\": \"<string>\",\n  \"domains\": [\n    \"<string>\",\n    \"<string>\"\n  ],\n  \"attribute_mapping\": {\n    \"key_0\": \"string\",\n    \"key_1\": 4634\n  },\n  \"is_active\": \"<boolean>\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "status": "Unauthorized",
+              "code": 401,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"error\": {\n    \"message\": \"Authentication required\",\n    \"code\": \"unauthorized\"\n  },\n  \"request_id\": \"01K8KABR6S16YETA2SZPVBS9SP\"\n}",
+              "cookie": [],
+              "_postman_previewlanguage": "json"
+            },
+            {
+              "id": "70132726-747f-4138-8de8-ded46ef579c4",
+              "name": "SSO configuration not found for organization",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "api",
+                    "sso"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [],
+                  "variable": []
+                },
+                "header": [
+                  {
+                    "description": {
+                      "content": "Added as a part of security scheme: bearer",
+                      "type": "text/plain"
+                    },
+                    "key": "Authorization",
+                    "value": "Bearer <token>"
+                  },
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "method": "PATCH",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"metadata_url\": \"<uri>\",\n  \"metadata_xml\": \"<string>\",\n  \"domains\": [\n    \"<string>\",\n    \"<string>\"\n  ],\n  \"attribute_mapping\": {\n    \"key_0\": \"string\",\n    \"key_1\": 4634\n  },\n  \"is_active\": \"<boolean>\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "status": "Not Found",
+              "code": 404,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"error\": {\n    \"code\": \"not_found\",\n    \"message\": \"Resource not found\"\n  },\n  \"request_id\": \"01K8KABR6S16YETA2SZPVBS9SP\"\n}",
+              "cookie": [],
+              "_postman_previewlanguage": "json"
+            },
+            {
+              "id": "9abc2e16-007e-49cc-a29b-0848fbb52738",
+              "name": "Unprocessable Entity - Request validation failed",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "api",
+                    "sso"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [],
+                  "variable": []
+                },
+                "header": [
+                  {
+                    "description": {
+                      "content": "Added as a part of security scheme: bearer",
+                      "type": "text/plain"
+                    },
+                    "key": "Authorization",
+                    "value": "Bearer <token>"
+                  },
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "method": "PATCH",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"metadata_url\": \"<uri>\",\n  \"metadata_xml\": \"<string>\",\n  \"domains\": [\n    \"<string>\",\n    \"<string>\"\n  ],\n  \"attribute_mapping\": {\n    \"key_0\": \"string\",\n    \"key_1\": 4634\n  },\n  \"is_active\": \"<boolean>\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "status": "Unprocessable Entity (WebDAV) (RFC 4918)",
+              "code": 422,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"error\": {\n    \"message\": \"Request validation failed\",\n    \"code\": \"validation_error\",\n    \"details\": [\n      {\n        \"type\": \"missing\",\n        \"loc\": [\n          \"body\",\n          \"name\"\n        ],\n        \"msg\": \"Field required\"\n      }\n    ]\n  },\n  \"request_id\": \"01K8KABR6S16YETA2SZPVBS9SP\"\n}",
+              "cookie": [],
+              "_postman_previewlanguage": "json"
+            },
+            {
+              "id": "7bb7f447-6266-45bd-bed4-a2b1f7db3fdd",
+              "name": "Supabase API error or service unavailable",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "api",
+                    "sso"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [],
+                  "variable": []
+                },
+                "header": [
+                  {
+                    "description": {
+                      "content": "Added as a part of security scheme: bearer",
+                      "type": "text/plain"
+                    },
+                    "key": "Authorization",
+                    "value": "Bearer <token>"
+                  },
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "method": "PATCH",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"metadata_url\": \"<uri>\",\n  \"metadata_xml\": \"<string>\",\n  \"domains\": [\n    \"<string>\",\n    \"<string>\"\n  ],\n  \"attribute_mapping\": {\n    \"key_0\": \"string\",\n    \"key_1\": 4634\n  },\n  \"is_active\": \"<boolean>\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "status": "Internal Server Error",
+              "code": 500,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"error\": {\n    \"code\": \"not_found\",\n    \"message\": \"Resource not found\"\n  },\n  \"request_id\": \"01K8KABR6S16YETA2SZPVBS9SP\"\n}",
+              "cookie": [],
+              "_postman_previewlanguage": "json"
+            }
+          ],
+          "event": [],
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          }
+        },
+        {
+          "id": "83f6d955-d36a-4266-b579-2dafce16013e",
+          "name": "Get Supabase SAML service-provider URLs",
+          "request": {
+            "name": "Get Supabase SAML service-provider URLs",
+            "description": {
+              "content": "Get the Supabase SAML service-provider (SP) URLs for IdP configuration.\n\nThese URLs depend only on the Supabase project and are the same for every\norganization. They are available before any SSO configuration exists, so the\nsetup UI can pre-fill the read-only SP fields the customer must copy into\ntheir Identity Provider.\n\nResponse Data:\n    - entity_id: SAML SP EntityID (same value as metadata_url)\n    - metadata_url: SAML SP metadata URL\n    - acs_url: Assertion Consumer Service (ACS) URL\n    - slo_url: Single Logout (SLO) URL\n\nRelated Endpoints:\n    - POST /auth/sso - Create SSO configuration\n    - GET /auth/sso - Get current SSO configuration",
+              "type": "text/plain"
+            },
+            "url": {
+              "path": [
+                "api",
+                "sso",
+                "service-provider-details"
+              ],
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "query": [],
+              "variable": []
+            },
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "method": "GET",
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{bearerToken}}"
+                }
+              ]
+            }
+          },
+          "response": [
+            {
+              "id": "6b7bcecf-2e50-4125-8e66-579c1dcc113d",
+              "name": "Service-provider URLs to configure in the customer's IdP",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "api",
+                    "sso",
+                    "service-provider-details"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [],
+                  "variable": []
+                },
+                "header": [
+                  {
+                    "description": {
+                      "content": "Added as a part of security scheme: bearer",
+                      "type": "text/plain"
+                    },
+                    "key": "Authorization",
+                    "value": "Bearer <token>"
+                  },
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "method": "GET",
+                "body": {}
+              },
+              "status": "OK",
+              "code": 200,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"entity_id\": \"string\",\n  \"metadata_url\": \"string\",\n  \"acs_url\": \"string\",\n  \"slo_url\": \"string\"\n}",
+              "cookie": [],
+              "_postman_previewlanguage": "json"
+            },
+            {
+              "id": "b71774b8-af40-4ce2-905a-c7df3b3a7e9a",
+              "name": "Unauthorized - Missing or invalid authentication credentials",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "api",
+                    "sso",
+                    "service-provider-details"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [],
+                  "variable": []
+                },
+                "header": [
+                  {
+                    "description": {
+                      "content": "Added as a part of security scheme: bearer",
+                      "type": "text/plain"
+                    },
+                    "key": "Authorization",
+                    "value": "Bearer <token>"
+                  },
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "method": "GET",
+                "body": {}
+              },
+              "status": "Unauthorized",
+              "code": 401,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"error\": {\n    \"message\": \"Authentication required\",\n    \"code\": \"unauthorized\"\n  },\n  \"request_id\": \"01K8KABR6S16YETA2SZPVBS9SP\"\n}",
+              "cookie": [],
+              "_postman_previewlanguage": "json"
+            }
+          ],
+          "event": [],
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          }
+        },
+        {
+          "id": "13a22dc8-6956-41e0-85ec-a698bba31685",
+          "name": "Proxy SAML metadata to avoid CORS issues",
+          "request": {
+            "name": "Proxy SAML metadata to avoid CORS issues",
+            "description": {
+              "content": "Fetches SAML metadata from external URLs to avoid browser CORS restrictions",
+              "type": "text/plain"
+            },
+            "url": {
+              "path": [
+                "api",
+                "sso",
+                "metadata"
+              ],
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "query": [
+                {
+                  "disabled": false,
+                  "key": "url",
+                  "value": "<uri>",
+                  "description": "(Required) SAML metadata URL to fetch"
+                }
+              ],
+              "variable": []
+            },
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "method": "GET",
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{bearerToken}}"
+                }
+              ]
+            }
+          },
+          "response": [
+            {
+              "id": "da8e6cd8-071e-4298-b6e4-23c8d0cca0dd",
+              "name": "SAML metadata XML content",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "api",
+                    "sso",
+                    "metadata"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [
+                    {
+                      "key": "url",
+                      "value": "<uri>"
+                    }
+                  ],
+                  "variable": []
+                },
+                "header": [
+                  {
+                    "description": {
+                      "content": "Added as a part of security scheme: bearer",
+                      "type": "text/plain"
+                    },
+                    "key": "Authorization",
+                    "value": "Bearer <token>"
+                  },
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "method": "GET",
+                "body": {}
+              },
+              "status": "OK",
+              "code": 200,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"metadata\": \"string\"\n}",
+              "cookie": [],
+              "_postman_previewlanguage": "json"
+            },
+            {
+              "id": "d2ec5ae7-48c0-44cc-975e-9c93823a4a92",
+              "name": "Invalid or missing metadata URL",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "api",
+                    "sso",
+                    "metadata"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [
+                    {
+                      "key": "url",
+                      "value": "<uri>"
+                    }
+                  ],
+                  "variable": []
+                },
+                "header": [
+                  {
+                    "description": {
+                      "content": "Added as a part of security scheme: bearer",
+                      "type": "text/plain"
+                    },
+                    "key": "Authorization",
+                    "value": "Bearer <token>"
+                  },
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "method": "GET",
+                "body": {}
+              },
+              "status": "Bad Request",
+              "code": 400,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"error\": {\n    \"code\": \"not_found\",\n    \"message\": \"Resource not found\"\n  },\n  \"request_id\": \"01K8KABR6S16YETA2SZPVBS9SP\"\n}",
+              "cookie": [],
+              "_postman_previewlanguage": "json"
+            },
+            {
+              "id": "f61b548d-3743-4870-bbd4-bf81638cb6e8",
+              "name": "Unauthorized - Missing or invalid authentication credentials",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "api",
+                    "sso",
+                    "metadata"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [
+                    {
+                      "key": "url",
+                      "value": "<uri>"
+                    }
+                  ],
+                  "variable": []
+                },
+                "header": [
+                  {
+                    "description": {
+                      "content": "Added as a part of security scheme: bearer",
+                      "type": "text/plain"
+                    },
+                    "key": "Authorization",
+                    "value": "Bearer <token>"
+                  },
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "method": "GET",
+                "body": {}
+              },
+              "status": "Unauthorized",
+              "code": 401,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"error\": {\n    \"message\": \"Authentication required\",\n    \"code\": \"unauthorized\"\n  },\n  \"request_id\": \"01K8KABR6S16YETA2SZPVBS9SP\"\n}",
+              "cookie": [],
+              "_postman_previewlanguage": "json"
+            },
+            {
+              "id": "3a2b6c84-d646-4a1e-863d-1a18944dfca8",
+              "name": "Validation Error",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "api",
+                    "sso",
+                    "metadata"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [
+                    {
+                      "key": "url",
+                      "value": "<uri>"
+                    }
+                  ],
+                  "variable": []
+                },
+                "header": [
+                  {
+                    "description": {
+                      "content": "Added as a part of security scheme: bearer",
+                      "type": "text/plain"
+                    },
+                    "key": "Authorization",
+                    "value": "Bearer <token>"
+                  },
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "method": "GET",
+                "body": {}
+              },
+              "status": "Unprocessable Entity (WebDAV) (RFC 4918)",
+              "code": 422,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"detail\": [\n    {\n      \"loc\": [\n        \"string\",\n        \"string\"\n      ],\n      \"msg\": \"string\",\n      \"type\": \"string\"\n    },\n    {\n      \"loc\": [\n        \"string\",\n        \"string\"\n      ],\n      \"msg\": \"string\",\n      \"type\": \"string\"\n    }\n  ]\n}",
+              "cookie": [],
+              "_postman_previewlanguage": "json"
+            },
+            {
+              "id": "335a1e72-260b-4595-a936-fa4c22ea287c",
+              "name": "Internal server error",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "api",
+                    "sso",
+                    "metadata"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [
+                    {
+                      "key": "url",
+                      "value": "<uri>"
+                    }
+                  ],
+                  "variable": []
+                },
+                "header": [
+                  {
+                    "description": {
+                      "content": "Added as a part of security scheme: bearer",
+                      "type": "text/plain"
+                    },
+                    "key": "Authorization",
+                    "value": "Bearer <token>"
+                  },
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "method": "GET",
+                "body": {}
+              },
+              "status": "Internal Server Error",
+              "code": 500,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"error\": {\n    \"code\": \"not_found\",\n    \"message\": \"Resource not found\"\n  },\n  \"request_id\": \"01K8KABR6S16YETA2SZPVBS9SP\"\n}",
+              "cookie": [],
+              "_postman_previewlanguage": "json"
+            }
+          ],
+          "event": [],
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          }
+        }
+      ],
+      "event": []
+    }
+  ],
+  "event": [],
+  "variable": [
+    {
+      "type": "string",
+      "value": "/",
+      "key": "baseUrl"
+    }
+  ],
+  "info": {
+    "_postman_id": "494bccc1-0568-44e5-90c5-f2e2281ed978",
+    "name": "SuperAI Flow Platform auth sso API",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "description": {
+      "content": "SuperAI Flows is a workflow orchestration platform that enables you to design, deploy, and monitor automated workflows at scale.\n\nBuild complex workflows using our declarative YAML DSL, execute them reliably, and integrate seamlessly with AI models, cloud storage, and enterprise systems.\n\n**Key Capabilities:**\n- **Workflow Management**: Define workflows as code with version control and automated execution\n- **Task Orchestration**: Chain together API calls, data processing, and AI operations\n- **Real-time Monitoring**: Track execution progress with WebSocket notifications and comprehensive logging\n- **Multi-tenant Architecture**: Organization-scoped resources with role-based access control\n\n**API Versioning and Breaking Changes:**\n\nWe follow a strict compatibility policy to ensure your integrations remain stable:\n\n- **Non-breaking changes** (safe, no action required):\n  - Adding new API endpoints\n  - Adding new optional query parameters to existing endpoints\n  - Adding new fields to API responses\n  - Adding new values to existing enums\n\n- **Breaking changes** (requires client updates):\n  - Removing or renaming API endpoints\n  - Removing query parameters or request fields\n  - Removing response fields\n  - Changing field types or validation rules\n  - Removing values from existing enums\n\n**Client Implementation Requirements:**\n\nYour API clients MUST be designed to gracefully handle additional fields in responses. We may add new fields to any response object without considering this a breaking change. Ensure your JSON parsers ignore unknown fields rather than raising errors.\n\n**Backward Compatibility Guarantee:**\n\nWe commit to maintaining backward compatibility for all non-breaking changes. Breaking changes will be:\n- Announced at least 15 days in advance\n- Documented in our changelog with migration guide\n\nFor the latest API updates and migration guides, see our changelog.",
+      "type": "text/plain"
+    }
+  }
+}

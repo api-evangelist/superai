@@ -1,0 +1,162 @@
+{
+  "opencollection": "1.0.0",
+  "info": {
+    "name": "SuperAI Flow Platform auth worker-groups API",
+    "version": "0.1.0"
+  },
+  "items": [
+    {
+      "info": {
+        "name": "worker-groups",
+        "type": "folder"
+      },
+      "items": [
+        {
+          "info": {
+            "name": "List all worker groups",
+            "type": "http"
+          },
+          "http": {
+            "method": "GET",
+            "url": "{{baseUrl}}/api/organizations/worker-groups",
+            "params": [
+              {
+                "name": "offset",
+                "value": "",
+                "type": "query",
+                "description": "Number of records to skip."
+              },
+              {
+                "name": "limit",
+                "value": "",
+                "type": "query",
+                "description": "Maximum number of records to return."
+              }
+            ],
+            "auth": {
+              "type": "bearer",
+              "token": "{{bearerToken}}"
+            }
+          },
+          "docs": "List all worker groups for the current organization (paginated)."
+        },
+        {
+          "info": {
+            "name": "Create a worker group",
+            "type": "http"
+          },
+          "http": {
+            "method": "POST",
+            "url": "{{baseUrl}}/api/organizations/worker-groups",
+            "body": {
+              "type": "json",
+              "data": "{}"
+            },
+            "auth": {
+              "type": "bearer",
+              "token": "{{bearerToken}}"
+            }
+          },
+          "docs": "Create a new worker group in the current organization."
+        },
+        {
+          "info": {
+            "name": "Get a worker group",
+            "type": "http"
+          },
+          "http": {
+            "method": "GET",
+            "url": "{{baseUrl}}/api/organizations/worker-groups/:group_id",
+            "params": [
+              {
+                "name": "group_id",
+                "value": "",
+                "type": "path"
+              }
+            ],
+            "auth": {
+              "type": "bearer",
+              "token": "{{bearerToken}}"
+            }
+          },
+          "docs": "Get details of a specific worker group including its members."
+        },
+        {
+          "info": {
+            "name": "Update a worker group",
+            "type": "http"
+          },
+          "http": {
+            "method": "PUT",
+            "url": "{{baseUrl}}/api/organizations/worker-groups/:group_id",
+            "params": [
+              {
+                "name": "group_id",
+                "value": "",
+                "type": "path"
+              }
+            ],
+            "body": {
+              "type": "json",
+              "data": "{}"
+            },
+            "auth": {
+              "type": "bearer",
+              "token": "{{bearerToken}}"
+            }
+          },
+          "docs": "Update a worker group's name and/or description."
+        },
+        {
+          "info": {
+            "name": "Delete a worker group",
+            "type": "http"
+          },
+          "http": {
+            "method": "DELETE",
+            "url": "{{baseUrl}}/api/organizations/worker-groups/:group_id",
+            "params": [
+              {
+                "name": "group_id",
+                "value": "",
+                "type": "path"
+              }
+            ],
+            "auth": {
+              "type": "bearer",
+              "token": "{{bearerToken}}"
+            }
+          },
+          "docs": "Soft-delete a worker group. Existing HITL task assignments are preserved."
+        },
+        {
+          "info": {
+            "name": "Add or remove members from a worker group",
+            "type": "http"
+          },
+          "http": {
+            "method": "POST",
+            "url": "{{baseUrl}}/api/organizations/worker-groups/:group_id/members",
+            "params": [
+              {
+                "name": "group_id",
+                "value": "",
+                "type": "path"
+              }
+            ],
+            "body": {
+              "type": "json",
+              "data": "{}"
+            },
+            "auth": {
+              "type": "bearer",
+              "token": "{{bearerToken}}"
+            }
+          },
+          "docs": "Add and/or remove members from a worker group in a single call.\n\nUsers in add_user_ids that are already members are silently skipped.\nUsers in remove_user_ids that are not members are silently ignored."
+        }
+      ]
+    }
+  ],
+  "bundled": true
+}

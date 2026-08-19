@@ -1,0 +1,888 @@
+{
+  "item": [
+    {
+      "id": "af6783bf-9a51-4b13-a181-494771ffb4c5",
+      "name": "task-outputs",
+      "description": {
+        "content": "Task output operations for storing and retrieving task execution results.\n\nTask outputs store the results produced by task executions in a structured, queryable format. While task executions track the full lifecycle (input, output, error, status), task outputs focus specifically on the final output data formatted for display, analysis, and downstream consumption.\n\n**Key characteristics:**\n- **Summary Field**: Structured output data ready for consumption\n- **Historical Record**: Permanent storage of task results\n- **Queryable**: Filter and search outputs by task, execution, or flow\n- **Linked**: Connected to parent flow execution and task execution\n\n**Use these endpoints to:**\n- Store task results after successful execution\n- Retrieve outputs for specific tasks or entire executions\n- Query historical outputs for analysis and reporting\n- Access formatted results for display in dashboards\n- Feed outputs to downstream tasks or external systems\n\nTask outputs provide the data foundation for workflow analytics, debugging, and result visualization.",
+        "type": "text/plain"
+      },
+      "item": [
+        {
+          "id": "951021cb-8270-4409-b07a-9461985ba1b8",
+          "name": "List all task outputs",
+          "request": {
+            "name": "List all task outputs",
+            "description": {
+              "content": "List all task outputs across all flow executions in your organization.\n\nRetrieve all task output records for your organization. Returns complete output data\nincluding summary, full output, tags, and status for each task that has produced output.\nResults are ordered by creation time (most recent first).\n\n## Important: No Pagination\n\nThis endpoint currently returns **ALL** task outputs in the organization without pagination.\nFor organizations with many flow executions, this may return large result sets. Pagination\nis planned for a future release. Consider using `GET /flow-executions/{id}` to filter by\nspecific flow execution.\n\n## What Are Task Outputs\n\nTask outputs represent the summarized, structured results of completed tasks:\n- **summary**: Structured data optimized for UI display and querying\n- **output**: Full output data for downstream task consumption\n- **tags**: Categorization metadata for filtering and organization\n- **status**: Task execution state when output was created\n\n## Filtering and Querying\n\nCurrently no query parameters are supported. To filter by flow execution, use\n`GET /flow-executions/{id}` which includes task outputs in response.\n\n**Planned enhancements**:\n- Filter by flow_execution_id\n- Filter by task_name\n- Filter by status\n- Pagination (limit, starting_after)\n- Date range filtering\n\n## Performance Considerations\n\n- Query returns all outputs (potentially thousands of records)\n- Results ordered by created_at desc (newest first)\n- Database query scoped to organization via RLS policies\n- Consider using `GET /flow-executions/{id}` for filtered results\n\n## Common Use Cases\n\n- Export all task outputs for audit or analysis\n- Debug output issues across multiple executions\n- Build organization-wide analytics dashboards\n- Bulk data extraction for external systems\n\n## Related Endpoints\n\n- `GET /task-outputs/{id}` - Get single task output by ID\n- `GET /flow-executions/{id}` - Get flow execution with filtered task outputs\n- `GET /task-executions` - Get full task execution details",
+              "type": "text/plain"
+            },
+            "url": {
+              "path": [
+                "api",
+                "task-outputs"
+              ],
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "query": [],
+              "variable": []
+            },
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "method": "GET",
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{bearerToken}}"
+                }
+              ]
+            }
+          },
+          "response": [
+            {
+              "id": "663435b6-8413-4f0a-b170-ad81f89276af",
+              "name": "List of task outputs successfully retrieved",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "api",
+                    "task-outputs"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [],
+                  "variable": []
+                },
+                "header": [
+                  {
+                    "description": {
+                      "content": "Added as a part of security scheme: bearer",
+                      "type": "text/plain"
+                    },
+                    "key": "Authorization",
+                    "value": "Bearer <token>"
+                  },
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "method": "GET",
+                "body": {}
+              },
+              "status": "OK",
+              "code": 200,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "[\n  {\n    \"id\": \"123e4567-e89b-12d3-a456-426614174000\",\n    \"flow_execution_id\": \"223e4567-e89b-12d3-a456-426614174000\",\n    \"task_name\": \"extract_data\",\n    \"summary\": {},\n    \"processing_status\": \"completed\",\n    \"edited_status\": \"not_edited\",\n    \"stale_status\": \"consistent\",\n    \"organization_id\": \"323e4567-e89b-12d3-a456-426614174000\",\n    \"output\": {},\n    \"tags\": {},\n    \"error\": {\n      \"message\": \"Webhook notification failed: HTTP 500 - Internal Server Error\"\n    },\n    \"created_at\": \"2014-12-26T03:09:18.934Z\",\n    \"updated_at\": \"1989-05-28T19:00:50.426Z\",\n    \"modified_by\": \"system\",\n    \"flow_version\": 4524\n  },\n  {\n    \"id\": \"123e4567-e89b-12d3-a456-426614174000\",\n    \"flow_execution_id\": \"223e4567-e89b-12d3-a456-426614174000\",\n    \"task_name\": \"extract_data\",\n    \"summary\": {},\n    \"processing_status\": \"completed\",\n    \"edited_status\": \"not_edited\",\n    \"stale_status\": \"consistent\",\n    \"organization_id\": \"323e4567-e89b-12d3-a456-426614174000\",\n    \"output\": {},\n    \"tags\": {},\n    \"error\": {\n      \"message\": \"Webhook notification failed: HTTP 500 - Internal Server Error\"\n    },\n    \"created_at\": \"2019-01-30T15:04:38.469Z\",\n    \"updated_at\": \"2006-08-16T02:57:37.814Z\",\n    \"modified_by\": \"system\",\n    \"flow_version\": 2941\n  }\n]",
+              "cookie": [],
+              "_postman_previewlanguage": "json"
+            },
+            {
+              "id": "e61b6ac8-f991-4022-8124-5d653fc08ad8",
+              "name": "Unauthorized - Missing or invalid authentication credentials",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "api",
+                    "task-outputs"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [],
+                  "variable": []
+                },
+                "header": [
+                  {
+                    "description": {
+                      "content": "Added as a part of security scheme: bearer",
+                      "type": "text/plain"
+                    },
+                    "key": "Authorization",
+                    "value": "Bearer <token>"
+                  },
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "method": "GET",
+                "body": {}
+              },
+              "status": "Unauthorized",
+              "code": 401,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"error\": {\n    \"message\": \"Authentication required\",\n    \"code\": \"unauthorized\"\n  },\n  \"request_id\": \"01K8KABR6S16YETA2SZPVBS9SP\"\n}",
+              "cookie": [],
+              "_postman_previewlanguage": "json"
+            },
+            {
+              "id": "0d7549c4-9838-4b5e-924b-c6498c2f1054",
+              "name": "Internal Server Error - An unexpected error occurred",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "api",
+                    "task-outputs"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [],
+                  "variable": []
+                },
+                "header": [
+                  {
+                    "description": {
+                      "content": "Added as a part of security scheme: bearer",
+                      "type": "text/plain"
+                    },
+                    "key": "Authorization",
+                    "value": "Bearer <token>"
+                  },
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "method": "GET",
+                "body": {}
+              },
+              "status": "Internal Server Error",
+              "code": 500,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"error\": {\n    \"message\": \"Internal server error\",\n    \"code\": \"internal_error\"\n  },\n  \"request_id\": \"01K8KABR6S16YETA2SZPVBS9SP\"\n}",
+              "cookie": [],
+              "_postman_previewlanguage": "json"
+            }
+          ],
+          "event": [],
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          }
+        },
+        {
+          "id": "00816fe7-a40e-4bbb-af75-c8e5033bfbd5",
+          "name": "Create task output",
+          "request": {
+            "name": "Create task output",
+            "description": {
+              "content": "Create a task output record for a completed task and notify connected clients.\n\nTask outputs represent the processed, summarized results of task executions. Unlike\ntask executions which track the full execution lifecycle (input, output, error, status),\ntask outputs focus on the final output data formatted for display, downstream consumption,\nand workflow decisions.\n\n## What Are Task Outputs\n\nTask outputs serve multiple purposes:\n- **Structured Results**: Store task results in a queryable format via the summary field\n- **Full Output Data**: Provide complete output for downstream task consumption\n- **Metadata Tracking**: Associate tags for categorization and filtering\n- **Real-time Updates**: Enable WebSocket notifications for UI progress tracking\n- **Workflow Logic**: Support decision-making based on task outcomes\n\n## Relationship to Task Executions\n\n- **Task Execution**: Full execution record (input, output, error, retries, timing)\n- **Task Output**: Summarized result optimized for querying and display\n- One task execution typically produces one task output upon completion\n- Task outputs are created by system workers after task completion\n\n## Notification Behavior\n\nThis endpoint triggers two types of WebSocket notifications asynchronously:\n1. **Flow-level notification**: Updates all clients subscribed to the flow's WebSocket\n2. **Enhanced notification**: Broadcasts to summary-watching clients for real-time updates\n\nNotifications are processed in the background to ensure fast response times (< 100ms).\n\n## Common Use Cases\n\n- Workers reporting task completion with structured output\n- Storing task results for display in execution history UI\n- Providing data for downstream task inputs in workflows\n- Triggering real-time progress updates\n- Enabling workflow decisions based on task outcomes\n\n## Related Endpoints\n\n- `GET /task-outputs` - List all task outputs\n- `GET /task-outputs/{id}` - Get single task output\n- `GET /flow-executions/{id}` - View parent flow execution\n- `GET /task-executions` - View full task execution details",
+              "type": "text/plain"
+            },
+            "url": {
+              "path": [
+                "api",
+                "task-outputs"
+              ],
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "query": [],
+              "variable": []
+            },
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "method": "POST",
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{bearerToken}}"
+                }
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"flow_execution_id\": \"<uuid>\",\n  \"task_name\": \"<string>\",\n  \"summary\": {},\n  \"organization_id\": \"<uuid>\",\n  \"created_at\": \"<dateTime>\",\n  \"updated_at\": \"<dateTime>\",\n  \"modified_by\": \"<string>\",\n  \"id\": \"<uuid>\",\n  \"output\": {},\n  \"tags\": {},\n  \"processing_status\": \"queued\",\n  \"edited_status\": \"not_edited\",\n  \"stale_status\": \"consistent\",\n  \"error\": {}\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": [
+            {
+              "id": "71dc4d95-42f3-42f3-8ff2-5c0683215046",
+              "name": "Task output successfully created",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "api",
+                    "task-outputs"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [],
+                  "variable": []
+                },
+                "header": [
+                  {
+                    "description": {
+                      "content": "Added as a part of security scheme: bearer",
+                      "type": "text/plain"
+                    },
+                    "key": "Authorization",
+                    "value": "Bearer <token>"
+                  },
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "method": "POST",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"flow_execution_id\": \"<uuid>\",\n  \"task_name\": \"<string>\",\n  \"summary\": {},\n  \"organization_id\": \"<uuid>\",\n  \"created_at\": \"<dateTime>\",\n  \"updated_at\": \"<dateTime>\",\n  \"modified_by\": \"<string>\",\n  \"id\": \"<uuid>\",\n  \"output\": {},\n  \"tags\": {},\n  \"processing_status\": \"queued\",\n  \"edited_status\": \"not_edited\",\n  \"stale_status\": \"consistent\",\n  \"error\": {}\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "status": "Created",
+              "code": 201,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"id\": \"123e4567-e89b-12d3-a456-426614174000\",\n  \"flow_execution_id\": \"223e4567-e89b-12d3-a456-426614174000\",\n  \"task_name\": \"extract_data\",\n  \"summary\": {},\n  \"processing_status\": \"completed\",\n  \"edited_status\": \"not_edited\",\n  \"stale_status\": \"consistent\",\n  \"organization_id\": \"323e4567-e89b-12d3-a456-426614174000\",\n  \"output\": {},\n  \"tags\": {},\n  \"error\": {\n    \"message\": \"Webhook notification failed: HTTP 500 - Internal Server Error\"\n  },\n  \"created_at\": \"2022-10-07T07:33:19.333Z\",\n  \"updated_at\": \"2002-01-20T12:34:43.330Z\",\n  \"modified_by\": \"system\",\n  \"flow_version\": 2444\n}",
+              "cookie": [],
+              "_postman_previewlanguage": "json"
+            },
+            {
+              "id": "7fa7ec4a-0f54-442c-be77-606f848a0128",
+              "name": "Bad Request - Invalid input parameters or request format",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "api",
+                    "task-outputs"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [],
+                  "variable": []
+                },
+                "header": [
+                  {
+                    "description": {
+                      "content": "Added as a part of security scheme: bearer",
+                      "type": "text/plain"
+                    },
+                    "key": "Authorization",
+                    "value": "Bearer <token>"
+                  },
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "method": "POST",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"flow_execution_id\": \"<uuid>\",\n  \"task_name\": \"<string>\",\n  \"summary\": {},\n  \"organization_id\": \"<uuid>\",\n  \"created_at\": \"<dateTime>\",\n  \"updated_at\": \"<dateTime>\",\n  \"modified_by\": \"<string>\",\n  \"id\": \"<uuid>\",\n  \"output\": {},\n  \"tags\": {},\n  \"processing_status\": \"queued\",\n  \"edited_status\": \"not_edited\",\n  \"stale_status\": \"consistent\",\n  \"error\": {}\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "status": "Bad Request",
+              "code": 400,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"error\": {\n    \"message\": \"Invalid request parameters\",\n    \"code\": \"bad_request\"\n  },\n  \"request_id\": \"01K8KABR6S16YETA2SZPVBS9SP\"\n}",
+              "cookie": [],
+              "_postman_previewlanguage": "json"
+            },
+            {
+              "id": "435fc9df-a5a4-4adf-9f7d-2d92864a0fdd",
+              "name": "Flow execution not found for the provided flow_execution_id",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "api",
+                    "task-outputs"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [],
+                  "variable": []
+                },
+                "header": [
+                  {
+                    "description": {
+                      "content": "Added as a part of security scheme: bearer",
+                      "type": "text/plain"
+                    },
+                    "key": "Authorization",
+                    "value": "Bearer <token>"
+                  }
+                ],
+                "method": "POST",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"flow_execution_id\": \"<uuid>\",\n  \"task_name\": \"<string>\",\n  \"summary\": {},\n  \"organization_id\": \"<uuid>\",\n  \"created_at\": \"<dateTime>\",\n  \"updated_at\": \"<dateTime>\",\n  \"modified_by\": \"<string>\",\n  \"id\": \"<uuid>\",\n  \"output\": {},\n  \"tags\": {},\n  \"processing_status\": \"queued\",\n  \"edited_status\": \"not_edited\",\n  \"stale_status\": \"consistent\",\n  \"error\": {}\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "status": "Not Found",
+              "code": 404,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "text/plain"
+                }
+              ],
+              "body": "",
+              "cookie": [],
+              "_postman_previewlanguage": "text"
+            },
+            {
+              "id": "fdd85ac3-a01d-497a-aab8-ffb05b234fd2",
+              "name": "Unprocessable Entity - Request validation failed",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "api",
+                    "task-outputs"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [],
+                  "variable": []
+                },
+                "header": [
+                  {
+                    "description": {
+                      "content": "Added as a part of security scheme: bearer",
+                      "type": "text/plain"
+                    },
+                    "key": "Authorization",
+                    "value": "Bearer <token>"
+                  },
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "method": "POST",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"flow_execution_id\": \"<uuid>\",\n  \"task_name\": \"<string>\",\n  \"summary\": {},\n  \"organization_id\": \"<uuid>\",\n  \"created_at\": \"<dateTime>\",\n  \"updated_at\": \"<dateTime>\",\n  \"modified_by\": \"<string>\",\n  \"id\": \"<uuid>\",\n  \"output\": {},\n  \"tags\": {},\n  \"processing_status\": \"queued\",\n  \"edited_status\": \"not_edited\",\n  \"stale_status\": \"consistent\",\n  \"error\": {}\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "status": "Unprocessable Entity (WebDAV) (RFC 4918)",
+              "code": 422,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"error\": {\n    \"message\": \"Request validation failed\",\n    \"code\": \"validation_error\",\n    \"details\": [\n      {\n        \"type\": \"missing\",\n        \"loc\": [\n          \"body\",\n          \"name\"\n        ],\n        \"msg\": \"Field required\"\n      }\n    ]\n  },\n  \"request_id\": \"01K8KABR6S16YETA2SZPVBS9SP\"\n}",
+              "cookie": [],
+              "_postman_previewlanguage": "json"
+            },
+            {
+              "id": "23849eb0-cdd6-4800-9945-ada29573811f",
+              "name": "Internal Server Error - An unexpected error occurred",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "api",
+                    "task-outputs"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [],
+                  "variable": []
+                },
+                "header": [
+                  {
+                    "description": {
+                      "content": "Added as a part of security scheme: bearer",
+                      "type": "text/plain"
+                    },
+                    "key": "Authorization",
+                    "value": "Bearer <token>"
+                  },
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "method": "POST",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"flow_execution_id\": \"<uuid>\",\n  \"task_name\": \"<string>\",\n  \"summary\": {},\n  \"organization_id\": \"<uuid>\",\n  \"created_at\": \"<dateTime>\",\n  \"updated_at\": \"<dateTime>\",\n  \"modified_by\": \"<string>\",\n  \"id\": \"<uuid>\",\n  \"output\": {},\n  \"tags\": {},\n  \"processing_status\": \"queued\",\n  \"edited_status\": \"not_edited\",\n  \"stale_status\": \"consistent\",\n  \"error\": {}\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "status": "Internal Server Error",
+              "code": 500,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"error\": {\n    \"message\": \"Internal server error\",\n    \"code\": \"internal_error\"\n  },\n  \"request_id\": \"01K8KABR6S16YETA2SZPVBS9SP\"\n}",
+              "cookie": [],
+              "_postman_previewlanguage": "json"
+            }
+          ],
+          "event": [],
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          }
+        },
+        {
+          "id": "87052ef0-793d-4e8c-85fc-229ff3f06360",
+          "name": "Get task output by ID",
+          "request": {
+            "name": "Get task output by ID",
+            "description": {
+              "content": "Retrieve a specific task output by its unique identifier.\n\nFetch a single task output record with complete output data, summary, tags, and metadata.\nUsed for inspecting individual task results, debugging, and retrieving output for\ndownstream processing.\n\n## Resource Identification\n\nTask outputs are uniquely identified by UUID (id field). To find task outputs by\nother criteria (flow execution, task name), use `GET /flow-executions/{id}` or\n`GET /task-outputs` (list all).\n\n## What You'll Get\n\n- **summary**: Structured task output summary for display\n- **output**: Full output data produced by task\n- **tags**: Associated metadata tags\n- **status**: Task execution state when output was created\n- **Timestamps**: created_at, updated_at for audit trail\n- **Organization context**: organization_id for multi-tenant isolation\n\n## Common Use Cases\n\n- Inspect task output for debugging or validation\n- Retrieve output data for manual review or corrections\n- Audit task execution history\n- Display detailed task results in UI\n\n## Related Endpoints\n\n- `GET /task-outputs` - List all task outputs\n- `GET /flow-executions/{id}` - View parent flow execution with all outputs\n- `GET /task-executions/{id}` - View full task execution details",
+              "type": "text/plain"
+            },
+            "url": {
+              "path": [
+                "api",
+                "task-outputs",
+                ":task_output_id"
+              ],
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "query": [],
+              "variable": [
+                {
+                  "disabled": false,
+                  "type": "any",
+                  "value": "<uuid>",
+                  "key": "task_output_id",
+                  "description": "(Required) Unique identifier of the task output to retrieve. UUID assigned when task output was created. Task outputs are scoped to organization; attempting to access another organization's output returns 404."
+                }
+              ]
+            },
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "method": "GET",
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{bearerToken}}"
+                }
+              ]
+            }
+          },
+          "response": [
+            {
+              "id": "fdd551b1-ad40-4c83-bb06-80e5f80386ca",
+              "name": "Task output successfully retrieved",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "api",
+                    "task-outputs",
+                    ":task_output_id"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [],
+                  "variable": [
+                    {
+                      "disabled": false,
+                      "type": "any",
+                      "value": "<uuid>",
+                      "key": "task_output_id",
+                      "description": "(Required) Unique identifier of the task output to retrieve. UUID assigned when task output was created. Task outputs are scoped to organization; attempting to access another organization's output returns 404."
+                    }
+                  ]
+                },
+                "header": [
+                  {
+                    "description": {
+                      "content": "Added as a part of security scheme: bearer",
+                      "type": "text/plain"
+                    },
+                    "key": "Authorization",
+                    "value": "Bearer <token>"
+                  },
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "method": "GET",
+                "body": {}
+              },
+              "status": "OK",
+              "code": 200,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"id\": \"123e4567-e89b-12d3-a456-426614174000\",\n  \"flow_execution_id\": \"223e4567-e89b-12d3-a456-426614174000\",\n  \"task_name\": \"extract_data\",\n  \"summary\": {},\n  \"processing_status\": \"completed\",\n  \"edited_status\": \"not_edited\",\n  \"stale_status\": \"consistent\",\n  \"organization_id\": \"323e4567-e89b-12d3-a456-426614174000\",\n  \"output\": {},\n  \"tags\": {},\n  \"error\": {\n    \"message\": \"Webhook notification failed: HTTP 500 - Internal Server Error\"\n  },\n  \"created_at\": \"2022-10-07T07:33:19.333Z\",\n  \"updated_at\": \"2002-01-20T12:34:43.330Z\",\n  \"modified_by\": \"system\",\n  \"flow_version\": 2444\n}",
+              "cookie": [],
+              "_postman_previewlanguage": "json"
+            },
+            {
+              "id": "94f9511f-37ad-4b26-8e23-fd8a02dd3068",
+              "name": "Unauthorized - Missing or invalid authentication credentials",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "api",
+                    "task-outputs",
+                    ":task_output_id"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [],
+                  "variable": [
+                    {
+                      "disabled": false,
+                      "type": "any",
+                      "value": "<uuid>",
+                      "key": "task_output_id",
+                      "description": "(Required) Unique identifier of the task output to retrieve. UUID assigned when task output was created. Task outputs are scoped to organization; attempting to access another organization's output returns 404."
+                    }
+                  ]
+                },
+                "header": [
+                  {
+                    "description": {
+                      "content": "Added as a part of security scheme: bearer",
+                      "type": "text/plain"
+                    },
+                    "key": "Authorization",
+                    "value": "Bearer <token>"
+                  },
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "method": "GET",
+                "body": {}
+              },
+              "status": "Unauthorized",
+              "code": 401,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"error\": {\n    \"message\": \"Authentication required\",\n    \"code\": \"unauthorized\"\n  },\n  \"request_id\": \"01K8KABR6S16YETA2SZPVBS9SP\"\n}",
+              "cookie": [],
+              "_postman_previewlanguage": "json"
+            },
+            {
+              "id": "76e58d5b-8aba-4bb6-ba27-b6578756048b",
+              "name": "Forbidden - Insufficient permissions to access this resource",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "api",
+                    "task-outputs",
+                    ":task_output_id"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [],
+                  "variable": [
+                    {
+                      "disabled": false,
+                      "type": "any",
+                      "value": "<uuid>",
+                      "key": "task_output_id",
+                      "description": "(Required) Unique identifier of the task output to retrieve. UUID assigned when task output was created. Task outputs are scoped to organization; attempting to access another organization's output returns 404."
+                    }
+                  ]
+                },
+                "header": [
+                  {
+                    "description": {
+                      "content": "Added as a part of security scheme: bearer",
+                      "type": "text/plain"
+                    },
+                    "key": "Authorization",
+                    "value": "Bearer <token>"
+                  },
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "method": "GET",
+                "body": {}
+              },
+              "status": "Forbidden",
+              "code": 403,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"error\": {\n    \"message\": \"You do not have permission to access this resource\",\n    \"code\": \"forbidden\"\n  },\n  \"request_id\": \"01K8KABR6S16YETA2SZPVBS9SP\"\n}",
+              "cookie": [],
+              "_postman_previewlanguage": "json"
+            },
+            {
+              "id": "a8c36763-93ba-4def-9553-ebf2942c3bf2",
+              "name": "Task output not found or belongs to a different organization",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "api",
+                    "task-outputs",
+                    ":task_output_id"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [],
+                  "variable": [
+                    {
+                      "disabled": false,
+                      "type": "any",
+                      "value": "<uuid>",
+                      "key": "task_output_id",
+                      "description": "(Required) Unique identifier of the task output to retrieve. UUID assigned when task output was created. Task outputs are scoped to organization; attempting to access another organization's output returns 404."
+                    }
+                  ]
+                },
+                "header": [
+                  {
+                    "description": {
+                      "content": "Added as a part of security scheme: bearer",
+                      "type": "text/plain"
+                    },
+                    "key": "Authorization",
+                    "value": "Bearer <token>"
+                  }
+                ],
+                "method": "GET",
+                "body": {}
+              },
+              "status": "Not Found",
+              "code": 404,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "text/plain"
+                }
+              ],
+              "body": "",
+              "cookie": [],
+              "_postman_previewlanguage": "text"
+            },
+            {
+              "id": "94d877f4-60c8-4c8a-88da-ec68e47029b8",
+              "name": "Unprocessable Entity - Request validation failed",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "api",
+                    "task-outputs",
+                    ":task_output_id"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [],
+                  "variable": [
+                    {
+                      "disabled": false,
+                      "type": "any",
+                      "value": "<uuid>",
+                      "key": "task_output_id",
+                      "description": "(Required) Unique identifier of the task output to retrieve. UUID assigned when task output was created. Task outputs are scoped to organization; attempting to access another organization's output returns 404."
+                    }
+                  ]
+                },
+                "header": [
+                  {
+                    "description": {
+                      "content": "Added as a part of security scheme: bearer",
+                      "type": "text/plain"
+                    },
+                    "key": "Authorization",
+                    "value": "Bearer <token>"
+                  },
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "method": "GET",
+                "body": {}
+              },
+              "status": "Unprocessable Entity (WebDAV) (RFC 4918)",
+              "code": 422,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"error\": {\n    \"message\": \"Request validation failed\",\n    \"code\": \"validation_error\",\n    \"details\": [\n      {\n        \"type\": \"missing\",\n        \"loc\": [\n          \"body\",\n          \"name\"\n        ],\n        \"msg\": \"Field required\"\n      }\n    ]\n  },\n  \"request_id\": \"01K8KABR6S16YETA2SZPVBS9SP\"\n}",
+              "cookie": [],
+              "_postman_previewlanguage": "json"
+            },
+            {
+              "id": "6aad5919-21ed-473c-a37e-23db34b62876",
+              "name": "Internal Server Error - An unexpected error occurred",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "api",
+                    "task-outputs",
+                    ":task_output_id"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [],
+                  "variable": [
+                    {
+                      "disabled": false,
+                      "type": "any",
+                      "value": "<uuid>",
+                      "key": "task_output_id",
+                      "description": "(Required) Unique identifier of the task output to retrieve. UUID assigned when task output was created. Task outputs are scoped to organization; attempting to access another organization's output returns 404."
+                    }
+                  ]
+                },
+                "header": [
+                  {
+                    "description": {
+                      "content": "Added as a part of security scheme: bearer",
+                      "type": "text/plain"
+                    },
+                    "key": "Authorization",
+                    "value": "Bearer <token>"
+                  },
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "method": "GET",
+                "body": {}
+              },
+              "status": "Internal Server Error",
+              "code": 500,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"error\": {\n    \"message\": \"Internal server error\",\n    \"code\": \"internal_error\"\n  },\n  \"request_id\": \"01K8KABR6S16YETA2SZPVBS9SP\"\n}",
+              "cookie": [],
+              "_postman_previewlanguage": "json"
+            }
+          ],
+          "event": [],
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          }
+        }
+      ],
+      "event": []
+    }
+  ],
+  "event": [],
+  "variable": [
+    {
+      "type": "string",
+      "value": "/",
+      "key": "baseUrl"
+    }
+  ],
+  "info": {
+    "_postman_id": "47068794-ba9e-4512-9770-04170a2e5bff",
+    "name": "SuperAI Flow Platform auth task-outputs API",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "description": {
+      "content": "SuperAI Flows is a workflow orchestration platform that enables you to design, deploy, and monitor automated workflows at scale.\n\nBuild complex workflows using our declarative YAML DSL, execute them reliably, and integrate seamlessly with AI models, cloud storage, and enterprise systems.\n\n**Key Capabilities:**\n- **Workflow Management**: Define workflows as code with version control and automated execution\n- **Task Orchestration**: Chain together API calls, data processing, and AI operations\n- **Real-time Monitoring**: Track execution progress with WebSocket notifications and comprehensive logging\n- **Multi-tenant Architecture**: Organization-scoped resources with role-based access control\n\n**API Versioning and Breaking Changes:**\n\nWe follow a strict compatibility policy to ensure your integrations remain stable:\n\n- **Non-breaking changes** (safe, no action required):\n  - Adding new API endpoints\n  - Adding new optional query parameters to existing endpoints\n  - Adding new fields to API responses\n  - Adding new values to existing enums\n\n- **Breaking changes** (requires client updates):\n  - Removing or renaming API endpoints\n  - Removing query parameters or request fields\n  - Removing response fields\n  - Changing field types or validation rules\n  - Removing values from existing enums\n\n**Client Implementation Requirements:**\n\nYour API clients MUST be designed to gracefully handle additional fields in responses. We may add new fields to any response object without considering this a breaking change. Ensure your JSON parsers ignore unknown fields rather than raising errors.\n\n**Backward Compatibility Guarantee:**\n\nWe commit to maintaining backward compatibility for all non-breaking changes. Breaking changes will be:\n- Announced at least 15 days in advance\n- Documented in our changelog with migration guide\n\nFor the latest API updates and migration guides, see our changelog.",
+      "type": "text/plain"
+    }
+  }
+}

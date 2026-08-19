@@ -1,0 +1,66 @@
+{
+  "opencollection": "1.0.0",
+  "info": {
+    "name": "SuperAI Flow Platform auth task-tags API",
+    "version": "0.1.0"
+  },
+  "items": [
+    {
+      "info": {
+        "name": "task-tags",
+        "type": "folder"
+      },
+      "items": [
+        {
+          "info": {
+            "name": "List active task tags for a flow execution",
+            "type": "http"
+          },
+          "http": {
+            "method": "GET",
+            "url": "{{baseUrl}}/api/task-tags",
+            "params": [
+              {
+                "name": "flow_execution_id",
+                "value": "",
+                "type": "query",
+                "description": "Unique identifier of the flow execution to query tags from. Required parameter; returns all active tags for this execution. Combine with task_name to filter to a specific task. \n\nFiltering: Queries automatically scoped to user's organization via RLS. Attempting to access another organization's execution returns 404. \n\nResponse: All active tags (status='active') for the execution. Soft-deleted tags (status='deleted') are excluded automatically."
+              },
+              {
+                "name": "task_name",
+                "value": "",
+                "type": "query",
+                "description": "Optional task name to filter tags by specific task. Case-sensitive; must match task name exactly as defined in flow YAML. Omit to return tags for all tasks in the flow execution. \n\nFiltering behavior:\n- Specified: Returns only tags for this task_name\n- Omitted: Returns tags for all tasks in flow execution\n\nCombines with flow_execution_id using AND logic. \n\nExample: task_name='extract_data' returns tags only for that task. Useful for checking task-specific workflow states (is task reviewed?)."
+              }
+            ],
+            "auth": {
+              "type": "bearer",
+              "token": "{{bearerToken}}"
+            }
+          },
+          "docs": "List all active tags for task executions within a flow execution.\n\n**Overview**\nRetrieve tags associated with task executions in a specific flow execution.\nResults can be filtered to a single task or return all tasks' tags. Only\nactive tags are returned; soft-deleted tags (status='deleted') are excluded.\n\n**What are Task Tags?**\nTask tags provide flexible categorization and workflow state for task executions:\n- Review status: 'reviewed', 'approved', 'rejected'\n- Quality flags: 'quality_checked',"
+        },
+        {
+          "info": {
+            "name": "Add or remove task tags in batch",
+            "type": "http"
+          },
+          "http": {
+            "method": "PATCH",
+            "url": "{{baseUrl}}/api/task-tags",
+            "body": {
+              "type": "json",
+              "data": "{}"
+            },
+            "auth": {
+              "type": "bearer",
+              "token": "{{bearerToken}}"
+            }
+          },
+          "docs": "Add or remove tags from task executions in batch operations.\n\n**Overview**\nTask tags provide flexible categorization and workflow state tracking for task executions.\nTags enable custom workflows like review/approval processes, quality assurance, and\nbusiness-specific categorization. This endpoint supports batch operations to efficiently\nadd or remove multiple tags in a single request.\n\n**What are Task Tags?**\nTask tags are key-value metadata attached to task executions for:\n- Workflow state trac"
+        }
+      ]
+    }
+  ],
+  "bundled": true
+}

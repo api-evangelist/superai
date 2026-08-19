@@ -1,0 +1,44 @@
+{
+  "opencollection": "1.0.0",
+  "info": {
+    "name": "SuperAI Flow Platform auth webhook-data API",
+    "version": "0.1.0"
+  },
+  "items": [
+    {
+      "info": {
+        "name": "webhook-data",
+        "type": "folder"
+      },
+      "items": [
+        {
+          "info": {
+            "name": "Submit webhook data for a waiting task",
+            "type": "http"
+          },
+          "http": {
+            "method": "POST",
+            "url": "{{baseUrl}}/api/flow-executions/:flow_execution_id/webhook-data",
+            "params": [
+              {
+                "name": "flow_execution_id",
+                "value": "",
+                "type": "path"
+              }
+            ],
+            "body": {
+              "type": "json",
+              "data": "{}"
+            },
+            "auth": {
+              "type": "bearer",
+              "token": "{{bearerToken}}"
+            }
+          },
+          "docs": "Push data to a flow execution's waiting \"Wait for Webhook\" task.\n\nThe flow pauses when it reaches a webhook receiver task and resumes with\nthe submitted `data` as the task's output. Data may also be submitted\nbefore the flow reaches the task; it is stored and picked up when the task\nruns.\n\nDelivery contract:\n    - A 2xx response means the data is durably stored and will not be lost.\n    - Retrying with the identical body is safe and idempotent (returns\n      status 'duplicate').\n    - Retry on 5"
+        }
+      ]
+    }
+  ],
+  "bundled": true
+}

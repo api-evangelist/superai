@@ -1,0 +1,52 @@
+{
+  "opencollection": "1.0.0",
+  "info": {
+    "name": "SuperAI Flow Platform auth profile API",
+    "version": "0.1.0"
+  },
+  "items": [
+    {
+      "info": {
+        "name": "profile",
+        "type": "folder"
+      },
+      "items": [
+        {
+          "info": {
+            "name": "Get current user profile",
+            "type": "http"
+          },
+          "http": {
+            "method": "GET",
+            "url": "{{baseUrl}}/api/profile/me",
+            "auth": {
+              "type": "bearer",
+              "token": "{{bearerToken}}"
+            }
+          },
+          "docs": "Retrieve complete profile information for the currently authenticated user.\n\nReturns the full user profile including personal information, role, status,\norganization membership with organization name, AND landing page configuration\nfor workers.\n\nContext:\n    - Returns user regardless of active/inactive/pending status\n    - Includes organization_id AND organization_name for multi-tenant access control\n    - Organization name used by frontend to enable/disable features (e.g., \"super-ai\" org)\n    -"
+        },
+        {
+          "info": {
+            "name": "Update current user profile",
+            "type": "http"
+          },
+          "http": {
+            "method": "PATCH",
+            "url": "{{baseUrl}}/api/profile/me",
+            "body": {
+              "type": "json",
+              "data": "{}"
+            },
+            "auth": {
+              "type": "bearer",
+              "token": "{{bearerToken}}"
+            }
+          },
+          "docs": "Update the currently authenticated user's profile information.\n\nAllows users to modify their personal information including first and last name.\nOnly the fields provided in the request body will be updated. Omitted fields\nremain unchanged. The user is automatically identified from their authentication credentials.\n\nContext:\n    - Only first_name and last_name can be updated via this endpoint\n    - Password field in request body is reserved for future use (not implemented)\n    - Email, role, stat"
+        }
+      ]
+    }
+  ],
+  "bundled": true
+}

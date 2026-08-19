@@ -1,0 +1,219 @@
+{
+  "opencollection": "1.0.0",
+  "info": {
+    "name": "SuperAI Flow Platform auth organizations API",
+    "version": "0.1.0"
+  },
+  "items": [
+    {
+      "info": {
+        "name": "organizations",
+        "type": "folder"
+      },
+      "items": [
+        {
+          "info": {
+            "name": "List all worker groups",
+            "type": "http"
+          },
+          "http": {
+            "method": "GET",
+            "url": "{{baseUrl}}/api/organizations/worker-groups",
+            "params": [
+              {
+                "name": "offset",
+                "value": "",
+                "type": "query",
+                "description": "Number of records to skip."
+              },
+              {
+                "name": "limit",
+                "value": "",
+                "type": "query",
+                "description": "Maximum number of records to return."
+              }
+            ],
+            "auth": {
+              "type": "bearer",
+              "token": "{{bearerToken}}"
+            }
+          },
+          "docs": "List all worker groups for the current organization (paginated)."
+        },
+        {
+          "info": {
+            "name": "Create a worker group",
+            "type": "http"
+          },
+          "http": {
+            "method": "POST",
+            "url": "{{baseUrl}}/api/organizations/worker-groups",
+            "body": {
+              "type": "json",
+              "data": "{}"
+            },
+            "auth": {
+              "type": "bearer",
+              "token": "{{bearerToken}}"
+            }
+          },
+          "docs": "Create a new worker group in the current organization."
+        },
+        {
+          "info": {
+            "name": "Get a worker group",
+            "type": "http"
+          },
+          "http": {
+            "method": "GET",
+            "url": "{{baseUrl}}/api/organizations/worker-groups/:group_id",
+            "params": [
+              {
+                "name": "group_id",
+                "value": "",
+                "type": "path"
+              }
+            ],
+            "auth": {
+              "type": "bearer",
+              "token": "{{bearerToken}}"
+            }
+          },
+          "docs": "Get details of a specific worker group including its members."
+        },
+        {
+          "info": {
+            "name": "Update a worker group",
+            "type": "http"
+          },
+          "http": {
+            "method": "PUT",
+            "url": "{{baseUrl}}/api/organizations/worker-groups/:group_id",
+            "params": [
+              {
+                "name": "group_id",
+                "value": "",
+                "type": "path"
+              }
+            ],
+            "body": {
+              "type": "json",
+              "data": "{}"
+            },
+            "auth": {
+              "type": "bearer",
+              "token": "{{bearerToken}}"
+            }
+          },
+          "docs": "Update a worker group's name and/or description."
+        },
+        {
+          "info": {
+            "name": "Delete a worker group",
+            "type": "http"
+          },
+          "http": {
+            "method": "DELETE",
+            "url": "{{baseUrl}}/api/organizations/worker-groups/:group_id",
+            "params": [
+              {
+                "name": "group_id",
+                "value": "",
+                "type": "path"
+              }
+            ],
+            "auth": {
+              "type": "bearer",
+              "token": "{{bearerToken}}"
+            }
+          },
+          "docs": "Soft-delete a worker group. Existing HITL task assignments are preserved."
+        },
+        {
+          "info": {
+            "name": "Add or remove members from a worker group",
+            "type": "http"
+          },
+          "http": {
+            "method": "POST",
+            "url": "{{baseUrl}}/api/organizations/worker-groups/:group_id/members",
+            "params": [
+              {
+                "name": "group_id",
+                "value": "",
+                "type": "path"
+              }
+            ],
+            "body": {
+              "type": "json",
+              "data": "{}"
+            },
+            "auth": {
+              "type": "bearer",
+              "token": "{{bearerToken}}"
+            }
+          },
+          "docs": "Add and/or remove members from a worker group in a single call.\n\nUsers in add_user_ids that are already members are silently skipped.\nUsers in remove_user_ids that are not members are silently ignored."
+        },
+        {
+          "info": {
+            "name": "Get credit balance for current user's organization",
+            "type": "http"
+          },
+          "http": {
+            "method": "GET",
+            "url": "{{baseUrl}}/api/organizations/credits",
+            "auth": {
+              "type": "bearer",
+              "token": "{{bearerToken}}"
+            }
+          },
+          "docs": "Get credit balance for the current user's organization.\n\nReturns the current credit balance including grants, consumption, and remaining credits\nfor the authenticated user's organization. Consumption is read from the\ncredit_usage_summary materialized view, refreshed every 10 minutes.\n\n**Authorization**:\n- Organization admins and users can view their own organization's credits\n- RLS policies enforce organization-level data isolation at database level\n\n**Context**:\n- Credits are tracked at the org"
+        },
+        {
+          "info": {
+            "name": "Update organization settings",
+            "type": "http"
+          },
+          "http": {
+            "method": "PUT",
+            "url": "{{baseUrl}}/api/organizations/settings",
+            "body": {
+              "type": "json",
+              "data": "{}"
+            },
+            "auth": {
+              "type": "bearer",
+              "token": "{{bearerToken}}"
+            }
+          },
+          "docs": "Update organization settings.\n\nThis endpoint replaces settings in the organization's settings JSONB column.\nOnly admins can update settings. Uses JWT token to identify the organization.\n\nConfiguration Options for worker_landing_page:\n    - hub: Workers land on the Hub page\n    - assigned_flow_data_tab: Workers land on their assigned flow's Data Tab\n    - assigned_flow_work_tab: Workers land on their assigned flow's Work Tab\n\nReturns:\n    Full organization object with updated settings\n\nNote:\n    "
+        },
+        {
+          "info": {
+            "name": "Get organization by ID",
+            "type": "http"
+          },
+          "http": {
+            "method": "GET",
+            "url": "{{baseUrl}}/api/organizations/:organization_id",
+            "params": [
+              {
+                "name": "organization_id",
+                "value": "550e8400-e29b-41d4-a716-446655440000",
+                "type": "path",
+                "description": "Unique identifier of the organization to retrieve. Must be a valid UUID format."
+              }
+            ],
+            "auth": {
+              "type": "bearer",
+              "token": "{{bearerToken}}"
+            }
+          },
+          "docs": "Retrieve detailed information for a specific organization.\n\nFetches complete metadata for a single organization using its unique identifier.\nUse this to verify organization existence, check active status, or retrieve\norganization details before performing related operations.\n\nContext:\n    - Returns organization regardless of active/inactive status\n    - Does not include user count or related entity counts\n    - Organization ID must be a valid UUID\n\nBehavior:\n    1. Validates organization_id is v"
+        }
+      ]
+    }
+  ],
+  "bundled": true
+}
