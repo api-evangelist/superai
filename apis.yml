@@ -47,6 +47,16 @@ tags:
 - Document Processing
 - Workflow Orchestration
 - Automation
+- Human-in-the-Loop
+- Artificial Intelligence
+- REST API
+tags_raw:
+- Company
+- Ai Enterprise Software
+- Intelligent Document Processing
+- Document Processing
+- Workflow Orchestration
+- Automation
 - Human In The Loop
 - Artificial Intelligence
 - REST API
@@ -124,6 +134,8 @@ apis:
   humanURL: https://docs.flows.super.ai
   baseURL: https://flows.super.ai/api
   tags:
+  - Authentication
+  tags_raw:
   - auth
   properties:
   - type: OpenAPI
@@ -197,6 +209,8 @@ apis:
   humanURL: https://docs.flows.super.ai
   baseURL: https://flows.super.ai/api
   tags:
+  - File
+  tags_raw:
   - files
   properties:
   - type: OpenAPI
@@ -293,6 +307,8 @@ apis:
   humanURL: https://docs.flows.super.ai
   baseURL: https://flows.super.ai/api
   tags:
+  - Flows
+  tags_raw:
   - flows
   properties:
   - type: OpenAPI
@@ -373,6 +389,8 @@ apis:
   humanURL: https://docs.flows.super.ai
   baseURL: https://flows.super.ai/api
   tags:
+  - Integration
+  tags_raw:
   - integrations
   properties:
   - type: OpenAPI
@@ -423,6 +441,8 @@ apis:
   humanURL: https://docs.flows.super.ai
   baseURL: https://flows.super.ai/api
   tags:
+  - Models
+  tags_raw:
   - models
   properties:
   - type: OpenAPI
@@ -437,6 +457,8 @@ apis:
   humanURL: https://docs.flows.super.ai
   baseURL: https://flows.super.ai/api
   tags:
+  - Organization
+  tags_raw:
   - organizations
   properties:
   - type: OpenAPI
@@ -451,6 +473,8 @@ apis:
   humanURL: https://docs.flows.super.ai
   baseURL: https://flows.super.ai/api
   tags:
+  - Plugins
+  tags_raw:
   - plugins
   properties:
   - type: OpenAPI
@@ -501,6 +525,8 @@ apis:
   humanURL: https://docs.flows.super.ai
   baseURL: https://flows.super.ai/api
   tags:
+  - Profile
+  tags_raw:
   - profile
   properties:
   - type: OpenAPI
@@ -515,6 +541,8 @@ apis:
   humanURL: https://docs.flows.super.ai
   baseURL: https://flows.super.ai/api
   tags:
+  - Service Accounts
+  tags_raw:
   - service-accounts
   properties:
   - type: OpenAPI
@@ -529,6 +557,8 @@ apis:
   humanURL: https://docs.flows.super.ai
   baseURL: https://flows.super.ai/api
   tags:
+  - SSO
+  tags_raw:
   - sso
   properties:
   - type: OpenAPI
@@ -613,6 +643,8 @@ apis:
   humanURL: https://docs.flows.super.ai
   baseURL: https://flows.super.ai/api
   tags:
+  - TaskData
+  tags_raw:
   - task-data
   properties:
   - type: OpenAPI
@@ -661,6 +693,8 @@ apis:
   humanURL: https://docs.flows.super.ai
   baseURL: https://flows.super.ai/api
   tags:
+  - Task Executions
+  tags_raw:
   - task-executions
   properties:
   - type: OpenAPI
@@ -829,6 +863,8 @@ apis:
   humanURL: https://docs.flows.super.ai
   baseURL: https://flows.super.ai/api
   tags:
+  - Worker Groups
+  tags_raw:
   - worker-groups
   properties:
   - type: OpenAPI
