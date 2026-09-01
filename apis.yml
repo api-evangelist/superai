@@ -59,7 +59,7 @@ tags:
 - Document Processing
 - Workflow Orchestration
 - Automation
-- Human In The Loop
+- Human-in-the-Loop
 - Artificial Intelligence
 - REST API
 tags_raw:
@@ -553,7 +553,7 @@ apis:
   humanURL: https://docs.flows.super.ai
   baseURL: https://flows.super.ai/api
   tags:
-  - service-accounts
+  - Service Accounts
   tags_raw:
   - service-accounts
   properties:
@@ -655,7 +655,7 @@ apis:
   humanURL: https://docs.flows.super.ai
   baseURL: https://flows.super.ai/api
   tags:
-  - task-data
+  - TaskData
   tags_raw:
   - task-data
   properties:
@@ -705,7 +705,7 @@ apis:
   humanURL: https://docs.flows.super.ai
   baseURL: https://flows.super.ai/api
   tags:
-  - task-executions
+  - Task Executions
   tags_raw:
   - task-executions
   properties:
@@ -877,7 +877,7 @@ apis:
   humanURL: https://docs.flows.super.ai
   baseURL: https://flows.super.ai/api
   tags:
-  - worker-groups
+  - Worker Groups
   tags_raw:
   - worker-groups
   properties:
