@@ -894,6 +894,8 @@ maintainers:
 - FN: APIs.json
   email: info@apis.io
 common:
+- type: Website
+  url: https://www.super.ai/
 - type: VulnerabilityDisclosure
   url: security/superai-vulnerability-disclosure.yml
 - type: DomainSecurity
