@@ -320,7 +320,7 @@ apis:
   humanURL: https://docs.flows.super.ai
   baseURL: https://flows.super.ai/api
   tags:
-  - Flows
+  - Flow
   tags_raw:
   - flows
   properties:
@@ -538,7 +538,7 @@ apis:
   humanURL: https://docs.flows.super.ai
   baseURL: https://flows.super.ai/api
   tags:
-  - Profile
+  - Profiles
   tags_raw:
   - profile
   properties:
