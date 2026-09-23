@@ -1,84 +1,104 @@
-openapi: 3.1.0
+openapi: 3.2.0
 info:
-  title: SuperAI Flow Platform auth task-data API
-  description: "SuperAI Flows is a workflow orchestration platform that enables you to design, deploy, and monitor automated workflows at scale.\n\nBuild complex workflows using our declarative YAML DSL, execute them reliably, and integrate seamlessly with AI models, cloud storage, and enterprise systems.\n\n**Key Capabilities:**\n- **Workflow Management**: Define workflows as code with version control and automated execution\n- **Task Orchestration**: Chain together API calls, data processing, and AI operations\n- **Real-time Monitoring**: Track execution progress with WebSocket notifications and comprehensive logging\n- **Multi-tenant Architecture**: Organization-scoped resources with role-based access control\n\n**API Versioning and Breaking Changes:**\n\nWe follow a strict compatibility policy to ensure your integrations remain stable:\n\n- **Non-breaking changes** (safe, no action required):\n  - Adding new API endpoints\n  - Adding new optional query parameters to existing endpoints\n  - Adding new fields to API responses\n  - Adding new values to existing enums\n\n- **Breaking changes** (requires client updates):\n  - Removing or renaming API endpoints\n  - Removing query parameters or request fields\n  - Removing response fields\n  - Changing field types or validation rules\n  - Removing values from existing enums\n\n**Client Implementation Requirements:**\n\nYour API clients MUST be designed to gracefully handle additional fields in responses. We may add new fields to any response object without considering this a breaking change. Ensure your JSON parsers ignore unknown fields rather than raising errors.\n\n**Backward Compatibility Guarantee:**\n\nWe commit to maintaining backward compatibility for all non-breaking changes. Breaking changes will be:\n- Announced at least 15 days in advance\n- Documented in our changelog with migration guide\n\nFor the latest API updates and migration guides, see our changelog."
+  title: SuperAI Flow Platform Task Data API
+  description: SuperAI Flows is a workflow orchestration platform that enables you to design, deploy, and monitor automated workflows at scale.
   version: 0.1.0
 tags:
-- name: task-data
-  description: 'Task data operations for flow validation, schema discovery, and dynamic configuration.
-
-
-    The task-data endpoint analyzes flow definitions to extract task output schemas, dynamic configuration options, and validation errors. This is essential for building flow configuration UIs, validating flows before execution, and understanding task data structures.
-
-
-    **Primary Use Cases:**
-
-    - **Flow Builder UI**: Get task output schemas for validating downstream task inputs
-
-    - **Schema Discovery**: Understand the structure of data each task produces
-
-    - **Dynamic Configuration**: Retrieve runtime-dependent options (e.g., available spreadsheets, database tables)
-
-    - **Flow Validation**: Validate flow definitions programmatically before saving or executing
-
-    - **Custom Integrations**: Build tools that work with SuperAI Flows programmatically
-
-
-    **What You Get:**
-
-    - **Output Schemas**: JSON Schema definitions for each task''s output structure
-
-    - **Dynamic Data**: Runtime-dependent configuration options (dropdown choices, conditional fields)
-
-    - **Validation Errors**: Detailed error messages for invalid flow definitions
-
-
-    **How It Works:**
-
-    1. Submit a flow definition in SuperAI Flows DSL format
-
-    2. The endpoint validates the structure and loads each task executor
-
-    3. For each task, it extracts the output schema and any dynamic configuration data
-
-    4. Returns all schemas, dynamic data, and any validation errors encountered
-
-
-    **Key Concepts:**
-
-    - **Output Schema**: JSON Schema describing the structure of data a task produces
-
-    - **Dynamic Data**: Configuration options that depend on user credentials or external state (e.g., list of Google Sheets accessible with your credentials)
-
-    - **Validation Levels**: Basic (structure only) vs Full (includes semantic validation)
-
-
-    **Integration Notes:**
-
-    - The flow builder frontend uses this endpoint to power the task configuration UI
-
-    - Flows API uses this validation internally when creating/updating flows
-
-    - Response includes validation errors even on HTTP 200 - always check `validation_errors` field
-
-    - May make external API calls to fetch dynamic data, so response time varies (100ms-2s typical)
-
-
-    **Related Endpoints:**
-
-    - `GET /task-executors`: List available task executor types and their schemas
-
-    - `POST /flows`: Create flow (uses task-data validation internally)
-
-    - `PUT /flows/{flow_id}`: Update flow (uses task-data validation internally)'
+- name: Task Data
+  description: Task data operations for flow validation, schema discovery, and dynamic configuration.
   x-displayName: Task Data
 paths:
   /api/task-data:
     post:
       tags:
-      - task-data
+      - Task Data
       summary: Analyze flow definition and extract schemas
-      description: "Analyze a flow definition to extract task output schemas, dynamic data, and validation errors.\n\n**Overview**\nThis endpoint validates a flow definition and returns metadata needed for flow building,\nexecution planning, and UI generation. It processes all tasks in the flow definition to\nextract their output schemas (for type validation), dynamic configuration data (for UI\ndropdowns and conditional fields), and any structural or semantic validation errors.\n\n**Use Cases**\n- **Flow Builder UI**: Get task output schemas for downstream task input validation\n- **Dynamic Configuration**: Retrieve runtime-dependent options (e.g., available spreadsheets, databases)\n- **Flow Validation**: Check for errors before saving or executing a flow\n- **Schema Discovery**: Understand what data each task will produce\n- **Custom Integrations**: Programmatically validate and analyze flow definitions\n\n**How It Works**\n1. Parses and validates the flow definition structure (basic validation)\n2. For each task in the flow:\n   - Loads the task executor implementation\n   - Calls the executor's `get_output_model()` to get the output schema\n   - Calls the executor's dynamic data methods (if available) to get runtime options\n   - Collects any errors encountered during schema/data extraction\n3. If `full_validation=true`, performs additional semantic validation (checks task\n   parameter values, validates connections between tasks, etc.)\n4. Returns all schemas, dynamic data, and validation errors in a single response\n\n**Dynamic Data Explained**\nDynamic data represents configuration options that depend on external state or user\ncredentials. For example:\n- Google Sheets task: List of spreadsheets accessible with user's credentials\n- Database task: List of available tables/columns\n- API task: Available endpoints or data models from connected service\n\n**Validation Levels**\n- **Basic (default)**: Structure validation only (required fields, data types)\n- **Full (`full_validation=true`)**: Includes semantic validation (valid references,\n  parameter constraints, external resource availability)\n\n**Performance Notes**\n- May make external API calls to fetch dynamic data (e.g., Google Sheets API)\n- Response time varies based on number of tasks and external service latency\n- Typical response time: 100ms-2s depending on task executors used\n\n**Related Endpoints**\n- `POST /flows` - Create flow (uses this endpoint's validation internally)\n- `PUT /flows/{flow_id}` - Update flow (uses this endpoint's validation internally)\n- `GET /task-executors` - List available task executors"
+      description: 'Analyze a flow definition to extract task output schemas, dynamic data, and validation errors.
+
+
+        **Overview**
+
+        This endpoint validates a flow definition and returns metadata needed for flow building,
+
+        execution planning, and UI generation. It processes all tasks in the flow definition to
+
+        extract their output schemas (for type validation), dynamic configuration data (for UI
+
+        dropdowns and conditional fields), and any structural or semantic validation errors.
+
+
+        **Use Cases**
+
+        - **Flow Builder UI**: Get task output schemas for downstream task input validation
+
+        - **Dynamic Configuration**: Retrieve runtime-dependent options (e.g., available spreadsheets, databases)
+
+        - **Flow Validation**: Check for errors before saving or executing a flow
+
+        - **Schema Discovery**: Understand what data each task will produce
+
+        - **Custom Integrations**: Programmatically validate and analyze flow definitions
+
+
+        **How It Works**
+
+        1. Parses and validates the flow definition structure (basic validation)
+
+        2. For each task in the flow:
+
+        - Loads the task executor implementation
+
+        - Calls the executor''s `get_output_model()` to get the output schema
+
+        - Calls the executor''s dynamic data methods (if available) to get runtime options
+
+        - Collects any errors encountered during schema/data extraction
+
+        3. If `full_validation=true`, performs additional semantic validation (checks task
+
+        parameter values, validates connections between tasks, etc.)
+
+        4. Returns all schemas, dynamic data, and validation errors in a single response
+
+
+        **Dynamic Data Explained**
+
+        Dynamic data represents configuration options that depend on external state or user
+
+        credentials. For example:
+
+        - Google Sheets task: List of spreadsheets accessible with user''s credentials
+
+        - Database task: List of available tables/columns
+
+        - API task: Available endpoints or data models from connected service
+
+
+        **Validation Levels**
+
+        - **Basic (default)**: Structure validation only (required fields, data types)
+
+        - **Full (`full_validation=true`)**: Includes semantic validation (valid references,
+
+        parameter constraints, external resource availability)
+
+
+        **Performance Notes**
+
+        - May make external API calls to fetch dynamic data (e.g., Google Sheets API)
+
+        - Response time varies based on number of tasks and external service latency
+
+        - Typical response time: 100ms-2s depending on task executors used
+
+
+        **Related Endpoints**
+
+        - `POST /flows` - Create flow (uses this endpoint''s validation internally)
+
+        - `PUT /flows/{flow_id}` - Update flow (uses this endpoint''s validation internally)
+
+        - `GET /task-executors` - List available task executors'
       operationId: get_task_dynamic_data_api_task_data_post
       parameters:
       - name: full_validation
@@ -206,15 +226,37 @@ components:
           code: not_found
           message: Resource not found
         request_id: 01K8KABR6S16YETA2SZPVBS9SP
-    HTTPValidationError:
+    TaskDynamicDataRequest:
       properties:
-        detail:
-          items:
-            $ref: '#/components/schemas/ValidationError'
-          type: array
-          title: Detail
+        flow_definition:
+          additionalProperties: true
+          type: object
+          title: Flow Definition
+          description: 'Complete flow definition in SuperAI Flows DSL format. Must include: - ''name'': Flow name (string, required). - ''tasks'': List of task definitions with task_executor_name, parameters, etc. - ''connections'': Optional list of task dependencies and data flows. - ''config'': Optional flow-level configuration. The definition will be validated and analyzed to extract task output schemas and dynamic configuration data. Validation errors will be returned in the response if the definition is invalid.'
+          examples:
+          - name: my-workflow
+            tasks:
+            - name: fetch_data
+              parameters:
+                method: GET
+                url: https://api.example.com/data
+              task_executor_name: http_request
+            - name: process_data
+              parameters:
+                code: result = input_data['value'] * 2
+              task_executor_name: python_code
       type: object
-      title: HTTPValidationError
+      required:
+      - flow_definition
+      title: TaskDynamicDataRequest
+      description: 'Request model for task data analysis endpoint.
+
+
+        Accepts a flow definition in the SuperAI Flows DSL format for validation
+
+        and schema extraction. The flow definition should include all tasks,
+
+        connections, and configurations needed to execute the flow.'
     ValidationError:
       properties:
         loc:
@@ -315,37 +357,15 @@ components:
         validate task connections, and understand what data each task will produce.
 
         Each field serves a specific purpose in the flow building and validation process.'
-    TaskDynamicDataRequest:
+    HTTPValidationError:
       properties:
-        flow_definition:
-          additionalProperties: true
-          type: object
-          title: Flow Definition
-          description: 'Complete flow definition in SuperAI Flows DSL format. Must include: - ''name'': Flow name (string, required). - ''tasks'': List of task definitions with task_executor_name, parameters, etc. - ''connections'': Optional list of task dependencies and data flows. - ''config'': Optional flow-level configuration. The definition will be validated and analyzed to extract task output schemas and dynamic configuration data. Validation errors will be returned in the response if the definition is invalid.'
-          examples:
-          - name: my-workflow
-            tasks:
-            - name: fetch_data
-              parameters:
-                method: GET
-                url: https://api.example.com/data
-              task_executor_name: http_request
-            - name: process_data
-              parameters:
-                code: result = input_data['value'] * 2
-              task_executor_name: python_code
+        detail:
+          items:
+            $ref: '#/components/schemas/ValidationError'
+          type: array
+          title: Detail
       type: object
-      required:
-      - flow_definition
-      title: TaskDynamicDataRequest
-      description: 'Request model for task data analysis endpoint.
-
-
-        Accepts a flow definition in the SuperAI Flows DSL format for validation
-
-        and schema extraction. The flow definition should include all tasks,
-
-        connections, and configurations needed to execute the flow.'
+      title: HTTPValidationError
   securitySchemes:
     BearerAuth:
       type: http

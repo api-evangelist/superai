@@ -1,52 +1,40 @@
-openapi: 3.1.0
+openapi: 3.2.0
 info:
-  title: SuperAI Flow Platform auth models API
-  description: "SuperAI Flows is a workflow orchestration platform that enables you to design, deploy, and monitor automated workflows at scale.\n\nBuild complex workflows using our declarative YAML DSL, execute them reliably, and integrate seamlessly with AI models, cloud storage, and enterprise systems.\n\n**Key Capabilities:**\n- **Workflow Management**: Define workflows as code with version control and automated execution\n- **Task Orchestration**: Chain together API calls, data processing, and AI operations\n- **Real-time Monitoring**: Track execution progress with WebSocket notifications and comprehensive logging\n- **Multi-tenant Architecture**: Organization-scoped resources with role-based access control\n\n**API Versioning and Breaking Changes:**\n\nWe follow a strict compatibility policy to ensure your integrations remain stable:\n\n- **Non-breaking changes** (safe, no action required):\n  - Adding new API endpoints\n  - Adding new optional query parameters to existing endpoints\n  - Adding new fields to API responses\n  - Adding new values to existing enums\n\n- **Breaking changes** (requires client updates):\n  - Removing or renaming API endpoints\n  - Removing query parameters or request fields\n  - Removing response fields\n  - Changing field types or validation rules\n  - Removing values from existing enums\n\n**Client Implementation Requirements:**\n\nYour API clients MUST be designed to gracefully handle additional fields in responses. We may add new fields to any response object without considering this a breaking change. Ensure your JSON parsers ignore unknown fields rather than raising errors.\n\n**Backward Compatibility Guarantee:**\n\nWe commit to maintaining backward compatibility for all non-breaking changes. Breaking changes will be:\n- Announced at least 15 days in advance\n- Documented in our changelog with migration guide\n\nFor the latest API updates and migration guides, see our changelog."
+  title: SuperAI Flow Platform Models API
+  description: SuperAI Flows is a workflow orchestration platform that enables you to design, deploy, and monitor automated workflows at scale.
   version: 0.1.0
 tags:
-- name: models
-  description: 'Model operations for querying available AI models and their configurations.
-
-
-    Model endpoints provide information about the AI models available through the platform. These endpoints enable discovery of models, their capabilities, and regional availability.
-
-
-    **Key features:**
-
-    - **Model Discovery**: List all available AI models
-
-    - **Regional Filtering**: Query models by geographic region (EU, Global)
-
-    - **Model Metadata**: Access model information including provider, location, and capabilities
-
-
-    **Use these endpoints to:**
-
-    - Discover available AI models for your workflows
-
-    - Filter models by region for compliance or latency requirements
-
-    - Retrieve model metadata for configuration and selection
-
-    - Build dynamic model selection UIs
-
-
-    **Regional filtering:**
-
-    - `eu`: Models deployed in European regions (West Europe, France Central, Germany, Sweden)
-
-    - `global`: Models deployed in US and other global regions
-
-
-    Model endpoints enable intelligent model selection and routing based on your requirements for compliance, performance, and cost.'
+- name: Models
+  description: Model operations for querying available AI models and their configurations.
   x-displayName: Models
 paths:
   /api/models:
     get:
       tags:
-      - models
+      - Models
       summary: List available models
-      description: "Retrieve a list of available AI models, deduplicated by model name and optionally filtered by region.\n\n    Each model entry aggregates information from all available endpoints:\n    - **regions**: All regions where this model is deployed\n    - **locations**: All specific locations (e.g., westeurope, eastus)\n    - **providers**: All providers offering this model\n    - **endpoint_count**: Total number of endpoints available\n\n    Use the `region` parameter to filter models by deployment region:\n    - `eu`: Only models with at least one EU endpoint\n    - `global`: Only models with at least one global/US endpoint\n\n    If no region is specified, all models are returned."
+      description: 'Retrieve a list of available AI models, deduplicated by model name and optionally filtered by region.
+
+
+        Each model entry aggregates information from all available endpoints:
+
+        - **regions**: All regions where this model is deployed
+
+        - **locations**: All specific locations (e.g., westeurope, eastus)
+
+        - **providers**: All providers offering this model
+
+        - **endpoint_count**: Total number of endpoints available
+
+
+        Use the `region` parameter to filter models by deployment region:
+
+        - `eu`: Only models with at least one EU endpoint
+
+        - `global`: Only models with at least one global/US endpoint
+
+
+        If no region is specified, all models are returned.'
       operationId: get_models_api_models_get
       parameters:
       - name: region
@@ -77,6 +65,27 @@ paths:
       - APIKeyAuth: []
 components:
   schemas:
+    ValidationError:
+      properties:
+        loc:
+          items:
+            anyOf:
+            - type: string
+            - type: integer
+          type: array
+          title: Location
+        msg:
+          type: string
+          title: Message
+        type:
+          type: string
+          title: Error Type
+      type: object
+      required:
+      - loc
+      - msg
+      - type
+      title: ValidationError
     ModelInfo:
       properties:
         model_name:
@@ -158,27 +167,6 @@ components:
           title: Detail
       type: object
       title: HTTPValidationError
-    ValidationError:
-      properties:
-        loc:
-          items:
-            anyOf:
-            - type: string
-            - type: integer
-          type: array
-          title: Location
-        msg:
-          type: string
-          title: Message
-        type:
-          type: string
-          title: Error Type
-      type: object
-      required:
-      - loc
-      - msg
-      - type
-      title: ValidationError
   securitySchemes:
     BearerAuth:
       type: http

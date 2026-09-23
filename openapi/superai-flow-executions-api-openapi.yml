@@ -1,43 +1,11 @@
-openapi: 3.1.0
+openapi: 3.2.0
 info:
-  title: SuperAI Flow Platform auth flow-executions API
-  description: "SuperAI Flows is a workflow orchestration platform that enables you to design, deploy, and monitor automated workflows at scale.\n\nBuild complex workflows using our declarative YAML DSL, execute them reliably, and integrate seamlessly with AI models, cloud storage, and enterprise systems.\n\n**Key Capabilities:**\n- **Workflow Management**: Define workflows as code with version control and automated execution\n- **Task Orchestration**: Chain together API calls, data processing, and AI operations\n- **Real-time Monitoring**: Track execution progress with WebSocket notifications and comprehensive logging\n- **Multi-tenant Architecture**: Organization-scoped resources with role-based access control\n\n**API Versioning and Breaking Changes:**\n\nWe follow a strict compatibility policy to ensure your integrations remain stable:\n\n- **Non-breaking changes** (safe, no action required):\n  - Adding new API endpoints\n  - Adding new optional query parameters to existing endpoints\n  - Adding new fields to API responses\n  - Adding new values to existing enums\n\n- **Breaking changes** (requires client updates):\n  - Removing or renaming API endpoints\n  - Removing query parameters or request fields\n  - Removing response fields\n  - Changing field types or validation rules\n  - Removing values from existing enums\n\n**Client Implementation Requirements:**\n\nYour API clients MUST be designed to gracefully handle additional fields in responses. We may add new fields to any response object without considering this a breaking change. Ensure your JSON parsers ignore unknown fields rather than raising errors.\n\n**Backward Compatibility Guarantee:**\n\nWe commit to maintaining backward compatibility for all non-breaking changes. Breaking changes will be:\n- Announced at least 15 days in advance\n- Documented in our changelog with migration guide\n\nFor the latest API updates and migration guides, see our changelog."
+  title: SuperAI Flow Platform Flow Executions API
+  description: SuperAI Flows is a workflow orchestration platform that enables you to design, deploy, and monitor automated workflows at scale.
   version: 0.1.0
 tags:
 - name: flow-executions
-  description: 'Flow execution operations for running and monitoring workflows.
-
-
-    Flow executions represent runtime instances of flows. When you execute a flow, a new flow execution is created with its own unique ID, status, and execution context. Each execution is independent and maintains its own state, input data, and results.
-
-
-    **Key concepts:**
-
-    - **Execution Status**: Tracks the lifecycle (running, completed, failed, cancelled)
-
-    - **Run Number**: Sequential identifier for executions of the same flow
-
-    - **Execution Context**: Contains input parameters, user information, and metadata
-
-    - **Task Results**: Stores outputs from each task within the execution
-
-
-    **Use these endpoints to:**
-
-    - Start new flow executions with custom input parameters
-
-    - Monitor execution progress and status in real-time
-
-    - Retrieve execution history and detailed results
-
-    - Filter and search executions by status, date, or flow
-
-    - Cancel running executions when needed
-
-    - Access task-level execution details and outputs
-
-
-    Flow executions transform flow definitions into actual work and deliverable results.'
+  description: Flow execution operations for running and monitoring workflows.
   x-displayName: Flow Executions
 paths:
   /api/flow-executions:
@@ -45,7 +13,84 @@ paths:
       tags:
       - flow-executions
       summary: Create and start a flow execution
-      description: "Create a new flow execution and start workflow processing.\n\nThis endpoint creates a flow execution record and attempts to start the associated\nworkflow processing. The execution is created with status 'queued' and atomically\npromoted to 'running' if the organization's concurrency limit allows.\n\nContext:\n    - Flow executions represent runtime instances of flow definitions\n    - Each execution is isolated and maintains its own state\n    - Input data must conform to the flow's input schema\n    - Executions are scoped to the user's organization\n    - WebSocket notifications are sent on creation for real-time updates\n\nInput Validation:\n    - Input data is validated against the flow's input task schema\n    - Validation occurs before database record creation or workflow start\n    - Invalid input returns 400 Bad Request with detailed error messages\n    - Validation errors include field location, type, and specific issue\n    - No flow execution record is created if validation fails\n\nExecution Flow:\n    1. Validates flow exists and user has access\n    2. Validates input data against flow's input schema\n    3. Creates execution record in database\n    4. Starts workflow processing asynchronously\n    5. Sends WebSocket notification to connected clients\n    6. Returns immediately (does not wait for completion)\n\nPerformance Notes:\n    - Response time: < 200ms (workflow starts asynchronously)\n    - Does not block on workflow completion\n    - WebSocket notifications sent in background task\n\nUse Cases:\n    - Trigger flow execution from UI dashboard\n    - Automated flow execution via API integration\n    - Batch processing of multiple documents\n    - Event-driven workflow automation\n\nRelated Endpoints:\n    - GET /flow-executions/{id} - Check execution status\n    - GET /flow-executions - List all executions for a flow\n    - POST /flow-executions/{id}/execute - Re-execute failed execution"
+      description: 'Create a new flow execution and start workflow processing.
+
+
+        This endpoint creates a flow execution record and attempts to start the associated
+
+        workflow processing. The execution is created with status ''queued'' and atomically
+
+        promoted to ''running'' if the organization''s concurrency limit allows.
+
+
+        Context:
+
+        - Flow executions represent runtime instances of flow definitions
+
+        - Each execution is isolated and maintains its own state
+
+        - Input data must conform to the flow''s input schema
+
+        - Executions are scoped to the user''s organization
+
+        - WebSocket notifications are sent on creation for real-time updates
+
+
+        Input Validation:
+
+        - Input data is validated against the flow''s input task schema
+
+        - Validation occurs before database record creation or workflow start
+
+        - Invalid input returns 400 Bad Request with detailed error messages
+
+        - Validation errors include field location, type, and specific issue
+
+        - No flow execution record is created if validation fails
+
+
+        Execution Flow:
+
+        1. Validates flow exists and user has access
+
+        2. Validates input data against flow''s input schema
+
+        3. Creates execution record in database
+
+        4. Starts workflow processing asynchronously
+
+        5. Sends WebSocket notification to connected clients
+
+        6. Returns immediately (does not wait for completion)
+
+
+        Performance Notes:
+
+        - Response time: < 200ms (workflow starts asynchronously)
+
+        - Does not block on workflow completion
+
+        - WebSocket notifications sent in background task
+
+
+        Use Cases:
+
+        - Trigger flow execution from UI dashboard
+
+        - Automated flow execution via API integration
+
+        - Batch processing of multiple documents
+
+        - Event-driven workflow automation
+
+
+        Related Endpoints:
+
+        - GET /flow-executions/{id} - Check execution status
+
+        - GET /flow-executions - List all executions for a flow
+
+        - POST /flow-executions/{id}/execute - Re-execute failed execution'
       operationId: create_flow_execution_api_flow_executions_post
       requestBody:
         required: true
@@ -166,7 +211,125 @@ paths:
       tags:
       - flow-executions
       summary: List flow executions with filtering and pagination
-      description: "List flow executions with filtering, sorting, and pagination.\n\nRetrieve a paginated list of flow executions for a specific flow with support\nfor filtering by status, tags, and date ranges. Results can be sorted by\ncreation or update time and include optional run number calculation.\n\nContext:\n    - Returns executions for a single flow (specified by flow_id)\n    - Excludes soft-deleted executions from results\n    - Supports multiple filtering dimensions for flexible queries\n    - Pagination uses offset-based approach (page/page_size)\n    - Run numbers calculated on-demand (performance impact)\n\nFiltering Logic:\n    - Status filter: Returns executions containing tasks with ANY of specified statuses\n    - Tag filter: Returns executions containing tasks with ANY of specified tags\n    - Date range: created_after/created_before bound created_at;\n      updated_after/updated_before bound updated_at (all inclusive, ISO 8601)\n    - Multiple filters combined with AND logic\n    - Empty filters return all executions\n\nPagination:\n    - Offset-based: page=1, page_size=10 returns first 10 results\n    - Default: page=1, page_size=10\n    - Maximum page_size: 1000 results\n    - Maximum page: 10,000 (to prevent excessive database load)\n    - Use start_from_execution_id for cursor-like pagination\n\nRun Numbers:\n    - include_run_number=true: Calculates sequential number (1, 2, 3...)\n    - Based on creation time for the flow\n    - Includes deleted executions in count (may have gaps)\n    - Performance impact: Additional database query per execution\n    - Recommended: Use only when displaying in UI\n\nSorting:\n    - sort_field: 'created_at' (when execution was created) or\n                  'updated_at' (when execution was last modified)\n    - sort_direction: 'asc' (oldest first) or 'desc' (newest first)\n    - Default: sort by created_at desc (most recently created first)\n\nPerformance Considerations:\n    - Without run_number: ~50ms for 100 results\n    - With run_number: ~200ms for 100 results (N+1 query issue)\n    - Consider caching for frequently accessed pages\n    - Large page_size values increase response time linearly\n\nUse Cases:\n    - Display execution history in UI dashboard\n    - Monitor recent execution failures (filter by status='failed')\n    - Find executions by business context (filter by tags)\n    - Export execution audit trail\n    - Identify oldest pending executions (sort by created_at asc)\n\nExample Queries:\n    - Recent failures: ?flow_id=xxx&status=failed&sort_field=created_at&sort_direction=desc&page_size=20\n    - Tagged executions: ?flow_id=xxx&tags=priority:high&tags=customer:acme\n    - Paginated view: ?flow_id=xxx&page=2&page_size=50\n    - With run numbers: ?flow_id=xxx&include_run_number=true\n    - Completed in window: ?flow_id=xxx&status=completed&created_after=2026-06-18T08:00:00Z&created_before=2026-06-18T10:00:00Z\n\nRelated Endpoints:\n    - GET /flow-executions/{id} - Get single execution details\n    - POST /flow-executions - Create new execution\n    - GET /flows/{id} - Get flow definition details"
+      description: 'List flow executions with filtering, sorting, and pagination.
+
+
+        Retrieve a paginated list of flow executions for a specific flow with support
+
+        for filtering by status, tags, and date ranges. Results can be sorted by
+
+        creation or update time and include optional run number calculation.
+
+
+        Context:
+
+        - Returns executions for a single flow (specified by flow_id)
+
+        - Excludes soft-deleted executions from results
+
+        - Supports multiple filtering dimensions for flexible queries
+
+        - Pagination uses offset-based approach (page/page_size)
+
+        - Run numbers calculated on-demand (performance impact)
+
+
+        Filtering Logic:
+
+        - Status filter: Returns executions containing tasks with ANY of specified statuses
+
+        - Tag filter: Returns executions containing tasks with ANY of specified tags
+
+        - Date range: created_after/created_before bound created_at;
+
+        updated_after/updated_before bound updated_at (all inclusive, ISO 8601)
+
+        - Multiple filters combined with AND logic
+
+        - Empty filters return all executions
+
+
+        Pagination:
+
+        - Offset-based: page=1, page_size=10 returns first 10 results
+
+        - Default: page=1, page_size=10
+
+        - Maximum page_size: 1000 results
+
+        - Maximum page: 10,000 (to prevent excessive database load)
+
+        - Use start_from_execution_id for cursor-like pagination
+
+
+        Run Numbers:
+
+        - include_run_number=true: Calculates sequential number (1, 2, 3...)
+
+        - Based on creation time for the flow
+
+        - Includes deleted executions in count (may have gaps)
+
+        - Performance impact: Additional database query per execution
+
+        - Recommended: Use only when displaying in UI
+
+
+        Sorting:
+
+        - sort_field: ''created_at'' (when execution was created) or
+
+        ''updated_at'' (when execution was last modified)
+
+        - sort_direction: ''asc'' (oldest first) or ''desc'' (newest first)
+
+        - Default: sort by created_at desc (most recently created first)
+
+
+        Performance Considerations:
+
+        - Without run_number: ~50ms for 100 results
+
+        - With run_number: ~200ms for 100 results (N+1 query issue)
+
+        - Consider caching for frequently accessed pages
+
+        - Large page_size values increase response time linearly
+
+
+        Use Cases:
+
+        - Display execution history in UI dashboard
+
+        - Monitor recent execution failures (filter by status=''failed'')
+
+        - Find executions by business context (filter by tags)
+
+        - Export execution audit trail
+
+        - Identify oldest pending executions (sort by created_at asc)
+
+
+        Example Queries:
+
+        - Recent failures: ?flow_id=xxx&status=failed&sort_field=created_at&sort_direction=desc&page_size=20
+
+        - Tagged executions: ?flow_id=xxx&tags=priority:high&tags=customer:acme
+
+        - Paginated view: ?flow_id=xxx&page=2&page_size=50
+
+        - With run numbers: ?flow_id=xxx&include_run_number=true
+
+        - Completed in window: ?flow_id=xxx&status=completed&created_after=2026-06-18T08:00:00Z&created_before=2026-06-18T10:00:00Z
+
+
+        Related Endpoints:
+
+        - GET /flow-executions/{id} - Get single execution details
+
+        - POST /flow-executions - Create new execution
+
+        - GET /flows/{id} - Get flow definition details'
       operationId: list_flow_executions_api_flow_executions_get
       parameters:
       - name: flow_id
@@ -457,7 +620,65 @@ paths:
       tags:
       - flow-executions
       summary: Soft delete a flow execution
-      description: "Soft delete a flow execution by marking it as deleted.\n\nThis endpoint performs a soft delete by setting the execution status to 'deleted'.\nThe execution record remains in the database but is excluded from list operations\nand cannot be retrieved through standard endpoints.\n\nContext:\n    - Soft delete preserves audit trail and historical data\n    - Does NOT stop running workflows (use cancel endpoint for that)\n    - Deleted executions do not appear in GET /flow-executions list\n    - Operation is idempotent - deleting already deleted execution succeeds\n    - Deletion is permanent - no undelete functionality exists\n\nBehavior:\n    - Updates execution status to 'deleted' in database\n    - Maintains all execution data for audit purposes\n    - Removes from user-facing list queries\n    - Does not affect related task executions or outputs\n    - Triggers WebSocket notification for status change\n\nUse Cases:\n    - Remove test executions from production environment\n    - Clean up failed executions no longer needed\n    - Archive old executions while preserving data\n\nImportant Notes:\n    - To stop a RUNNING workflow, use cancel endpoint (not yet implemented)\n    - Soft delete does not free up workflow resources\n    - Consider hard delete for GDPR compliance (requires database migration)\n\nRelated Endpoints:\n    - GET /flow-executions - List excludes deleted executions\n    - POST /flow-executions - Create new execution"
+      description: 'Soft delete a flow execution by marking it as deleted.
+
+
+        This endpoint performs a soft delete by setting the execution status to ''deleted''.
+
+        The execution record remains in the database but is excluded from list operations
+
+        and cannot be retrieved through standard endpoints.
+
+
+        Context:
+
+        - Soft delete preserves audit trail and historical data
+
+        - Does NOT stop running workflows (use cancel endpoint for that)
+
+        - Deleted executions do not appear in GET /flow-executions list
+
+        - Operation is idempotent - deleting already deleted execution succeeds
+
+        - Deletion is permanent - no undelete functionality exists
+
+
+        Behavior:
+
+        - Updates execution status to ''deleted'' in database
+
+        - Maintains all execution data for audit purposes
+
+        - Removes from user-facing list queries
+
+        - Does not affect related task executions or outputs
+
+        - Triggers WebSocket notification for status change
+
+
+        Use Cases:
+
+        - Remove test executions from production environment
+
+        - Clean up failed executions no longer needed
+
+        - Archive old executions while preserving data
+
+
+        Important Notes:
+
+        - To stop a RUNNING workflow, use cancel endpoint (not yet implemented)
+
+        - Soft delete does not free up workflow resources
+
+        - Consider hard delete for GDPR compliance (requires database migration)
+
+
+        Related Endpoints:
+
+        - GET /flow-executions - List excludes deleted executions
+
+        - POST /flow-executions - Create new execution'
       operationId: delete_flow_execution_api_flow_executions__flow_execution_id__delete
       parameters:
       - name: flow_execution_id
@@ -534,7 +755,73 @@ paths:
       tags:
       - flow-executions
       summary: Retrieve a specific flow execution
-      description: "Retrieve detailed information for a specific flow execution.\n\nFetch a single flow execution by its unique identifier. Returns execution\nmetadata including status, input data, timestamps, and optionally the\nsequential run number within its flow.\n\nContext:\n    - Retrieves single execution regardless of status (except deleted)\n    - Soft-deleted executions return 404 Not Found\n    - Includes full input data as provided at creation\n    - Run number calculated on-demand if requested\n    - Useful for monitoring execution progress\n\nRun Number Calculation:\n    - When include_run_number=true, calculates sequential position\n    - Based on creation timestamp among all executions for this flow\n    - Includes deleted executions (may have gaps in visible numbers)\n    - Performance: Adds ~10-20ms per request\n    - Useful for displaying \"Run #42\" in UI\n\nUse Cases:\n    - Check status of long-running execution\n    - Retrieve input data for debugging\n    - Display execution details in UI\n    - Audit execution history with run numbers\n    - Poll for execution completion\n\nPerformance Notes:\n    - Without run_number: ~10ms average response time\n    - With run_number: ~25ms average response time\n    - Highly cacheable (status changes infrequently)\n\nRelated Endpoints:\n    - GET /flow-executions - List all executions for a flow\n    - POST /flow-executions/{id}/execute - Re-execute this execution\n    - GET /task-executions?flow_execution_id={id} - Get task details\n    - DELETE /flow-executions/{id} - Delete this execution"
+      description: 'Retrieve detailed information for a specific flow execution.
+
+
+        Fetch a single flow execution by its unique identifier. Returns execution
+
+        metadata including status, input data, timestamps, and optionally the
+
+        sequential run number within its flow.
+
+
+        Context:
+
+        - Retrieves single execution regardless of status (except deleted)
+
+        - Soft-deleted executions return 404 Not Found
+
+        - Includes full input data as provided at creation
+
+        - Run number calculated on-demand if requested
+
+        - Useful for monitoring execution progress
+
+
+        Run Number Calculation:
+
+        - When include_run_number=true, calculates sequential position
+
+        - Based on creation timestamp among all executions for this flow
+
+        - Includes deleted executions (may have gaps in visible numbers)
+
+        - Performance: Adds ~10-20ms per request
+
+        - Useful for displaying "Run #42" in UI
+
+
+        Use Cases:
+
+        - Check status of long-running execution
+
+        - Retrieve input data for debugging
+
+        - Display execution details in UI
+
+        - Audit execution history with run numbers
+
+        - Poll for execution completion
+
+
+        Performance Notes:
+
+        - Without run_number: ~10ms average response time
+
+        - With run_number: ~25ms average response time
+
+        - Highly cacheable (status changes infrequently)
+
+
+        Related Endpoints:
+
+        - GET /flow-executions - List all executions for a flow
+
+        - POST /flow-executions/{id}/execute - Re-execute this execution
+
+        - GET /task-executions?flow_execution_id={id} - Get task details
+
+        - DELETE /flow-executions/{id} - Delete this execution'
       operationId: get_flow_execution_api_flow_executions__flow_execution_id__get
       parameters:
       - name: flow_execution_id
@@ -714,7 +1001,91 @@ paths:
       tags:
       - flow-executions
       summary: Re-execute a flow execution
-      description: "Re-execute a flow execution, optionally skipping cached results.\n\nThis endpoint triggers re-execution of an existing flow execution. It can\nselectively re-run failed tasks or re-run the entire flow from scratch.\nUseful for retrying failed executions or refreshing stale data.\n\nContext:\n    - Re-executes workflows that have completed or failed\n    - Can reuse successful task results (cached execution)\n    - Useful for handling transient failures\n    - Updates flow to latest version if changed since original execution\n    - Creates new workflow instance with same execution ID\n\nExecution Modes:\n    1. Full Re-execution (only_stale=false, default):\n       - Starts workflow from beginning\n       - All tasks execute regardless of previous state\n       - Previous results are discarded\n       - Use for: Complete retry after fixing flow definition\n\n    2. Stale-Only Re-execution (only_stale=true):\n       - Only re-runs tasks marked as 'stale'\n       - Reuses results from successful tasks\n       - Faster for partial failures\n       - Use for: Refreshing outdated data without full re-run\n\nBehavior:\n    - Terminates existing workflow if still running\n    - Updates flow_version to latest version\n    - Maintains same execution ID for traceability\n    - Status transitions: any → running\n    - Does not create new execution record\n\nPerformance Notes:\n    - Response time: < 200ms (workflow starts asynchronously)\n    - Stale-only mode significantly faster for large flows\n    - Full re-execution recalculates all task outputs\n\nUse Cases:\n    - Retry failed execution after fixing flow definition\n    - Refresh data after external system updates\n    - Resume execution after transient service outage\n    - Update execution to use latest flow version\n\nRelated Endpoints:\n    - GET /flow-executions/{id} - Check re-execution status\n    - POST /flow-executions - Create new execution instead of re-running"
+      description: 'Re-execute a flow execution, optionally skipping cached results.
+
+
+        This endpoint triggers re-execution of an existing flow execution. It can
+
+        selectively re-run failed tasks or re-run the entire flow from scratch.
+
+        Useful for retrying failed executions or refreshing stale data.
+
+
+        Context:
+
+        - Re-executes workflows that have completed or failed
+
+        - Can reuse successful task results (cached execution)
+
+        - Useful for handling transient failures
+
+        - Updates flow to latest version if changed since original execution
+
+        - Creates new workflow instance with same execution ID
+
+
+        Execution Modes:
+
+        1. Full Re-execution (only_stale=false, default):
+
+        - Starts workflow from beginning
+
+        - All tasks execute regardless of previous state
+
+        - Previous results are discarded
+
+        - Use for: Complete retry after fixing flow definition
+
+
+        2. Stale-Only Re-execution (only_stale=true):
+
+        - Only re-runs tasks marked as ''stale''
+
+        - Reuses results from successful tasks
+
+        - Faster for partial failures
+
+        - Use for: Refreshing outdated data without full re-run
+
+
+        Behavior:
+
+        - Terminates existing workflow if still running
+
+        - Updates flow_version to latest version
+
+        - Maintains same execution ID for traceability
+
+        - Status transitions: any → running
+
+        - Does not create new execution record
+
+
+        Performance Notes:
+
+        - Response time: < 200ms (workflow starts asynchronously)
+
+        - Stale-only mode significantly faster for large flows
+
+        - Full re-execution recalculates all task outputs
+
+
+        Use Cases:
+
+        - Retry failed execution after fixing flow definition
+
+        - Refresh data after external system updates
+
+        - Resume execution after transient service outage
+
+        - Update execution to use latest flow version
+
+
+        Related Endpoints:
+
+        - GET /flow-executions/{id} - Check re-execution status
+
+        - POST /flow-executions - Create new execution instead of re-running'
       operationId: execute_flow_api_flow_executions__flow_execution_id__execute_post
       parameters:
       - name: flow_execution_id
@@ -808,7 +1179,96 @@ paths:
       tags:
       - flow-executions
       summary: Add task status updates (Internal API)
-      description: "Add task status updates to a flow execution (Internal API).\n\nThis endpoint is used by system workers to report task execution status changes.\nMultiple task statuses can be added in a single request for batch efficiency.\nStatus updates trigger state transitions and WebSocket notifications.\n\n⚠️  Internal API: This endpoint is designed for internal system communication.\n   Direct customer usage is not recommended. Use GET /task-executions instead.\n\nContext:\n    - Called by system workers during task execution\n    - Updates task status records in bulk for performance\n    - Triggers task output state calculations\n    - Sends WebSocket notifications asynchronously\n    - Worker receives immediate response without blocking on notifications\n\nBehavior:\n    1. Validates flow execution exists and is accessible\n    2. Creates status records for each task in batch\n    3. Updates related task output states in parallel\n    4. Sends WebSocket notifications in background task\n    5. Returns immediately to worker for low latency\n\nPerformance Optimizations:\n    - Batch inserts for multiple status updates (~50ms for 10 tasks)\n    - WebSocket notifications processed asynchronously\n    - Task output state updates use batch operations\n    - Response returns before notification delivery completes\n\nUse Cases:\n    - System workers reporting task start/completion\n    - Bulk status updates during execution\n    - Real-time execution monitoring via WebSocket\n\nImportant Notes:\n    - This endpoint does NOT retrieve task status (use GET /task-executions)\n    - Requires service-level authentication token\n    - Not intended for direct customer API integration\n    - WebSocket notifications may arrive after HTTP response\n\nBusiness Logic:\n    - Task output states recalculated based on new statuses\n    - Multiple status updates for same task create history\n    - Execution-level status synced to awaiting_input when any task is HITL-suspended\n    - Status transitions not validated (allows any status value)\n\nRelated Internal Endpoints:\n    - POST /flow-executions - Creates parent execution\n    - GET /task-executions - Retrieves task execution details\n    - WebSocket /ws/flows/{flow_id} - Receives status notifications"
+      description: 'Add task status updates to a flow execution (Internal API).
+
+
+        This endpoint is used by system workers to report task execution status changes.
+
+        Multiple task statuses can be added in a single request for batch efficiency.
+
+        Status updates trigger state transitions and WebSocket notifications.
+
+
+        ⚠️ Internal API: This endpoint is designed for internal system communication.
+
+        Direct customer usage is not recommended. Use GET /task-executions instead.
+
+
+        Context:
+
+        - Called by system workers during task execution
+
+        - Updates task status records in bulk for performance
+
+        - Triggers task output state calculations
+
+        - Sends WebSocket notifications asynchronously
+
+        - Worker receives immediate response without blocking on notifications
+
+
+        Behavior:
+
+        1. Validates flow execution exists and is accessible
+
+        2. Creates status records for each task in batch
+
+        3. Updates related task output states in parallel
+
+        4. Sends WebSocket notifications in background task
+
+        5. Returns immediately to worker for low latency
+
+
+        Performance Optimizations:
+
+        - Batch inserts for multiple status updates (~50ms for 10 tasks)
+
+        - WebSocket notifications processed asynchronously
+
+        - Task output state updates use batch operations
+
+        - Response returns before notification delivery completes
+
+
+        Use Cases:
+
+        - System workers reporting task start/completion
+
+        - Bulk status updates during execution
+
+        - Real-time execution monitoring via WebSocket
+
+
+        Important Notes:
+
+        - This endpoint does NOT retrieve task status (use GET /task-executions)
+
+        - Requires service-level authentication token
+
+        - Not intended for direct customer API integration
+
+        - WebSocket notifications may arrive after HTTP response
+
+
+        Business Logic:
+
+        - Task output states recalculated based on new statuses
+
+        - Multiple status updates for same task create history
+
+        - Execution-level status synced to awaiting_input when any task is HITL-suspended
+
+        - Status transitions not validated (allows any status value)
+
+
+        Related Internal Endpoints:
+
+        - POST /flow-executions - Creates parent execution
+
+        - GET /task-executions - Retrieves task execution details
+
+        - WebSocket /ws/flows/{flow_id} - Receives status notifications'
       operationId: add_flow_task_statuses_api_flow_executions__flow_execution_id__task_status_post
       parameters:
       - name: flow_execution_id
@@ -974,94 +1434,98 @@ components:
         This model matches the error format returned by the centralized
 
         exception handlers in app/api/errors/handlers.py.'
-    ProcessingStatus:
-      type: string
-      enum:
-      - queued
-      - running
-      - completed
-      - failed
-      - deleted
-      - awaiting_input
-      - cancel_requested
-      - cancelled
-      title: ProcessingStatus
-      description: "Valid status values for task processing lifecycle.\n\nUsed by task_execution and task_output tables to track where a task\nis in its processing pipeline, independent of data consistency state.\n\nStatus Transitions:\n    queued → running → completed\n                     → failed\n    running/awaiting_input → cancel_requested → cancelled\n    Any status → deleted (soft delete)"
-    ErrorResponse:
+    FlowExecutionResponse:
       properties:
-        error:
-          $ref: '#/components/schemas/ErrorDetail'
-        request_id:
+        id:
+          type: string
+          format: uuid
+          title: Id
+        created_at:
+          type: string
+          format: date-time
+          title: Created At
+        updated_at:
+          type: string
+          format: date-time
+          title: Updated At
+        modified_by:
+          type: string
+          title: Modified By
+        flow_id:
+          type: string
+          format: uuid
+          title: Flow Id
+          description: UUID of the flow definition being executed. References the parent flow that defines the workflow structure.
+          examples:
+          - 550e8400-e29b-41d4-a716-446655440000
+        flow_version:
+          type: integer
+          minimum: 1.0
+          title: Flow Version
+          description: Version number of the flow definition used for this execution. Execution continues on the same version even if flow is updated. Ensures consistency throughout execution lifecycle.
+          examples:
+          - 3
+        status:
+          $ref: '#/components/schemas/ExecutionStatus'
+          description: 'Current execution status. Possible values: ''queued'', ''running'', ''completed'', ''failed'', ''deleted'', ''stale''. Status transitions: queued → running → completed/failed. Use ''completed'' to indicate success, ''failed'' for errors.'
+          examples:
+          - running
+        input:
+          additionalProperties: true
+          type: object
+          title: Input
+          description: 'Input data provided when execution was created. Schema is defined by the flow definition. Commonly includes: file_key, document_url, or custom parameters. Structure varies by flow type.'
+          examples:
+          - file_key: documents/abc123.pdf
+            metadata:
+              priority: high
+        organization_id:
+          type: string
+          format: uuid
+          title: Organization Id
+          description: UUID of the organization that owns this execution. Used for access control and data isolation. All executions are scoped to an organization.
+          examples:
+          - 660e8400-e29b-41d4-a716-446655440001
+        pricing_config_id:
+          anyOf:
+          - type: string
+            format: uuid
+          - type: 'null'
+          title: Pricing Config Id
+          description: UUID of the pricing config active when this execution was created or re-executed. References the default config if no org-specific config existed at that time. None for executions created before pricing config tracking was introduced.
+        total_credits:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Total Credits
+          description: Total credits consumed by this flow execution across all tasks. None when no usage records exist yet.
+          example: 42
+        triggered_task_executor_name:
           anyOf:
           - type: string
           - type: 'null'
-          title: Request Id
-          description: 'Unique request identifier in ULID format for debugging and support. Example: 01K8KABR6S16YETA2SZPVBS9SP'
+          title: Triggered Task Executor Name
+          description: Executor name of the trigger that fired this execution (e.g., 'receive_file'). Set for multi-input flows; None for single-input-task flows.
       type: object
       required:
-      - error
-      title: ErrorResponse
-      description: "Standard API error response structure.\n\nAll error responses from the API follow this format, ensuring\nconsistent error handling for API consumers.\n\nExample:\n    {\n        \"error\": {\n            \"message\": \"Flow not found\",\n            \"code\": \"not_found\"\n        },\n        \"request_id\": \"01K8KABR6S16YETA2SZPVBS9SP\"\n    }"
-      examples:
-      - error:
-          code: not_found
-          message: Resource not found
-        request_id: 01K8KABR6S16YETA2SZPVBS9SP
-    HTTPValidationError:
-      properties:
-        detail:
-          items:
-            $ref: '#/components/schemas/ValidationError'
-          type: array
-          title: Detail
-      type: object
-      title: HTTPValidationError
-    ValidationError:
-      properties:
-        loc:
-          items:
-            anyOf:
-            - type: string
-            - type: integer
-          type: array
-          title: Location
-        msg:
-          type: string
-          title: Message
-        type:
-          type: string
-          title: Error Type
-      type: object
-      required:
-      - loc
-      - msg
-      - type
-      title: ValidationError
-    AddTaskStatusRequest:
-      properties:
-        statuses:
-          items:
-            $ref: '#/components/schemas/AddTaskStatusRequestItem'
-          type: array
-          maxItems: 100
-          minItems: 1
-          title: Statuses
-          description: 'Array of task status updates to apply. Minimum: 1 update, Maximum: 100 updates per request. Updates are processed in order provided.'
-          example:
-          - status: completed
-            task_name: extract_data
-          - status: running
-            task_name: validate_results
-      type: object
-      required:
-      - statuses
-      title: AddTaskStatusRequest
-      description: 'Batch request to add multiple task status updates.
+      - id
+      - created_at
+      - updated_at
+      - modified_by
+      - flow_id
+      - flow_version
+      - status
+      - input
+      - organization_id
+      title: FlowExecutionResponse
+      description: 'Response model for flow execution operations.
 
 
-        Allows system workers to report status changes for multiple tasks
+        Represents a single flow execution instance with its current state and metadata.
 
-        in a single API call for improved performance.'
+        Flow executions are runtime instances of flow definitions that process input data
+
+        through a series of tasks defined in the flow''s workflow.'
     FlowExecutionResponseWithRunNumber:
       properties:
         id:
@@ -1212,98 +1676,19 @@ components:
       - organization_id
       title: FlowTaskStatusAPI
       description: API model for FlowTaskStatus.
-    FlowExecutionResponse:
-      properties:
-        id:
-          type: string
-          format: uuid
-          title: Id
-        created_at:
-          type: string
-          format: date-time
-          title: Created At
-        updated_at:
-          type: string
-          format: date-time
-          title: Updated At
-        modified_by:
-          type: string
-          title: Modified By
-        flow_id:
-          type: string
-          format: uuid
-          title: Flow Id
-          description: UUID of the flow definition being executed. References the parent flow that defines the workflow structure.
-          examples:
-          - 550e8400-e29b-41d4-a716-446655440000
-        flow_version:
-          type: integer
-          minimum: 1.0
-          title: Flow Version
-          description: Version number of the flow definition used for this execution. Execution continues on the same version even if flow is updated. Ensures consistency throughout execution lifecycle.
-          examples:
-          - 3
-        status:
-          $ref: '#/components/schemas/ExecutionStatus'
-          description: 'Current execution status. Possible values: ''queued'', ''running'', ''completed'', ''failed'', ''deleted'', ''stale''. Status transitions: queued → running → completed/failed. Use ''completed'' to indicate success, ''failed'' for errors.'
-          examples:
-          - running
-        input:
-          additionalProperties: true
-          type: object
-          title: Input
-          description: 'Input data provided when execution was created. Schema is defined by the flow definition. Commonly includes: file_key, document_url, or custom parameters. Structure varies by flow type.'
-          examples:
-          - file_key: documents/abc123.pdf
-            metadata:
-              priority: high
-        organization_id:
-          type: string
-          format: uuid
-          title: Organization Id
-          description: UUID of the organization that owns this execution. Used for access control and data isolation. All executions are scoped to an organization.
-          examples:
-          - 660e8400-e29b-41d4-a716-446655440001
-        pricing_config_id:
-          anyOf:
-          - type: string
-            format: uuid
-          - type: 'null'
-          title: Pricing Config Id
-          description: UUID of the pricing config active when this execution was created or re-executed. References the default config if no org-specific config existed at that time. None for executions created before pricing config tracking was introduced.
-        total_credits:
-          anyOf:
-          - type: integer
-          - type: 'null'
-          title: Total Credits
-          description: Total credits consumed by this flow execution across all tasks. None when no usage records exist yet.
-          example: 42
-        triggered_task_executor_name:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Triggered Task Executor Name
-          description: Executor name of the trigger that fired this execution (e.g., 'receive_file'). Set for multi-input flows; None for single-input-task flows.
-      type: object
-      required:
-      - id
-      - created_at
-      - updated_at
-      - modified_by
-      - flow_id
-      - flow_version
-      - status
-      - input
-      - organization_id
-      title: FlowExecutionResponse
-      description: 'Response model for flow execution operations.
-
-
-        Represents a single flow execution instance with its current state and metadata.
-
-        Flow executions are runtime instances of flow definitions that process input data
-
-        through a series of tasks defined in the flow''s workflow.'
+    ProcessingStatus:
+      type: string
+      enum:
+      - queued
+      - running
+      - completed
+      - failed
+      - deleted
+      - awaiting_input
+      - cancel_requested
+      - cancelled
+      title: ProcessingStatus
+      description: "Valid status values for task processing lifecycle.\n\nUsed by task_execution and task_output tables to track where a task\nis in its processing pipeline, independent of data consistency state.\n\nStatus Transitions:\n    queued → running → completed\n                     → failed\n    running/awaiting_input → cancel_requested → cancelled\n    Any status → deleted (soft delete)"
     AddTaskStatusRequestItem:
       properties:
         task_name:
@@ -1331,6 +1716,26 @@ components:
         Represents one task''s status change within a flow execution.
 
         Used by system workers to report task execution progress.'
+    ErrorResponse:
+      properties:
+        error:
+          $ref: '#/components/schemas/ErrorDetail'
+        request_id:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Request Id
+          description: 'Unique request identifier in ULID format for debugging and support. Example: 01K8KABR6S16YETA2SZPVBS9SP'
+      type: object
+      required:
+      - error
+      title: ErrorResponse
+      description: "Standard API error response structure.\n\nAll error responses from the API follow this format, ensuring\nconsistent error handling for API consumers.\n\nExample:\n    {\n        \"error\": {\n            \"message\": \"Flow not found\",\n            \"code\": \"not_found\"\n        },\n        \"request_id\": \"01K8KABR6S16YETA2SZPVBS9SP\"\n    }"
+      examples:
+      - error:
+          code: not_found
+          message: Resource not found
+        request_id: 01K8KABR6S16YETA2SZPVBS9SP
     FlowExecutionCreateRequest:
       properties:
         flow_id:
@@ -1369,6 +1774,61 @@ components:
         This model defines the required data to start a new flow execution.
 
         The input schema must match the flow definition''s expected input structure.'
+    AddTaskStatusRequest:
+      properties:
+        statuses:
+          items:
+            $ref: '#/components/schemas/AddTaskStatusRequestItem'
+          type: array
+          maxItems: 100
+          minItems: 1
+          title: Statuses
+          description: 'Array of task status updates to apply. Minimum: 1 update, Maximum: 100 updates per request. Updates are processed in order provided.'
+          example:
+          - status: completed
+            task_name: extract_data
+          - status: running
+            task_name: validate_results
+      type: object
+      required:
+      - statuses
+      title: AddTaskStatusRequest
+      description: 'Batch request to add multiple task status updates.
+
+
+        Allows system workers to report status changes for multiple tasks
+
+        in a single API call for improved performance.'
+    ValidationError:
+      properties:
+        loc:
+          items:
+            anyOf:
+            - type: string
+            - type: integer
+          type: array
+          title: Location
+        msg:
+          type: string
+          title: Message
+        type:
+          type: string
+          title: Error Type
+      type: object
+      required:
+      - loc
+      - msg
+      - type
+      title: ValidationError
+    HTTPValidationError:
+      properties:
+        detail:
+          items:
+            $ref: '#/components/schemas/ValidationError'
+          type: array
+          title: Detail
+      type: object
+      title: HTTPValidationError
   securitySchemes:
     BearerAuth:
       type: http

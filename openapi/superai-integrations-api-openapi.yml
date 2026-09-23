@@ -1,66 +1,39 @@
-openapi: 3.1.0
+openapi: 3.2.0
 info:
-  title: SuperAI Flow Platform auth integrations API
-  description: "SuperAI Flows is a workflow orchestration platform that enables you to design, deploy, and monitor automated workflows at scale.\n\nBuild complex workflows using our declarative YAML DSL, execute them reliably, and integrate seamlessly with AI models, cloud storage, and enterprise systems.\n\n**Key Capabilities:**\n- **Workflow Management**: Define workflows as code with version control and automated execution\n- **Task Orchestration**: Chain together API calls, data processing, and AI operations\n- **Real-time Monitoring**: Track execution progress with WebSocket notifications and comprehensive logging\n- **Multi-tenant Architecture**: Organization-scoped resources with role-based access control\n\n**API Versioning and Breaking Changes:**\n\nWe follow a strict compatibility policy to ensure your integrations remain stable:\n\n- **Non-breaking changes** (safe, no action required):\n  - Adding new API endpoints\n  - Adding new optional query parameters to existing endpoints\n  - Adding new fields to API responses\n  - Adding new values to existing enums\n\n- **Breaking changes** (requires client updates):\n  - Removing or renaming API endpoints\n  - Removing query parameters or request fields\n  - Removing response fields\n  - Changing field types or validation rules\n  - Removing values from existing enums\n\n**Client Implementation Requirements:**\n\nYour API clients MUST be designed to gracefully handle additional fields in responses. We may add new fields to any response object without considering this a breaking change. Ensure your JSON parsers ignore unknown fields rather than raising errors.\n\n**Backward Compatibility Guarantee:**\n\nWe commit to maintaining backward compatibility for all non-breaking changes. Breaking changes will be:\n- Announced at least 15 days in advance\n- Documented in our changelog with migration guide\n\nFor the latest API updates and migration guides, see our changelog."
+  title: SuperAI Flow Platform Integrations API
+  description: SuperAI Flows is a workflow orchestration platform that enables you to design, deploy, and monitor automated workflows at scale.
   version: 0.1.0
 tags:
-- name: integrations
-  description: 'Integration operations for connecting flows to external services and platforms.
-
-
-    Integrations enable your workflows to interact with third-party services, databases, storage systems, and communication platforms. They provide a unified interface for managing credentials, testing connections, and configuring service-specific features.
-
-
-    **Supported integration types:**
-
-    - **Databases**: PostgreSQL, MySQL, and other SQL databases
-
-    - **Storage**: SFTP, cloud storage, and file systems
-
-    - **Communication**: Email (SMTP, SES), webhooks, notifications
-
-    - **Collaboration**: SharePoint, Google Drive, document management
-
-    - **Custom**: Plugin architecture for extending functionality
-
-
-    **Key concepts:**
-
-    - **Credentials**: Securely stored authentication information per integration
-
-    - **Plugins**: Modular integration implementations with discovery and registration
-
-    - **OAuth Flows**: Automated authorization for third-party services
-
-    - **Webhooks**: Inbound event handling from external platforms
-
-    - **Connection Testing**: Validate credentials and connectivity before use
-
-
-    **Use these endpoints to:**
-
-    - Configure and manage integration credentials
-
-    - Test connections to external services
-
-    - Handle OAuth authorization flows for cloud services
-
-    - Set up and manage webhooks for inbound events
-
-    - Discover available integration capabilities
-
-    - Access integration-specific features (folders, schemas, etc.)
-
-
-    Integrations bridge your workflows with the external world, enabling powerful automation across your entire technology stack.'
+- name: Integrations
+  description: Integration operations for connecting flows to external services and platforms.
   x-displayName: Integrations
 paths:
   /api/integrations/database:
     get:
       tags:
-      - integrations
+      - Integrations
       summary: List user databases
-      description: "List all databases accessible to the authenticated user.\n\nReturns all databases, including:\n- Database metadata and configuration\n- Row and column counts\n- Creation and update timestamps\n- Current status\n\nUse Cases:\n    - Display databases in UI\n    - Select database for workflow configuration\n    - Monitor database integration status"
+      description: 'List all databases accessible to the authenticated user.
+
+
+        Returns all databases, including:
+
+        - Database metadata and configuration
+
+        - Row and column counts
+
+        - Creation and update timestamps
+
+        - Current status
+
+
+        Use Cases:
+
+        - Display databases in UI
+
+        - Select database for workflow configuration
+
+        - Monitor database integration status'
       operationId: list_databases_api_integrations_database_get
       responses:
         '200':
@@ -120,7 +93,7 @@ paths:
       - APIKeyAuth: []
     post:
       tags:
-      - integrations
+      - Integrations
       summary: Create Database
       description: Create a new CSV database instance.
       operationId: create_database_api_integrations_database_post
@@ -149,9 +122,30 @@ paths:
   /api/integrations/database/managed:
     post:
       tags:
-      - integrations
+      - Integrations
       summary: Create managed database
-      description: "Create a managed PostgreSQL database for the organization.\n\nCreates a dedicated database on the customer Cloud SQL instance with:\n- Database name: tenant_{org_id}\n- Role: tenant_{org_id}_rw with ALL PRIVILEGES\n- app_admin user can CONNECT and SET ROLE to access the database\n\nOnly one managed database per organization is allowed.\n\nUse Cases:\n    - Create isolated database for organization data\n    - Store structured data with SQL queries\n    - Enable multi-tenant data isolation"
+      description: 'Create a managed PostgreSQL database for the organization.
+
+
+        Creates a dedicated database on the customer Cloud SQL instance with:
+
+        - Database name: tenant_{org_id}
+
+        - Role: tenant_{org_id}_rw with ALL PRIVILEGES
+
+        - app_admin user can CONNECT and SET ROLE to access the database
+
+
+        Only one managed database per organization is allowed.
+
+
+        Use Cases:
+
+        - Create isolated database for organization data
+
+        - Store structured data with SQL queries
+
+        - Enable multi-tenant data isolation'
       operationId: create_managed_database_api_integrations_database_managed_post
       responses:
         '201':
@@ -214,9 +208,21 @@ paths:
   /api/integrations/database/managed/tables:
     get:
       tags:
-      - integrations
+      - Integrations
       summary: List tables in managed database
-      description: "List all tables in a managed database with row counts.\n\nReturns table names and their row counts for schema management.\nUses organization_id from user context to identify the database.\n\nUse Cases:\n    - Display available tables in schema management UI\n    - Monitor table sizes"
+      description: 'List all tables in a managed database with row counts.
+
+
+        Returns table names and their row counts for schema management.
+
+        Uses organization_id from user context to identify the database.
+
+
+        Use Cases:
+
+        - Display available tables in schema management UI
+
+        - Monitor table sizes'
       operationId: list_managed_database_tables_api_integrations_database_managed_tables_get
       responses:
         '200':
@@ -278,9 +284,21 @@ paths:
       - APIKeyAuth: []
     post:
       tags:
-      - integrations
+      - Integrations
       summary: Create table in managed database
-      description: "Create a new table in a managed database.\n\nCreates a table with specified columns using tenant_admin credentials.\nUses organization_id from user context to identify the database.\n\nUse Cases:\n    - Add new tables to managed database\n    - Define custom schema for organization data"
+      description: 'Create a new table in a managed database.
+
+
+        Creates a table with specified columns using tenant_admin credentials.
+
+        Uses organization_id from user context to identify the database.
+
+
+        Use Cases:
+
+        - Add new tables to managed database
+
+        - Define custom schema for organization data'
       operationId: create_managed_database_table_api_integrations_database_managed_tables_post
       requestBody:
         content:
@@ -355,9 +373,19 @@ paths:
   /api/integrations/database/managed/tables/{table_name}/columns:
     get:
       tags:
-      - integrations
+      - Integrations
       summary: Get table columns from managed database
-      description: "Get column definitions from a table in a managed database.\n\nReturns column names and types for foreign key reference selection.\n\nUse Cases:\n    - Display available columns for foreign key selection\n    - Validate foreign key references"
+      description: 'Get column definitions from a table in a managed database.
+
+
+        Returns column names and types for foreign key reference selection.
+
+
+        Use Cases:
+
+        - Display available columns for foreign key selection
+
+        - Validate foreign key references'
       operationId: get_managed_database_table_columns_api_integrations_database_managed_tables__table_name__columns_get
       parameters:
       - name: table_name
@@ -434,9 +462,21 @@ paths:
   /api/integrations/database/managed/tables/{table_name}/data:
     get:
       tags:
-      - integrations
+      - Integrations
       summary: Get table data from managed database
-      description: "Get all data from a table in a managed database.\n\nUses app_admin with SET ROLE to fetch data with read-only access.\nUses organization_id from user context to identify the database.\n\nUse Cases:\n    - Display table contents in schema management UI\n    - View organization data"
+      description: 'Get all data from a table in a managed database.
+
+
+        Uses app_admin with SET ROLE to fetch data with read-only access.
+
+        Uses organization_id from user context to identify the database.
+
+
+        Use Cases:
+
+        - Display table contents in schema management UI
+
+        - View organization data'
       operationId: get_managed_database_table_data_api_integrations_database_managed_tables__table_name__data_get
       parameters:
       - name: table_name
@@ -513,7 +553,7 @@ paths:
   /api/integrations/database/managed/tables/{table_name}/rows:
     post:
       tags:
-      - integrations
+      - Integrations
       summary: Insert one row into a managed-DB table
       description: 'Insert a single row into a managed-DB table and return the inserted row.
 
@@ -613,7 +653,7 @@ paths:
   /api/integrations/database/managed/tables/{table_name}/query:
     post:
       tags:
-      - integrations
+      - Integrations
       summary: Query a managed-DB table with exact-match filters
       description: 'Run a parameterised SELECT against a managed-DB table.
 
@@ -715,9 +755,29 @@ paths:
   /api/integrations/database/{db_id}:
     get:
       tags:
-      - integrations
+      - Integrations
       summary: Get database by ID
-      description: "Retrieve detailed information for a specific database.\n\nReturns complete database configuration including:\n- Database metadata (name, description, status)\n- File information (location, size)\n- Schema details (row count, column count)\n- Timestamps and audit information\n\nUse Cases:\n    - Display database details in UI\n    - Validate database exists before operations\n    - Retrieve configuration for workflow tasks"
+      description: 'Retrieve detailed information for a specific database.
+
+
+        Returns complete database configuration including:
+
+        - Database metadata (name, description, status)
+
+        - File information (location, size)
+
+        - Schema details (row count, column count)
+
+        - Timestamps and audit information
+
+
+        Use Cases:
+
+        - Display database details in UI
+
+        - Validate database exists before operations
+
+        - Retrieve configuration for workflow tasks'
       operationId: get_database_api_integrations_database__db_id__get
       parameters:
       - name: db_id
@@ -794,7 +854,7 @@ paths:
       - APIKeyAuth: []
     delete:
       tags:
-      - integrations
+      - Integrations
       summary: Delete database
       description: 'Delete a database integration.
 
@@ -907,7 +967,7 @@ paths:
   /api/integrations/database/{db_id}/download:
     get:
       tags:
-      - integrations
+      - Integrations
       summary: Get Download Url
       description: Generate pre-signed URL for downloading the database CSV file.
       operationId: get_download_url_api_integrations_database__db_id__download_get
@@ -937,9 +997,27 @@ paths:
   /api/integrations/database/{db_id}/columns:
     get:
       tags:
-      - integrations
+      - Integrations
       summary: Get database columns
-      description: "Retrieve column names from a specific database.\n\nReturns the list of columns available in the database, useful for:\n- Building query interfaces\n- Configuring data mappings\n- Validating field references in workflows\n\nUse Cases:\n    - Display available columns in query builder\n    - Configure column mappings for data transformation\n    - Validate workflow field references"
+      description: 'Retrieve column names from a specific database.
+
+
+        Returns the list of columns available in the database, useful for:
+
+        - Building query interfaces
+
+        - Configuring data mappings
+
+        - Validating field references in workflows
+
+
+        Use Cases:
+
+        - Display available columns in query builder
+
+        - Configure column mappings for data transformation
+
+        - Validate workflow field references'
       operationId: get_database_columns_api_integrations_database__db_id__columns_get
       parameters:
       - name: db_id
@@ -1015,9 +1093,43 @@ paths:
   /api/integrations/database/{db_id}/upload-url:
     post:
       tags:
-      - integrations
+      - Integrations
       summary: Generate database upload URL
-      description: "Generate a pre-signed URL for uploading files to a database.\n\nCreates a temporary upload URL that allows direct file uploads to cloud storage\nwithout routing data through the API server. The URL expires after 1 hour.\n\nThis is the first step in the multi-step upload workflow:\n1. Generate upload URL (this endpoint)\n2. Upload file directly to cloud storage using the URL\n3. Preview uploaded file (optional)\n4. Complete upload and process file\n\nUse Cases:\n    - Upload CSV files for data import\n    - Upload large datasets efficiently\n    - Batch data ingestion\n\nSecurity:\n    - URL expires after 1 hour\n    - File is uploaded to user-specific path\n    - Metadata includes database ID for tracking"
+      description: 'Generate a pre-signed URL for uploading files to a database.
+
+
+        Creates a temporary upload URL that allows direct file uploads to cloud storage
+
+        without routing data through the API server. The URL expires after 1 hour.
+
+
+        This is the first step in the multi-step upload workflow:
+
+        1. Generate upload URL (this endpoint)
+
+        2. Upload file directly to cloud storage using the URL
+
+        3. Preview uploaded file (optional)
+
+        4. Complete upload and process file
+
+
+        Use Cases:
+
+        - Upload CSV files for data import
+
+        - Upload large datasets efficiently
+
+        - Batch data ingestion
+
+
+        Security:
+
+        - URL expires after 1 hour
+
+        - File is uploaded to user-specific path
+
+        - Metadata includes database ID for tracking'
       operationId: generate_database_upload_url_api_integrations_database__db_id__upload_url_post
       parameters:
       - name: db_id
@@ -1099,9 +1211,42 @@ paths:
   /api/integrations/database/{db_id}/upload/preview:
     post:
       tags:
-      - integrations
+      - Integrations
       summary: Preview CSV file before import
-      description: "Preview CSV file before final import.\n\nShows the first 5 rows and file metadata to help users:\n- Verify correct file was uploaded\n- Confirm header row detection\n- Check delimiter parsing\n- Review column names\n- Validate data format\n\nThis is step 3 in the upload workflow (optional):\n1. Generate upload URL\n2. Upload file to cloud storage\n3. Preview file (this endpoint)\n4. Complete upload and process\n\nUse Cases:\n    - Verify file structure before import\n    - Confirm CSV parsing settings\n    - Preview data for validation"
+      description: 'Preview CSV file before final import.
+
+
+        Shows the first 5 rows and file metadata to help users:
+
+        - Verify correct file was uploaded
+
+        - Confirm header row detection
+
+        - Check delimiter parsing
+
+        - Review column names
+
+        - Validate data format
+
+
+        This is step 3 in the upload workflow (optional):
+
+        1. Generate upload URL
+
+        2. Upload file to cloud storage
+
+        3. Preview file (this endpoint)
+
+        4. Complete upload and process
+
+
+        Use Cases:
+
+        - Verify file structure before import
+
+        - Confirm CSV parsing settings
+
+        - Preview data for validation'
       operationId: preview_csv_upload_api_integrations_database__db_id__upload_preview_post
       parameters:
       - name: db_id
@@ -1191,7 +1336,7 @@ paths:
   /api/integrations/database/{db_id}/upload/compare:
     post:
       tags:
-      - integrations
+      - Integrations
       summary: Compare Csv For Replace
       description: Compare existing CSV with new CSV for replace operation.
       operationId: compare_csv_for_replace_api_integrations_database__db_id__upload_compare_post
@@ -1228,7 +1373,7 @@ paths:
   /api/integrations/database/{db_id}/upload/complete:
     post:
       tags:
-      - integrations
+      - Integrations
       summary: Complete File Upload
       description: Complete file upload and process the file.
       operationId: complete_file_upload_api_integrations_database__db_id__upload_complete_post
@@ -1263,7 +1408,7 @@ paths:
   /api/integrations/database/{db_id}/upload/replace:
     post:
       tags:
-      - integrations
+      - Integrations
       summary: Replace File Upload
       description: Replace existing database data with new file upload.
       operationId: replace_file_upload_api_integrations_database__db_id__upload_replace_post
@@ -1298,7 +1443,7 @@ paths:
   /api/integrations/database/health:
     get:
       tags:
-      - integrations
+      - Integrations
       summary: Get Database Integration Health
       description: Get health status of database integration.
       operationId: get_database_integration_health_api_integrations_database_health_get
@@ -1314,7 +1459,7 @@ paths:
   /api/integrations/postgres/test-connection:
     post:
       tags:
-      - integrations
+      - Integrations
       summary: Test Postgres Connection
       description: Test PostgreSQL connection (proxied to legacy system).
       operationId: test_postgres_connection_api_integrations_postgres_test_connection_post
@@ -1346,7 +1491,7 @@ paths:
   /api/integrations/postgres/test-connection/{credential_id}:
     post:
       tags:
-      - integrations
+      - Integrations
       summary: Test Postgres Connection By Credential Id
       description: Test PostgreSQL connection by credential ID (proxied to legacy system).
       operationId: test_postgres_connection_by_credential_id_api_integrations_postgres_test_connection__credential_id__post
@@ -1380,7 +1525,7 @@ paths:
   /api/integrations/email/tasks:
     post:
       tags:
-      - integrations
+      - Integrations
       summary: Create Email Task
       description: Create a new email task with a unique email address.
       operationId: create_email_task_api_integrations_email_tasks_post
@@ -1408,7 +1553,7 @@ paths:
       - APIKeyAuth: []
     delete:
       tags:
-      - integrations
+      - Integrations
       summary: Deactivate Email Task
       description: 'Deactivate the email integration for a removed task.
 
@@ -1437,7 +1582,7 @@ paths:
   /api/integrations/email/tasks/{task_id}:
     get:
       tags:
-      - integrations
+      - Integrations
       summary: Get Email Task Status
       description: Get status of an email task.
       operationId: get_email_task_status_api_integrations_email_tasks__task_id__get
@@ -1470,7 +1615,7 @@ paths:
   /api/integrations/email/process:
     post:
       tags:
-      - integrations
+      - Integrations
       summary: Process Emails
       description: Manually trigger email processing (for testing).
       operationId: process_emails_api_integrations_email_process_post
@@ -1486,7 +1631,7 @@ paths:
   /api/integrations/email/health:
     get:
       tags:
-      - integrations
+      - Integrations
       summary: Get Email Integration Health
       description: Get health status of email integration.
       operationId: get_email_integration_health_api_integrations_email_health_get
@@ -1502,9 +1647,68 @@ paths:
   /api/integrations/credentials:
     get:
       tags:
-      - integrations
+      - Integrations
       summary: List user credentials
-      description: "Retrieve all integration credentials for the authenticated user.\n\nReturns stored credentials for various integration providers including Google Drive,\nSharePoint, SFTP servers, PostgreSQL databases, and other external services. Each\ncredential contains metadata about the integration but excludes sensitive authentication\ndata (passwords, tokens, API keys) by default.\n\nContext:\n    - Credentials are scoped to the authenticated user and their organization\n    - Returns only active (non-deleted) credentials\n    - Ordered by creation date (newest first)\n    - OAuth credentials with expired tokens are still returned\n    - Maximum 100 credentials per user\n    - Credentials are encrypted at rest using AES-256-GCM\n\nUse Cases:\n    - Display available integrations in the UI integration dashboard\n    - Check which external services the user has already connected\n    - Retrieve credential IDs for making integration-specific API calls\n    - Audit credential creation dates and verify active connections\n    - Support integration selection workflows in flow configuration\n\nRelated Endpoints:\n    - POST /integrations/credentials - Create new integration credential\n    - GET /integrations/credentials/{credential_id} - Get specific credential details\n    - GET /integrations/credentials/provider/{provider} - Filter credentials by provider\n    - GET /integrations/credentials/{credential_id}/credentials - Get credential secrets\n    - DELETE /integrations/credentials/{credential_id} - Delete credential\n\nSecurity Notes:\n    - Sensitive data (passwords, tokens, keys) excluded from response\n    - Use GET /integrations/credentials/{id}/credentials to retrieve sensitive data\n    - Cross-organization access not permitted"
+      description: 'Retrieve all integration credentials for the authenticated user.
+
+
+        Returns stored credentials for various integration providers including Google Drive,
+
+        SharePoint, SFTP servers, PostgreSQL databases, and other external services. Each
+
+        credential contains metadata about the integration but excludes sensitive authentication
+
+        data (passwords, tokens, API keys) by default.
+
+
+        Context:
+
+        - Credentials are scoped to the authenticated user and their organization
+
+        - Returns only active (non-deleted) credentials
+
+        - Ordered by creation date (newest first)
+
+        - OAuth credentials with expired tokens are still returned
+
+        - Maximum 100 credentials per user
+
+        - Credentials are encrypted at rest using AES-256-GCM
+
+
+        Use Cases:
+
+        - Display available integrations in the UI integration dashboard
+
+        - Check which external services the user has already connected
+
+        - Retrieve credential IDs for making integration-specific API calls
+
+        - Audit credential creation dates and verify active connections
+
+        - Support integration selection workflows in flow configuration
+
+
+        Related Endpoints:
+
+        - POST /integrations/credentials - Create new integration credential
+
+        - GET /integrations/credentials/{credential_id} - Get specific credential details
+
+        - GET /integrations/credentials/provider/{provider} - Filter credentials by provider
+
+        - GET /integrations/credentials/{credential_id}/credentials - Get credential secrets
+
+        - DELETE /integrations/credentials/{credential_id} - Delete credential
+
+
+        Security Notes:
+
+        - Sensitive data (passwords, tokens, keys) excluded from response
+
+        - Use GET /integrations/credentials/{id}/credentials to retrieve sensitive data
+
+        - Cross-organization access not permitted'
       operationId: get_user_credentials_api_integrations_credentials_get
       responses:
         '200':
@@ -1584,9 +1788,99 @@ paths:
       - APIKeyAuth: []
     post:
       tags:
-      - integrations
+      - Integrations
       summary: Create integration credentials
-      description: "Create new integration credentials for connecting to external services.\n\nStores encrypted credentials for connecting to third-party services like Google Drive,\nSharePoint, SFTP servers, or PostgreSQL databases. Credentials are encrypted at rest\nusing AES-256-GCM and scoped to the user's organization for security isolation.\n\nContext:\n    This endpoint is the primary mechanism for establishing connections to external integrations.\n    After credentials are created, they can be used in:\n    - Flow tasks that require external data sources (file inputs, database queries)\n    - Webhook subscriptions for real-time data synchronization\n    - Batch data imports from cloud storage providers\n    - Database query operations within workflow executions\n    - OAuth-based integrations (after completing OAuth flow first)\n\n    Credentials are never stored in plaintext and cannot be retrieved after creation.\n    For OAuth providers (Google, SharePoint), complete the authorization flow first,\n    then the callback handler automatically creates credentials.\n\nUse Cases:\n    Create SFTP credentials for connecting to a file server to download CSV files in a workflow.\n\n    Store PostgreSQL database credentials to enable SQL query tasks in flows.\n\n    After testing connection with POST /integrations/sftp/test-connection, create permanent credentials.\nRelated Endpoints:\n    - POST /integrations/sftp/test-connection - Test SFTP credentials before saving\n    - POST /integrations/postgres/test-connection - Test PostgreSQL credentials before saving\n    - GET /integrations/google/authorize - Initiate Google OAuth flow\n    - GET /integrations/sharepoint/authorize - Initiate SharePoint OAuth flow\n    - GET /integrations/credentials - List all user credentials\n    - GET /integrations/credentials/{credential_id} - Get specific credential metadata\n    - DELETE /integrations/credentials/{credential_id} - Delete credential\n    - PATCH /integrations/credentials/{credential_id} - Update credential\n\nSecurity:\n    - Credentials are encrypted using Fernet (AES-256-GCM) before database storage\n    - Encryption keys are managed via environment variables and never exposed via API\n    - Passwords, private keys, and tokens are never logged or included in API responses\n    - Credentials are scoped to organization with strict isolation enforced at query level\n    - OAuth tokens are automatically refreshed when expired (no user action required)\n    - Audit trail: Created timestamps and user associations tracked for compliance\n\nNotes:\n    - Always test credentials before creating them (use test-connection endpoints)\n    - OAuth credentials require completing the OAuth authorization flow first\n    - Maximum 50 credentials per provider per organization (contact support for higher limits)\n    - Credentials cannot be retrieved in plaintext after creation (security by design)\n    - For SFTP key_file authentication, ensure private key is in valid PEM format\n    - PostgreSQL connection_string takes precedence over individual connection fields"
+      description: 'Create new integration credentials for connecting to external services.
+
+
+        Stores encrypted credentials for connecting to third-party services like Google Drive,
+
+        SharePoint, SFTP servers, or PostgreSQL databases. Credentials are encrypted at rest
+
+        using AES-256-GCM and scoped to the user''s organization for security isolation.
+
+
+        Context:
+
+        This endpoint is the primary mechanism for establishing connections to external integrations.
+
+        After credentials are created, they can be used in:
+
+        - Flow tasks that require external data sources (file inputs, database queries)
+
+        - Webhook subscriptions for real-time data synchronization
+
+        - Batch data imports from cloud storage providers
+
+        - Database query operations within workflow executions
+
+        - OAuth-based integrations (after completing OAuth flow first)
+
+
+        Credentials are never stored in plaintext and cannot be retrieved after creation.
+
+        For OAuth providers (Google, SharePoint), complete the authorization flow first,
+
+        then the callback handler automatically creates credentials.
+
+
+        Use Cases:
+
+        Create SFTP credentials for connecting to a file server to download CSV files in a workflow.
+
+
+        Store PostgreSQL database credentials to enable SQL query tasks in flows.
+
+
+        After testing connection with POST /integrations/sftp/test-connection, create permanent credentials.
+
+        Related Endpoints:
+
+        - POST /integrations/sftp/test-connection - Test SFTP credentials before saving
+
+        - POST /integrations/postgres/test-connection - Test PostgreSQL credentials before saving
+
+        - GET /integrations/google/authorize - Initiate Google OAuth flow
+
+        - GET /integrations/sharepoint/authorize - Initiate SharePoint OAuth flow
+
+        - GET /integrations/credentials - List all user credentials
+
+        - GET /integrations/credentials/{credential_id} - Get specific credential metadata
+
+        - DELETE /integrations/credentials/{credential_id} - Delete credential
+
+        - PATCH /integrations/credentials/{credential_id} - Update credential
+
+
+        Security:
+
+        - Credentials are encrypted using Fernet (AES-256-GCM) before database storage
+
+        - Encryption keys are managed via environment variables and never exposed via API
+
+        - Passwords, private keys, and tokens are never logged or included in API responses
+
+        - Credentials are scoped to organization with strict isolation enforced at query level
+
+        - OAuth tokens are automatically refreshed when expired (no user action required)
+
+        - Audit trail: Created timestamps and user associations tracked for compliance
+
+
+        Notes:
+
+        - Always test credentials before creating them (use test-connection endpoints)
+
+        - OAuth credentials require completing the OAuth authorization flow first
+
+        - Maximum 50 credentials per provider per organization (contact support for higher limits)
+
+        - Credentials cannot be retrieved in plaintext after creation (security by design)
+
+        - For SFTP key_file authentication, ensure private key is in valid PEM format
+
+        - PostgreSQL connection_string takes precedence over individual connection fields'
       operationId: create_user_credentials_api_integrations_credentials_post
       requestBody:
         content:
@@ -1667,9 +1961,55 @@ paths:
   /api/integrations/credentials/provider/{provider}:
     get:
       tags:
-      - integrations
+      - Integrations
       summary: List credentials by provider
-      description: "Retrieve user credentials filtered by integration provider.\n\nReturns credentials for a specific integration provider. This is useful when you need to\nfind credentials for a particular service without fetching all credentials.\n\nContext:\n    This endpoint provides filtered access to credentials, commonly used when:\n    - Checking if a user has connected to a specific provider (e.g., SharePoint)\n    - Populating provider-specific integration configuration UI\n    - Validating credential availability before initiating provider-specific workflows\n    - Building provider selection dropdowns with availability indicators\n\nUse Cases:\n    Check if user has SharePoint credentials before showing SharePoint site picker.\n\n    Filter credentials for Google provider to display connected Google accounts in UI.\n\n    Validate SFTP credential availability before configuring file upload task.\nRelated Endpoints:\n    - GET /integrations/credentials - Get all credentials (unfiltered)\n    - POST /integrations/credentials - Create new credential for a provider\n    - GET /integrations/catalog - List all available providers\n\nNotes:\n    - Provider names are case-insensitive but lowercase is recommended\n    - Multiple credentials per provider are supported (e.g., multiple SFTP servers)\n    - Soft-deleted credentials are excluded from results"
+      description: 'Retrieve user credentials filtered by integration provider.
+
+
+        Returns credentials for a specific integration provider. This is useful when you need to
+
+        find credentials for a particular service without fetching all credentials.
+
+
+        Context:
+
+        This endpoint provides filtered access to credentials, commonly used when:
+
+        - Checking if a user has connected to a specific provider (e.g., SharePoint)
+
+        - Populating provider-specific integration configuration UI
+
+        - Validating credential availability before initiating provider-specific workflows
+
+        - Building provider selection dropdowns with availability indicators
+
+
+        Use Cases:
+
+        Check if user has SharePoint credentials before showing SharePoint site picker.
+
+
+        Filter credentials for Google provider to display connected Google accounts in UI.
+
+
+        Validate SFTP credential availability before configuring file upload task.
+
+        Related Endpoints:
+
+        - GET /integrations/credentials - Get all credentials (unfiltered)
+
+        - POST /integrations/credentials - Create new credential for a provider
+
+        - GET /integrations/catalog - List all available providers
+
+
+        Notes:
+
+        - Provider names are case-insensitive but lowercase is recommended
+
+        - Multiple credentials per provider are supported (e.g., multiple SFTP servers)
+
+        - Soft-deleted credentials are excluded from results'
       operationId: get_user_credentials_by_provider_api_integrations_credentials_provider__provider__get
       parameters:
       - name: provider
@@ -1771,9 +2111,75 @@ paths:
   /api/integrations/credentials/{credential_id}/credentials:
     get:
       tags:
-      - integrations
+      - Integrations
       summary: Get credential secrets
-      description: "Retrieve decrypted credential secrets for integration use.\n\nReturns the actual credential data (passwords, tokens, keys) in decrypted form. This endpoint\nis restricted to service accounts only for security. Regular users cannot retrieve plaintext\ncredentials after creation.\n\nContext:\n    This endpoint provides access to sensitive credential data for system-level operations.\n    It is primarily used by:\n    - Service accounts executing workflows that need integration credentials\n    - Internal services performing integration health checks\n    - System processes that need to establish external connections\n    - Automated credential rotation and renewal workflows\n\n    Regular user accounts cannot access this endpoint to prevent credential exposure.\n\nUse Cases:\n    Service account retrieves SFTP credentials to execute file download task in workflow.\n\n    Internal health check service validates PostgreSQL credential by attempting connection.\n\n    Automated token refresh service retrieves OAuth refresh_token for renewal.\nRelated Endpoints:\n    - GET /integrations/credentials - List credentials (metadata only, no secrets)\n    - POST /integrations/credentials - Create new credential\n    - PATCH /integrations/credentials/{credential_id} - Update credential\n\nSecurity:\n    - Service accounts only - regular users cannot retrieve plaintext credentials\n    - Credentials are decrypted in-memory only (never logged or persisted unencrypted)\n    - Organization isolation enforced at query level\n    - Audit logging recommended for production use\n    - Consider rotating credentials if this endpoint is compromised\n\nNotes:\n    - This endpoint is intended for internal system use, not direct customer API calls\n    - Sensitive data should be handled securely and never exposed in logs or responses\n    - OAuth tokens are automatically refreshed if expired before returning"
+      description: 'Retrieve decrypted credential secrets for integration use.
+
+
+        Returns the actual credential data (passwords, tokens, keys) in decrypted form. This endpoint
+
+        is restricted to service accounts only for security. Regular users cannot retrieve plaintext
+
+        credentials after creation.
+
+
+        Context:
+
+        This endpoint provides access to sensitive credential data for system-level operations.
+
+        It is primarily used by:
+
+        - Service accounts executing workflows that need integration credentials
+
+        - Internal services performing integration health checks
+
+        - System processes that need to establish external connections
+
+        - Automated credential rotation and renewal workflows
+
+
+        Regular user accounts cannot access this endpoint to prevent credential exposure.
+
+
+        Use Cases:
+
+        Service account retrieves SFTP credentials to execute file download task in workflow.
+
+
+        Internal health check service validates PostgreSQL credential by attempting connection.
+
+
+        Automated token refresh service retrieves OAuth refresh_token for renewal.
+
+        Related Endpoints:
+
+        - GET /integrations/credentials - List credentials (metadata only, no secrets)
+
+        - POST /integrations/credentials - Create new credential
+
+        - PATCH /integrations/credentials/{credential_id} - Update credential
+
+
+        Security:
+
+        - Service accounts only - regular users cannot retrieve plaintext credentials
+
+        - Credentials are decrypted in-memory only (never logged or persisted unencrypted)
+
+        - Organization isolation enforced at query level
+
+        - Audit logging recommended for production use
+
+        - Consider rotating credentials if this endpoint is compromised
+
+
+        Notes:
+
+        - This endpoint is intended for internal system use, not direct customer API calls
+
+        - Sensitive data should be handled securely and never exposed in logs or responses
+
+        - OAuth tokens are automatically refreshed if expired before returning'
       operationId: get_credential_secrets_api_integrations_credentials__credential_id__credentials_get
       parameters:
       - name: credential_id
@@ -1864,9 +2270,59 @@ paths:
   /api/integrations/credentials/{credential_id}:
     get:
       tags:
-      - integrations
+      - Integrations
       summary: Get credential by ID
-      description: "Retrieve metadata for a specific integration credential.\n\nReturns credential metadata without sensitive data. Use this endpoint to check credential\nstatus, provider type, and creation date without exposing passwords or tokens.\n\nContext:\n    This endpoint provides safe access to credential information for UI display and\n    validation purposes. Common use cases include:\n    - Displaying credential details in integration settings pages\n    - Verifying credential ownership before performing operations\n    - Checking credential type before initiating provider-specific workflows\n    - Validating credential exists before attempting to use it in tasks\n\nUse Cases:\n    Verify credential exists and belongs to current user before displaying integration UI.\n\n    Check credential type to determine which configuration UI to show (password vs OAuth).\n\n    Display credential creation date in integration settings for audit purposes.\nRelated Endpoints:\n    - GET /integrations/credentials - List all user credentials\n    - GET /integrations/credentials/{credential_id}/credentials - Get credential secrets (service accounts only)\n    - PATCH /integrations/credentials/{credential_id} - Update credential\n    - DELETE /integrations/credentials/{credential_id} - Delete credential\n\nNotes:\n    - This endpoint is safe for UI use (no sensitive data exposure)\n    - Soft-deleted credentials return 404\n    - OAuth credentials include token expiration metadata"
+      description: 'Retrieve metadata for a specific integration credential.
+
+
+        Returns credential metadata without sensitive data. Use this endpoint to check credential
+
+        status, provider type, and creation date without exposing passwords or tokens.
+
+
+        Context:
+
+        This endpoint provides safe access to credential information for UI display and
+
+        validation purposes. Common use cases include:
+
+        - Displaying credential details in integration settings pages
+
+        - Verifying credential ownership before performing operations
+
+        - Checking credential type before initiating provider-specific workflows
+
+        - Validating credential exists before attempting to use it in tasks
+
+
+        Use Cases:
+
+        Verify credential exists and belongs to current user before displaying integration UI.
+
+
+        Check credential type to determine which configuration UI to show (password vs OAuth).
+
+
+        Display credential creation date in integration settings for audit purposes.
+
+        Related Endpoints:
+
+        - GET /integrations/credentials - List all user credentials
+
+        - GET /integrations/credentials/{credential_id}/credentials - Get credential secrets (service accounts only)
+
+        - PATCH /integrations/credentials/{credential_id} - Update credential
+
+        - DELETE /integrations/credentials/{credential_id} - Delete credential
+
+
+        Notes:
+
+        - This endpoint is safe for UI use (no sensitive data exposure)
+
+        - Soft-deleted credentials return 404
+
+        - OAuth credentials include token expiration metadata'
       operationId: get_user_credential_api_integrations_credentials__credential_id__get
       parameters:
       - name: credential_id
@@ -1972,9 +2428,71 @@ paths:
       - APIKeyAuth: []
     delete:
       tags:
-      - integrations
+      - Integrations
       summary: Delete credential
-      description: "Soft-delete an integration credential.\n\nMarks the credential as deleted without physically removing it from the database.\nDeleted credentials are excluded from list queries and cannot be used in workflows.\n\nContext:\n    This endpoint safely removes credentials while preserving audit trail. Common scenarios:\n    - User disconnects an integration from settings UI\n    - Credential compromise detected (delete and recreate)\n    - Integration no longer needed for workflows\n    - OAuth token revoked by provider\n\n    Soft deletion allows recovery if needed and maintains historical records for compliance.\n\nUse Cases:\n    User clicks \"Disconnect\" button for SharePoint integration in settings UI.\n\n    Remove compromised SFTP credentials before creating new ones with rotated password.\n\n    Clean up unused credentials to reduce organization's attack surface.\nRelated Endpoints:\n    - GET /integrations/credentials - List active credentials (excludes deleted)\n    - GET /integrations/credentials/{credential_id} - Verify credential before deletion\n    - POST /integrations/credentials - Create new credential to replace deleted one\n\nSecurity:\n    - Soft deletion preserves audit trail for compliance\n    - Encrypted credential data remains in database but inaccessible\n    - Consider automatic credential rotation policies for sensitive environments\n    - Deleted credentials cannot be restored via API (database admin required)\n\nNotes:\n    - Deletion is immediate and cannot be undone via API\n    - Workflows using this credential will fail after deletion\n    - Check for dependent workflows before deleting credentials\n    - OAuth tokens are not revoked at provider (user must revoke separately)"
+      description: 'Soft-delete an integration credential.
+
+
+        Marks the credential as deleted without physically removing it from the database.
+
+        Deleted credentials are excluded from list queries and cannot be used in workflows.
+
+
+        Context:
+
+        This endpoint safely removes credentials while preserving audit trail. Common scenarios:
+
+        - User disconnects an integration from settings UI
+
+        - Credential compromise detected (delete and recreate)
+
+        - Integration no longer needed for workflows
+
+        - OAuth token revoked by provider
+
+
+        Soft deletion allows recovery if needed and maintains historical records for compliance.
+
+
+        Use Cases:
+
+        User clicks "Disconnect" button for SharePoint integration in settings UI.
+
+
+        Remove compromised SFTP credentials before creating new ones with rotated password.
+
+
+        Clean up unused credentials to reduce organization''s attack surface.
+
+        Related Endpoints:
+
+        - GET /integrations/credentials - List active credentials (excludes deleted)
+
+        - GET /integrations/credentials/{credential_id} - Verify credential before deletion
+
+        - POST /integrations/credentials - Create new credential to replace deleted one
+
+
+        Security:
+
+        - Soft deletion preserves audit trail for compliance
+
+        - Encrypted credential data remains in database but inaccessible
+
+        - Consider automatic credential rotation policies for sensitive environments
+
+        - Deleted credentials cannot be restored via API (database admin required)
+
+
+        Notes:
+
+        - Deletion is immediate and cannot be undone via API
+
+        - Workflows using this credential will fail after deletion
+
+        - Check for dependent workflows before deleting credentials
+
+        - OAuth tokens are not revoked at provider (user must revoke separately)'
       operationId: delete_user_credential_api_integrations_credentials__credential_id__delete
       parameters:
       - name: credential_id
@@ -2076,9 +2594,75 @@ paths:
       - APIKeyAuth: []
     patch:
       tags:
-      - integrations
+      - Integrations
       summary: Update credential
-      description: "Update existing integration credentials with new values.\n\nReplaces credential data (passwords, tokens, connection details) for an existing credential.\nUse this endpoint to rotate passwords, update connection strings, or refresh OAuth tokens.\n\nContext:\n    Credential updates are necessary for several operational scenarios:\n    - Password rotation policies require periodic credential updates\n    - SFTP server configuration changes (hostname, port)\n    - Database connection string modifications\n    - SSH key rotation for key-based authentication\n    - OAuth token refresh (though typically handled automatically)\n\n    Updates preserve credential_id, allowing workflows to continue using the same reference.\n\nUse Cases:\n    Rotate SFTP password after security audit requires credential changes.\n\n    Update PostgreSQL connection string after database server migration.\n\n    Replace SSH private key after key compromise detected.\nRelated Endpoints:\n    - GET /integrations/credentials/{credential_id} - Get credential metadata before updating\n    - POST /integrations/sftp/test-connection - Test new SFTP credentials before updating\n    - POST /integrations/postgres/test-connection - Test new PostgreSQL credentials before updating\n    - DELETE /integrations/credentials/{credential_id} - Delete credential instead of updating\n\nSecurity:\n    - New credentials are encrypted before storage (same as creation)\n    - Old credential data is overwritten (not preserved in database)\n    - Audit trail tracks who performed the update via modified_by field\n    - Test new credentials before updating to prevent workflow disruption\n\nNotes:\n    - Always test new credentials before updating to avoid breaking workflows\n    - Workflows using this credential will use new values immediately\n    - OAuth credentials are typically auto-refreshed (manual update rarely needed)\n    - Consider creating new credential instead of updating if provider changes"
+      description: 'Update existing integration credentials with new values.
+
+
+        Replaces credential data (passwords, tokens, connection details) for an existing credential.
+
+        Use this endpoint to rotate passwords, update connection strings, or refresh OAuth tokens.
+
+
+        Context:
+
+        Credential updates are necessary for several operational scenarios:
+
+        - Password rotation policies require periodic credential updates
+
+        - SFTP server configuration changes (hostname, port)
+
+        - Database connection string modifications
+
+        - SSH key rotation for key-based authentication
+
+        - OAuth token refresh (though typically handled automatically)
+
+
+        Updates preserve credential_id, allowing workflows to continue using the same reference.
+
+
+        Use Cases:
+
+        Rotate SFTP password after security audit requires credential changes.
+
+
+        Update PostgreSQL connection string after database server migration.
+
+
+        Replace SSH private key after key compromise detected.
+
+        Related Endpoints:
+
+        - GET /integrations/credentials/{credential_id} - Get credential metadata before updating
+
+        - POST /integrations/sftp/test-connection - Test new SFTP credentials before updating
+
+        - POST /integrations/postgres/test-connection - Test new PostgreSQL credentials before updating
+
+        - DELETE /integrations/credentials/{credential_id} - Delete credential instead of updating
+
+
+        Security:
+
+        - New credentials are encrypted before storage (same as creation)
+
+        - Old credential data is overwritten (not preserved in database)
+
+        - Audit trail tracks who performed the update via modified_by field
+
+        - Test new credentials before updating to prevent workflow disruption
+
+
+        Notes:
+
+        - Always test new credentials before updating to avoid breaking workflows
+
+        - Workflows using this credential will use new values immediately
+
+        - OAuth credentials are typically auto-refreshed (manual update rarely needed)
+
+        - Consider creating new credential instead of updating if provider changes'
       operationId: update_user_credential_api_integrations_credentials__credential_id__patch
       parameters:
       - name: credential_id
@@ -2191,9 +2775,23 @@ paths:
   /api/integrations/plugins/:
     get:
       tags:
-      - integrations
+      - Integrations
       summary: List all registered plugins
-      description: "List all registered plugins from the integration registry.\n\nReturns plugins available in the new plugin system only, excluding legacy integrations.\nEach plugin includes metadata about its capabilities, version, and status.\n\nUse Cases:\n    - Display available integrations to users\n    - Validate plugin availability before configuration\n    - Integration discovery and selection"
+      description: 'List all registered plugins from the integration registry.
+
+
+        Returns plugins available in the new plugin system only, excluding legacy integrations.
+
+        Each plugin includes metadata about its capabilities, version, and status.
+
+
+        Use Cases:
+
+        - Display available integrations to users
+
+        - Validate plugin availability before configuration
+
+        - Integration discovery and selection'
       operationId: list_plugins_api_integrations_plugins__get
       responses:
         '200':
@@ -2254,9 +2852,29 @@ paths:
   /api/integrations/plugins/{plugin_name}/capabilities:
     get:
       tags:
-      - integrations
+      - Integrations
       summary: Get plugin capabilities
-      description: "Retrieve detailed capabilities of a specific plugin.\n\nReturns comprehensive information about what the plugin can do, including:\n- Supported operations and execution models\n- Required authentication types\n- Configuration schema and metadata\n- Webhook support status\n\nUse Cases:\n    - Display plugin configuration UI\n    - Validate plugin compatibility with workflow\n    - Generate plugin documentation"
+      description: 'Retrieve detailed capabilities of a specific plugin.
+
+
+        Returns comprehensive information about what the plugin can do, including:
+
+        - Supported operations and execution models
+
+        - Required authentication types
+
+        - Configuration schema and metadata
+
+        - Webhook support status
+
+
+        Use Cases:
+
+        - Display plugin configuration UI
+
+        - Validate plugin compatibility with workflow
+
+        - Generate plugin documentation'
       operationId: get_plugin_capabilities_api_integrations_plugins__plugin_name__capabilities_get
       parameters:
       - name: plugin_name
@@ -2334,7 +2952,7 @@ paths:
   /api/integrations/plugins/{plugin_name}/oauth/authorize:
     post:
       tags:
-      - integrations
+      - Integrations
       summary: Oauth Authorize Legacy
       operationId: oauth_authorize_legacy
       parameters:
@@ -2368,7 +2986,7 @@ paths:
   /api/integrations/plugins/{plugin_name}/oauth/callback:
     get:
       tags:
-      - integrations
+      - Integrations
       summary: Oauth Callback Legacy
       operationId: oauth_callback_legacy
       parameters:
@@ -2420,7 +3038,7 @@ paths:
   /api/integrations/plugins/{plugin_name}/instances:
     post:
       tags:
-      - integrations
+      - Integrations
       summary: Create Integration Legacy
       operationId: create_integration_legacy_api_integrations_plugins__plugin_name__instances_post
       parameters:
@@ -2455,7 +3073,7 @@ paths:
       - APIKeyAuth: []
     get:
       tags:
-      - integrations
+      - Integrations
       summary: List Integration Instances
       operationId: list_integration_instances_api_integrations_plugins__plugin_name__instances_get
       parameters:
@@ -2508,7 +3126,7 @@ paths:
   /api/integrations/plugins/{plugin_name}/instances/{integration_id}:
     delete:
       tags:
-      - integrations
+      - Integrations
       summary: Delete Integration Legacy
       operationId: delete_integration_legacy_api_integrations_plugins__plugin_name__instances__integration_id__delete
       parameters:
@@ -2543,7 +3161,7 @@ paths:
   /api/integrations/plugins/{plugin_name}/instances/{integration_id}/webhook/callback:
     post:
       tags:
-      - integrations
+      - Integrations
       summary: Handle Webhook Legacy
       operationId: handle_webhook_legacy_api_integrations_plugins__plugin_name__instances__integration_id__webhook_callback_post
       parameters:
@@ -2578,7 +3196,7 @@ paths:
   /api/integrations/plugins/{plugin_name}/instances/{integration_id}/files/move:
     post:
       tags:
-      - integrations
+      - Integrations
       summary: Move File
       operationId: move_file_api_integrations_plugins__plugin_name__instances__integration_id__files_move_post
       parameters:
@@ -2613,7 +3231,7 @@ paths:
   /api/integrations/plugins/{plugin_name}/instances/{integration_id}/files:
     delete:
       tags:
-      - integrations
+      - Integrations
       summary: Delete File
       operationId: delete_file_api_integrations_plugins__plugin_name__instances__integration_id__files_delete
       parameters:
@@ -2648,7 +3266,7 @@ paths:
   /api/integrations/plugins/{plugin_name}/folders:
     get:
       tags:
-      - integrations
+      - Integrations
       summary: List Folders
       operationId: list_folders_api_integrations_plugins__plugin_name__folders_get
       parameters:
@@ -2683,7 +3301,7 @@ paths:
   /api/integrations/plugins/sharepoint/sites:
     get:
       tags:
-      - integrations
+      - Integrations
       summary: Get Sharepoint Sites
       operationId: get_sharepoint_sites_api_integrations_plugins_sharepoint_sites_get
       parameters:
@@ -2712,7 +3330,7 @@ paths:
   /api/integrations/plugins/sharepoint/drives:
     get:
       tags:
-      - integrations
+      - Integrations
       summary: Get Sharepoint Drives
       operationId: get_sharepoint_drives_api_integrations_plugins_sharepoint_drives_get
       parameters:
@@ -2748,7 +3366,7 @@ paths:
   /api/integrations/sftp/test-connection:
     post:
       tags:
-      - integrations
+      - Integrations
       summary: Test Sftp Connection
       description: Test SFTP connection by attempting to connect and write a test file.
       operationId: test_sftp_connection_api_integrations_sftp_test_connection_post
@@ -2776,9 +3394,84 @@ paths:
   /api/integrations/catalog:
     get:
       tags:
-      - integrations
+      - Integrations
       summary: List integration catalog
-      description: "Retrieve the catalog of available third-party integrations.\n\nReturns a comprehensive list of all integration providers supported by SuperAI Flows.\nEach integration includes metadata about authentication requirements, capabilities,\nand categorization to help users discover and connect external services to their workflows.\n\nContext:\n    - The integration catalog is the primary discovery mechanism for available services\n    - Dynamically generated from the plugin registry (no database storage overhead)\n    - All authenticated users can access the catalog\n    - Automatically excludes credentialless integrations and integrations in migration\n\nIntegration Categories:\n    - **database**: PostgreSQL, internal PostgreSQL database connectors\n    - **storage**: SharePoint document libraries, SFTP file servers\n    - **messaging**: AWS SES email integration\n    - **automation**: Various task executors and workflow automation tools\n\nAuthentication Methods:\n    - **oauth2**: OAuth 2.0 authorization flow (Google, SharePoint, Microsoft)\n    - **user_password**: Username/password authentication (SFTP, PostgreSQL)\n    - **api_key**: API key-based authentication\n    - **key_file**: SSH key-based authentication (SFTP)\n\nUse Cases:\n    - Display available integrations in UI marketplace\n    - Show available connectors during flow task configuration\n    - Validate provider support before connection attempts\n    - Determine authentication requirements before OAuth flows\n    - Populate provider selection dropdowns\n\nRelated Endpoints:\n    - GET /integrations/plugins - List detailed plugin metadata\n    - GET /integrations/plugins/{plugin_name}/capabilities - Get plugin capabilities\n    - POST /integrations/credentials - Create credentials for integration\n    - GET /integrations/credentials - List user's configured credentials\n\nNotes:\n    - OAuth integrations require additional authorize/callback flow\n    - Integration availability ≠ user has configured credentials\n    - Plugin system allows custom integrations without code changes\n    - Use GET /integrations/credentials to check user's connections"
+      description: 'Retrieve the catalog of available third-party integrations.
+
+
+        Returns a comprehensive list of all integration providers supported by SuperAI Flows.
+
+        Each integration includes metadata about authentication requirements, capabilities,
+
+        and categorization to help users discover and connect external services to their workflows.
+
+
+        Context:
+
+        - The integration catalog is the primary discovery mechanism for available services
+
+        - Dynamically generated from the plugin registry (no database storage overhead)
+
+        - All authenticated users can access the catalog
+
+        - Automatically excludes credentialless integrations and integrations in migration
+
+
+        Integration Categories:
+
+        - **database**: PostgreSQL, internal PostgreSQL database connectors
+
+        - **storage**: SharePoint document libraries, SFTP file servers
+
+        - **messaging**: AWS SES email integration
+
+        - **automation**: Various task executors and workflow automation tools
+
+
+        Authentication Methods:
+
+        - **oauth2**: OAuth 2.0 authorization flow (Google, SharePoint, Microsoft)
+
+        - **user_password**: Username/password authentication (SFTP, PostgreSQL)
+
+        - **api_key**: API key-based authentication
+
+        - **key_file**: SSH key-based authentication (SFTP)
+
+
+        Use Cases:
+
+        - Display available integrations in UI marketplace
+
+        - Show available connectors during flow task configuration
+
+        - Validate provider support before connection attempts
+
+        - Determine authentication requirements before OAuth flows
+
+        - Populate provider selection dropdowns
+
+
+        Related Endpoints:
+
+        - GET /integrations/plugins - List detailed plugin metadata
+
+        - GET /integrations/plugins/{plugin_name}/capabilities - Get plugin capabilities
+
+        - POST /integrations/credentials - Create credentials for integration
+
+        - GET /integrations/credentials - List user''s configured credentials
+
+
+        Notes:
+
+        - OAuth integrations require additional authorize/callback flow
+
+        - Integration availability ≠ user has configured credentials
+
+        - Plugin system allows custom integrations without code changes
+
+        - Use GET /integrations/credentials to check user''s connections'
       operationId: get_integration_catalog_api_integrations_catalog_get
       responses:
         '200':
@@ -2859,7 +3552,7 @@ paths:
   /api/integrations/plugins/postgres/test-connection:
     post:
       tags:
-      - integrations
+      - Integrations
       summary: Test Postgres Plugin Connection
       description: Test PostgreSQL connection using the new plugin system.
       operationId: test_postgres_plugin_connection_api_integrations_plugins_postgres_test_connection_post
@@ -2889,7 +3582,7 @@ paths:
   /api/integrations/plugins/postgres/execute:
     post:
       tags:
-      - integrations
+      - Integrations
       summary: Execute Postgres Plugin Task
       description: Execute PostgreSQL task using the new plugin system.
       operationId: execute_postgres_plugin_task_api_integrations_plugins_postgres_execute_post
@@ -2918,178 +3611,6 @@ paths:
       - APIKeyAuth: []
 components:
   schemas:
-    IntegrationCatalogResponse:
-      properties:
-        id:
-          type: string
-          format: uuid
-          title: Id
-        category:
-          $ref: '#/components/schemas/IntegrationCategory'
-        provider:
-          $ref: '#/components/schemas/ProviderApiEnum'
-        name:
-          type: string
-          title: Name
-        display_name:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Display Name
-        description:
-          type: string
-          title: Description
-        credential_types:
-          items:
-            $ref: '#/components/schemas/CredentialTypeEnum'
-          type: array
-          title: Credential Types
-        is_plugin:
-          type: boolean
-          title: Is Plugin
-          default: false
-        credential_providers:
-          anyOf:
-          - items:
-              $ref: '#/components/schemas/CredentialProvider'
-            type: array
-          - type: 'null'
-          title: Credential Providers
-      type: object
-      required:
-      - id
-      - category
-      - provider
-      - name
-      - description
-      - credential_types
-      title: IntegrationCatalogResponse
-      description: Response model for integration catalog
-    UserIntegrationCredentialsCreate:
-      properties:
-        name:
-          type: string
-          title: Name
-        provider:
-          $ref: '#/components/schemas/ProviderApiEnum'
-        credential_type:
-          $ref: '#/components/schemas/CredentialTypeEnum'
-        credentials:
-          additionalProperties: true
-          type: object
-          title: Credentials
-      type: object
-      required:
-      - name
-      - provider
-      - credential_type
-      - credentials
-      title: UserIntegrationCredentialsCreate
-      description: Request model for creating user integration credentials
-    DocumentFileCreateRequest:
-      properties:
-        name:
-          type: string
-          title: Name
-          description: Document name
-        description:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Description
-          description: Document description
-        database_type:
-          type: string
-          enum:
-          - csv
-          - postgres
-          title: Database Type
-          description: Type of database
-          default: csv
-        credential_id:
-          anyOf:
-          - type: string
-            format: uuid
-          - type: 'null'
-          title: Credential Id
-          description: Credential ID for PostgreSQL databases
-        table_name:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Table Name
-          description: Table name for PostgreSQL databases
-      type: object
-      required:
-      - name
-      title: DocumentFileCreateRequest
-      description: Request to create a new document file entry.
-    QueryTableResponse:
-      properties:
-        table_name:
-          type: string
-          title: Table Name
-          description: Table name
-        columns:
-          items:
-            type: string
-          type: array
-          title: Columns
-          description: Column names
-        rows:
-          items:
-            additionalProperties: true
-            type: object
-          type: array
-          title: Rows
-          description: Matched rows as dicts keyed by column name
-        row_count:
-          type: integer
-          minimum: 0.0
-          title: Row Count
-          description: Number of rows returned
-      type: object
-      required:
-      - table_name
-      - columns
-      - rows
-      - row_count
-      title: QueryTableResponse
-      description: Response containing matched rows from a managed-DB table.
-    ValidationError:
-      properties:
-        loc:
-          items:
-            anyOf:
-            - type: string
-            - type: integer
-          type: array
-          title: Location
-        msg:
-          type: string
-          title: Message
-        type:
-          type: string
-          title: Error Type
-      type: object
-      required:
-      - loc
-      - msg
-      - type
-      title: ValidationError
-    app__api__integrations__plugins__plugins_router__OauthAuthorizeRequest:
-      properties:
-        redirect_to:
-          type: string
-          title: Redirect To
-        integration_name:
-          type: string
-          title: Integration Name
-      type: object
-      required:
-      - redirect_to
-      - integration_name
-      title: OauthAuthorizeRequest
     IntegrationCategory:
       type: string
       enum:
@@ -3101,6 +3622,213 @@ components:
       - storage
       title: IntegrationCategory
       description: Integration category
+    EmailTaskResponse:
+      properties:
+        task_id:
+          type: string
+          title: Task Id
+          description: Unique task identifier
+        email_address:
+          type: string
+          title: Email Address
+          description: Generated email address
+        status:
+          type: string
+          title: Status
+          description: Task status
+          default: active
+        name:
+          type: string
+          title: Name
+          description: Task name
+        description:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Description
+          description: Task description
+      type: object
+      required:
+      - task_id
+      - email_address
+      - name
+      title: EmailTaskResponse
+      description: Response from email task creation.
+    IsNullMatch:
+      properties:
+        mode:
+          type: string
+          const: is_null
+          title: Mode
+          default: is_null
+        column:
+          type: string
+          pattern: ^[a-zA-Z_][a-zA-Z0-9_]{0,62}$
+          title: Column
+          description: Column that must be NULL
+          examples:
+          - completed_at
+      additionalProperties: false
+      type: object
+      required:
+      - column
+      title: IsNullMatch
+      description: 'Match clause for NULL values: `"col" IS NULL`.
+
+
+        Use this in place of trying to match `value: null` — `WHERE col = NULL` is always false in SQL.'
+    CredentialTypeEnum:
+      type: string
+      enum:
+      - api_key
+      - oauth2
+      - user_password
+      - key_file
+      - client_credentials
+      - sharepoint_receive
+      - google_drive_receive
+      - sftp
+      - azure_blob_receive
+      title: CredentialTypeEnum
+    DatabaseColumnsResponse:
+      properties:
+        database_id:
+          type: string
+          title: Database Id
+          description: Database identifier
+          examples:
+          - 123e4567-e89b-12d3-a456-426614174000
+        columns:
+          items:
+            type: string
+          type: array
+          title: Columns
+          description: List of column names in the database
+          examples:
+          - - id
+            - name
+            - email
+            - created_at
+            - revenue
+            - region
+        column_count:
+          type: integer
+          minimum: 0.0
+          title: Column Count
+          description: Total number of columns
+          examples:
+          - 6
+      type: object
+      required:
+      - database_id
+      - columns
+      - column_count
+      title: DatabaseColumnsResponse
+      description: 'Response containing database column information.
+
+
+        Returned by GET /database/{db_id}/columns endpoint.'
+      example:
+        column_count: 6
+        columns:
+        - id
+        - name
+        - email
+        - created_at
+        - revenue
+        - region
+        database_id: 123e4567-e89b-12d3-a456-426614174000
+    OrderByColumn:
+      properties:
+        kind:
+          type: string
+          const: column
+          title: Kind
+          default: column
+        column:
+          type: string
+          pattern: ^[a-zA-Z_][a-zA-Z0-9_]{0,62}$
+          title: Column
+          description: Column to order by
+          examples:
+          - created_at
+        direction:
+          type: string
+          enum:
+          - ASC
+          - DESC
+          title: Direction
+          default: ASC
+      additionalProperties: false
+      type: object
+      required:
+      - column
+      title: OrderByColumn
+      description: Order by a named column in ASC or DESC direction.
+    WholeMatch:
+      properties:
+        mode:
+          type: string
+          const: whole
+          title: Mode
+          default: whole
+        column:
+          type: string
+          pattern: ^[a-zA-Z_][a-zA-Z0-9_]{0,62}$
+          title: Column
+          description: Column to match against
+          examples:
+          - task_id
+        value:
+          anyOf:
+          - type: string
+          - type: integer
+          - type: number
+          - type: boolean
+          title: Value
+          description: Value the column must equal (non-null).
+      additionalProperties: false
+      type: object
+      required:
+      - column
+      - value
+      title: WholeMatch
+      description: 'Exact-match clause on a column value: `"col" = :param`.'
+    InsertRowRequest:
+      properties:
+        values:
+          additionalProperties: true
+          type: object
+          title: Values
+          description: Map of column name to value. Keys must match existing columns of the table.
+          examples:
+          - hitl_output:
+              foo: bar
+            metadata:
+              document_type: lufthansa
+            task_id: '...'
+      type: object
+      required:
+      - values
+      title: InsertRowRequest
+      description: Request to insert a single row into a managed-DB table.
+    InsertRowResponse:
+      properties:
+        table_name:
+          type: string
+          title: Table Name
+          description: Table name
+        row:
+          additionalProperties: true
+          type: object
+          title: Row
+          description: The inserted row as returned by RETURNING *
+      type: object
+      required:
+      - table_name
+      - row
+      title: InsertRowResponse
+      description: Response containing the inserted row.
     PostgresCreateRequest:
       properties:
         host:
@@ -3132,50 +3860,33 @@ components:
       - database
       title: PostgresCreateRequest
       description: PostgreSQL integration creation request model.
-    OrderByRandom:
+    HTTPValidationError:
       properties:
-        kind:
-          type: string
-          const: random
-          title: Kind
-          default: random
-      additionalProperties: false
+        detail:
+          items:
+            $ref: '#/components/schemas/ValidationError'
+          type: array
+          title: Detail
       type: object
-      title: OrderByRandom
-      description: 'Order by `random()` for uniform random sampling across the matched pool.
-
-
-        Pushing the randomisation into Postgres is the only way to get a uniform sample over the whole
-
-        matched pool — a client-side shuffle on a heap-prefix would be biased.'
-    CreateTableResponse:
+      title: HTTPValidationError
+    TableColumnsResponse:
       properties:
-        database_id:
-          type: string
-          title: Database Id
-          description: Database identifier
         table_name:
           type: string
           title: Table Name
-          description: Created table name
+          description: Table name
         columns:
           items:
-            $ref: '#/components/schemas/ColumnDefinition'
+            $ref: '#/components/schemas/TableColumn'
           type: array
           title: Columns
-          description: Table columns
-        message:
-          type: string
-          title: Message
-          description: Success message
+          description: List of columns
       type: object
       required:
-      - database_id
       - table_name
       - columns
-      - message
-      title: CreateTableResponse
-      description: Response after creating a table.
+      title: TableColumnsResponse
+      description: Response containing columns of a table.
     ErrorDetail:
       properties:
         message:
@@ -3239,6 +3950,315 @@ components:
       - upload_id
       title: FileUploadCompleteRequest
       description: Request to complete file upload and process the file.
+    UserIntegrationCredentialsCreate:
+      properties:
+        name:
+          type: string
+          title: Name
+        provider:
+          $ref: '#/components/schemas/ProviderApiEnum'
+        credential_type:
+          $ref: '#/components/schemas/CredentialTypeEnum'
+        credentials:
+          additionalProperties: true
+          type: object
+          title: Credentials
+      type: object
+      required:
+      - name
+      - provider
+      - credential_type
+      - credentials
+      title: UserIntegrationCredentialsCreate
+      description: Request model for creating user integration credentials
+    ColumnDefinition:
+      properties:
+        name:
+          type: string
+          title: Name
+          description: Column name
+          examples:
+          - email
+        type:
+          type: string
+          title: Type
+          description: PostgreSQL column type
+          examples:
+          - TEXT
+          - INTEGER
+          - BOOLEAN
+          - TIMESTAMP
+          - JSONB
+          - UUID
+        is_primary_key:
+          type: boolean
+          title: Is Primary Key
+          description: Whether this column is part of the primary key
+          default: false
+        foreign_key:
+          anyOf:
+          - $ref: '#/components/schemas/ForeignKeyDefinition'
+          - type: 'null'
+          description: Foreign key constraint if this column references another table
+        default:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Default
+          description: 'Optional column default expression. Restricted to a small set of safe forms: a function call like ''gen_random_uuid()'' or ''now()'', a SQL literal NULL/TRUE/FALSE, an integer, or a single-quoted string.'
+          examples:
+          - gen_random_uuid()
+          - now()
+          - '''pending'''
+          - '0'
+      type: object
+      required:
+      - name
+      - type
+      title: ColumnDefinition
+      description: Definition of a table column.
+    DocumentFileResponse:
+      properties:
+        id:
+          type: string
+          format: uuid
+          title: Id
+          description: Document file ID
+        name:
+          type: string
+          title: Name
+          description: Document name
+        description:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Description
+          description: Document description
+        database_type:
+          type: string
+          enum:
+          - csv
+          - postgres
+          title: Database Type
+          description: Type of database
+        current_file_id:
+          anyOf:
+          - type: string
+            format: uuid
+          - type: 'null'
+          title: Current File Id
+          description: Current file ID in bucket
+        current_table_name:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Current Table Name
+          description: Current dataset name
+        revision_count:
+          type: integer
+          title: Revision Count
+          description: Number of file revisions
+          default: 0
+        total_rows:
+          type: integer
+          title: Total Rows
+          description: Total rows in current file
+          default: 0
+        status:
+          type: string
+          title: Status
+          description: File status
+        created_at:
+          type: string
+          format: date-time
+          title: Created At
+          description: Creation timestamp
+        updated_at:
+          type: string
+          format: date-time
+          title: Updated At
+          description: Last update timestamp
+        modified_by:
+          type: string
+          title: Modified By
+          description: User ID (UUID string) or 'system' of the actor who last modified the file. For users, stores UUID string; for integrations, stores type value; for system changes, stores 'system'.
+          default: system
+      type: object
+      required:
+      - id
+      - name
+      - database_type
+      - status
+      - created_at
+      - updated_at
+      title: DocumentFileResponse
+      description: Response for document file operations.
+    app__api__integrations__plugins__plugins_router__OauthAuthorizeRequest:
+      properties:
+        redirect_to:
+          type: string
+          title: Redirect To
+        integration_name:
+          type: string
+          title: Integration Name
+      type: object
+      required:
+      - redirect_to
+      - integration_name
+      title: OauthAuthorizeRequest
+    TableInfo:
+      properties:
+        name:
+          type: string
+          title: Name
+          description: Table name
+          examples:
+          - users
+        row_count:
+          type: integer
+          minimum: 0.0
+          title: Row Count
+          description: Number of rows in the table
+          examples:
+          - 1250
+      type: object
+      required:
+      - name
+      - row_count
+      title: TableInfo
+      description: Information about a database table.
+    IntegrationCatalogResponse:
+      properties:
+        id:
+          type: string
+          format: uuid
+          title: Id
+        category:
+          $ref: '#/components/schemas/IntegrationCategory'
+        provider:
+          $ref: '#/components/schemas/ProviderApiEnum'
+        name:
+          type: string
+          title: Name
+        display_name:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Display Name
+        description:
+          type: string
+          title: Description
+        credential_types:
+          items:
+            $ref: '#/components/schemas/CredentialTypeEnum'
+          type: array
+          title: Credential Types
+        is_plugin:
+          type: boolean
+          title: Is Plugin
+          default: false
+        credential_providers:
+          anyOf:
+          - items:
+              $ref: '#/components/schemas/CredentialProvider'
+            type: array
+          - type: 'null'
+          title: Credential Providers
+      type: object
+      required:
+      - id
+      - category
+      - provider
+      - name
+      - description
+      - credential_types
+      title: IntegrationCatalogResponse
+      description: Response model for integration catalog
+    TableDataResponse:
+      properties:
+        database_id:
+          type: string
+          title: Database Id
+          description: Database identifier
+        table_name:
+          type: string
+          title: Table Name
+          description: Table name
+        columns:
+          items:
+            type: string
+          type: array
+          title: Columns
+          description: Column names
+        rows:
+          items:
+            items: {}
+            type: array
+          type: array
+          title: Rows
+          description: Table rows
+        row_count:
+          type: integer
+          minimum: 0.0
+          title: Row Count
+          description: Total number of rows
+      type: object
+      required:
+      - database_id
+      - table_name
+      - columns
+      - rows
+      - row_count
+      title: TableDataResponse
+      description: Response containing table data.
+    UserIntegrationCredentialsUpdate:
+      properties:
+        name:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Name
+        credential_type:
+          $ref: '#/components/schemas/CredentialTypeEnum'
+        credentials:
+          additionalProperties: true
+          type: object
+          title: Credentials
+      type: object
+      required:
+      - credential_type
+      - credentials
+      title: UserIntegrationCredentialsUpdate
+      description: Request model for updating user integration credentials
+    EmailTaskRequest:
+      properties:
+        name:
+          type: string
+          title: Name
+          description: Task name
+        description:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Description
+          description: Task description
+        flow_id:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Flow Id
+          description: Flow ID for deduplication
+        task_name:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Task Name
+          description: Task name for deduplication
+      type: object
+      required:
+      - name
+      title: EmailTaskRequest
+      description: Request to create an email task.
     ProviderApiEnum:
       type: string
       enum:
@@ -3253,6 +4273,257 @@ components:
       - sharepoint_client_secret
       - azure_blob
       title: ProviderApiEnum
+    EmailTaskStatus:
+      properties:
+        task_id:
+          type: string
+          title: Task Id
+        email_address:
+          type: string
+          title: Email Address
+        status:
+          type: string
+          title: Status
+        created_at:
+          type: string
+          title: Created At
+        last_email_received:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Last Email Received
+        email_count:
+          type: integer
+          title: Email Count
+          default: 0
+      type: object
+      required:
+      - task_id
+      - email_address
+      - status
+      - created_at
+      title: EmailTaskStatus
+      description: Status of an email task.
+    UploadUrlResponse:
+      properties:
+        upload_url:
+          type: string
+          title: Upload Url
+          description: Pre-signed URL for uploading file to cloud storage. Upload your file to this URL using PUT or POST request.
+          examples:
+          - https://storage.googleapis.com/bucket/path/file.csv?signature=abc123&expires=1640000000
+        file_key:
+          type: string
+          title: File Key
+          description: Unique key identifying the file location in storage. Use this key to reference the file in subsequent operations.
+          examples:
+          - databases/123e4567-e89b-12d3-a456-426614174000/documents/file-uuid.csv
+        expires_at:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Expires At
+          description: UTC timestamp when the upload URL expires. Complete the upload before this time. Typically 1 hour from generation.
+          examples:
+          - '2024-01-15T11:30:00Z'
+      type: object
+      required:
+      - upload_url
+      - file_key
+      title: UploadUrlResponse
+      description: 'Response containing pre-signed upload URL for file uploads.
+
+
+        Generated by POST /database/{db_id}/upload-url endpoint.
+
+        Use this URL to upload files directly to cloud storage.'
+      example:
+        expires_at: '2024-01-15T11:30:00Z'
+        file_key: databases/123e4567-e89b-12d3-a456-426614174000/documents/uuid.csv
+        upload_url: https://storage.googleapis.com/bucket/databases/db-id/documents/uuid.csv?signature=abc
+    KeyValue:
+      properties:
+        key:
+          type: string
+          pattern: ^[a-zA-Z_][a-zA-Z0-9_]{0,62}$
+          title: Key
+          description: JSON key inside the target column
+          examples:
+          - document_type
+        value:
+          anyOf:
+          - type: string
+          - type: integer
+          - type: number
+          - type: boolean
+          title: Value
+          description: Exact value to match against the JSON key
+      type: object
+      required:
+      - key
+      - value
+      title: KeyValue
+      description: One JSON key/value pair inside a json_keys match clause.
+    QueryTableResponse:
+      properties:
+        table_name:
+          type: string
+          title: Table Name
+          description: Table name
+        columns:
+          items:
+            type: string
+          type: array
+          title: Columns
+          description: Column names
+        rows:
+          items:
+            additionalProperties: true
+            type: object
+          type: array
+          title: Rows
+          description: Matched rows as dicts keyed by column name
+        row_count:
+          type: integer
+          minimum: 0.0
+          title: Row Count
+          description: Number of rows returned
+      type: object
+      required:
+      - table_name
+      - columns
+      - rows
+      - row_count
+      title: QueryTableResponse
+      description: Response containing matched rows from a managed-DB table.
+    ErrorResponse:
+      properties:
+        error:
+          $ref: '#/components/schemas/ErrorDetail'
+        request_id:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Request Id
+          description: 'Unique request identifier in ULID format for debugging and support. Example: 01K8KABR6S16YETA2SZPVBS9SP'
+      type: object
+      required:
+      - error
+      title: ErrorResponse
+      description: "Standard API error response structure.\n\nAll error responses from the API follow this format, ensuring\nconsistent error handling for API consumers.\n\nExample:\n    {\n        \"error\": {\n            \"message\": \"Flow not found\",\n            \"code\": \"not_found\"\n        },\n        \"request_id\": \"01K8KABR6S16YETA2SZPVBS9SP\"\n    }"
+      examples:
+      - error:
+          code: not_found
+          message: Resource not found
+        request_id: 01K8KABR6S16YETA2SZPVBS9SP
+    QueryTableRequest:
+      properties:
+        matches:
+          items:
+            oneOf:
+            - $ref: '#/components/schemas/WholeMatch'
+            - $ref: '#/components/schemas/IsNullMatch'
+            - $ref: '#/components/schemas/JsonKeysMatch'
+            discriminator:
+              propertyName: mode
+              mapping:
+                is_null: '#/components/schemas/IsNullMatch'
+                json_keys: '#/components/schemas/JsonKeysMatch'
+                whole: '#/components/schemas/WholeMatch'
+          type: array
+          title: Matches
+          description: List of match clauses combined by `combinator` at the top level. Empty list returns all rows up to limit.
+        combinator:
+          type: string
+          enum:
+          - AND
+          - OR
+          title: Combinator
+          description: How top-level match clauses join. 'AND' requires every clause to match; 'OR' returns rows that satisfy at least one clause.
+          default: AND
+        order_by:
+          anyOf:
+          - oneOf:
+            - $ref: '#/components/schemas/OrderByColumn'
+            - $ref: '#/components/schemas/OrderByRandom'
+            discriminator:
+              propertyName: kind
+              mapping:
+                column: '#/components/schemas/OrderByColumn'
+                random: '#/components/schemas/OrderByRandom'
+          - type: 'null'
+          title: Order By
+          description: How to order results. Either a column with direction (kind='column') or a SQL-level random sample (kind='random'). Defaults to no ORDER BY clause.
+        limit:
+          type: integer
+          maximum: 1000.0
+          minimum: 1.0
+          title: Limit
+          description: Max rows to return
+          default: 100
+      type: object
+      title: QueryTableRequest
+      description: Request to query a managed-DB table with exact-match clauses and a row limit.
+    CredentialProvider:
+      properties:
+        is_oauth:
+          type: boolean
+          title: Is Oauth
+        name:
+          type: string
+          title: Name
+        credential_schema:
+          additionalProperties: true
+          type: object
+          title: Credential Schema
+      type: object
+      required:
+      - is_oauth
+      - name
+      - credential_schema
+      title: CredentialProvider
+      description: Credential provider model
+    CreateTableResponse:
+      properties:
+        database_id:
+          type: string
+          title: Database Id
+          description: Database identifier
+        table_name:
+          type: string
+          title: Table Name
+          description: Created table name
+        columns:
+          items:
+            $ref: '#/components/schemas/ColumnDefinition'
+          type: array
+          title: Columns
+          description: Table columns
+        message:
+          type: string
+          title: Message
+          description: Success message
+      type: object
+      required:
+      - database_id
+      - table_name
+      - columns
+      - message
+      title: CreateTableResponse
+      description: Response after creating a table.
+    DatabaseDownloadResponse:
+      properties:
+        download_url:
+          type: string
+          title: Download Url
+          description: Pre-signed URL for downloading the database file from cloud storage.
+          examples:
+          - https://storage.googleapis.com/bucket/path/file.csv?signature=abc123&expires=1640000000
+      type: object
+      required:
+      - download_url
+      title: DatabaseDownloadResponse
+      description: Response containing download URL for database file.
     JsonKeysMatch:
       properties:
         mode:
@@ -3289,26 +4560,6 @@ components:
       - keys
       title: JsonKeysMatch
       description: 'Match clause against keys inside a JSONB column: `"col"->>''k'' = :param`.'
-    ForeignKeyDefinition:
-      properties:
-        table:
-          type: string
-          title: Table
-          description: Referenced table name
-          examples:
-          - users
-        column:
-          type: string
-          title: Column
-          description: Referenced column name
-          examples:
-          - id
-      type: object
-      required:
-      - table
-      - column
-      title: ForeignKeyDefinition
-      description: Foreign key constraint definition.
     CSVPreviewResponse:
       properties:
         headers:
@@ -3387,76 +4638,62 @@ components:
           - bob@example.com
           - '2024-01-17'
           - '2100.75'
-    EmailTaskStatus:
+    TableListResponse:
       properties:
-        task_id:
+        database_id:
           type: string
-          title: Task Id
-        email_address:
-          type: string
-          title: Email Address
-        status:
-          type: string
-          title: Status
-        created_at:
-          type: string
-          title: Created At
-        last_email_received:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Last Email Received
-        email_count:
-          type: integer
-          title: Email Count
-          default: 0
-      type: object
-      required:
-      - task_id
-      - email_address
-      - status
-      - created_at
-      title: EmailTaskStatus
-      description: Status of an email task.
-    InsertRowRequest:
-      properties:
-        values:
-          additionalProperties: true
-          type: object
-          title: Values
-          description: Map of column name to value. Keys must match existing columns of the table.
+          title: Database Id
+          description: Database identifier
           examples:
-          - hitl_output:
-              foo: bar
-            metadata:
-              document_type: lufthansa
-            task_id: '...'
+          - 123e4567-e89b-12d3-a456-426614174000
+        tables:
+          items:
+            $ref: '#/components/schemas/TableInfo'
+          type: array
+          title: Tables
+          description: List of tables in the database
       type: object
       required:
-      - values
-      title: InsertRowRequest
-      description: Request to insert a single row into a managed-DB table.
-    TableInfo:
+      - database_id
+      title: TableListResponse
+      description: Response containing list of tables in a managed database.
+    CreateTableRequest:
       properties:
-        name:
+        table_name:
           type: string
-          title: Name
-          description: Table name
+          title: Table Name
+          description: Name of the table to create
           examples:
           - users
-        row_count:
-          type: integer
-          minimum: 0.0
-          title: Row Count
-          description: Number of rows in the table
-          examples:
-          - 1250
+        columns:
+          items:
+            $ref: '#/components/schemas/ColumnDefinition'
+          type: array
+          minItems: 1
+          title: Columns
+          description: List of column definitions
       type: object
       required:
-      - name
-      - row_count
-      title: TableInfo
-      description: Information about a database table.
+      - table_name
+      - columns
+      title: CreateTableRequest
+      description: Request to create a new table in a managed database.
+    OrderByRandom:
+      properties:
+        kind:
+          type: string
+          const: random
+          title: Kind
+          default: random
+      additionalProperties: false
+      type: object
+      title: OrderByRandom
+      description: 'Order by `random()` for uniform random sampling across the matched pool.
+
+
+        Pushing the randomisation into Postgres is the only way to get a uniform sample over the whole
+
+        matched pool — a client-side shuffle on a heap-prefix would be biased.'
     CSVMetadata:
       properties:
         total_rows:
@@ -3509,43 +4746,6 @@ components:
       - delimiter
       title: CSVMetadata
       description: Metadata about a CSV file.
-    UploadUrlResponse:
-      properties:
-        upload_url:
-          type: string
-          title: Upload Url
-          description: Pre-signed URL for uploading file to cloud storage. Upload your file to this URL using PUT or POST request.
-          examples:
-          - https://storage.googleapis.com/bucket/path/file.csv?signature=abc123&expires=1640000000
-        file_key:
-          type: string
-          title: File Key
-          description: Unique key identifying the file location in storage. Use this key to reference the file in subsequent operations.
-          examples:
-          - databases/123e4567-e89b-12d3-a456-426614174000/documents/file-uuid.csv
-        expires_at:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Expires At
-          description: UTC timestamp when the upload URL expires. Complete the upload before this time. Typically 1 hour from generation.
-          examples:
-          - '2024-01-15T11:30:00Z'
-      type: object
-      required:
-      - upload_url
-      - file_key
-      title: UploadUrlResponse
-      description: 'Response containing pre-signed upload URL for file uploads.
-
-
-        Generated by POST /database/{db_id}/upload-url endpoint.
-
-        Use this URL to upload files directly to cloud storage.'
-      example:
-        expires_at: '2024-01-15T11:30:00Z'
-        file_key: databases/123e4567-e89b-12d3-a456-426614174000/documents/uuid.csv
-        upload_url: https://storage.googleapis.com/bucket/databases/db-id/documents/uuid.csv?signature=abc
     TableColumn:
       properties:
         name:
@@ -3562,629 +4762,6 @@ components:
       - type
       title: TableColumn
       description: Information about a table column.
-    TableListResponse:
-      properties:
-        database_id:
-          type: string
-          title: Database Id
-          description: Database identifier
-          examples:
-          - 123e4567-e89b-12d3-a456-426614174000
-        tables:
-          items:
-            $ref: '#/components/schemas/TableInfo'
-          type: array
-          title: Tables
-          description: List of tables in the database
-      type: object
-      required:
-      - database_id
-      title: TableListResponse
-      description: Response containing list of tables in a managed database.
-    TableDataResponse:
-      properties:
-        database_id:
-          type: string
-          title: Database Id
-          description: Database identifier
-        table_name:
-          type: string
-          title: Table Name
-          description: Table name
-        columns:
-          items:
-            type: string
-          type: array
-          title: Columns
-          description: Column names
-        rows:
-          items:
-            items: {}
-            type: array
-          type: array
-          title: Rows
-          description: Table rows
-        row_count:
-          type: integer
-          minimum: 0.0
-          title: Row Count
-          description: Total number of rows
-      type: object
-      required:
-      - database_id
-      - table_name
-      - columns
-      - rows
-      - row_count
-      title: TableDataResponse
-      description: Response containing table data.
-    CredentialTypeEnum:
-      type: string
-      enum:
-      - api_key
-      - oauth2
-      - user_password
-      - key_file
-      - client_credentials
-      - sharepoint_receive
-      - google_drive_receive
-      - sftp
-      - azure_blob_receive
-      title: CredentialTypeEnum
-    IsNullMatch:
-      properties:
-        mode:
-          type: string
-          const: is_null
-          title: Mode
-          default: is_null
-        column:
-          type: string
-          pattern: ^[a-zA-Z_][a-zA-Z0-9_]{0,62}$
-          title: Column
-          description: Column that must be NULL
-          examples:
-          - completed_at
-      additionalProperties: false
-      type: object
-      required:
-      - column
-      title: IsNullMatch
-      description: 'Match clause for NULL values: `"col" IS NULL`.
-
-
-        Use this in place of trying to match `value: null` — `WHERE col = NULL` is always false in SQL.'
-    ColumnDefinition:
-      properties:
-        name:
-          type: string
-          title: Name
-          description: Column name
-          examples:
-          - email
-        type:
-          type: string
-          title: Type
-          description: PostgreSQL column type
-          examples:
-          - TEXT
-          - INTEGER
-          - BOOLEAN
-          - TIMESTAMP
-          - JSONB
-          - UUID
-        is_primary_key:
-          type: boolean
-          title: Is Primary Key
-          description: Whether this column is part of the primary key
-          default: false
-        foreign_key:
-          anyOf:
-          - $ref: '#/components/schemas/ForeignKeyDefinition'
-          - type: 'null'
-          description: Foreign key constraint if this column references another table
-        default:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Default
-          description: 'Optional column default expression. Restricted to a small set of safe forms: a function call like ''gen_random_uuid()'' or ''now()'', a SQL literal NULL/TRUE/FALSE, an integer, or a single-quoted string.'
-          examples:
-          - gen_random_uuid()
-          - now()
-          - '''pending'''
-          - '0'
-      type: object
-      required:
-      - name
-      - type
-      title: ColumnDefinition
-      description: Definition of a table column.
-    CredentialProvider:
-      properties:
-        is_oauth:
-          type: boolean
-          title: Is Oauth
-        name:
-          type: string
-          title: Name
-        credential_schema:
-          additionalProperties: true
-          type: object
-          title: Credential Schema
-      type: object
-      required:
-      - is_oauth
-      - name
-      - credential_schema
-      title: CredentialProvider
-      description: Credential provider model
-    KeyValue:
-      properties:
-        key:
-          type: string
-          pattern: ^[a-zA-Z_][a-zA-Z0-9_]{0,62}$
-          title: Key
-          description: JSON key inside the target column
-          examples:
-          - document_type
-        value:
-          anyOf:
-          - type: string
-          - type: integer
-          - type: number
-          - type: boolean
-          title: Value
-          description: Exact value to match against the JSON key
-      type: object
-      required:
-      - key
-      - value
-      title: KeyValue
-      description: One JSON key/value pair inside a json_keys match clause.
-    CreateTableRequest:
-      properties:
-        table_name:
-          type: string
-          title: Table Name
-          description: Name of the table to create
-          examples:
-          - users
-        columns:
-          items:
-            $ref: '#/components/schemas/ColumnDefinition'
-          type: array
-          minItems: 1
-          title: Columns
-          description: List of column definitions
-      type: object
-      required:
-      - table_name
-      - columns
-      title: CreateTableRequest
-      description: Request to create a new table in a managed database.
-    TableColumnsResponse:
-      properties:
-        table_name:
-          type: string
-          title: Table Name
-          description: Table name
-        columns:
-          items:
-            $ref: '#/components/schemas/TableColumn'
-          type: array
-          title: Columns
-          description: List of columns
-      type: object
-      required:
-      - table_name
-      - columns
-      title: TableColumnsResponse
-      description: Response containing columns of a table.
-    WholeMatch:
-      properties:
-        mode:
-          type: string
-          const: whole
-          title: Mode
-          default: whole
-        column:
-          type: string
-          pattern: ^[a-zA-Z_][a-zA-Z0-9_]{0,62}$
-          title: Column
-          description: Column to match against
-          examples:
-          - task_id
-        value:
-          anyOf:
-          - type: string
-          - type: integer
-          - type: number
-          - type: boolean
-          title: Value
-          description: Value the column must equal (non-null).
-      additionalProperties: false
-      type: object
-      required:
-      - column
-      - value
-      title: WholeMatch
-      description: 'Exact-match clause on a column value: `"col" = :param`.'
-    UserIntegrationCredentialsUpdate:
-      properties:
-        name:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Name
-        credential_type:
-          $ref: '#/components/schemas/CredentialTypeEnum'
-        credentials:
-          additionalProperties: true
-          type: object
-          title: Credentials
-      type: object
-      required:
-      - credential_type
-      - credentials
-      title: UserIntegrationCredentialsUpdate
-      description: Request model for updating user integration credentials
-    InsertRowResponse:
-      properties:
-        table_name:
-          type: string
-          title: Table Name
-          description: Table name
-        row:
-          additionalProperties: true
-          type: object
-          title: Row
-          description: The inserted row as returned by RETURNING *
-      type: object
-      required:
-      - table_name
-      - row
-      title: InsertRowResponse
-      description: Response containing the inserted row.
-    DatabaseColumnsResponse:
-      properties:
-        database_id:
-          type: string
-          title: Database Id
-          description: Database identifier
-          examples:
-          - 123e4567-e89b-12d3-a456-426614174000
-        columns:
-          items:
-            type: string
-          type: array
-          title: Columns
-          description: List of column names in the database
-          examples:
-          - - id
-            - name
-            - email
-            - created_at
-            - revenue
-            - region
-        column_count:
-          type: integer
-          minimum: 0.0
-          title: Column Count
-          description: Total number of columns
-          examples:
-          - 6
-      type: object
-      required:
-      - database_id
-      - columns
-      - column_count
-      title: DatabaseColumnsResponse
-      description: 'Response containing database column information.
-
-
-        Returned by GET /database/{db_id}/columns endpoint.'
-      example:
-        column_count: 6
-        columns:
-        - id
-        - name
-        - email
-        - created_at
-        - revenue
-        - region
-        database_id: 123e4567-e89b-12d3-a456-426614174000
-    DatabaseDownloadResponse:
-      properties:
-        download_url:
-          type: string
-          title: Download Url
-          description: Pre-signed URL for downloading the database file from cloud storage.
-          examples:
-          - https://storage.googleapis.com/bucket/path/file.csv?signature=abc123&expires=1640000000
-      type: object
-      required:
-      - download_url
-      title: DatabaseDownloadResponse
-      description: Response containing download URL for database file.
-    QueryTableRequest:
-      properties:
-        matches:
-          items:
-            oneOf:
-            - $ref: '#/components/schemas/WholeMatch'
-            - $ref: '#/components/schemas/IsNullMatch'
-            - $ref: '#/components/schemas/JsonKeysMatch'
-            discriminator:
-              propertyName: mode
-              mapping:
-                is_null: '#/components/schemas/IsNullMatch'
-                json_keys: '#/components/schemas/JsonKeysMatch'
-                whole: '#/components/schemas/WholeMatch'
-          type: array
-          title: Matches
-          description: List of match clauses combined by `combinator` at the top level. Empty list returns all rows up to limit.
-        combinator:
-          type: string
-          enum:
-          - AND
-          - OR
-          title: Combinator
-          description: How top-level match clauses join. 'AND' requires every clause to match; 'OR' returns rows that satisfy at least one clause.
-          default: AND
-        order_by:
-          anyOf:
-          - oneOf:
-            - $ref: '#/components/schemas/OrderByColumn'
-            - $ref: '#/components/schemas/OrderByRandom'
-            discriminator:
-              propertyName: kind
-              mapping:
-                column: '#/components/schemas/OrderByColumn'
-                random: '#/components/schemas/OrderByRandom'
-          - type: 'null'
-          title: Order By
-          description: How to order results. Either a column with direction (kind='column') or a SQL-level random sample (kind='random'). Defaults to no ORDER BY clause.
-        limit:
-          type: integer
-          maximum: 1000.0
-          minimum: 1.0
-          title: Limit
-          description: Max rows to return
-          default: 100
-      type: object
-      title: QueryTableRequest
-      description: Request to query a managed-DB table with exact-match clauses and a row limit.
-    ErrorResponse:
-      properties:
-        error:
-          $ref: '#/components/schemas/ErrorDetail'
-        request_id:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Request Id
-          description: 'Unique request identifier in ULID format for debugging and support. Example: 01K8KABR6S16YETA2SZPVBS9SP'
-      type: object
-      required:
-      - error
-      title: ErrorResponse
-      description: "Standard API error response structure.\n\nAll error responses from the API follow this format, ensuring\nconsistent error handling for API consumers.\n\nExample:\n    {\n        \"error\": {\n            \"message\": \"Flow not found\",\n            \"code\": \"not_found\"\n        },\n        \"request_id\": \"01K8KABR6S16YETA2SZPVBS9SP\"\n    }"
-      examples:
-      - error:
-          code: not_found
-          message: Resource not found
-        request_id: 01K8KABR6S16YETA2SZPVBS9SP
-    HTTPValidationError:
-      properties:
-        detail:
-          items:
-            $ref: '#/components/schemas/ValidationError'
-          type: array
-          title: Detail
-      type: object
-      title: HTTPValidationError
-    EmailTaskResponse:
-      properties:
-        task_id:
-          type: string
-          title: Task Id
-          description: Unique task identifier
-        email_address:
-          type: string
-          title: Email Address
-          description: Generated email address
-        status:
-          type: string
-          title: Status
-          description: Task status
-          default: active
-        name:
-          type: string
-          title: Name
-          description: Task name
-        description:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Description
-          description: Task description
-      type: object
-      required:
-      - task_id
-      - email_address
-      - name
-      title: EmailTaskResponse
-      description: Response from email task creation.
-    DocumentFileResponse:
-      properties:
-        id:
-          type: string
-          format: uuid
-          title: Id
-          description: Document file ID
-        name:
-          type: string
-          title: Name
-          description: Document name
-        description:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Description
-          description: Document description
-        database_type:
-          type: string
-          enum:
-          - csv
-          - postgres
-          title: Database Type
-          description: Type of database
-        current_file_id:
-          anyOf:
-          - type: string
-            format: uuid
-          - type: 'null'
-          title: Current File Id
-          description: Current file ID in bucket
-        current_table_name:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Current Table Name
-          description: Current dataset name
-        revision_count:
-          type: integer
-          title: Revision Count
-          description: Number of file revisions
-          default: 0
-        total_rows:
-          type: integer
-          title: Total Rows
-          description: Total rows in current file
-          default: 0
-        status:
-          type: string
-          title: Status
-          description: File status
-        created_at:
-          type: string
-          format: date-time
-          title: Created At
-          description: Creation timestamp
-        updated_at:
-          type: string
-          format: date-time
-          title: Updated At
-          description: Last update timestamp
-        modified_by:
-          type: string
-          title: Modified By
-          description: User ID (UUID string) or 'system' of the actor who last modified the file. For users, stores UUID string; for integrations, stores type value; for system changes, stores 'system'.
-          default: system
-      type: object
-      required:
-      - id
-      - name
-      - database_type
-      - status
-      - created_at
-      - updated_at
-      title: DocumentFileResponse
-      description: Response for document file operations.
-    EmailTaskRequest:
-      properties:
-        name:
-          type: string
-          title: Name
-          description: Task name
-        description:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Description
-          description: Task description
-        flow_id:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Flow Id
-          description: Flow ID for deduplication
-        task_name:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Task Name
-          description: Task name for deduplication
-      type: object
-      required:
-      - name
-      title: EmailTaskRequest
-      description: Request to create an email task.
-    CredentialsResponse:
-      properties:
-        id:
-          type: string
-          format: uuid
-          title: Id
-        created_at:
-          type: string
-          format: date-time
-          title: Created At
-        updated_at:
-          type: string
-          format: date-time
-          title: Updated At
-        modified_by:
-          type: string
-          title: Modified By
-        user_id:
-          anyOf:
-          - type: string
-            format: uuid
-          - type: 'null'
-          title: User Id
-        name:
-          type: string
-          title: Name
-        provider:
-          $ref: '#/components/schemas/ProviderApiEnum'
-      type: object
-      required:
-      - id
-      - created_at
-      - updated_at
-      - modified_by
-      - name
-      - provider
-      title: CredentialsResponse
-    OrderByColumn:
-      properties:
-        kind:
-          type: string
-          const: column
-          title: Kind
-          default: column
-        column:
-          type: string
-          pattern: ^[a-zA-Z_][a-zA-Z0-9_]{0,62}$
-          title: Column
-          description: Column to order by
-          examples:
-          - created_at
-        direction:
-          type: string
-          enum:
-          - ASC
-          - DESC
-          title: Direction
-          default: ASC
-      additionalProperties: false
-      type: object
-      required:
-      - column
-      title: OrderByColumn
-      description: Order by a named column in ASC or DESC direction.
     SftpTestConnectionRequest:
       properties:
         host:
@@ -4233,6 +4810,122 @@ components:
       - auth_type
       title: SftpTestConnectionRequest
       description: Request model for testing SFTP connection.
+    DocumentFileCreateRequest:
+      properties:
+        name:
+          type: string
+          title: Name
+          description: Document name
+        description:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Description
+          description: Document description
+        database_type:
+          type: string
+          enum:
+          - csv
+          - postgres
+          title: Database Type
+          description: Type of database
+          default: csv
+        credential_id:
+          anyOf:
+          - type: string
+            format: uuid
+          - type: 'null'
+          title: Credential Id
+          description: Credential ID for PostgreSQL databases
+        table_name:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Table Name
+          description: Table name for PostgreSQL databases
+      type: object
+      required:
+      - name
+      title: DocumentFileCreateRequest
+      description: Request to create a new document file entry.
+    ValidationError:
+      properties:
+        loc:
+          items:
+            anyOf:
+            - type: string
+            - type: integer
+          type: array
+          title: Location
+        msg:
+          type: string
+          title: Message
+        type:
+          type: string
+          title: Error Type
+      type: object
+      required:
+      - loc
+      - msg
+      - type
+      title: ValidationError
+    ForeignKeyDefinition:
+      properties:
+        table:
+          type: string
+          title: Table
+          description: Referenced table name
+          examples:
+          - users
+        column:
+          type: string
+          title: Column
+          description: Referenced column name
+          examples:
+          - id
+      type: object
+      required:
+      - table
+      - column
+      title: ForeignKeyDefinition
+      description: Foreign key constraint definition.
+    CredentialsResponse:
+      properties:
+        id:
+          type: string
+          format: uuid
+          title: Id
+        created_at:
+          type: string
+          format: date-time
+          title: Created At
+        updated_at:
+          type: string
+          format: date-time
+          title: Updated At
+        modified_by:
+          type: string
+          title: Modified By
+        user_id:
+          anyOf:
+          - type: string
+            format: uuid
+          - type: 'null'
+          title: User Id
+        name:
+          type: string
+          title: Name
+        provider:
+          $ref: '#/components/schemas/ProviderApiEnum'
+      type: object
+      required:
+      - id
+      - created_at
+      - updated_at
+      - modified_by
+      - name
+      - provider
+      title: CredentialsResponse
   securitySchemes:
     BearerAuth:
       type: http

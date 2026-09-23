@@ -1,47 +1,17 @@
-openapi: 3.1.0
+openapi: 3.2.0
 info:
-  title: SuperAI Flow Platform auth flows API
-  description: "SuperAI Flows is a workflow orchestration platform that enables you to design, deploy, and monitor automated workflows at scale.\n\nBuild complex workflows using our declarative YAML DSL, execute them reliably, and integrate seamlessly with AI models, cloud storage, and enterprise systems.\n\n**Key Capabilities:**\n- **Workflow Management**: Define workflows as code with version control and automated execution\n- **Task Orchestration**: Chain together API calls, data processing, and AI operations\n- **Real-time Monitoring**: Track execution progress with WebSocket notifications and comprehensive logging\n- **Multi-tenant Architecture**: Organization-scoped resources with role-based access control\n\n**API Versioning and Breaking Changes:**\n\nWe follow a strict compatibility policy to ensure your integrations remain stable:\n\n- **Non-breaking changes** (safe, no action required):\n  - Adding new API endpoints\n  - Adding new optional query parameters to existing endpoints\n  - Adding new fields to API responses\n  - Adding new values to existing enums\n\n- **Breaking changes** (requires client updates):\n  - Removing or renaming API endpoints\n  - Removing query parameters or request fields\n  - Removing response fields\n  - Changing field types or validation rules\n  - Removing values from existing enums\n\n**Client Implementation Requirements:**\n\nYour API clients MUST be designed to gracefully handle additional fields in responses. We may add new fields to any response object without considering this a breaking change. Ensure your JSON parsers ignore unknown fields rather than raising errors.\n\n**Backward Compatibility Guarantee:**\n\nWe commit to maintaining backward compatibility for all non-breaking changes. Breaking changes will be:\n- Announced at least 15 days in advance\n- Documented in our changelog with migration guide\n\nFor the latest API updates and migration guides, see our changelog."
+  title: SuperAI Flow Platform Flows API
+  description: SuperAI Flows is a workflow orchestration platform that enables you to design, deploy, and monitor automated workflows at scale.
   version: 0.1.0
 tags:
-- name: flows
-  description: 'Flow management operations for defining and organizing workflows.
-
-
-    Flows represent workflow definitions with tasks, dependencies, and execution logic. They serve as reusable templates that can be executed multiple times with different inputs.
-
-
-    **What is a flow?**
-
-    A flow consists of:
-
-    - **Tasks**: Individual units of work that perform specific actions
-
-    - **Dependencies**: Relationships between tasks that define execution order
-
-    - **Configuration**: Settings and parameters that control flow behavior
-
-
-    **Use these endpoints to:**
-
-    - Create new flow definitions from scratch or import from YAML
-
-    - List and search existing flows in your organization
-
-    - Retrieve detailed flow information including task definitions
-
-    - Update flow configurations and task parameters
-
-    - Delete flows that are no longer needed
-
-
-    Flows are the foundation of your workflow automation—once defined, they can be executed via the flow-executions endpoints.'
+- name: Flows
+  description: Flow management operations for defining and organizing workflows.
   x-displayName: Flows
 paths:
   /api/flows:
     get:
       tags:
-      - flows
+      - Flows
       summary: List all flows
       description: 'List all flows accessible to the authenticated user.
 
@@ -294,7 +264,7 @@ paths:
       - APIKeyAuth: []
     post:
       tags:
-      - flows
+      - Flows
       summary: Create a new flow
       description: 'Create a new flow in draft status.
 
@@ -499,7 +469,7 @@ paths:
   /api/flows/available-tags:
     get:
       tags:
-      - flows
+      - Flows
       summary: Get available flow tags for autocomplete
       operationId: get_flow_available_tags_api_flows_available_tags_get
       parameters:
@@ -577,9 +547,34 @@ paths:
   /api/flows/{flow_id}:
     get:
       tags:
-      - flows
+      - Flows
       summary: Retrieve a flow by ID
-      description: "Retrieve a specific flow by ID.\n\nReturns the latest version of a flow with its complete definition, metadata, and\noptional computed fields. This endpoint is typically used when displaying flow\ndetails or preparing to execute a flow.\n\n## Behavior\n- Always returns the latest version unless a specific version is requested via\n  `/flows/{flow_id}/versions/{version}`\n- Use expansion parameters to include computed fields (see FlowResponse model docs)\n\n## Use Cases\n- Display flow details in your application UI\n- Retrieve flow definition before execution\n- Check flow validation status and errors"
+      description: 'Retrieve a specific flow by ID.
+
+
+        Returns the latest version of a flow with its complete definition, metadata, and
+
+        optional computed fields. This endpoint is typically used when displaying flow
+
+        details or preparing to execute a flow.
+
+
+        ## Behavior
+
+        - Always returns the latest version unless a specific version is requested via
+
+        `/flows/{flow_id}/versions/{version}`
+
+        - Use expansion parameters to include computed fields (see FlowResponse model docs)
+
+
+        ## Use Cases
+
+        - Display flow details in your application UI
+
+        - Retrieve flow definition before execution
+
+        - Check flow validation status and errors'
       operationId: get_flow_api_flows__flow_id__get
       parameters:
       - name: flow_id
@@ -714,7 +709,7 @@ paths:
       - APIKeyAuth: []
     delete:
       tags:
-      - flows
+      - Flows
       summary: Delete a flow
       description: 'Soft delete a flow.
 
@@ -813,7 +808,7 @@ paths:
       - APIKeyAuth: []
     patch:
       tags:
-      - flows
+      - Flows
       summary: Partially update a flow
       description: 'Partially update flow properties.
 
@@ -1000,7 +995,7 @@ paths:
   /api/flows/{flow_id}/clone-info:
     get:
       tags:
-      - flows
+      - Flows
       summary: Get clone info for a flow
       operationId: get_flow_clone_info_api_flows__flow_id__clone_info_get
       parameters:
@@ -1072,7 +1067,7 @@ paths:
   /api/flows/{flow_id}/versions:
     get:
       tags:
-      - flows
+      - Flows
       summary: List all versions of a flow
       description: 'List all versions of a specific flow.
 
@@ -1231,7 +1226,7 @@ paths:
   /api/flows/{flow_id}/definition:
     put:
       tags:
-      - flows
+      - Flows
       summary: Update flow definition
       description: 'Update the complete definition of a flow.
 
@@ -1399,7 +1394,7 @@ paths:
   /api/flows/{flow_id}/validate:
     post:
       tags:
-      - flows
+      - Flows
       summary: Validate a flow definition without persisting
       description: 'Validate a flow definition without persisting anything.
 
@@ -1504,7 +1499,7 @@ paths:
   /api/flows/{flow_id}/versions/summary:
     get:
       tags:
-      - flows
+      - Flows
       summary: List version summaries for a flow
       description: 'Get lightweight version metadata for the version history sidebar.
 
@@ -1617,7 +1612,7 @@ paths:
   /api/flows/{flow_id}/versions/{version}:
     patch:
       tags:
-      - flows
+      - Flows
       summary: Update version metadata
       operationId: update_flow_version_metadata_api_flows__flow_id__versions__version__patch
       parameters:
@@ -1700,7 +1695,7 @@ paths:
       - APIKeyAuth: []
     get:
       tags:
-      - flows
+      - Flows
       summary: Get specific flow version
       description: 'Retrieve a specific version of a flow.
 
@@ -1868,7 +1863,7 @@ paths:
   /api/flows/{flow_id}/versions/{version}/restore:
     post:
       tags:
-      - flows
+      - Flows
       summary: Restore a past version
       description: 'Restore a past version as the new latest version.
 
@@ -2012,7 +2007,7 @@ paths:
   /api/flows/{flow_id}/task:
     put:
       tags:
-      - flows
+      - Flows
       summary: Update a single task in flow
       description: 'Update a single task within a flow definition.
 
@@ -2190,7 +2185,7 @@ paths:
   /api/flows/{flow_id}/upload-url:
     post:
       tags:
-      - flows
+      - Flows
       summary: Generate file upload URL
       description: 'Generate pre-signed URL for uploading files to a flow.
 
@@ -2323,7 +2318,7 @@ paths:
   /api/flows/{flow_id}/files:
     get:
       tags:
-      - flows
+      - Flows
       summary: List flow files
       description: 'List all files associated with a flow.
 
@@ -2435,7 +2430,7 @@ paths:
   /api/flows/{flow_id}/versions/{version}/summary:
     get:
       tags:
-      - flows
+      - Flows
       summary: List task summaries for flow version
       description: 'List task execution summaries for a specific flow version.
 
@@ -2561,7 +2556,7 @@ paths:
   /api/flows/{flow_id}/tags:
     get:
       tags:
-      - flows
+      - Flows
       summary: Get tags for flow executions
       description: 'Get all unique tag values from task outputs for a specific flow.
 
@@ -2681,7 +2676,7 @@ paths:
   /api/flows/{flow_id}/metadata/keys:
     get:
       tags:
-      - flows
+      - Flows
       summary: Get distinct metadata keys for a flow
       description: 'Get all distinct metadata keys used in runs for this flow.
 
@@ -2833,7 +2828,7 @@ paths:
   /api/flows/{flow_id}/metadata/values:
     get:
       tags:
-      - flows
+      - Flows
       summary: Get distinct values for a metadata key
       description: 'Get all distinct values for a specific metadata key across all runs.
 
@@ -2996,7 +2991,7 @@ paths:
   /api/flows/download-url:
     post:
       tags:
-      - flows
+      - Flows
       summary: Generate file download URL
       description: 'Generate pre-signed URL for downloading a file.
 
@@ -3148,7 +3143,7 @@ paths:
   /api/flows/{flow_id}/invitations:
     put:
       tags:
-      - flows
+      - Flows
       summary: Upsert user invitations to a flow
       description: 'Upsert invitations for multiple users to access a flow.
 
@@ -3287,7 +3282,7 @@ paths:
       - APIKeyAuth: []
     get:
       tags:
-      - flows
+      - Flows
       summary: List flow invitations
       description: 'List all invitations for a specific flow.
 
@@ -3378,7 +3373,7 @@ paths:
       - APIKeyAuth: []
     delete:
       tags:
-      - flows
+      - Flows
       summary: Remove user invitations from a flow
       description: 'Remove invitations for specific users from a flow.
 
@@ -3497,7 +3492,7 @@ paths:
   /api/flows/{flow_id}/team-invitations:
     put:
       tags:
-      - flows
+      - Flows
       summary: Upsert team (worker group) invitations to a flow
       description: 'Invite one or more worker groups (teams) to a flow.
 
@@ -3594,7 +3589,7 @@ paths:
       - APIKeyAuth: []
     get:
       tags:
-      - flows
+      - Flows
       summary: List team invitations for a flow
       description: List every team invited to the flow, with current member counts.
       operationId: list_flow_team_invitations_api_flows__flow_id__team_invitations_get
@@ -3675,7 +3670,7 @@ paths:
       - APIKeyAuth: []
     delete:
       tags:
-      - flows
+      - Flows
       summary: Remove team invitations from a flow
       description: 'Remove team invitations; members lose access unless they''re invited individually
 
@@ -3763,94 +3758,29 @@ paths:
       - APIKeyAuth: []
 components:
   schemas:
-    OrderDirection:
+    MetadataKeyResponse:
+      properties:
+        key:
+          type: string
+          title: Key
+          description: Metadata key name
+        count:
+          type: integer
+          title: Count
+          description: Number of executions with this key
+      type: object
+      required:
+      - key
+      - count
+      title: MetadataKeyResponse
+      description: Response model for metadata key discovery.
+    StaleStatus:
       type: string
       enum:
-      - asc
-      - desc
-      title: OrderDirection
-      description: Enum for sort direction.
-    PaginatedFlowVersionSummaryResponse:
-      properties:
-        versions:
-          items:
-            $ref: '#/components/schemas/FlowVersionSummary'
-          type: array
-          title: Versions
-        total:
-          type: integer
-          title: Total
-        page:
-          type: integer
-          title: Page
-        page_size:
-          type: integer
-          title: Page Size
-      type: object
-      required:
-      - versions
-      - total
-      - page
-      - page_size
-      title: PaginatedFlowVersionSummaryResponse
-    ValidationError:
-      properties:
-        loc:
-          items:
-            anyOf:
-            - type: string
-            - type: integer
-          type: array
-          title: Location
-        msg:
-          type: string
-          title: Message
-        type:
-          type: string
-          title: Error Type
-      type: object
-      required:
-      - loc
-      - msg
-      - type
-      title: ValidationError
-    MetadataOrderBy:
-      type: string
-      enum:
-      - created_at
-      title: MetadataOrderBy
-      description: Enum for metadata ordering options.
-    ErrorDetails:
-      properties:
-        type:
-          type: string
-          title: Type
-        loc:
-          items:
-            anyOf:
-            - type: integer
-            - type: string
-          type: array
-          title: Loc
-        msg:
-          type: string
-          title: Msg
-        input:
-          title: Input
-        ctx:
-          additionalProperties: true
-          type: object
-          title: Ctx
-        url:
-          type: string
-          title: Url
-      type: object
-      required:
-      - type
-      - loc
-      - msg
-      - input
-      title: ErrorDetails
+      - consistent
+      - stale
+      title: StaleStatus
+      description: "Tracks whether task data is consistent with upstream changes.\n\nOrthogonal to edited_status — a task can be both \"edited\" and \"stale\".\n\nValues:\n    - consistent: Data is up-to-date with all upstream dependencies\n    - stale: Data is outdated due to an upstream edit and should be recalculated"
     FlowTeamInvitationRequest:
       properties:
         worker_group_ids:
@@ -3866,98 +3796,39 @@ components:
       - worker_group_ids
       title: FlowTeamInvitationRequest
       description: Request model for creating flow team invitations.
-    ErrorDetail:
+    FlowCloneInfoResponse:
       properties:
-        message:
-          type: string
-          title: Message
-          description: Human-readable error message
-        code:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Code
-          description: Machine-readable error code for programmatic handling
-        details:
-          anyOf:
-          - items:
-              type: string
-            type: array
-          - items:
-              additionalProperties: true
-              type: object
-            type: array
-          - additionalProperties: true
-            type: object
-          - type: 'null'
-          title: Details
-          description: Additional error context, validation errors, or debugging information
+        has_external_input_tasks:
+          type: boolean
+          title: Has External Input Tasks
+          description: Whether the flow has input tasks that receive data from external sources
+        external_input_task_names:
+          items:
+            type: string
+          type: array
+          title: External Input Task Names
+          description: List of task executor names for external input tasks (e.g., 'receive_email', 'google_drive_receive')
       type: object
       required:
-      - message
-      title: ErrorDetail
-      description: 'Standard error detail structure.
-
-
-        This model matches the error format returned by the centralized
-
-        exception handlers in app/api/errors/handlers.py.'
-    FlowInvitationResponse:
+      - has_external_input_tasks
+      title: FlowCloneInfoResponse
+      description: Response indicating whether a flow has external input tasks that need attention when cloning.
+    MetadataValueResponse:
       properties:
-        flow_id:
+        value:
           type: string
-          format: uuid
-          title: Flow Id
-        user_id:
-          type: string
-          format: uuid
-          title: User Id
-        email:
-          type: string
-          title: Email
-        first_name:
-          type: string
-          title: First Name
-        last_name:
-          type: string
-          title: Last Name
-        role:
-          $ref: '#/components/schemas/UserRole'
-        organization_id:
-          type: string
-          format: uuid
-          title: Organization Id
-        created_at:
-          type: string
-          format: date-time
-          title: Created At
-        updated_at:
-          type: string
-          format: date-time
-          title: Updated At
+          title: Value
+          description: Metadata value
+        count:
+          type: integer
+          title: Count
+          description: Number of executions with this value
       type: object
       required:
-      - flow_id
-      - user_id
-      - email
-      - first_name
-      - last_name
-      - role
-      - organization_id
-      - created_at
-      - updated_at
-      title: FlowInvitationResponse
-      description: Response model for a flow invitation.
-    UserRole:
-      type: string
-      enum:
-      - org_admin
-      - backoffice
-      - app_user
-      - worker
-      - publisher
-      - integration
-      title: UserRole
+      - value
+      - count
+      title: MetadataValueResponse
+      description: Response model for metadata value discovery.
     GeneratePresignedUrlForDownload:
       properties:
         file_key:
@@ -4060,89 +3931,271 @@ components:
         Represents aggregated task information with status and metadata.
 
         Used for displaying task-level details in execution views.'
-    MetadataValueResponse:
+    FlowDefinitionUpdate:
       properties:
-        value:
-          type: string
-          title: Value
-          description: Metadata value
-        count:
-          type: integer
-          title: Count
-          description: Number of executions with this value
+        definition:
+          additionalProperties: true
+          type: object
+          title: Definition
+          description: Flow definition in DSL format. The definition contains a 'flow' metadata object and a 'flow_configs' array with task configurations. Each task has a unique 'name' (UUID), 'task_executor_name' (the task type), 'task_title' (display name), 'parameters' (executor-specific config), and optional 'visual_properties' for UI layout. Tasks reference upstream outputs using '{{task_name.output_field}}' template syntax in their parameters to define dependencies.
+          examples:
+          - flow:
+              author_uuid: ''
+              created_at: ''
+            flow_configs:
+            - config:
+                groups: []
+                notes: []
+                tasks:
+                - is_schedulable_executor: false
+                  name: e264bc8d-d6d3-4bef-a18e-a27ad491cd26
+                  parameters: {}
+                  task_executor_name: receive_file
+                  task_title: Receive File
+                  visual_properties:
+                    collapsed: false
+                    position:
+                      x: 584.5
+                      y: 359.5
+                    zIndex: 2
+                - is_schedulable_executor: false
+                  name: 6ef3e60a-94e7-48b0-adbf-80d3ef81c3a6
+                  parameters:
+                    document_url: '{{e264bc8d-d6d3-4bef-a18e-a27ad491cd26.document_url}}'
+                    fields:
+                    - columns: []
+                      data_type: int
+                      id: InvoiceID
+                      instructions: ''
+                      title: Invoice ID
+                    worker: gpt-4.1
+                  task_executor_name: doc_to_structured
+                  task_title: Doc To Structured
+                  visual_properties:
+                    collapsed: false
+                    position:
+                      x: 1170
+                      y: 360
+                    zIndex: 2
+              meta:
+                description: Extract data from invoices
+                name: Invoice Processing
       type: object
       required:
-      - value
-      - count
-      title: MetadataValueResponse
-      description: Response model for metadata value discovery.
-    FlowInvitationRequest:
+      - definition
+      title: FlowDefinitionUpdate
+      description: Model for flow definition update request.
+    PaginatedFlowVersionSummaryResponse:
       properties:
-        user_ids:
+        versions:
           items:
-            type: string
-            format: uuid
+            $ref: '#/components/schemas/FlowVersionSummary'
           type: array
-          minItems: 1
-          title: User Ids
-          description: List of user IDs to invite to the flow
+          title: Versions
+        total:
+          type: integer
+          title: Total
+        page:
+          type: integer
+          title: Page
+        page_size:
+          type: integer
+          title: Page Size
       type: object
       required:
-      - user_ids
-      title: FlowInvitationRequest
-      description: Request model for creating flow invitations.
-    PatchFlowRequest:
+      - versions
+      - total
+      - page
+      - page_size
+      title: PaginatedFlowVersionSummaryResponse
+    HTTPValidationError:
       properties:
-        display_name:
+        detail:
+          items:
+            $ref: '#/components/schemas/ValidationError'
+          type: array
+          title: Detail
+      type: object
+      title: HTTPValidationError
+    ErrorDetail:
+      properties:
+        message:
+          type: string
+          title: Message
+          description: Human-readable error message
+        code:
           anyOf:
           - type: string
           - type: 'null'
-          title: Display Name
-          description: New display name for the flow
-        description:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Description
-          description: New description
-        visibility:
-          anyOf:
-          - {}
-          - type: 'null'
-          title: Visibility
-          description: New visibility setting
-        settings:
-          anyOf:
-          - $ref: '#/components/schemas/FlowSettings'
-          - type: 'null'
-          description: New settings (replaces existing).
-        status:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Status
-          description: 'New status. Valid values: ''draft'' or ''published''. Currently all transitions are allowed.'
-        tags:
+          title: Code
+          description: Machine-readable error code for programmatic handling
+        details:
           anyOf:
           - items:
               type: string
             type: array
-            uniqueItems: true
+          - items:
+              additionalProperties: true
+              type: object
+            type: array
+          - additionalProperties: true
+            type: object
           - type: 'null'
-          title: Tags
+          title: Details
+          description: Additional error context, validation errors, or debugging information
       type: object
-      title: PatchFlowRequest
-      description: 'Request body for partially updating a flow.
+      required:
+      - message
+      title: ErrorDetail
+      description: 'Standard error detail structure.
 
 
-        All fields are optional - only provided fields will be updated.'
-    TaskOutputEditedStatus:
+        This model matches the error format returned by the centralized
+
+        exception handlers in app/api/errors/handlers.py.'
+    FlowInvitationBulkResponse:
+      properties:
+        flow_id:
+          type: string
+          format: uuid
+          title: Flow Id
+        invited_user_ids:
+          items:
+            type: string
+            format: uuid
+          type: array
+          title: Invited User Ids
+        total_invitations:
+          type: integer
+          title: Total Invitations
+        skipped_user_ids:
+          items:
+            type: string
+            format: uuid
+          type: array
+          title: Skipped User Ids
+          description: User IDs that were skipped (not worker/publisher role)
+        message:
+          type: string
+          title: Message
+      type: object
+      required:
+      - flow_id
+      - invited_user_ids
+      - total_invitations
+      - message
+      title: FlowInvitationBulkResponse
+      description: Response model for bulk invitation creation/update.
+    PaginatedFlowResponse:
+      properties:
+        flows:
+          items:
+            $ref: '#/components/schemas/FlowResponse'
+          type: array
+          title: Flows
+        total:
+          type: integer
+          title: Total
+        page:
+          type: integer
+          title: Page
+        page_size:
+          type: integer
+          title: Page Size
+      type: object
+      required:
+      - flows
+      - total
+      - page
+      - page_size
+      title: PaginatedFlowResponse
+      description: Paginated response for flows list.
+    OrderDirection:
       type: string
       enum:
-      - not_edited
-      - edited
-      title: TaskOutputEditedStatus
-      description: "Aggregated edited status for a task output.\n\nValues:\n    - not_edited: All task executions have not_edited status\n    - edited: At least one task execution has edited_not_reexecuted or edited_reexecuted status"
+      - asc
+      - desc
+      title: OrderDirection
+      description: Enum for sort direction.
+    FlowSettings:
+      properties:
+        ttl:
+          $ref: '#/components/schemas/TTLSettings'
+          description: Time-to-live settings for automatic execution deletion
+          default: {}
+        reexecute_on_update:
+          type: boolean
+          title: Reexecute On Update
+          description: Reexecute stale tasks on flow update
+          default: false
+        review_view_id:
+          anyOf:
+          - type: string
+            format: uuid
+          - type: 'null'
+          title: Review View Id
+          description: Reference to FlowView for review navigation. Determines which tasks are visible when reviewing runs from Runs View.
+      type: object
+      title: FlowSettings
+      description: Flow-level settings configuration.
+    MetadataOrderBy:
+      type: string
+      enum:
+      - created_at
+      title: MetadataOrderBy
+      description: Enum for metadata ordering options.
+    FlowTeamInvitationResponse:
+      properties:
+        flow_id:
+          type: string
+          format: uuid
+          title: Flow Id
+        worker_group_id:
+          type: string
+          format: uuid
+          title: Worker Group Id
+        worker_group_name:
+          type: string
+          title: Worker Group Name
+        member_count:
+          type: integer
+          title: Member Count
+        organization_id:
+          type: string
+          format: uuid
+          title: Organization Id
+        created_at:
+          type: string
+          format: date-time
+          title: Created At
+        updated_at:
+          type: string
+          format: date-time
+          title: Updated At
+      type: object
+      required:
+      - flow_id
+      - worker_group_id
+      - worker_group_name
+      - member_count
+      - organization_id
+      - created_at
+      - updated_at
+      title: FlowTeamInvitationResponse
+      description: Response model for a single flow team invitation.
+    TTLSettings:
+      properties:
+        seconds:
+          anyOf:
+          - type: integer
+            maximum: 5097600.0
+            minimum: 60.0
+          - type: 'null'
+          title: Seconds
+          description: TTL in seconds after completion (1 minute to 30 days). Required when enabled=True.
+      type: object
+      title: TTLSettings
+      description: TTL configuration for flow executions.
     FlowResponse:
       properties:
         id:
@@ -4288,19 +4341,6 @@ components:
         - `+ include_output_schemas`: +10-50ms
 
         - `+ include_validation_errors`: No overhead (always validated)'
-    TTLSettings:
-      properties:
-        seconds:
-          anyOf:
-          - type: integer
-            maximum: 5097600.0
-            minimum: 60.0
-          - type: 'null'
-          title: Seconds
-          description: TTL in seconds after completion (1 minute to 30 days). Required when enabled=True.
-      type: object
-      title: TTLSettings
-      description: TTL configuration for flow executions.
     UpdateFlowVersionMetadata:
       properties:
         name:
@@ -4315,6 +4355,80 @@ components:
           title: Is Favourite
       type: object
       title: UpdateFlowVersionMetadata
+    UserRole:
+      type: string
+      enum:
+      - org_admin
+      - backoffice
+      - app_user
+      - worker
+      - publisher
+      - integration
+      title: UserRole
+    TaskOutputEditedStatus:
+      type: string
+      enum:
+      - not_edited
+      - edited
+      title: TaskOutputEditedStatus
+      description: "Aggregated edited status for a task output.\n\nValues:\n    - not_edited: All task executions have not_edited status\n    - edited: At least one task execution has edited_not_reexecuted or edited_reexecuted status"
+    FlowValidationResponse:
+      properties:
+        validation_errors:
+          items:
+            $ref: '#/components/schemas/ErrorDetails'
+          type: array
+          title: Validation Errors
+        ordered_task_names:
+          anyOf:
+          - items:
+              type: string
+            type: array
+          - type: 'null'
+          title: Ordered Task Names
+        dynamic_data:
+          anyOf:
+          - additionalProperties: true
+            type: object
+          - type: 'null'
+          title: Dynamic Data
+        output_schemas:
+          anyOf:
+          - additionalProperties: true
+            type: object
+          - type: 'null'
+          title: Output Schemas
+        default_reference_modes:
+          anyOf:
+          - additionalProperties: true
+            type: object
+          - type: 'null'
+          title: Default Reference Modes
+      type: object
+      required:
+      - validation_errors
+      title: FlowValidationResponse
+      description: Response model for validate-only endpoint (no persistence).
+    ErrorResponse:
+      properties:
+        error:
+          $ref: '#/components/schemas/ErrorDetail'
+        request_id:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Request Id
+          description: 'Unique request identifier in ULID format for debugging and support. Example: 01K8KABR6S16YETA2SZPVBS9SP'
+      type: object
+      required:
+      - error
+      title: ErrorResponse
+      description: "Standard API error response structure.\n\nAll error responses from the API follow this format, ensuring\nconsistent error handling for API consumers.\n\nExample:\n    {\n        \"error\": {\n            \"message\": \"Flow not found\",\n            \"code\": \"not_found\"\n        },\n        \"request_id\": \"01K8KABR6S16YETA2SZPVBS9SP\"\n    }"
+      examples:
+      - error:
+          code: not_found
+          message: Resource not found
+        request_id: 01K8KABR6S16YETA2SZPVBS9SP
     FlowTeamInvitationBulkResponse:
       properties:
         flow_id:
@@ -4438,118 +4552,42 @@ components:
         Flows represent workflow definitions with tasks, dependencies, and execution logic.
 
         Upon creation, flows are assigned version 1 and status ''draft''.'
-    MetadataKeyResponse:
+    FlowInvitationRequest:
       properties:
-        key:
-          type: string
-          title: Key
-          description: Metadata key name
-        count:
-          type: integer
-          title: Count
-          description: Number of executions with this key
-      type: object
-      required:
-      - key
-      - count
-      title: MetadataKeyResponse
-      description: Response model for metadata key discovery.
-    FlowSettings:
-      properties:
-        ttl:
-          $ref: '#/components/schemas/TTLSettings'
-          description: Time-to-live settings for automatic execution deletion
-          default: {}
-        reexecute_on_update:
-          type: boolean
-          title: Reexecute On Update
-          description: Reexecute stale tasks on flow update
-          default: false
-        review_view_id:
-          anyOf:
-          - type: string
-            format: uuid
-          - type: 'null'
-          title: Review View Id
-          description: Reference to FlowView for review navigation. Determines which tasks are visible when reviewing runs from Runs View.
-      type: object
-      title: FlowSettings
-      description: Flow-level settings configuration.
-    FlowCloneInfoResponse:
-      properties:
-        has_external_input_tasks:
-          type: boolean
-          title: Has External Input Tasks
-          description: Whether the flow has input tasks that receive data from external sources
-        external_input_task_names:
+        user_ids:
           items:
             type: string
+            format: uuid
           type: array
-          title: External Input Task Names
-          description: List of task executor names for external input tasks (e.g., 'receive_email', 'google_drive_receive')
+          minItems: 1
+          title: User Ids
+          description: List of user IDs to invite to the flow
       type: object
       required:
-      - has_external_input_tasks
-      title: FlowCloneInfoResponse
-      description: Response indicating whether a flow has external input tasks that need attention when cloning.
-    ErrorResponse:
-      properties:
-        error:
-          $ref: '#/components/schemas/ErrorDetail'
-        request_id:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Request Id
-          description: 'Unique request identifier in ULID format for debugging and support. Example: 01K8KABR6S16YETA2SZPVBS9SP'
-      type: object
-      required:
-      - error
-      title: ErrorResponse
-      description: "Standard API error response structure.\n\nAll error responses from the API follow this format, ensuring\nconsistent error handling for API consumers.\n\nExample:\n    {\n        \"error\": {\n            \"message\": \"Flow not found\",\n            \"code\": \"not_found\"\n        },\n        \"request_id\": \"01K8KABR6S16YETA2SZPVBS9SP\"\n    }"
-      examples:
-      - error:
-          code: not_found
-          message: Resource not found
-        request_id: 01K8KABR6S16YETA2SZPVBS9SP
-    ProcessingStatus:
-      type: string
-      enum:
-      - queued
-      - running
-      - completed
-      - failed
-      - deleted
-      - awaiting_input
-      - cancel_requested
-      - cancelled
-      title: ProcessingStatus
-      description: "Valid status values for task processing lifecycle.\n\nUsed by task_execution and task_output tables to track where a task\nis in its processing pipeline, independent of data consistency state.\n\nStatus Transitions:\n    queued → running → completed\n                     → failed\n    running/awaiting_input → cancel_requested → cancelled\n    Any status → deleted (soft delete)"
-    HTTPValidationError:
-      properties:
-        detail:
-          items:
-            $ref: '#/components/schemas/ValidationError'
-          type: array
-          title: Detail
-      type: object
-      title: HTTPValidationError
-    FlowTeamInvitationResponse:
+      - user_ids
+      title: FlowInvitationRequest
+      description: Request model for creating flow invitations.
+    FlowInvitationResponse:
       properties:
         flow_id:
           type: string
           format: uuid
           title: Flow Id
-        worker_group_id:
+        user_id:
           type: string
           format: uuid
-          title: Worker Group Id
-        worker_group_name:
+          title: User Id
+        email:
           type: string
-          title: Worker Group Name
-        member_count:
-          type: integer
-          title: Member Count
+          title: Email
+        first_name:
+          type: string
+          title: First Name
+        last_name:
+          type: string
+          title: Last Name
+        role:
+          $ref: '#/components/schemas/UserRole'
         organization_id:
           type: string
           format: uuid
@@ -4565,75 +4603,81 @@ components:
       type: object
       required:
       - flow_id
-      - worker_group_id
-      - worker_group_name
-      - member_count
+      - user_id
+      - email
+      - first_name
+      - last_name
+      - role
       - organization_id
       - created_at
       - updated_at
-      title: FlowTeamInvitationResponse
-      description: Response model for a single flow team invitation.
-    StaleStatus:
-      type: string
-      enum:
-      - consistent
-      - stale
-      title: StaleStatus
-      description: "Tracks whether task data is consistent with upstream changes.\n\nOrthogonal to edited_status — a task can be both \"edited\" and \"stale\".\n\nValues:\n    - consistent: Data is up-to-date with all upstream dependencies\n    - stale: Data is outdated due to an upstream edit and should be recalculated"
-    FlowDefinitionUpdate:
+      title: FlowInvitationResponse
+      description: Response model for a flow invitation.
+    ErrorDetails:
       properties:
-        definition:
+        type:
+          type: string
+          title: Type
+        loc:
+          items:
+            anyOf:
+            - type: integer
+            - type: string
+          type: array
+          title: Loc
+        msg:
+          type: string
+          title: Msg
+        input:
+          title: Input
+        ctx:
           additionalProperties: true
           type: object
-          title: Definition
-          description: Flow definition in DSL format. The definition contains a 'flow' metadata object and a 'flow_configs' array with task configurations. Each task has a unique 'name' (UUID), 'task_executor_name' (the task type), 'task_title' (display name), 'parameters' (executor-specific config), and optional 'visual_properties' for UI layout. Tasks reference upstream outputs using '{{task_name.output_field}}' template syntax in their parameters to define dependencies.
-          examples:
-          - flow:
-              author_uuid: ''
-              created_at: ''
-            flow_configs:
-            - config:
-                groups: []
-                notes: []
-                tasks:
-                - is_schedulable_executor: false
-                  name: e264bc8d-d6d3-4bef-a18e-a27ad491cd26
-                  parameters: {}
-                  task_executor_name: receive_file
-                  task_title: Receive File
-                  visual_properties:
-                    collapsed: false
-                    position:
-                      x: 584.5
-                      y: 359.5
-                    zIndex: 2
-                - is_schedulable_executor: false
-                  name: 6ef3e60a-94e7-48b0-adbf-80d3ef81c3a6
-                  parameters:
-                    document_url: '{{e264bc8d-d6d3-4bef-a18e-a27ad491cd26.document_url}}'
-                    fields:
-                    - columns: []
-                      data_type: int
-                      id: InvoiceID
-                      instructions: ''
-                      title: Invoice ID
-                    worker: gpt-4.1
-                  task_executor_name: doc_to_structured
-                  task_title: Doc To Structured
-                  visual_properties:
-                    collapsed: false
-                    position:
-                      x: 1170
-                      y: 360
-                    zIndex: 2
-              meta:
-                description: Extract data from invoices
-                name: Invoice Processing
+          title: Ctx
+        url:
+          type: string
+          title: Url
       type: object
       required:
-      - definition
-      title: FlowDefinitionUpdate
-      description: Model for flow definition update request.
+      - type
+      - loc
+      - msg
+      - input
+      title: ErrorDetails
+    ProcessingStatus:
+      type: string
+      enum:
+      - queued
+      - running
+      - completed
+      - failed
+      - deleted
+      - awaiting_input
+      - cancel_requested
+      - cancelled
+      title: ProcessingStatus
+      description: "Valid status values for task processing lifecycle.\n\nUsed by task_execution and task_output tables to track where a task\nis in its processing pipeline, independent of data consistency state.\n\nStatus Transitions:\n    queued → running → completed\n                     → failed\n    running/awaiting_input → cancel_requested → cancelled\n    Any status → deleted (soft delete)"
+    ValidationError:
+      properties:
+        loc:
+          items:
+            anyOf:
+            - type: string
+            - type: integer
+          type: array
+          title: Location
+        msg:
+          type: string
+          title: Message
+        type:
+          type: string
+          title: Error Type
+      type: object
+      required:
+      - loc
+      - msg
+      - type
+      title: ValidationError
     FlowVersionSummary:
       properties:
         version:
@@ -4671,100 +4715,51 @@ components:
       - is_latest
       title: FlowVersionSummary
       description: Lightweight version metadata for the version history sidebar.
-    FlowInvitationBulkResponse:
+    PatchFlowRequest:
       properties:
-        flow_id:
-          type: string
-          format: uuid
-          title: Flow Id
-        invited_user_ids:
-          items:
-            type: string
-            format: uuid
-          type: array
-          title: Invited User Ids
-        total_invitations:
-          type: integer
-          title: Total Invitations
-        skipped_user_ids:
-          items:
-            type: string
-            format: uuid
-          type: array
-          title: Skipped User Ids
-          description: User IDs that were skipped (not worker/publisher role)
-        message:
-          type: string
-          title: Message
-      type: object
-      required:
-      - flow_id
-      - invited_user_ids
-      - total_invitations
-      - message
-      title: FlowInvitationBulkResponse
-      description: Response model for bulk invitation creation/update.
-    FlowValidationResponse:
-      properties:
-        validation_errors:
-          items:
-            $ref: '#/components/schemas/ErrorDetails'
-          type: array
-          title: Validation Errors
-        ordered_task_names:
+        display_name:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Display Name
+          description: New display name for the flow
+        description:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Description
+          description: New description
+        visibility:
+          anyOf:
+          - {}
+          - type: 'null'
+          title: Visibility
+          description: New visibility setting
+        settings:
+          anyOf:
+          - $ref: '#/components/schemas/FlowSettings'
+          - type: 'null'
+          description: New settings (replaces existing).
+        status:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Status
+          description: 'New status. Valid values: ''draft'' or ''published''. Currently all transitions are allowed.'
+        tags:
           anyOf:
           - items:
               type: string
             type: array
+            uniqueItems: true
           - type: 'null'
-          title: Ordered Task Names
-        dynamic_data:
-          anyOf:
-          - additionalProperties: true
-            type: object
-          - type: 'null'
-          title: Dynamic Data
-        output_schemas:
-          anyOf:
-          - additionalProperties: true
-            type: object
-          - type: 'null'
-          title: Output Schemas
-        default_reference_modes:
-          anyOf:
-          - additionalProperties: true
-            type: object
-          - type: 'null'
-          title: Default Reference Modes
+          title: Tags
       type: object
-      required:
-      - validation_errors
-      title: FlowValidationResponse
-      description: Response model for validate-only endpoint (no persistence).
-    PaginatedFlowResponse:
-      properties:
-        flows:
-          items:
-            $ref: '#/components/schemas/FlowResponse'
-          type: array
-          title: Flows
-        total:
-          type: integer
-          title: Total
-        page:
-          type: integer
-          title: Page
-        page_size:
-          type: integer
-          title: Page Size
-      type: object
-      required:
-      - flows
-      - total
-      - page
-      - page_size
-      title: PaginatedFlowResponse
-      description: Paginated response for flows list.
+      title: PatchFlowRequest
+      description: 'Request body for partially updating a flow.
+
+
+        All fields are optional - only provided fields will be updated.'
   securitySchemes:
     BearerAuth:
       type: http

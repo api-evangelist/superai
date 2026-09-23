@@ -1,45 +1,17 @@
-openapi: 3.1.0
+openapi: 3.2.0
 info:
-  title: SuperAI Flow Platform auth task-tags API
-  description: "SuperAI Flows is a workflow orchestration platform that enables you to design, deploy, and monitor automated workflows at scale.\n\nBuild complex workflows using our declarative YAML DSL, execute them reliably, and integrate seamlessly with AI models, cloud storage, and enterprise systems.\n\n**Key Capabilities:**\n- **Workflow Management**: Define workflows as code with version control and automated execution\n- **Task Orchestration**: Chain together API calls, data processing, and AI operations\n- **Real-time Monitoring**: Track execution progress with WebSocket notifications and comprehensive logging\n- **Multi-tenant Architecture**: Organization-scoped resources with role-based access control\n\n**API Versioning and Breaking Changes:**\n\nWe follow a strict compatibility policy to ensure your integrations remain stable:\n\n- **Non-breaking changes** (safe, no action required):\n  - Adding new API endpoints\n  - Adding new optional query parameters to existing endpoints\n  - Adding new fields to API responses\n  - Adding new values to existing enums\n\n- **Breaking changes** (requires client updates):\n  - Removing or renaming API endpoints\n  - Removing query parameters or request fields\n  - Removing response fields\n  - Changing field types or validation rules\n  - Removing values from existing enums\n\n**Client Implementation Requirements:**\n\nYour API clients MUST be designed to gracefully handle additional fields in responses. We may add new fields to any response object without considering this a breaking change. Ensure your JSON parsers ignore unknown fields rather than raising errors.\n\n**Backward Compatibility Guarantee:**\n\nWe commit to maintaining backward compatibility for all non-breaking changes. Breaking changes will be:\n- Announced at least 15 days in advance\n- Documented in our changelog with migration guide\n\nFor the latest API updates and migration guides, see our changelog."
+  title: SuperAI Flow Platform Task Tags API
+  description: SuperAI Flows is a workflow orchestration platform that enables you to design, deploy, and monitor automated workflows at scale.
   version: 0.1.0
 tags:
-- name: task-tags
-  description: 'Task tag operations for categorizing and organizing tasks with metadata.
-
-
-    Task tags provide metadata and categorization for tasks within flow executions. Tags enable flexible organization, filtering, and grouping of tasks beyond their structural relationships.
-
-
-    **What tags enable:**
-
-    - **Categorization**: Group related tasks across different flows
-
-    - **Filtering**: Query executions by tag criteria
-
-    - **Metadata**: Attach custom key-value pairs to tasks
-
-    - **Organization**: Create logical groupings for reporting
-
-
-    **Use these endpoints to:**
-
-    - Manage task labels and categories
-
-    - Add organizational metadata to tasks
-
-    - Query tasks by tag criteria
-
-    - Build custom views and dashboards
-
-
-    Task tags provide flexible organization capabilities that enhance workflow management and analysis.'
+- name: Task Tags
+  description: Task tag operations for categorizing and organizing tasks with metadata.
   x-displayName: Task Tags
 paths:
   /api/task-tags:
     patch:
       tags:
-      - task-tags
+      - Task Tags
       summary: Add or remove task tags in batch
       description: 'Add or remove tags from task executions in batch operations.
 
@@ -210,9 +182,131 @@ paths:
       - APIKeyAuth: []
     get:
       tags:
-      - task-tags
+      - Task Tags
       summary: List active task tags for a flow execution
-      description: "List all active tags for task executions within a flow execution.\n\n**Overview**\nRetrieve tags associated with task executions in a specific flow execution.\nResults can be filtered to a single task or return all tasks' tags. Only\nactive tags are returned; soft-deleted tags (status='deleted') are excluded.\n\n**What are Task Tags?**\nTask tags provide flexible categorization and workflow state for task executions:\n- Review status: 'reviewed', 'approved', 'rejected'\n- Quality flags: 'quality_checked', 'flagged', 'verified'\n- Custom categories: 'priority_high', 'customer_acme', 'requires_attention'\nEach tag includes optional metadata for context (reviewer name, notes, etc.)\n\n**Filtering Logic**\nQuery parameters combine with AND logic:\n- flow_execution_id (required): Return tags for this flow execution\n- task_name (optional): Filter to tags for a specific task\nWithout task_name: Returns all tags across all tasks in the flow execution\n\n**Common Query Patterns**\n1. All tags in flow execution:\n   GET /task-tags?flow_execution_id={id}\n\n2. Tags for specific task:\n   GET /task-tags?flow_execution_id={id}&task_name=send_email\n\n3. Check if task reviewed:\n   GET /task-tags?flow_execution_id={id}&task_name=extract_data\n   Filter results where tag='reviewed'\n\n**Response Format**\nReturns array of FlowTaskTagAPI objects with:\n- Tag identification: tag, tag_type, task_name\n- Metadata: tag_metadata (JSON object for custom data)\n- Lifecycle: created_at, updated_at, modified_by\n- Status: Always 'active' (deleted tags excluded)\n- Organization context: organization_id for tenant isolation\n\n**Tag Types and Usage**\nCommon tag_type values:\n- 'review_status': Workflow state ('reviewed', 'approved', 'rejected')\n- 'quality': Quality assurance ('quality_checked', 'flagged')\n- 'priority': Business priority ('high', 'medium', 'low')\n- 'custom': Domain-specific categories\n\n**Performance Considerations**\n- Queries scoped by organization_id via RLS (automatic filtering)\n- Indexes on (flow_execution_id, task_name, status) for fast lookups\n- Typical response: 5-50 tags per flow execution\n- Soft-deleted tags excluded at query time (no filtering overhead)\n\n**Use Cases**\n- Display task status in UI (show 'reviewed' badge)\n- Filter tasks by approval state (find all 'approved' tasks)\n- Audit workflow progression (who reviewed what, when)\n- Custom business logic (trigger actions based on tag presence)\n\n**Error Scenarios**\n- 400 Bad Request: Invalid UUID format for flow_execution_id\n- 403 Forbidden: User lacks permission to access flow execution's organization\n- 404 Not Found: flow_execution_id doesn't exist\nNote: Missing task_name is NOT an error; returns empty array\n\n**Related Endpoints**\n- PATCH /task-tags - Add/remove tags\n- GET /task-executions - List task executions (includes tags via TaskExecutionWithTagsAPI)\n- GET /flow-executions/{id} - View parent flow execution"
+      description: 'List all active tags for task executions within a flow execution.
+
+
+        **Overview**
+
+        Retrieve tags associated with task executions in a specific flow execution.
+
+        Results can be filtered to a single task or return all tasks'' tags. Only
+
+        active tags are returned; soft-deleted tags (status=''deleted'') are excluded.
+
+
+        **What are Task Tags?**
+
+        Task tags provide flexible categorization and workflow state for task executions:
+
+        - Review status: ''reviewed'', ''approved'', ''rejected''
+
+        - Quality flags: ''quality_checked'', ''flagged'', ''verified''
+
+        - Custom categories: ''priority_high'', ''customer_acme'', ''requires_attention''
+
+        Each tag includes optional metadata for context (reviewer name, notes, etc.)
+
+
+        **Filtering Logic**
+
+        Query parameters combine with AND logic:
+
+        - flow_execution_id (required): Return tags for this flow execution
+
+        - task_name (optional): Filter to tags for a specific task
+
+        Without task_name: Returns all tags across all tasks in the flow execution
+
+
+        **Common Query Patterns**
+
+        1. All tags in flow execution:
+
+        GET /task-tags?flow_execution_id={id}
+
+
+        2. Tags for specific task:
+
+        GET /task-tags?flow_execution_id={id}&task_name=send_email
+
+
+        3. Check if task reviewed:
+
+        GET /task-tags?flow_execution_id={id}&task_name=extract_data
+
+        Filter results where tag=''reviewed''
+
+
+        **Response Format**
+
+        Returns array of FlowTaskTagAPI objects with:
+
+        - Tag identification: tag, tag_type, task_name
+
+        - Metadata: tag_metadata (JSON object for custom data)
+
+        - Lifecycle: created_at, updated_at, modified_by
+
+        - Status: Always ''active'' (deleted tags excluded)
+
+        - Organization context: organization_id for tenant isolation
+
+
+        **Tag Types and Usage**
+
+        Common tag_type values:
+
+        - ''review_status'': Workflow state (''reviewed'', ''approved'', ''rejected'')
+
+        - ''quality'': Quality assurance (''quality_checked'', ''flagged'')
+
+        - ''priority'': Business priority (''high'', ''medium'', ''low'')
+
+        - ''custom'': Domain-specific categories
+
+
+        **Performance Considerations**
+
+        - Queries scoped by organization_id via RLS (automatic filtering)
+
+        - Indexes on (flow_execution_id, task_name, status) for fast lookups
+
+        - Typical response: 5-50 tags per flow execution
+
+        - Soft-deleted tags excluded at query time (no filtering overhead)
+
+
+        **Use Cases**
+
+        - Display task status in UI (show ''reviewed'' badge)
+
+        - Filter tasks by approval state (find all ''approved'' tasks)
+
+        - Audit workflow progression (who reviewed what, when)
+
+        - Custom business logic (trigger actions based on tag presence)
+
+
+        **Error Scenarios**
+
+        - 400 Bad Request: Invalid UUID format for flow_execution_id
+
+        - 403 Forbidden: User lacks permission to access flow execution''s organization
+
+        - 404 Not Found: flow_execution_id doesn''t exist
+
+        Note: Missing task_name is NOT an error; returns empty array
+
+
+        **Related Endpoints**
+
+        - PATCH /task-tags - Add/remove tags
+
+        - GET /task-executions - List task executions (includes tags via TaskExecutionWithTagsAPI)
+
+        - GET /flow-executions/{id} - View parent flow execution'
       operationId: list_task_tags_api_task_tags_get
       parameters:
       - name: flow_execution_id
@@ -335,56 +429,28 @@ components:
         This model matches the error format returned by the centralized
 
         exception handlers in app/api/errors/handlers.py.'
-    ErrorResponse:
+    PatchFlowTaskTagsResponse:
       properties:
-        error:
-          $ref: '#/components/schemas/ErrorDetail'
-        request_id:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Request Id
-          description: 'Unique request identifier in ULID format for debugging and support. Example: 01K8KABR6S16YETA2SZPVBS9SP'
+        tags:
+          items:
+            $ref: '#/components/schemas/PatchFlowTaskTagsResponseItem'
+          type: array
+          title: Tags
+          description: "Array of operation results in request array order. Each element corresponds to the tag operation at the same index in the request. \n\nResponse structure:\n- Length: Always equals request.tags length\n- Order: Preserves request order (response[i] is result of request.tags[i])\n- Content: Each item contains 'status' field indicating operation outcome\n\nExample mapping:\nRequest: [add_tag1, remove_tag2, add_tag3]\nResponse: [status1, status2, status3]\n\nAll operations complete (no partial failures). Check each status to determine individual operation outcomes. Use array index to match operations with results."
+          examples:
+          - - status: added
+            - status: removed
+            - status: already_exists
       type: object
       required:
-      - error
-      title: ErrorResponse
-      description: "Standard API error response structure.\n\nAll error responses from the API follow this format, ensuring\nconsistent error handling for API consumers.\n\nExample:\n    {\n        \"error\": {\n            \"message\": \"Flow not found\",\n            \"code\": \"not_found\"\n        },\n        \"request_id\": \"01K8KABR6S16YETA2SZPVBS9SP\"\n    }"
-      examples:
-      - error:
-          code: not_found
-          message: Resource not found
-        request_id: 01K8KABR6S16YETA2SZPVBS9SP
-    HTTPValidationError:
-      properties:
-        detail:
-          items:
-            $ref: '#/components/schemas/ValidationError'
-          type: array
-          title: Detail
-      type: object
-      title: HTTPValidationError
-    ValidationError:
-      properties:
-        loc:
-          items:
-            anyOf:
-            - type: string
-            - type: integer
-          type: array
-          title: Location
-        msg:
-          type: string
-          title: Message
-        type:
-          type: string
-          title: Error Type
-      type: object
-      required:
-      - loc
-      - msg
-      - type
-      title: ValidationError
+      - tags
+      title: PatchFlowTaskTagsResponse
+      description: 'Response from batch tag operations.
+
+
+        Returns status for each operation in request array order.
+
+        Array length matches request array length (1:1 correspondence).'
     PatchFlowTaskTagsResponseItem:
       properties:
         status:
@@ -411,141 +477,6 @@ components:
         Indicates success or idempotent outcome for each operation.
 
         Response array matches request array order (1:1 correspondence).'
-    PatchFlowTaskTagsRequestItem:
-      properties:
-        operation:
-          type: string
-          enum:
-          - add
-          - remove
-          title: Operation
-          description: "Tag operation to perform on the specified task execution. \n\n'add': Create new tag (idempotent - no error if already exists). Server generates UUID, timestamps, and organization_id automatically. Returns status='added' on success or status='already_exists' if duplicate. \n\n'remove': Soft-delete existing tag by setting status='deleted'. Preserves tag record with deletion metadata (updated_at, modified_by). Returns status='removed' on success or status='not_found' if missing. \n\nNote: Tags are never hard-deleted for audit trail compliance."
-          examples:
-          - add
-          - remove
-        flow_execution_id:
-          type: string
-          format: uuid
-          title: Flow Execution Id
-          description: Unique identifier of the flow execution containing the target task. Used to locate task execution and determine organization scope. Must exist and belong to user's organization or request fails with 404. All tags are scoped to a specific flow execution.
-          examples:
-          - 123e4567-e89b-12d3-a456-426614174000
-        task_name:
-          type: string
-          maxLength: 200
-          minLength: 1
-          title: Task Name
-          description: "Name of the task to tag, as defined in flow definition YAML. Case-sensitive identifier matching task name in flow configuration. Task must exist within the specified flow_execution_id. Tags are attached to (flow_execution_id, task_name) pair. \n\nExamples: 'send_email', 'extract_data', 'validate_document'"
-          examples:
-          - send_email
-          - extract_data
-          - validate_document
-        tag:
-          type: string
-          maxLength: 200
-          minLength: 1
-          title: Tag
-          description: "Tag value to add or remove from the task execution. Free-form string identifier for categorization or workflow state. Case-sensitive; 'reviewed' and 'Reviewed' are different tags. Combine with tag_type and tag_metadata for rich categorization. \n\nCommon patterns:\n- Simple: 'reviewed', 'approved', 'rejected'\n- Namespaced: 'priority:high', 'customer:acme'\n- Descriptive: 'requires_human_review', 'quality_flagged'\n\nTag uniqueness: (flow_execution_id, task_name, tag, tag_type, tag_metadata) forms composite unique key. Same tag with different metadata creates separate records."
-          examples:
-          - reviewed
-          - approved
-          - priority_high
-          - requires_attention
-        tag_type:
-          type: string
-          maxLength: 100
-          minLength: 1
-          title: Tag Type
-          description: "Category or namespace for the tag value. Groups related tags for filtering and organization. Case-sensitive; used for tag classification in UI and queries. \n\nCommon types:\n- 'review_status': Workflow states ('reviewed', 'approved', 'rejected')\n- 'quality': QA flags ('quality_checked', 'flagged', 'verified')\n- 'priority': Business priority ('high', 'medium', 'low')\n- 'approval': Approval workflow ('pending', 'approved', 'denied')\n- 'custom': Domain-specific categories\n\nBest practice: Use consistent tag_type values across your organization to enable filtering and reporting."
-          examples:
-          - review_status
-          - quality
-          - priority
-          - approval
-          - custom
-        tag_metadata:
-          anyOf:
-          - {}
-          - type: 'null'
-          title: Tag Metadata
-          description: "Optional structured metadata providing context for the tag. Can be object, array, or primitive types. NULL if no additional context needed. \n\nCommon patterns:\n- Reviewer info: {'reviewer': 'user@example.com', 'reviewed_at': '2025-01-23T10:30:00Z'}\n- Approval details: {'approver': 'manager@example.com', 'notes': 'Approved with conditions'}\n- Quality metrics: {'confidence_score': 0.95, 'flagged_reason': 'Low confidence'}\n- Custom data: Any JSON-serializable structure relevant to your workflow\n\nNote: tag_metadata is part of the composite unique key. Same tag with different metadata creates multiple tag records."
-          examples:
-          - notes: Looks good
-            reviewer: user@example.com
-          - approved_at: '2025-01-23T10:30:00Z'
-            approver: manager@example.com
-          - confidence: 0.95
-            model: gpt-4
-          - null
-      type: object
-      required:
-      - operation
-      - flow_execution_id
-      - task_name
-      - tag
-      - tag_type
-      title: PatchFlowTaskTagsRequestItem
-      description: 'Single tag operation in a batch request.
-
-
-        Represents one add or remove operation for a task execution tag.
-
-        Batch multiple operations in a single PATCH request for efficiency.'
-    PatchFlowTaskTagsResponse:
-      properties:
-        tags:
-          items:
-            $ref: '#/components/schemas/PatchFlowTaskTagsResponseItem'
-          type: array
-          title: Tags
-          description: "Array of operation results in request array order. Each element corresponds to the tag operation at the same index in the request. \n\nResponse structure:\n- Length: Always equals request.tags length\n- Order: Preserves request order (response[i] is result of request.tags[i])\n- Content: Each item contains 'status' field indicating operation outcome\n\nExample mapping:\nRequest: [add_tag1, remove_tag2, add_tag3]\nResponse: [status1, status2, status3]\n\nAll operations complete (no partial failures). Check each status to determine individual operation outcomes. Use array index to match operations with results."
-          examples:
-          - - status: added
-            - status: removed
-            - status: already_exists
-      type: object
-      required:
-      - tags
-      title: PatchFlowTaskTagsResponse
-      description: 'Response from batch tag operations.
-
-
-        Returns status for each operation in request array order.
-
-        Array length matches request array length (1:1 correspondence).'
-    PatchFlowTaskTagsRequest:
-      properties:
-        tags:
-          items:
-            $ref: '#/components/schemas/PatchFlowTaskTagsRequestItem'
-          type: array
-          maxItems: 100
-          minItems: 1
-          title: Tags
-          description: "Array of tag operations to perform in a single atomic transaction. Each item specifies an 'add' or 'remove' operation for a specific task. Operations processed sequentially; all succeed or all fail together. \n\nBatch benefits:\n- Single database transaction for consistency\n- Reduced network overhead (one request vs many)\n- Atomic operations (no partial failures)\n\nMixed operations supported:\n- Add tags to multiple tasks\n- Remove tags from multiple tasks\n- Add and remove different tags in same request\n\nPractical limit: 1-100 operations per request for performance. For bulk tagging beyond 100 operations, split into multiple requests."
-          examples:
-          - - flow_execution_id: 123e4567-e89b-12d3-a456-426614174000
-              operation: add
-              tag: reviewed
-              tag_metadata:
-                reviewer: user@example.com
-              tag_type: review_status
-              task_name: extract_data
-            - flow_execution_id: 123e4567-e89b-12d3-a456-426614174000
-              operation: remove
-              tag: pending_review
-              tag_type: review_status
-              task_name: extract_data
-      type: object
-      required:
-      - tags
-      title: PatchFlowTaskTagsRequest
-      description: 'Batch request to add or remove multiple task execution tags.
-
-
-        Supports mixed operations (add and remove) in a single atomic transaction.
-
-        All operations succeed together or all fail. Efficient for bulk tagging.'
     FlowTaskTagAPI:
       properties:
         id:
@@ -685,6 +616,169 @@ components:
         Lifecycle: Tags are soft-deleted (status=''deleted'') rather than hard-deleted
 
         to preserve audit history. Only active tags appear in list queries.'
+    ErrorResponse:
+      properties:
+        error:
+          $ref: '#/components/schemas/ErrorDetail'
+        request_id:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Request Id
+          description: 'Unique request identifier in ULID format for debugging and support. Example: 01K8KABR6S16YETA2SZPVBS9SP'
+      type: object
+      required:
+      - error
+      title: ErrorResponse
+      description: "Standard API error response structure.\n\nAll error responses from the API follow this format, ensuring\nconsistent error handling for API consumers.\n\nExample:\n    {\n        \"error\": {\n            \"message\": \"Flow not found\",\n            \"code\": \"not_found\"\n        },\n        \"request_id\": \"01K8KABR6S16YETA2SZPVBS9SP\"\n    }"
+      examples:
+      - error:
+          code: not_found
+          message: Resource not found
+        request_id: 01K8KABR6S16YETA2SZPVBS9SP
+    PatchFlowTaskTagsRequest:
+      properties:
+        tags:
+          items:
+            $ref: '#/components/schemas/PatchFlowTaskTagsRequestItem'
+          type: array
+          maxItems: 100
+          minItems: 1
+          title: Tags
+          description: "Array of tag operations to perform in a single atomic transaction. Each item specifies an 'add' or 'remove' operation for a specific task. Operations processed sequentially; all succeed or all fail together. \n\nBatch benefits:\n- Single database transaction for consistency\n- Reduced network overhead (one request vs many)\n- Atomic operations (no partial failures)\n\nMixed operations supported:\n- Add tags to multiple tasks\n- Remove tags from multiple tasks\n- Add and remove different tags in same request\n\nPractical limit: 1-100 operations per request for performance. For bulk tagging beyond 100 operations, split into multiple requests."
+          examples:
+          - - flow_execution_id: 123e4567-e89b-12d3-a456-426614174000
+              operation: add
+              tag: reviewed
+              tag_metadata:
+                reviewer: user@example.com
+              tag_type: review_status
+              task_name: extract_data
+            - flow_execution_id: 123e4567-e89b-12d3-a456-426614174000
+              operation: remove
+              tag: pending_review
+              tag_type: review_status
+              task_name: extract_data
+      type: object
+      required:
+      - tags
+      title: PatchFlowTaskTagsRequest
+      description: 'Batch request to add or remove multiple task execution tags.
+
+
+        Supports mixed operations (add and remove) in a single atomic transaction.
+
+        All operations succeed together or all fail. Efficient for bulk tagging.'
+    ValidationError:
+      properties:
+        loc:
+          items:
+            anyOf:
+            - type: string
+            - type: integer
+          type: array
+          title: Location
+        msg:
+          type: string
+          title: Message
+        type:
+          type: string
+          title: Error Type
+      type: object
+      required:
+      - loc
+      - msg
+      - type
+      title: ValidationError
+    PatchFlowTaskTagsRequestItem:
+      properties:
+        operation:
+          type: string
+          enum:
+          - add
+          - remove
+          title: Operation
+          description: "Tag operation to perform on the specified task execution. \n\n'add': Create new tag (idempotent - no error if already exists). Server generates UUID, timestamps, and organization_id automatically. Returns status='added' on success or status='already_exists' if duplicate. \n\n'remove': Soft-delete existing tag by setting status='deleted'. Preserves tag record with deletion metadata (updated_at, modified_by). Returns status='removed' on success or status='not_found' if missing. \n\nNote: Tags are never hard-deleted for audit trail compliance."
+          examples:
+          - add
+          - remove
+        flow_execution_id:
+          type: string
+          format: uuid
+          title: Flow Execution Id
+          description: Unique identifier of the flow execution containing the target task. Used to locate task execution and determine organization scope. Must exist and belong to user's organization or request fails with 404. All tags are scoped to a specific flow execution.
+          examples:
+          - 123e4567-e89b-12d3-a456-426614174000
+        task_name:
+          type: string
+          maxLength: 200
+          minLength: 1
+          title: Task Name
+          description: "Name of the task to tag, as defined in flow definition YAML. Case-sensitive identifier matching task name in flow configuration. Task must exist within the specified flow_execution_id. Tags are attached to (flow_execution_id, task_name) pair. \n\nExamples: 'send_email', 'extract_data', 'validate_document'"
+          examples:
+          - send_email
+          - extract_data
+          - validate_document
+        tag:
+          type: string
+          maxLength: 200
+          minLength: 1
+          title: Tag
+          description: "Tag value to add or remove from the task execution. Free-form string identifier for categorization or workflow state. Case-sensitive; 'reviewed' and 'Reviewed' are different tags. Combine with tag_type and tag_metadata for rich categorization. \n\nCommon patterns:\n- Simple: 'reviewed', 'approved', 'rejected'\n- Namespaced: 'priority:high', 'customer:acme'\n- Descriptive: 'requires_human_review', 'quality_flagged'\n\nTag uniqueness: (flow_execution_id, task_name, tag, tag_type, tag_metadata) forms composite unique key. Same tag with different metadata creates separate records."
+          examples:
+          - reviewed
+          - approved
+          - priority_high
+          - requires_attention
+        tag_type:
+          type: string
+          maxLength: 100
+          minLength: 1
+          title: Tag Type
+          description: "Category or namespace for the tag value. Groups related tags for filtering and organization. Case-sensitive; used for tag classification in UI and queries. \n\nCommon types:\n- 'review_status': Workflow states ('reviewed', 'approved', 'rejected')\n- 'quality': QA flags ('quality_checked', 'flagged', 'verified')\n- 'priority': Business priority ('high', 'medium', 'low')\n- 'approval': Approval workflow ('pending', 'approved', 'denied')\n- 'custom': Domain-specific categories\n\nBest practice: Use consistent tag_type values across your organization to enable filtering and reporting."
+          examples:
+          - review_status
+          - quality
+          - priority
+          - approval
+          - custom
+        tag_metadata:
+          anyOf:
+          - {}
+          - type: 'null'
+          title: Tag Metadata
+          description: "Optional structured metadata providing context for the tag. Can be object, array, or primitive types. NULL if no additional context needed. \n\nCommon patterns:\n- Reviewer info: {'reviewer': 'user@example.com', 'reviewed_at': '2025-01-23T10:30:00Z'}\n- Approval details: {'approver': 'manager@example.com', 'notes': 'Approved with conditions'}\n- Quality metrics: {'confidence_score': 0.95, 'flagged_reason': 'Low confidence'}\n- Custom data: Any JSON-serializable structure relevant to your workflow\n\nNote: tag_metadata is part of the composite unique key. Same tag with different metadata creates multiple tag records."
+          examples:
+          - notes: Looks good
+            reviewer: user@example.com
+          - approved_at: '2025-01-23T10:30:00Z'
+            approver: manager@example.com
+          - confidence: 0.95
+            model: gpt-4
+          - null
+      type: object
+      required:
+      - operation
+      - flow_execution_id
+      - task_name
+      - tag
+      - tag_type
+      title: PatchFlowTaskTagsRequestItem
+      description: 'Single tag operation in a batch request.
+
+
+        Represents one add or remove operation for a task execution tag.
+
+        Batch multiple operations in a single PATCH request for efficiency.'
+    HTTPValidationError:
+      properties:
+        detail:
+          items:
+            $ref: '#/components/schemas/ValidationError'
+          type: array
+          title: Detail
+      type: object
+      title: HTTPValidationError
   securitySchemes:
     BearerAuth:
       type: http

@@ -1,19 +1,33 @@
-openapi: 3.1.0
+openapi: 3.2.0
 info:
-  title: SuperAI Flow Platform auth plugins API
-  description: "SuperAI Flows is a workflow orchestration platform that enables you to design, deploy, and monitor automated workflows at scale.\n\nBuild complex workflows using our declarative YAML DSL, execute them reliably, and integrate seamlessly with AI models, cloud storage, and enterprise systems.\n\n**Key Capabilities:**\n- **Workflow Management**: Define workflows as code with version control and automated execution\n- **Task Orchestration**: Chain together API calls, data processing, and AI operations\n- **Real-time Monitoring**: Track execution progress with WebSocket notifications and comprehensive logging\n- **Multi-tenant Architecture**: Organization-scoped resources with role-based access control\n\n**API Versioning and Breaking Changes:**\n\nWe follow a strict compatibility policy to ensure your integrations remain stable:\n\n- **Non-breaking changes** (safe, no action required):\n  - Adding new API endpoints\n  - Adding new optional query parameters to existing endpoints\n  - Adding new fields to API responses\n  - Adding new values to existing enums\n\n- **Breaking changes** (requires client updates):\n  - Removing or renaming API endpoints\n  - Removing query parameters or request fields\n  - Removing response fields\n  - Changing field types or validation rules\n  - Removing values from existing enums\n\n**Client Implementation Requirements:**\n\nYour API clients MUST be designed to gracefully handle additional fields in responses. We may add new fields to any response object without considering this a breaking change. Ensure your JSON parsers ignore unknown fields rather than raising errors.\n\n**Backward Compatibility Guarantee:**\n\nWe commit to maintaining backward compatibility for all non-breaking changes. Breaking changes will be:\n- Announced at least 15 days in advance\n- Documented in our changelog with migration guide\n\nFor the latest API updates and migration guides, see our changelog."
+  title: SuperAI Flow Platform Plugins API
+  description: SuperAI Flows is a workflow orchestration platform that enables you to design, deploy, and monitor automated workflows at scale.
   version: 0.1.0
 tags:
-- name: plugins
+- name: Plugins
   description: Plugin operations for managing integration plugin instances, OAuth flows, and webhooks.
   x-displayName: Plugins
 paths:
   /api/integrations/plugins/:
     get:
       tags:
-      - plugins
+      - Plugins
       summary: List all registered plugins
-      description: "List all registered plugins from the integration registry.\n\nReturns plugins available in the new plugin system only, excluding legacy integrations.\nEach plugin includes metadata about its capabilities, version, and status.\n\nUse Cases:\n    - Display available integrations to users\n    - Validate plugin availability before configuration\n    - Integration discovery and selection"
+      description: 'List all registered plugins from the integration registry.
+
+
+        Returns plugins available in the new plugin system only, excluding legacy integrations.
+
+        Each plugin includes metadata about its capabilities, version, and status.
+
+
+        Use Cases:
+
+        - Display available integrations to users
+
+        - Validate plugin availability before configuration
+
+        - Integration discovery and selection'
       operationId: list_plugins_api_integrations_plugins__get
       responses:
         '200':
@@ -74,9 +88,29 @@ paths:
   /api/integrations/plugins/{plugin_name}/capabilities:
     get:
       tags:
-      - plugins
+      - Plugins
       summary: Get plugin capabilities
-      description: "Retrieve detailed capabilities of a specific plugin.\n\nReturns comprehensive information about what the plugin can do, including:\n- Supported operations and execution models\n- Required authentication types\n- Configuration schema and metadata\n- Webhook support status\n\nUse Cases:\n    - Display plugin configuration UI\n    - Validate plugin compatibility with workflow\n    - Generate plugin documentation"
+      description: 'Retrieve detailed capabilities of a specific plugin.
+
+
+        Returns comprehensive information about what the plugin can do, including:
+
+        - Supported operations and execution models
+
+        - Required authentication types
+
+        - Configuration schema and metadata
+
+        - Webhook support status
+
+
+        Use Cases:
+
+        - Display plugin configuration UI
+
+        - Validate plugin compatibility with workflow
+
+        - Generate plugin documentation'
       operationId: get_plugin_capabilities_api_integrations_plugins__plugin_name__capabilities_get
       parameters:
       - name: plugin_name
@@ -154,7 +188,7 @@ paths:
   /api/integrations/plugins/{plugin_name}/oauth/authorize:
     post:
       tags:
-      - plugins
+      - Plugins
       summary: Oauth Authorize Legacy
       operationId: oauth_authorize_legacy
       parameters:
@@ -188,7 +222,7 @@ paths:
   /api/integrations/plugins/{plugin_name}/oauth/callback:
     get:
       tags:
-      - plugins
+      - Plugins
       summary: Oauth Callback Legacy
       operationId: oauth_callback_legacy
       parameters:
@@ -240,7 +274,7 @@ paths:
   /api/integrations/plugins/{plugin_name}/instances:
     post:
       tags:
-      - plugins
+      - Plugins
       summary: Create Integration Legacy
       operationId: create_integration_legacy_api_integrations_plugins__plugin_name__instances_post
       parameters:
@@ -275,7 +309,7 @@ paths:
       - APIKeyAuth: []
     get:
       tags:
-      - plugins
+      - Plugins
       summary: List Integration Instances
       operationId: list_integration_instances_api_integrations_plugins__plugin_name__instances_get
       parameters:
@@ -328,7 +362,7 @@ paths:
   /api/integrations/plugins/{plugin_name}/instances/{integration_id}:
     delete:
       tags:
-      - plugins
+      - Plugins
       summary: Delete Integration Legacy
       operationId: delete_integration_legacy_api_integrations_plugins__plugin_name__instances__integration_id__delete
       parameters:
@@ -363,7 +397,7 @@ paths:
   /api/integrations/plugins/{plugin_name}/instances/{integration_id}/webhook/callback:
     post:
       tags:
-      - plugins
+      - Plugins
       summary: Handle Webhook Legacy
       operationId: handle_webhook_legacy_api_integrations_plugins__plugin_name__instances__integration_id__webhook_callback_post
       parameters:
@@ -398,7 +432,7 @@ paths:
   /api/integrations/plugins/{plugin_name}/instances/{integration_id}/files/move:
     post:
       tags:
-      - plugins
+      - Plugins
       summary: Move File
       operationId: move_file_api_integrations_plugins__plugin_name__instances__integration_id__files_move_post
       parameters:
@@ -433,7 +467,7 @@ paths:
   /api/integrations/plugins/{plugin_name}/instances/{integration_id}/files:
     delete:
       tags:
-      - plugins
+      - Plugins
       summary: Delete File
       operationId: delete_file_api_integrations_plugins__plugin_name__instances__integration_id__files_delete
       parameters:
@@ -468,7 +502,7 @@ paths:
   /api/integrations/plugins/{plugin_name}/folders:
     get:
       tags:
-      - plugins
+      - Plugins
       summary: List Folders
       operationId: list_folders_api_integrations_plugins__plugin_name__folders_get
       parameters:
@@ -503,7 +537,7 @@ paths:
   /api/integrations/plugins/sharepoint/sites:
     get:
       tags:
-      - plugins
+      - Plugins
       summary: Get Sharepoint Sites
       operationId: get_sharepoint_sites_api_integrations_plugins_sharepoint_sites_get
       parameters:
@@ -532,7 +566,7 @@ paths:
   /api/integrations/plugins/sharepoint/drives:
     get:
       tags:
-      - plugins
+      - Plugins
       summary: Get Sharepoint Drives
       operationId: get_sharepoint_drives_api_integrations_plugins_sharepoint_drives_get
       parameters:
@@ -568,7 +602,7 @@ paths:
   /api/plugins/instances:
     get:
       tags:
-      - plugins
+      - Plugins
       summary: List Instances
       operationId: list_instances_api_plugins_instances_get
       parameters:
@@ -608,7 +642,7 @@ paths:
   /api/plugins/{plugin_name}/oauth/authorize:
     post:
       tags:
-      - plugins
+      - Plugins
       summary: Oauth Authorize
       operationId: oauth_authorize_v2
       parameters:
@@ -642,7 +676,7 @@ paths:
   /api/plugins/{plugin_name}/{provider_name}/oauth/callback:
     get:
       tags:
-      - plugins
+      - Plugins
       summary: Oauth Callback
       operationId: oauth_callback_v2
       parameters:
@@ -700,7 +734,7 @@ paths:
   /api/plugins/{plugin_name}/instances:
     post:
       tags:
-      - plugins
+      - Plugins
       summary: Create Integration
       operationId: create_integration_api_plugins__plugin_name__instances_post
       parameters:
@@ -733,7 +767,7 @@ paths:
       - APIKeyAuth: []
     get:
       tags:
-      - plugins
+      - Plugins
       summary: List Integrations
       operationId: list_integrations_api_plugins__plugin_name__instances_get
       parameters:
@@ -779,7 +813,7 @@ paths:
   /api/plugins/{plugin_name}/instances/{integration_id}:
     delete:
       tags:
-      - plugins
+      - Plugins
       summary: Delete Integration
       operationId: delete_integration_api_plugins__plugin_name__instances__integration_id__delete
       parameters:
@@ -813,7 +847,7 @@ paths:
       - APIKeyAuth: []
     put:
       tags:
-      - plugins
+      - Plugins
       summary: Update Integration
       operationId: update_integration_api_plugins__plugin_name__instances__integration_id__put
       parameters:
@@ -856,7 +890,7 @@ paths:
   /api/plugins/{plugin_name}/instances/{integration_id}/webhook/callback:
     post:
       tags:
-      - plugins
+      - Plugins
       summary: Handle Webhook
       operationId: handle_webhook_api_plugins__plugin_name__instances__integration_id__webhook_callback_post
       parameters:
@@ -891,7 +925,7 @@ paths:
   /api/plugins/{plugin_name}/instances/{integration_id}/poll:
     post:
       tags:
-      - plugins
+      - Plugins
       summary: Poll Integration
       description: 'Execute scheduled polling for polling integration plugins.
 
@@ -953,7 +987,7 @@ paths:
   /api/plugins/{plugin_name}/instances/{integration_id}/execute:
     post:
       tags:
-      - plugins
+      - Plugins
       summary: Execute Integration
       operationId: execute_integration_api_plugins__plugin_name__instances__integration_id__execute_post
       parameters:
@@ -996,7 +1030,7 @@ paths:
   /api/plugins/{plugin_name}/instances/{integration_id}/ui_schema:
     post:
       tags:
-      - plugins
+      - Plugins
       summary: Get Ui Schema
       operationId: get_ui_schema_api_plugins__plugin_name__instances__integration_id__ui_schema_post
       parameters:
@@ -1072,35 +1106,6 @@ components:
         This model matches the error format returned by the centralized
 
         exception handlers in app/api/errors/handlers.py.'
-    ErrorResponse:
-      properties:
-        error:
-          $ref: '#/components/schemas/ErrorDetail'
-        request_id:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Request Id
-          description: 'Unique request identifier in ULID format for debugging and support. Example: 01K8KABR6S16YETA2SZPVBS9SP'
-      type: object
-      required:
-      - error
-      title: ErrorResponse
-      description: "Standard API error response structure.\n\nAll error responses from the API follow this format, ensuring\nconsistent error handling for API consumers.\n\nExample:\n    {\n        \"error\": {\n            \"message\": \"Flow not found\",\n            \"code\": \"not_found\"\n        },\n        \"request_id\": \"01K8KABR6S16YETA2SZPVBS9SP\"\n    }"
-      examples:
-      - error:
-          code: not_found
-          message: Resource not found
-        request_id: 01K8KABR6S16YETA2SZPVBS9SP
-    HTTPValidationError:
-      properties:
-        detail:
-          items:
-            $ref: '#/components/schemas/ValidationError'
-          type: array
-          title: Detail
-      type: object
-      title: HTTPValidationError
     IntegrationCreateRequest:
       properties:
         flow_id:
@@ -1139,22 +1144,43 @@ components:
       - redirect_to
       - integration_name
       title: OauthAuthorizeRequest
-    GetUiSchemaRequest:
+    ErrorResponse:
       properties:
-        parameters:
-          additionalProperties: true
-          type: object
-          title: Parameters
-        user_action:
+        error:
+          $ref: '#/components/schemas/ErrorDetail'
+        request_id:
           anyOf:
-          - additionalProperties: true
-            type: object
+          - type: string
           - type: 'null'
-          title: User Action
+          title: Request Id
+          description: 'Unique request identifier in ULID format for debugging and support. Example: 01K8KABR6S16YETA2SZPVBS9SP'
       type: object
       required:
-      - parameters
-      title: GetUiSchemaRequest
+      - error
+      title: ErrorResponse
+      description: "Standard API error response structure.\n\nAll error responses from the API follow this format, ensuring\nconsistent error handling for API consumers.\n\nExample:\n    {\n        \"error\": {\n            \"message\": \"Flow not found\",\n            \"code\": \"not_found\"\n        },\n        \"request_id\": \"01K8KABR6S16YETA2SZPVBS9SP\"\n    }"
+      examples:
+      - error:
+          code: not_found
+          message: Resource not found
+        request_id: 01K8KABR6S16YETA2SZPVBS9SP
+    app__api__integrations_new__integration_api_model__OauthAuthorizeRequest:
+      properties:
+        redirect_to:
+          type: string
+          title: Redirect To
+        integration_name:
+          type: string
+          title: Integration Name
+        provider_name:
+          type: string
+          title: Provider Name
+      type: object
+      required:
+      - redirect_to
+      - integration_name
+      - provider_name
+      title: OauthAuthorizeRequest
     ValidationError:
       properties:
         loc:
@@ -1176,23 +1202,31 @@ components:
       - msg
       - type
       title: ValidationError
-    app__api__integrations_new__integration_api_model__OauthAuthorizeRequest:
+    GetUiSchemaRequest:
       properties:
-        redirect_to:
-          type: string
-          title: Redirect To
-        integration_name:
-          type: string
-          title: Integration Name
-        provider_name:
-          type: string
-          title: Provider Name
+        parameters:
+          additionalProperties: true
+          type: object
+          title: Parameters
+        user_action:
+          anyOf:
+          - additionalProperties: true
+            type: object
+          - type: 'null'
+          title: User Action
       type: object
       required:
-      - redirect_to
-      - integration_name
-      - provider_name
-      title: OauthAuthorizeRequest
+      - parameters
+      title: GetUiSchemaRequest
+    HTTPValidationError:
+      properties:
+        detail:
+          items:
+            $ref: '#/components/schemas/ValidationError'
+          type: array
+          title: Detail
+      type: object
+      title: HTTPValidationError
   securitySchemes:
     BearerAuth:
       type: http

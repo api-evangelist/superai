@@ -1,19 +1,62 @@
-openapi: 3.1.0
+openapi: 3.2.0
 info:
-  title: SuperAI Flow Platform auth sso API
-  description: "SuperAI Flows is a workflow orchestration platform that enables you to design, deploy, and monitor automated workflows at scale.\n\nBuild complex workflows using our declarative YAML DSL, execute them reliably, and integrate seamlessly with AI models, cloud storage, and enterprise systems.\n\n**Key Capabilities:**\n- **Workflow Management**: Define workflows as code with version control and automated execution\n- **Task Orchestration**: Chain together API calls, data processing, and AI operations\n- **Real-time Monitoring**: Track execution progress with WebSocket notifications and comprehensive logging\n- **Multi-tenant Architecture**: Organization-scoped resources with role-based access control\n\n**API Versioning and Breaking Changes:**\n\nWe follow a strict compatibility policy to ensure your integrations remain stable:\n\n- **Non-breaking changes** (safe, no action required):\n  - Adding new API endpoints\n  - Adding new optional query parameters to existing endpoints\n  - Adding new fields to API responses\n  - Adding new values to existing enums\n\n- **Breaking changes** (requires client updates):\n  - Removing or renaming API endpoints\n  - Removing query parameters or request fields\n  - Removing response fields\n  - Changing field types or validation rules\n  - Removing values from existing enums\n\n**Client Implementation Requirements:**\n\nYour API clients MUST be designed to gracefully handle additional fields in responses. We may add new fields to any response object without considering this a breaking change. Ensure your JSON parsers ignore unknown fields rather than raising errors.\n\n**Backward Compatibility Guarantee:**\n\nWe commit to maintaining backward compatibility for all non-breaking changes. Breaking changes will be:\n- Announced at least 15 days in advance\n- Documented in our changelog with migration guide\n\nFor the latest API updates and migration guides, see our changelog."
+  title: SuperAI Flow Platform SSO API
+  description: SuperAI Flows is a workflow orchestration platform that enables you to design, deploy, and monitor automated workflows at scale.
   version: 0.1.0
 tags:
-- name: sso
+- name: SSO
   description: Single Sign-On operations for configuring SAML-based SSO authentication.
   x-displayName: SSO
 paths:
   /api/sso:
     get:
       tags:
-      - sso
+      - SSO
       summary: Get SSO configuration for organization
-      description: "Get SSO configuration for the current user's organization.\n\nReturns the current SAML SSO configuration including domains, metadata settings,\nand attribute mappings.\n\nContext:\n    - Returns SSO configuration for the authenticated user's organization\n    - Includes both active and inactive configurations\n    - Shows configuration stored in local database\n\nResponse Data:\n    - sso_provider_id: Supabase SSO provider identifier\n    - domains: Email domains using this SSO provider\n    - metadata_url: URL for SAML metadata (if configured)\n    - attribute_mapping: SAML attribute to user field mappings\n    - is_active: Whether the SSO provider is currently enabled\n\nUse Cases:\n    - Reviewing current SSO configuration\n    - Checking SSO status before updates\n    - Auditing SSO provider settings\n\nRelated Endpoints:\n    - POST /auth/sso - Create SSO configuration\n    - PATCH /auth/sso - Update SSO metadata"
+      description: 'Get SSO configuration for the current user''s organization.
+
+
+        Returns the current SAML SSO configuration including domains, metadata settings,
+
+        and attribute mappings.
+
+
+        Context:
+
+        - Returns SSO configuration for the authenticated user''s organization
+
+        - Includes both active and inactive configurations
+
+        - Shows configuration stored in local database
+
+
+        Response Data:
+
+        - sso_provider_id: Supabase SSO provider identifier
+
+        - domains: Email domains using this SSO provider
+
+        - metadata_url: URL for SAML metadata (if configured)
+
+        - attribute_mapping: SAML attribute to user field mappings
+
+        - is_active: Whether the SSO provider is currently enabled
+
+
+        Use Cases:
+
+        - Reviewing current SSO configuration
+
+        - Checking SSO status before updates
+
+        - Auditing SSO provider settings
+
+
+        Related Endpoints:
+
+        - POST /auth/sso - Create SSO configuration
+
+        - PATCH /auth/sso - Update SSO metadata'
       operationId: get_sso_config_api_sso_get
       responses:
         '200':
@@ -54,9 +97,45 @@ paths:
       - APIKeyAuth: []
     post:
       tags:
-      - sso
+      - SSO
       summary: Create SSO configuration for organization
-      description: "Create SSO configuration for the current user's organization.\n\nCreates a new SAML SSO provider in Supabase and stores the configuration locally.\nThis is a transactional operation that ensures both Supabase and local database\nare updated atomically.\n\nContext:\n    - Only organization administrators can create SSO configurations\n    - Each organization can have only one SSO configuration\n\nSAML Configuration:\n    - Provide either metadata_url OR metadata_xml, not both\n    - metadata_url: URL where Supabase can fetch SAML metadata\n    - metadata_xml: Raw SAML metadata XML content\n    - domains: Email domains that should authenticate via this provider\n    - attribute_mapping: Maps SAML attributes to user profile fields\n\nRelated Endpoints:\n    - GET /auth/sso - Get current SSO configuration\n    - PATCH /auth/sso - Update SSO metadata\n    - DELETE /auth/sso - Remove SSO configuration"
+      description: 'Create SSO configuration for the current user''s organization.
+
+
+        Creates a new SAML SSO provider in Supabase and stores the configuration locally.
+
+        This is a transactional operation that ensures both Supabase and local database
+
+        are updated atomically.
+
+
+        Context:
+
+        - Only organization administrators can create SSO configurations
+
+        - Each organization can have only one SSO configuration
+
+
+        SAML Configuration:
+
+        - Provide either metadata_url OR metadata_xml, not both
+
+        - metadata_url: URL where Supabase can fetch SAML metadata
+
+        - metadata_xml: Raw SAML metadata XML content
+
+        - domains: Email domains that should authenticate via this provider
+
+        - attribute_mapping: Maps SAML attributes to user profile fields
+
+
+        Related Endpoints:
+
+        - GET /auth/sso - Get current SSO configuration
+
+        - PATCH /auth/sso - Update SSO metadata
+
+        - DELETE /auth/sso - Remove SSO configuration'
       operationId: create_sso_config_api_sso_post
       requestBody:
         content:
@@ -143,9 +222,63 @@ paths:
       - APIKeyAuth: []
     delete:
       tags:
-      - sso
+      - SSO
       summary: Remove SSO configuration for organization
-      description: "Remove SSO configuration for the current user's organization.\n\nDisables the SSO configuration by setting is_active=False. This is a soft delete\nthat preserves the configuration for potential future reactivation.\n\nContext:\n    - Soft delete (sets is_active=False, preserves data)\n    - Users will fall back to password authentication\n    - Configuration can be reactivated by creating a new SSO config\n    - Does not delete the Supabase SSO provider\n\nImpact:\n    - Immediate: Users can no longer authenticate via SSO\n    - Existing sessions may remain active until expiration\n    - Users must use password authentication\n    - Organization admins can recreate SSO configuration\n\nSecurity Considerations:\n    - Disabling SSO immediately affects all users in configured domains\n    - Ensure alternative authentication methods are available\n    - Consider communication to affected users before disabling\n\nUse Cases:\n    - Temporary SSO maintenance or troubleshooting\n    - Migrating to a different SSO provider\n    - Emergency access restoration via password auth\n    - Decommissioning SSO integration\n\nRelated Endpoints:\n    - POST /auth/sso - Create new SSO configuration\n    - GET /auth/sso - Check current configuration status"
+      description: 'Remove SSO configuration for the current user''s organization.
+
+
+        Disables the SSO configuration by setting is_active=False. This is a soft delete
+
+        that preserves the configuration for potential future reactivation.
+
+
+        Context:
+
+        - Soft delete (sets is_active=False, preserves data)
+
+        - Users will fall back to password authentication
+
+        - Configuration can be reactivated by creating a new SSO config
+
+        - Does not delete the Supabase SSO provider
+
+
+        Impact:
+
+        - Immediate: Users can no longer authenticate via SSO
+
+        - Existing sessions may remain active until expiration
+
+        - Users must use password authentication
+
+        - Organization admins can recreate SSO configuration
+
+
+        Security Considerations:
+
+        - Disabling SSO immediately affects all users in configured domains
+
+        - Ensure alternative authentication methods are available
+
+        - Consider communication to affected users before disabling
+
+
+        Use Cases:
+
+        - Temporary SSO maintenance or troubleshooting
+
+        - Migrating to a different SSO provider
+
+        - Emergency access restoration via password auth
+
+        - Decommissioning SSO integration
+
+
+        Related Endpoints:
+
+        - POST /auth/sso - Create new SSO configuration
+
+        - GET /auth/sso - Check current configuration status'
       operationId: delete_sso_config_api_sso_delete
       responses:
         '204':
@@ -182,9 +315,62 @@ paths:
       - APIKeyAuth: []
     patch:
       tags:
-      - sso
+      - SSO
       summary: Update SSO metadata configuration
-      description: "Update SSO metadata configuration for the current user's organization.\n\nUpdates metadata-related fields only. This endpoint is restricted to updating:\n- metadata_url: URL for fetching SAML metadata\n- metadata_xml: Raw SAML metadata XML content\n- domains: Email domains that should use this SSO provider\n- attribute_mapping: SAML attribute to user profile field mappings\n\nContext:\n    - Only metadata-related fields can be updated via this endpoint\n    - Updates both Supabase SSO provider and local database\n    - Changes are applied immediately\n    - Cannot update provider ID or organization association\n\nMetadata Update Rules:\n    - Provide either metadata_url OR metadata_xml, not both\n    - Setting metadata_url clears any existing metadata_xml\n    - Setting metadata_xml clears any existing metadata_url\n    - Domains can be added, removed, or modified\n    - Attribute mappings are completely replaced if provided\n\nUse Cases:\n    - Updating SAML metadata after IdP changes\n    - Adding or removing email domains\n    - Modifying attribute mapping for user profiles\n    - Rotating SAML certificates or endpoints\n\nRelated Endpoints:\n    - GET /auth/sso - Get current configuration\n    - DELETE /auth/sso - Remove SSO configuration"
+      description: 'Update SSO metadata configuration for the current user''s organization.
+
+
+        Updates metadata-related fields only. This endpoint is restricted to updating:
+
+        - metadata_url: URL for fetching SAML metadata
+
+        - metadata_xml: Raw SAML metadata XML content
+
+        - domains: Email domains that should use this SSO provider
+
+        - attribute_mapping: SAML attribute to user profile field mappings
+
+
+        Context:
+
+        - Only metadata-related fields can be updated via this endpoint
+
+        - Updates both Supabase SSO provider and local database
+
+        - Changes are applied immediately
+
+        - Cannot update provider ID or organization association
+
+
+        Metadata Update Rules:
+
+        - Provide either metadata_url OR metadata_xml, not both
+
+        - Setting metadata_url clears any existing metadata_xml
+
+        - Setting metadata_xml clears any existing metadata_url
+
+        - Domains can be added, removed, or modified
+
+        - Attribute mappings are completely replaced if provided
+
+
+        Use Cases:
+
+        - Updating SAML metadata after IdP changes
+
+        - Adding or removing email domains
+
+        - Modifying attribute mapping for user profiles
+
+        - Rotating SAML certificates or endpoints
+
+
+        Related Endpoints:
+
+        - GET /auth/sso - Get current configuration
+
+        - DELETE /auth/sso - Remove SSO configuration'
       operationId: update_sso_config_api_sso_patch
       requestBody:
         content:
@@ -278,9 +464,36 @@ paths:
   /api/sso/service-provider-details:
     get:
       tags:
-      - sso
+      - SSO
       summary: Get Supabase SAML service-provider URLs
-      description: "Get the Supabase SAML service-provider (SP) URLs for IdP configuration.\n\nThese URLs depend only on the Supabase project and are the same for every\norganization. They are available before any SSO configuration exists, so the\nsetup UI can pre-fill the read-only SP fields the customer must copy into\ntheir Identity Provider.\n\nResponse Data:\n    - entity_id: SAML SP EntityID (same value as metadata_url)\n    - metadata_url: SAML SP metadata URL\n    - acs_url: Assertion Consumer Service (ACS) URL\n    - slo_url: Single Logout (SLO) URL\n\nRelated Endpoints:\n    - POST /auth/sso - Create SSO configuration\n    - GET /auth/sso - Get current SSO configuration"
+      description: 'Get the Supabase SAML service-provider (SP) URLs for IdP configuration.
+
+
+        These URLs depend only on the Supabase project and are the same for every
+
+        organization. They are available before any SSO configuration exists, so the
+
+        setup UI can pre-fill the read-only SP fields the customer must copy into
+
+        their Identity Provider.
+
+
+        Response Data:
+
+        - entity_id: SAML SP EntityID (same value as metadata_url)
+
+        - metadata_url: SAML SP metadata URL
+
+        - acs_url: Assertion Consumer Service (ACS) URL
+
+        - slo_url: Single Logout (SLO) URL
+
+
+        Related Endpoints:
+
+        - POST /auth/sso - Create SSO configuration
+
+        - GET /auth/sso - Get current SSO configuration'
       operationId: get_sso_service_provider_details_api_sso_service_provider_details_get
       responses:
         '200':
@@ -316,7 +529,7 @@ paths:
   /api/sso/metadata:
     get:
       tags:
-      - sso
+      - SSO
       summary: Proxy SAML metadata to avoid CORS issues
       description: Fetches SAML metadata from external URLs to avoid browser CORS restrictions
       operationId: proxy_saml_metadata_api_sso_metadata_get
@@ -384,47 +597,6 @@ paths:
       - APIKeyAuth: []
 components:
   schemas:
-    SSOProviderUpdate:
-      properties:
-        metadata_url:
-          anyOf:
-          - type: string
-            maxLength: 2083
-            minLength: 1
-            format: uri
-          - type: 'null'
-          title: Metadata Url
-          description: Updated SAML metadata URL
-        metadata_xml:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Metadata Xml
-          description: Updated SAML metadata XML
-        domains:
-          anyOf:
-          - items:
-              type: string
-            type: array
-          - type: 'null'
-          title: Domains
-          description: Updated email domains
-        attribute_mapping:
-          anyOf:
-          - additionalProperties: true
-            type: object
-          - type: 'null'
-          title: Attribute Mapping
-          description: Updated attribute mappings
-        is_active:
-          anyOf:
-          - type: boolean
-          - type: 'null'
-          title: Is Active
-          description: Whether provider is active
-      type: object
-      title: SSOProviderUpdate
-      description: Request model for updating an SSO provider via Supabase Management API.
     ErrorDetail:
       properties:
         message:
@@ -481,6 +653,47 @@ components:
           code: not_found
           message: Resource not found
         request_id: 01K8KABR6S16YETA2SZPVBS9SP
+    SSOProviderUpdate:
+      properties:
+        metadata_url:
+          anyOf:
+          - type: string
+            maxLength: 2083
+            minLength: 1
+            format: uri
+          - type: 'null'
+          title: Metadata Url
+          description: Updated SAML metadata URL
+        metadata_xml:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Metadata Xml
+          description: Updated SAML metadata XML
+        domains:
+          anyOf:
+          - items:
+              type: string
+            type: array
+          - type: 'null'
+          title: Domains
+          description: Updated email domains
+        attribute_mapping:
+          anyOf:
+          - additionalProperties: true
+            type: object
+          - type: 'null'
+          title: Attribute Mapping
+          description: Updated attribute mappings
+        is_active:
+          anyOf:
+          - type: boolean
+          - type: 'null'
+          title: Is Active
+          description: Whether provider is active
+      type: object
+      title: SSOProviderUpdate
+      description: Request model for updating an SSO provider via Supabase Management API.
     SSOProviderCreate:
       properties:
         type:
@@ -521,62 +734,6 @@ components:
       - domains
       title: SSOProviderCreate
       description: Request model for creating an SSO provider via Supabase Management API.
-    HTTPValidationError:
-      properties:
-        detail:
-          items:
-            $ref: '#/components/schemas/ValidationError'
-          type: array
-          title: Detail
-      type: object
-      title: HTTPValidationError
-    ValidationError:
-      properties:
-        loc:
-          items:
-            anyOf:
-            - type: string
-            - type: integer
-          type: array
-          title: Location
-        msg:
-          type: string
-          title: Message
-        type:
-          type: string
-          title: Error Type
-      type: object
-      required:
-      - loc
-      - msg
-      - type
-      title: ValidationError
-    SSOServiceProviderDetails:
-      properties:
-        entity_id:
-          type: string
-          title: Entity Id
-          description: SAML SP EntityID
-        metadata_url:
-          type: string
-          title: Metadata Url
-          description: SAML SP metadata URL
-        acs_url:
-          type: string
-          title: Acs Url
-          description: Assertion Consumer Service (ACS) URL
-        slo_url:
-          type: string
-          title: Slo Url
-          description: Single Logout (SLO) URL
-      type: object
-      required:
-      - entity_id
-      - metadata_url
-      - acs_url
-      - slo_url
-      title: SSOServiceProviderDetails
-      description: Supabase SAML service-provider URLs to configure in the customer's IdP.
     MetadataResponse:
       properties:
         metadata:
@@ -648,6 +805,62 @@ components:
       - updated_at
       title: SSOOrganizationResponse
       description: API response model for SSO organization configuration.
+    ValidationError:
+      properties:
+        loc:
+          items:
+            anyOf:
+            - type: string
+            - type: integer
+          type: array
+          title: Location
+        msg:
+          type: string
+          title: Message
+        type:
+          type: string
+          title: Error Type
+      type: object
+      required:
+      - loc
+      - msg
+      - type
+      title: ValidationError
+    SSOServiceProviderDetails:
+      properties:
+        entity_id:
+          type: string
+          title: Entity Id
+          description: SAML SP EntityID
+        metadata_url:
+          type: string
+          title: Metadata Url
+          description: SAML SP metadata URL
+        acs_url:
+          type: string
+          title: Acs Url
+          description: Assertion Consumer Service (ACS) URL
+        slo_url:
+          type: string
+          title: Slo Url
+          description: Single Logout (SLO) URL
+      type: object
+      required:
+      - entity_id
+      - metadata_url
+      - acs_url
+      - slo_url
+      title: SSOServiceProviderDetails
+      description: Supabase SAML service-provider URLs to configure in the customer's IdP.
+    HTTPValidationError:
+      properties:
+        detail:
+          items:
+            $ref: '#/components/schemas/ValidationError'
+          type: array
+          title: Detail
+      type: object
+      title: HTTPValidationError
   securitySchemes:
     BearerAuth:
       type: http

@@ -1,49 +1,17 @@
-openapi: 3.1.0
+openapi: 3.2.0
 info:
-  title: SuperAI Flow Platform auth task-executions API
-  description: "SuperAI Flows is a workflow orchestration platform that enables you to design, deploy, and monitor automated workflows at scale.\n\nBuild complex workflows using our declarative YAML DSL, execute them reliably, and integrate seamlessly with AI models, cloud storage, and enterprise systems.\n\n**Key Capabilities:**\n- **Workflow Management**: Define workflows as code with version control and automated execution\n- **Task Orchestration**: Chain together API calls, data processing, and AI operations\n- **Real-time Monitoring**: Track execution progress with WebSocket notifications and comprehensive logging\n- **Multi-tenant Architecture**: Organization-scoped resources with role-based access control\n\n**API Versioning and Breaking Changes:**\n\nWe follow a strict compatibility policy to ensure your integrations remain stable:\n\n- **Non-breaking changes** (safe, no action required):\n  - Adding new API endpoints\n  - Adding new optional query parameters to existing endpoints\n  - Adding new fields to API responses\n  - Adding new values to existing enums\n\n- **Breaking changes** (requires client updates):\n  - Removing or renaming API endpoints\n  - Removing query parameters or request fields\n  - Removing response fields\n  - Changing field types or validation rules\n  - Removing values from existing enums\n\n**Client Implementation Requirements:**\n\nYour API clients MUST be designed to gracefully handle additional fields in responses. We may add new fields to any response object without considering this a breaking change. Ensure your JSON parsers ignore unknown fields rather than raising errors.\n\n**Backward Compatibility Guarantee:**\n\nWe commit to maintaining backward compatibility for all non-breaking changes. Breaking changes will be:\n- Announced at least 15 days in advance\n- Documented in our changelog with migration guide\n\nFor the latest API updates and migration guides, see our changelog."
+  title: SuperAI Flow Platform Task Executions API
+  description: SuperAI Flows is a workflow orchestration platform that enables you to design, deploy, and monitor automated workflows at scale.
   version: 0.1.0
 tags:
-- name: task-executions
-  description: 'Task execution operations for tracking individual task runs within flow executions.
-
-
-    Task executions represent individual task runs within a flow execution. Each task in a flow execution has its own task execution record that tracks its lifecycle, inputs, outputs, and status.
-
-
-    **What is tracked:**
-
-    - **Status**: Current state (pending, running, completed, failed, skipped)
-
-    - **Input/Output**: Data passed to and produced by the task
-
-    - **Timing**: Start time, end time, and duration
-
-    - **Errors**: Failure details and error messages
-
-    - **Tags**: Metadata and categorization
-
-
-    **Use these endpoints to:**
-
-    - Query task execution status for debugging
-
-    - Retrieve task outputs for analysis
-
-    - Debug task failures with detailed error information
-
-    - Track task performance and timing
-
-    - Monitor task execution progress within flows
-
-
-    Task executions provide granular visibility into workflow execution, essential for debugging and optimization.'
+- name: Task Executions
+  description: Task execution operations for tracking individual task runs within flow executions.
   x-displayName: Task Executions
 paths:
   /api/task-executions:
     post:
       tags:
-      - task-executions
+      - Task Executions
       summary: Create a task execution record
       description: 'Create a new task execution record for a specific task within a flow execution.
 
@@ -182,7 +150,7 @@ paths:
       - APIKeyAuth: []
     put:
       tags:
-      - task-executions
+      - Task Executions
       summary: Update task execution and optionally re-execute flow
       description: 'Update an existing task execution and optionally trigger flow re-execution.
 
@@ -328,7 +296,7 @@ paths:
       - APIKeyAuth: []
     get:
       tags:
-      - task-executions
+      - Task Executions
       summary: List task executions with filtering
       description: 'List task executions with optional filtering by flow execution, task name, or execution index.
 
@@ -490,7 +458,7 @@ paths:
   /api/task-executions/{task_execution_id}:
     get:
       tags:
-      - task-executions
+      - Task Executions
       summary: Retrieve a specific task execution
       description: 'Retrieve a specific task execution by its unique identifier.
 
@@ -633,84 +601,6 @@ components:
         This model matches the error format returned by the centralized
 
         exception handlers in app/api/errors/handlers.py.'
-    ProcessingStatus:
-      type: string
-      enum:
-      - queued
-      - running
-      - completed
-      - failed
-      - deleted
-      - awaiting_input
-      - cancel_requested
-      - cancelled
-      title: ProcessingStatus
-      description: "Valid status values for task processing lifecycle.\n\nUsed by task_execution and task_output tables to track where a task\nis in its processing pipeline, independent of data consistency state.\n\nStatus Transitions:\n    queued → running → completed\n                     → failed\n    running/awaiting_input → cancel_requested → cancelled\n    Any status → deleted (soft delete)"
-    ErrorResponse:
-      properties:
-        error:
-          $ref: '#/components/schemas/ErrorDetail'
-        request_id:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Request Id
-          description: 'Unique request identifier in ULID format for debugging and support. Example: 01K8KABR6S16YETA2SZPVBS9SP'
-      type: object
-      required:
-      - error
-      title: ErrorResponse
-      description: "Standard API error response structure.\n\nAll error responses from the API follow this format, ensuring\nconsistent error handling for API consumers.\n\nExample:\n    {\n        \"error\": {\n            \"message\": \"Flow not found\",\n            \"code\": \"not_found\"\n        },\n        \"request_id\": \"01K8KABR6S16YETA2SZPVBS9SP\"\n    }"
-      examples:
-      - error:
-          code: not_found
-          message: Resource not found
-        request_id: 01K8KABR6S16YETA2SZPVBS9SP
-    HTTPValidationError:
-      properties:
-        detail:
-          items:
-            $ref: '#/components/schemas/ValidationError'
-          type: array
-          title: Detail
-      type: object
-      title: HTTPValidationError
-    TaskExecutionEditedStatus:
-      type: string
-      enum:
-      - not_edited
-      - edited_not_reexecuted
-      - edited_reexecuted
-      title: TaskExecutionEditedStatus
-      description: "Tracks whether a task execution was manually edited via API.\n\nValues:\n    - not_edited: Data was not updated via API (result is from Flow Execution Engine)\n    - edited_not_reexecuted: Data was updated, but the flow hasn't been re-executed yet\n    - edited_reexecuted: Data was edited, and the flow was re-executed with updated data"
-    StaleStatus:
-      type: string
-      enum:
-      - consistent
-      - stale
-      title: StaleStatus
-      description: "Tracks whether task data is consistent with upstream changes.\n\nOrthogonal to edited_status — a task can be both \"edited\" and \"stale\".\n\nValues:\n    - consistent: Data is up-to-date with all upstream dependencies\n    - stale: Data is outdated due to an upstream edit and should be recalculated"
-    ValidationError:
-      properties:
-        loc:
-          items:
-            anyOf:
-            - type: string
-            - type: integer
-          type: array
-          title: Location
-        msg:
-          type: string
-          title: Message
-        type:
-          type: string
-          title: Error Type
-      type: object
-      required:
-      - loc
-      - msg
-      - type
-      title: ValidationError
     TaskExecutionAPI:
       properties:
         id:
@@ -875,6 +765,13 @@ components:
       - organization_id
       title: TaskExecutionAPI
       description: "API model representing a task execution within a flow.\n\nTask executions track individual task invocations during flow execution.\nEach task can execute multiple times (retries, loops), identified by\ntask_execution_idx. Contains full execution context including inputs,\noutputs, errors, and lifecycle metadata.\n\nResource Hierarchy:\n    Organization → Flow → Flow Execution → Task Execution"
+    StaleStatus:
+      type: string
+      enum:
+      - consistent
+      - stale
+      title: StaleStatus
+      description: "Tracks whether task data is consistent with upstream changes.\n\nOrthogonal to edited_status — a task can be both \"edited\" and \"stale\".\n\nValues:\n    - consistent: Data is up-to-date with all upstream dependencies\n    - stale: Data is outdated due to an upstream edit and should be recalculated"
     ListTaskExecutionsResponse:
       properties:
         task_executions:
@@ -1332,6 +1229,77 @@ components:
         Lifecycle: Tags are soft-deleted (status=''deleted'') rather than hard-deleted
 
         to preserve audit history. Only active tags appear in list queries.'
+    ErrorResponse:
+      properties:
+        error:
+          $ref: '#/components/schemas/ErrorDetail'
+        request_id:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Request Id
+          description: 'Unique request identifier in ULID format for debugging and support. Example: 01K8KABR6S16YETA2SZPVBS9SP'
+      type: object
+      required:
+      - error
+      title: ErrorResponse
+      description: "Standard API error response structure.\n\nAll error responses from the API follow this format, ensuring\nconsistent error handling for API consumers.\n\nExample:\n    {\n        \"error\": {\n            \"message\": \"Flow not found\",\n            \"code\": \"not_found\"\n        },\n        \"request_id\": \"01K8KABR6S16YETA2SZPVBS9SP\"\n    }"
+      examples:
+      - error:
+          code: not_found
+          message: Resource not found
+        request_id: 01K8KABR6S16YETA2SZPVBS9SP
+    ProcessingStatus:
+      type: string
+      enum:
+      - queued
+      - running
+      - completed
+      - failed
+      - deleted
+      - awaiting_input
+      - cancel_requested
+      - cancelled
+      title: ProcessingStatus
+      description: "Valid status values for task processing lifecycle.\n\nUsed by task_execution and task_output tables to track where a task\nis in its processing pipeline, independent of data consistency state.\n\nStatus Transitions:\n    queued → running → completed\n                     → failed\n    running/awaiting_input → cancel_requested → cancelled\n    Any status → deleted (soft delete)"
+    ValidationError:
+      properties:
+        loc:
+          items:
+            anyOf:
+            - type: string
+            - type: integer
+          type: array
+          title: Location
+        msg:
+          type: string
+          title: Message
+        type:
+          type: string
+          title: Error Type
+      type: object
+      required:
+      - loc
+      - msg
+      - type
+      title: ValidationError
+    HTTPValidationError:
+      properties:
+        detail:
+          items:
+            $ref: '#/components/schemas/ValidationError'
+          type: array
+          title: Detail
+      type: object
+      title: HTTPValidationError
+    TaskExecutionEditedStatus:
+      type: string
+      enum:
+      - not_edited
+      - edited_not_reexecuted
+      - edited_reexecuted
+      title: TaskExecutionEditedStatus
+      description: "Tracks whether a task execution was manually edited via API.\n\nValues:\n    - not_edited: Data was not updated via API (result is from Flow Execution Engine)\n    - edited_not_reexecuted: Data was updated, but the flow hasn't been re-executed yet\n    - edited_reexecuted: Data was edited, and the flow was re-executed with updated data"
   securitySchemes:
     BearerAuth:
       type: http

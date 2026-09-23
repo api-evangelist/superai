@@ -1,7 +1,7 @@
-openapi: 3.1.0
+openapi: 3.2.0
 info:
-  title: SuperAI Flow Platform auth webhook-data API
-  description: "SuperAI Flows is a workflow orchestration platform that enables you to design, deploy, and monitor automated workflows at scale.\n\nBuild complex workflows using our declarative YAML DSL, execute them reliably, and integrate seamlessly with AI models, cloud storage, and enterprise systems.\n\n**Key Capabilities:**\n- **Workflow Management**: Define workflows as code with version control and automated execution\n- **Task Orchestration**: Chain together API calls, data processing, and AI operations\n- **Real-time Monitoring**: Track execution progress with WebSocket notifications and comprehensive logging\n- **Multi-tenant Architecture**: Organization-scoped resources with role-based access control\n\n**API Versioning and Breaking Changes:**\n\nWe follow a strict compatibility policy to ensure your integrations remain stable:\n\n- **Non-breaking changes** (safe, no action required):\n  - Adding new API endpoints\n  - Adding new optional query parameters to existing endpoints\n  - Adding new fields to API responses\n  - Adding new values to existing enums\n\n- **Breaking changes** (requires client updates):\n  - Removing or renaming API endpoints\n  - Removing query parameters or request fields\n  - Removing response fields\n  - Changing field types or validation rules\n  - Removing values from existing enums\n\n**Client Implementation Requirements:**\n\nYour API clients MUST be designed to gracefully handle additional fields in responses. We may add new fields to any response object without considering this a breaking change. Ensure your JSON parsers ignore unknown fields rather than raising errors.\n\n**Backward Compatibility Guarantee:**\n\nWe commit to maintaining backward compatibility for all non-breaking changes. Breaking changes will be:\n- Announced at least 15 days in advance\n- Documented in our changelog with migration guide\n\nFor the latest API updates and migration guides, see our changelog."
+  title: SuperAI Flow Platform Webhook Data API
+  description: SuperAI Flows is a workflow orchestration platform that enables you to design, deploy, and monitor automated workflows at scale.
   version: 0.1.0
 tags:
 - name: webhook-data
@@ -13,7 +13,40 @@ paths:
       tags:
       - webhook-data
       summary: Submit webhook data for a waiting task
-      description: "Push data to a flow execution's waiting \"Wait for Webhook\" task.\n\nThe flow pauses when it reaches a webhook receiver task and resumes with\nthe submitted `data` as the task's output. Data may also be submitted\nbefore the flow reaches the task; it is stored and picked up when the task\nruns.\n\nDelivery contract:\n    - A 2xx response means the data is durably stored and will not be lost.\n    - Retrying with the identical body is safe and idempotent (returns\n      status 'duplicate').\n    - Retry on 5xx. Do not retry 4xx unchanged: 422 means the data does not\n      match the task's schema; 409 with different data means the first\n      delivery already won.\n\nContext:\n    - The target task is addressed by `task_name` in the request body; a\n      flow may contain multiple webhook receiver tasks.\n    - Authenticate with an organization API key (X-API-Key) or a user JWT."
+      description: 'Push data to a flow execution''s waiting "Wait for Webhook" task.
+
+
+        The flow pauses when it reaches a webhook receiver task and resumes with
+
+        the submitted `data` as the task''s output. Data may also be submitted
+
+        before the flow reaches the task; it is stored and picked up when the task
+
+        runs.
+
+
+        Delivery contract:
+
+        - A 2xx response means the data is durably stored and will not be lost.
+
+        - Retrying with the identical body is safe and idempotent (returns
+
+        status ''duplicate'').
+
+        - Retry on 5xx. Do not retry 4xx unchanged: 422 means the data does not
+
+        match the task''s schema; 409 with different data means the first
+
+        delivery already won.
+
+
+        Context:
+
+        - The target task is addressed by `task_name` in the request body; a
+
+        flow may contain multiple webhook receiver tasks.
+
+        - Authenticate with an organization API key (X-API-Key) or a user JWT.'
       operationId: receive_webhook_data_api_flow_executions__flow_execution_id__webhook_data_post
       parameters:
       - name: flow_execution_id
@@ -169,6 +202,25 @@ components:
           code: not_found
           message: Resource not found
         request_id: 01K8KABR6S16YETA2SZPVBS9SP
+    WebhookDataCreateRequest:
+      properties:
+        task_name:
+          type: string
+          title: Task Name
+          description: Name of the webhook_receiver task in the flow that waits for this data.
+          examples:
+          - wait_for_validation
+        data:
+          additionalProperties: true
+          type: object
+          title: Data
+          description: The data for the task. Must match the task's output model (defined by its fields parameter); unknown fields or type mismatches are rejected with 422. Note that field values are compared exactly for duplicate detection — re-sending the identical body is acknowledged idempotently, while a different body for the same task is rejected with 409.
+      type: object
+      required:
+      - task_name
+      - data
+      title: WebhookDataCreateRequest
+      description: Payload submitted by an external system for a waiting webhook_receiver task.
     WebhookDataAckResponse:
       properties:
         id:
@@ -189,25 +241,6 @@ components:
       - status
       title: WebhookDataAckResponse
       description: Acknowledgment that a webhook payload is durably stored.
-    WebhookDataCreateRequest:
-      properties:
-        task_name:
-          type: string
-          title: Task Name
-          description: Name of the webhook_receiver task in the flow that waits for this data.
-          examples:
-          - wait_for_validation
-        data:
-          additionalProperties: true
-          type: object
-          title: Data
-          description: The data for the task. Must match the task's output model (defined by its fields parameter); unknown fields or type mismatches are rejected with 422. Note that field values are compared exactly for duplicate detection — re-sending the identical body is acknowledged idempotently, while a different body for the same task is rejected with 409.
-      type: object
-      required:
-      - task_name
-      - data
-      title: WebhookDataCreateRequest
-      description: Payload submitted by an external system for a waiting webhook_receiver task.
   securitySchemes:
     BearerAuth:
       type: http

@@ -1,7 +1,7 @@
-openapi: 3.1.0
+openapi: 3.2.0
 info:
-  title: SuperAI Flow Platform auth human-review-tasks API
-  description: "SuperAI Flows is a workflow orchestration platform that enables you to design, deploy, and monitor automated workflows at scale.\n\nBuild complex workflows using our declarative YAML DSL, execute them reliably, and integrate seamlessly with AI models, cloud storage, and enterprise systems.\n\n**Key Capabilities:**\n- **Workflow Management**: Define workflows as code with version control and automated execution\n- **Task Orchestration**: Chain together API calls, data processing, and AI operations\n- **Real-time Monitoring**: Track execution progress with WebSocket notifications and comprehensive logging\n- **Multi-tenant Architecture**: Organization-scoped resources with role-based access control\n\n**API Versioning and Breaking Changes:**\n\nWe follow a strict compatibility policy to ensure your integrations remain stable:\n\n- **Non-breaking changes** (safe, no action required):\n  - Adding new API endpoints\n  - Adding new optional query parameters to existing endpoints\n  - Adding new fields to API responses\n  - Adding new values to existing enums\n\n- **Breaking changes** (requires client updates):\n  - Removing or renaming API endpoints\n  - Removing query parameters or request fields\n  - Removing response fields\n  - Changing field types or validation rules\n  - Removing values from existing enums\n\n**Client Implementation Requirements:**\n\nYour API clients MUST be designed to gracefully handle additional fields in responses. We may add new fields to any response object without considering this a breaking change. Ensure your JSON parsers ignore unknown fields rather than raising errors.\n\n**Backward Compatibility Guarantee:**\n\nWe commit to maintaining backward compatibility for all non-breaking changes. Breaking changes will be:\n- Announced at least 15 days in advance\n- Documented in our changelog with migration guide\n\nFor the latest API updates and migration guides, see our changelog."
+  title: SuperAI Flow Platform Human Review Tasks API
+  description: SuperAI Flows is a workflow orchestration platform that enables you to design, deploy, and monitor automated workflows at scale.
   version: 0.1.0
 tags:
 - name: human-review-tasks
@@ -13,7 +13,37 @@ paths:
       tags:
       - human-review-tasks
       summary: Create a new human review task
-      description: "Create a new human review task with assigned users.\n\nCreates a new human review task and assigns it to the specified users.\nBoth the task and assignments are created in a single transaction.\n\nContext:\n    - The task is created with the provided flow and execution information\n    - All assigned users are linked to the task via assignments\n    - Organization ID is automatically set from the current user's context\n\nUse Cases:\n    - Create a review task for a flow execution\n    - Assign multiple reviewers to a task\n    - Track human review workflow state\n\nRelated Endpoints:\n    - GET /human-review-tasks - List all tasks\n    - GET /human-review-tasks/{id} - Get task details"
+      description: 'Create a new human review task with assigned users.
+
+
+        Creates a new human review task and assigns it to the specified users.
+
+        Both the task and assignments are created in a single transaction.
+
+
+        Context:
+
+        - The task is created with the provided flow and execution information
+
+        - All assigned users are linked to the task via assignments
+
+        - Organization ID is automatically set from the current user''s context
+
+
+        Use Cases:
+
+        - Create a review task for a flow execution
+
+        - Assign multiple reviewers to a task
+
+        - Track human review workflow state
+
+
+        Related Endpoints:
+
+        - GET /human-review-tasks - List all tasks
+
+        - GET /human-review-tasks/{id} - Get task details'
       operationId: create_human_review_task_api_human_review_tasks_post
       requestBody:
         required: true
@@ -89,7 +119,61 @@ paths:
       tags:
       - human-review-tasks
       summary: List human review tasks assigned to the current user
-      description: "List all human review tasks assigned to the current user.\n\nReturns a paginated list of human review tasks that have been assigned to the\ncurrently authenticated user. Tasks are joined with assignments to filter by user.\n\nContext:\n    - Returns only tasks assigned to the current user\n    - Excludes soft-deleted tasks\n    - Results are paginated using offset and limit\n    - Tasks can be filtered by one or more statuses (optional, comma-separated)\n    - Tasks can be filtered by source task name (optional)\n    - Tasks can be filtered by flow execution ID (optional)\n    - Tasks can be filtered by flow ID stored in task_metadata (optional)\n    - Tasks can be filtered by tags with OR logic (optional)\n    - Tasks can be filtered by metadata key-value pairs (optional, AND between groups, OR within)\n    - Tasks can be sorted by created_at or updated_at (optional)\n\nUse Cases:\n    - Display user's assigned review tasks in a dashboard\n    - Show pending reviews for the current user\n    - Filter tasks by status (e.g., only show pending tasks)\n    - Filter tasks by multiple statuses (e.g., 'pending,in_progress')\n    - Filter tasks by source task name or flow execution\n    - Filter tasks by tags or metadata for targeted task discovery\n    - Sort tasks by creation or update time\n    - Track review task assignments\n\nRelated Endpoints:\n    - POST /human-review-tasks - Create a new review task\n    - GET /human-review-tasks/{id} - Get specific task details"
+      description: 'List all human review tasks assigned to the current user.
+
+
+        Returns a paginated list of human review tasks that have been assigned to the
+
+        currently authenticated user. Tasks are joined with assignments to filter by user.
+
+
+        Context:
+
+        - Returns only tasks assigned to the current user
+
+        - Excludes soft-deleted tasks
+
+        - Results are paginated using offset and limit
+
+        - Tasks can be filtered by one or more statuses (optional, comma-separated)
+
+        - Tasks can be filtered by source task name (optional)
+
+        - Tasks can be filtered by flow execution ID (optional)
+
+        - Tasks can be filtered by flow ID stored in task_metadata (optional)
+
+        - Tasks can be filtered by tags with OR logic (optional)
+
+        - Tasks can be filtered by metadata key-value pairs (optional, AND between groups, OR within)
+
+        - Tasks can be sorted by created_at or updated_at (optional)
+
+
+        Use Cases:
+
+        - Display user''s assigned review tasks in a dashboard
+
+        - Show pending reviews for the current user
+
+        - Filter tasks by status (e.g., only show pending tasks)
+
+        - Filter tasks by multiple statuses (e.g., ''pending,in_progress'')
+
+        - Filter tasks by source task name or flow execution
+
+        - Filter tasks by tags or metadata for targeted task discovery
+
+        - Sort tasks by creation or update time
+
+        - Track review task assignments
+
+
+        Related Endpoints:
+
+        - POST /human-review-tasks - Create a new review task
+
+        - GET /human-review-tasks/{id} - Get specific task details'
       operationId: list_human_review_tasks_api_human_review_tasks_get
       parameters:
       - name: offset
@@ -271,7 +355,47 @@ paths:
       tags:
       - human-review-tasks
       summary: Start a human review task
-      description: "Start a human review task.\n\nMarks the task as in progress for the current user. This endpoint:\n- Creates an in-progress record linking the user to the task\n- Changes task status from 'pending' to 'in_progress' (if it's pending)\n- Returns 409 if the task is already completed\n- Can be called multiple times for the same user (idempotent)\n- Creates a timeout schedule to automatically unstart the task if it remains IN_PROGRESS beyond the configured timeout\n\nContext:\n    - Only authenticated users can start tasks\n    - Updates assignment status to 'in_progress' and sets started_at timestamp\n    - Updates task status if currently pending\n    - Organization ID is automatically set from the current user's context\n\nUse Cases:\n    - User begins working on an assigned review task\n    - Track which users are currently working on which tasks\n    - Prevent starting already completed tasks\n\nRelated Endpoints:\n    - GET /human-review-tasks - List all assigned tasks\n    - POST /human-review-tasks - Create a new review task"
+      description: 'Start a human review task.
+
+
+        Marks the task as in progress for the current user. This endpoint:
+
+        - Creates an in-progress record linking the user to the task
+
+        - Changes task status from ''pending'' to ''in_progress'' (if it''s pending)
+
+        - Returns 409 if the task is already completed
+
+        - Can be called multiple times for the same user (idempotent)
+
+        - Creates a timeout schedule to automatically unstart the task if it remains IN_PROGRESS beyond the configured timeout
+
+
+        Context:
+
+        - Only authenticated users can start tasks
+
+        - Updates assignment status to ''in_progress'' and sets started_at timestamp
+
+        - Updates task status if currently pending
+
+        - Organization ID is automatically set from the current user''s context
+
+
+        Use Cases:
+
+        - User begins working on an assigned review task
+
+        - Track which users are currently working on which tasks
+
+        - Prevent starting already completed tasks
+
+
+        Related Endpoints:
+
+        - GET /human-review-tasks - List all assigned tasks
+
+        - POST /human-review-tasks - Create a new review task'
       operationId: start_human_review_task_api_human_review_tasks__task_id__start_post
       parameters:
       - name: task_id
@@ -355,7 +479,53 @@ paths:
       tags:
       - human-review-tasks
       summary: Complete a human review task
-      description: "Complete a human review task with validated output.\n\nMarks the task as completed and records the review results. This endpoint:\n- Validates reviewed_output against target task's output model\n- Updates task status to 'completed'\n- Records the review result (correct/incorrect) and reviewed output\n- Sets completed_by and completed_at fields\n- Removes the in-progress record for the user\n- Returns 404 if task not found\n- Returns 400 if task status is not 'in_progress' or validation fails\n\nContext:\n    - Only authenticated users can complete tasks\n    - Task must be in 'in_progress' status\n    - Records who completed the task and when\n    - Automatically removes in-progress tracking\n    - Output is validated against the target task's schema\n\nUse Cases:\n    - User finishes reviewing a task and submits their results\n    - Record validation outcomes for data quality tracking\n    - Complete workflow steps requiring human judgment\n\nRelated Endpoints:\n    - POST /human-review-tasks/{task_id}/start - Start working on a task\n    - GET /human-review-tasks - List all assigned tasks"
+      description: 'Complete a human review task with validated output.
+
+
+        Marks the task as completed and records the review results. This endpoint:
+
+        - Validates reviewed_output against target task''s output model
+
+        - Updates task status to ''completed''
+
+        - Records the review result (correct/incorrect) and reviewed output
+
+        - Sets completed_by and completed_at fields
+
+        - Removes the in-progress record for the user
+
+        - Returns 404 if task not found
+
+        - Returns 400 if task status is not ''in_progress'' or validation fails
+
+
+        Context:
+
+        - Only authenticated users can complete tasks
+
+        - Task must be in ''in_progress'' status
+
+        - Records who completed the task and when
+
+        - Automatically removes in-progress tracking
+
+        - Output is validated against the target task''s schema
+
+
+        Use Cases:
+
+        - User finishes reviewing a task and submits their results
+
+        - Record validation outcomes for data quality tracking
+
+        - Complete workflow steps requiring human judgment
+
+
+        Related Endpoints:
+
+        - POST /human-review-tasks/{task_id}/start - Start working on a task
+
+        - GET /human-review-tasks - List all assigned tasks'
       operationId: complete_human_review_task_api_human_review_tasks__task_id__complete_post
       parameters:
       - name: task_id
@@ -445,7 +615,50 @@ paths:
       tags:
       - human-review-tasks
       summary: Unstart a human review task assignment
-      description: "Unstart a human review task assignment.\n\nResets an in_progress assignment back to pending status. This allows users\nto temporarily leave the review page and potentially return later to continue\ntheir review.\n\nOnly valid for assignments with status 'in_progress'. Attempting to unstart\nan assignment with any other status will result in a 409 Conflict error.\n\nContext:\n    - Only authenticated users can unstart their assignments\n    - Only affects assignments with status 'in_progress'\n    - Resets assignment status back to 'pending' (opposite of /start)\n    - Task status remains unchanged\n    - Organization ID is automatically set from the current user's context\n\nUse Cases:\n    - User needs to temporarily leave the review page\n    - User wants to pause their review and continue later\n    - Browser/page navigation that should save progress but not complete\n\nRelated Endpoints:\n    - POST /human-review-tasks/{task_id}/start - Start working on a task\n    - POST /human-review-tasks/{task_id}/complete - Complete a task\n    - GET /human-review-tasks - List all assigned tasks"
+      description: 'Unstart a human review task assignment.
+
+
+        Resets an in_progress assignment back to pending status. This allows users
+
+        to temporarily leave the review page and potentially return later to continue
+
+        their review.
+
+
+        Only valid for assignments with status ''in_progress''. Attempting to unstart
+
+        an assignment with any other status will result in a 409 Conflict error.
+
+
+        Context:
+
+        - Only authenticated users can unstart their assignments
+
+        - Only affects assignments with status ''in_progress''
+
+        - Resets assignment status back to ''pending'' (opposite of /start)
+
+        - Task status remains unchanged
+
+        - Organization ID is automatically set from the current user''s context
+
+
+        Use Cases:
+
+        - User needs to temporarily leave the review page
+
+        - User wants to pause their review and continue later
+
+        - Browser/page navigation that should save progress but not complete
+
+
+        Related Endpoints:
+
+        - POST /human-review-tasks/{task_id}/start - Start working on a task
+
+        - POST /human-review-tasks/{task_id}/complete - Complete a task
+
+        - GET /human-review-tasks - List all assigned tasks'
       operationId: unstart_human_review_task_assignment_api_human_review_tasks__task_id__unstart_post
       parameters:
       - name: task_id
@@ -614,7 +827,45 @@ paths:
       tags:
       - human-review-tasks
       summary: Get a human review task by ID
-      description: "Get a human review task by its ID.\n\nReturns the details of a specific human review task, including its status,\ninstructions, review results, and completion information.\n\nContext:\n    - Returns the full task details for the specified task ID\n    - Excludes soft-deleted tasks\n    - Authorization is handled by RLS policies (user must have access to the organization)\n    - Returns 404 if the task does not exist\n\nUse Cases:\n    - View detailed information about a specific review task\n    - Display task details in a task management UI\n    - Check task status and review results\n    - Access task instructions and completion information\n\nRelated Endpoints:\n    - GET /human-review-tasks - List all tasks assigned to current user\n    - GET /human-review-tasks/{task_id}/assignments - List all assignments for a task\n    - POST /human-review-tasks/{task_id}/start - Start working on a task\n    - POST /human-review-tasks/{task_id}/complete - Complete a task"
+      description: 'Get a human review task by its ID.
+
+
+        Returns the details of a specific human review task, including its status,
+
+        instructions, review results, and completion information.
+
+
+        Context:
+
+        - Returns the full task details for the specified task ID
+
+        - Excludes soft-deleted tasks
+
+        - Authorization is handled by RLS policies (user must have access to the organization)
+
+        - Returns 404 if the task does not exist
+
+
+        Use Cases:
+
+        - View detailed information about a specific review task
+
+        - Display task details in a task management UI
+
+        - Check task status and review results
+
+        - Access task instructions and completion information
+
+
+        Related Endpoints:
+
+        - GET /human-review-tasks - List all tasks assigned to current user
+
+        - GET /human-review-tasks/{task_id}/assignments - List all assignments for a task
+
+        - POST /human-review-tasks/{task_id}/start - Start working on a task
+
+        - POST /human-review-tasks/{task_id}/complete - Complete a task'
       operationId: get_human_review_task_api_human_review_tasks__task_id__get
       parameters:
       - name: task_id
@@ -692,7 +943,45 @@ paths:
       tags:
       - human-review-tasks
       summary: List all assignments for a human review task
-      description: "List all assignments for a human review task.\n\nReturns a list of all assignments (user assignments) for the specified human review task.\nThis includes all users who have been assigned to review the task, along with their\nassignment status and when they started working on it.\n\nContext:\n    - Returns all assignments for the specified task\n    - Includes assignment status (pending, in_progress, completed, cancelled)\n    - Includes started_at timestamp for assignments that have been started\n    - Only accessible if the task exists and user has access to the organization\n\nUse Cases:\n    - View all reviewers assigned to a task\n    - Track which reviewers have started or completed their review\n    - Monitor assignment status across all reviewers\n    - Display assignment information in task management UI\n\nRelated Endpoints:\n    - GET /human-review-tasks - List all tasks assigned to current user\n    - POST /human-review-tasks/{task_id}/start - Start working on a task\n    - POST /human-review-tasks/{task_id}/complete - Complete a task"
+      description: 'List all assignments for a human review task.
+
+
+        Returns a list of all assignments (user assignments) for the specified human review task.
+
+        This includes all users who have been assigned to review the task, along with their
+
+        assignment status and when they started working on it.
+
+
+        Context:
+
+        - Returns all assignments for the specified task
+
+        - Includes assignment status (pending, in_progress, completed, cancelled)
+
+        - Includes started_at timestamp for assignments that have been started
+
+        - Only accessible if the task exists and user has access to the organization
+
+
+        Use Cases:
+
+        - View all reviewers assigned to a task
+
+        - Track which reviewers have started or completed their review
+
+        - Monitor assignment status across all reviewers
+
+        - Display assignment information in task management UI
+
+
+        Related Endpoints:
+
+        - GET /human-review-tasks - List all tasks assigned to current user
+
+        - POST /human-review-tasks/{task_id}/start - Start working on a task
+
+        - POST /human-review-tasks/{task_id}/complete - Complete a task'
       operationId: list_human_review_task_assignments_api_human_review_tasks__task_id__assignments_get
       parameters:
       - name: task_id
@@ -780,61 +1069,6 @@ paths:
       - APIKeyAuth: []
 components:
   schemas:
-    HumanReviewTargetTaskExecution:
-      properties:
-        task_name:
-          type: string
-          title: Task Name
-          description: Name of the target task being reviewed.
-          examples:
-          - extract_doc
-        task_execution_idx:
-          type: integer
-          title: Task Execution Idx
-          description: Index of the target task execution.
-          examples:
-          - 0
-        is_editable:
-          type: boolean
-          title: Is Editable
-          description: Whether the reviewer is allowed to edit this item's data. Read-only items pass through unchanged on completion.
-          default: false
-          examples:
-          - true
-          - false
-        output_name:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Output Name
-          description: When set together with output_collection_idx, narrows the target to a single item of the named output collection on the target task. Both fields must be set or both null.
-          examples:
-          - rows
-        output_collection_idx:
-          anyOf:
-          - type: integer
-          - type: 'null'
-          title: Output Collection Idx
-          description: Zero-based index into the target task's named output collection. Required when output_name is set; must be null otherwise.
-          examples:
-          - 0
-      type: object
-      required:
-      - task_name
-      - task_execution_idx
-      title: HumanReviewTargetTaskExecution
-      description: 'One target execution being reviewed in a human review task.
-
-
-        When ``output_name`` and ``output_collection_idx`` are both set, the entry
-
-        targets a specific item of the named output collection rather than the
-
-        whole task output: the reviewer sees/edits just that item, and the
-
-        matching ``reviewed_output[idx]`` carries that item''s value (not the whole
-
-        task output dict).'
     ErrorDetail:
       properties:
         message:
@@ -871,171 +1105,6 @@ components:
         This model matches the error format returned by the centralized
 
         exception handlers in app/api/errors/handlers.py.'
-    ErrorResponse:
-      properties:
-        error:
-          $ref: '#/components/schemas/ErrorDetail'
-        request_id:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Request Id
-          description: 'Unique request identifier in ULID format for debugging and support. Example: 01K8KABR6S16YETA2SZPVBS9SP'
-      type: object
-      required:
-      - error
-      title: ErrorResponse
-      description: "Standard API error response structure.\n\nAll error responses from the API follow this format, ensuring\nconsistent error handling for API consumers.\n\nExample:\n    {\n        \"error\": {\n            \"message\": \"Flow not found\",\n            \"code\": \"not_found\"\n        },\n        \"request_id\": \"01K8KABR6S16YETA2SZPVBS9SP\"\n    }"
-      examples:
-      - error:
-          code: not_found
-          message: Resource not found
-        request_id: 01K8KABR6S16YETA2SZPVBS9SP
-    app__api__user__user_api_model__UserResponse:
-      properties:
-        id:
-          type: string
-          format: uuid
-          title: Id
-        created_at:
-          type: string
-          format: date-time
-          title: Created At
-        updated_at:
-          type: string
-          format: date-time
-          title: Updated At
-        modified_by:
-          type: string
-          title: Modified By
-        first_name:
-          type: string
-          title: First Name
-        last_name:
-          type: string
-          title: Last Name
-        email:
-          type: string
-          title: Email
-        role:
-          type: string
-          title: Role
-        status:
-          type: string
-          title: Status
-        organization_id:
-          type: string
-          format: uuid
-          title: Organization Id
-      type: object
-      required:
-      - id
-      - created_at
-      - updated_at
-      - modified_by
-      - first_name
-      - last_name
-      - email
-      - role
-      - status
-      - organization_id
-      title: UserResponse
-    HTTPValidationError:
-      properties:
-        detail:
-          items:
-            $ref: '#/components/schemas/ValidationError'
-          type: array
-          title: Detail
-      type: object
-      title: HTTPValidationError
-    ValidationError:
-      properties:
-        loc:
-          items:
-            anyOf:
-            - type: string
-            - type: integer
-          type: array
-          title: Location
-        msg:
-          type: string
-          title: Message
-        type:
-          type: string
-          title: Error Type
-      type: object
-      required:
-      - loc
-      - msg
-      - type
-      title: ValidationError
-    HumanReviewTaskCompleteRequest:
-      properties:
-        review_result:
-          type: boolean
-          title: Review Result
-          description: 'Review result: True for correct, False for incorrect.'
-          examples:
-          - true
-          - false
-        reviewed_output:
-          items: {}
-          type: array
-          title: Reviewed Output
-          description: Output of the completed review. List positionally aligned with target_task_executions; each entry is a reviewed item (a dict, or a scalar for per-item references to scalar outputs).
-          examples:
-          - - comments: All dates are correct.
-              verified: true
-      type: object
-      required:
-      - review_result
-      - reviewed_output
-      title: HumanReviewTaskCompleteRequest
-      description: 'Request payload for completing a human review task.
-
-
-        reviewed_output is a list positionally aligned with the task''s
-
-        target_task_executions list (same length and order). Each entry is a
-
-        reviewed item — a dict, or a scalar for per-item references to scalar
-
-        outputs.'
-    PaginatedHumanReviewTasksResponse:
-      properties:
-        items:
-          items:
-            $ref: '#/components/schemas/HumanReviewTaskResponse'
-          type: array
-          title: Items
-          description: Human review tasks for the requested page.
-        total_count:
-          type: integer
-          title: Total Count
-          description: Total number of tasks matching the filters (ignoring offset/limit).
-          examples:
-          - 42
-        offset:
-          type: integer
-          title: Offset
-          description: Offset applied to this page.
-          examples:
-          - 0
-        limit:
-          type: integer
-          title: Limit
-          description: Limit applied to this page.
-          examples:
-          - 10
-      type: object
-      required:
-      - items
-      - total_count
-      - offset
-      - limit
-      title: PaginatedHumanReviewTasksResponse
-      description: Paginated response wrapping a page of human review tasks with total count.
     HumanReviewTaskResponse:
       properties:
         id:
@@ -1177,6 +1246,276 @@ components:
       - status
       title: HumanReviewTaskResponse
       description: Response model for human review task operations.
+    HumanReviewTargetTaskExecution:
+      properties:
+        task_name:
+          type: string
+          title: Task Name
+          description: Name of the target task being reviewed.
+          examples:
+          - extract_doc
+        task_execution_idx:
+          type: integer
+          title: Task Execution Idx
+          description: Index of the target task execution.
+          examples:
+          - 0
+        is_editable:
+          type: boolean
+          title: Is Editable
+          description: Whether the reviewer is allowed to edit this item's data. Read-only items pass through unchanged on completion.
+          default: false
+          examples:
+          - true
+          - false
+        output_name:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Output Name
+          description: When set together with output_collection_idx, narrows the target to a single item of the named output collection on the target task. Both fields must be set or both null.
+          examples:
+          - rows
+        output_collection_idx:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Output Collection Idx
+          description: Zero-based index into the target task's named output collection. Required when output_name is set; must be null otherwise.
+          examples:
+          - 0
+      type: object
+      required:
+      - task_name
+      - task_execution_idx
+      title: HumanReviewTargetTaskExecution
+      description: 'One target execution being reviewed in a human review task.
+
+
+        When ``output_name`` and ``output_collection_idx`` are both set, the entry
+
+        targets a specific item of the named output collection rather than the
+
+        whole task output: the reviewer sees/edits just that item, and the
+
+        matching ``reviewed_output[idx]`` carries that item''s value (not the whole
+
+        task output dict).'
+    HumanReviewTaskCompleteRequest:
+      properties:
+        review_result:
+          type: boolean
+          title: Review Result
+          description: 'Review result: True for correct, False for incorrect.'
+          examples:
+          - true
+          - false
+        reviewed_output:
+          items: {}
+          type: array
+          title: Reviewed Output
+          description: Output of the completed review. List positionally aligned with target_task_executions; each entry is a reviewed item (a dict, or a scalar for per-item references to scalar outputs).
+          examples:
+          - - comments: All dates are correct.
+              verified: true
+      type: object
+      required:
+      - review_result
+      - reviewed_output
+      title: HumanReviewTaskCompleteRequest
+      description: 'Request payload for completing a human review task.
+
+
+        reviewed_output is a list positionally aligned with the task''s
+
+        target_task_executions list (same length and order). Each entry is a
+
+        reviewed item — a dict, or a scalar for per-item references to scalar
+
+        outputs.'
+    PaginatedHumanReviewTasksResponse:
+      properties:
+        items:
+          items:
+            $ref: '#/components/schemas/HumanReviewTaskResponse'
+          type: array
+          title: Items
+          description: Human review tasks for the requested page.
+        total_count:
+          type: integer
+          title: Total Count
+          description: Total number of tasks matching the filters (ignoring offset/limit).
+          examples:
+          - 42
+        offset:
+          type: integer
+          title: Offset
+          description: Offset applied to this page.
+          examples:
+          - 0
+        limit:
+          type: integer
+          title: Limit
+          description: Limit applied to this page.
+          examples:
+          - 10
+      type: object
+      required:
+      - items
+      - total_count
+      - offset
+      - limit
+      title: PaginatedHumanReviewTasksResponse
+      description: Paginated response wrapping a page of human review tasks with total count.
+    HumanReviewTaskAssignmentResponse:
+      properties:
+        id:
+          type: string
+          format: uuid
+          title: Id
+        created_at:
+          type: string
+          format: date-time
+          title: Created At
+        updated_at:
+          type: string
+          format: date-time
+          title: Updated At
+        modified_by:
+          type: string
+          title: Modified By
+        human_review_task_id:
+          type: string
+          format: uuid
+          title: Human Review Task Id
+          description: UUID of the human review task this assignment belongs to.
+          examples:
+          - 550e8400-e29b-41d4-a716-446655440000
+        user_id:
+          anyOf:
+          - type: string
+            format: uuid
+          - type: 'null'
+          title: User Id
+          description: UUID of the user assigned to this task. Null for unclaimed group assignments. Set when a user has claimed or directly been assigned the task.
+          examples:
+          - 550e8400-e29b-41d4-a716-446655440000
+        worker_group_id:
+          anyOf:
+          - type: string
+            format: uuid
+          - type: 'null'
+          title: Worker Group Id
+          description: UUID of the worker group assigned to this task. Null for direct user assignments.
+          examples:
+          - 550e8400-e29b-41d4-a716-446655440000
+        organization_id:
+          type: string
+          format: uuid
+          title: Organization Id
+          description: UUID of the organization this assignment belongs to.
+          examples:
+          - 550e8400-e29b-41d4-a716-446655440000
+        status:
+          type: string
+          title: Status
+          description: 'Status of the assignment. Valid values: ''pending'', ''in_progress'', ''completed'', ''cancelled''.'
+          examples:
+          - pending
+        started_at:
+          anyOf:
+          - type: string
+            format: date-time
+          - type: 'null'
+          title: Started At
+          description: Timestamp when the user started working on this task. Null for pending assignments.
+          examples:
+          - '2024-01-01T00:00:00Z'
+        user:
+          anyOf:
+          - $ref: '#/components/schemas/app__api__user__user_api_model__UserResponse'
+          - type: 'null'
+          description: Full user information. Only populated when include_user_info query parameter is set to true.
+      type: object
+      required:
+      - id
+      - created_at
+      - updated_at
+      - modified_by
+      - human_review_task_id
+      - organization_id
+      - status
+      title: HumanReviewTaskAssignmentResponse
+      description: Response model for human review task assignment operations.
+    ErrorResponse:
+      properties:
+        error:
+          $ref: '#/components/schemas/ErrorDetail'
+        request_id:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Request Id
+          description: 'Unique request identifier in ULID format for debugging and support. Example: 01K8KABR6S16YETA2SZPVBS9SP'
+      type: object
+      required:
+      - error
+      title: ErrorResponse
+      description: "Standard API error response structure.\n\nAll error responses from the API follow this format, ensuring\nconsistent error handling for API consumers.\n\nExample:\n    {\n        \"error\": {\n            \"message\": \"Flow not found\",\n            \"code\": \"not_found\"\n        },\n        \"request_id\": \"01K8KABR6S16YETA2SZPVBS9SP\"\n    }"
+      examples:
+      - error:
+          code: not_found
+          message: Resource not found
+        request_id: 01K8KABR6S16YETA2SZPVBS9SP
+    app__api__user__user_api_model__UserResponse:
+      properties:
+        id:
+          type: string
+          format: uuid
+          title: Id
+        created_at:
+          type: string
+          format: date-time
+          title: Created At
+        updated_at:
+          type: string
+          format: date-time
+          title: Updated At
+        modified_by:
+          type: string
+          title: Modified By
+        first_name:
+          type: string
+          title: First Name
+        last_name:
+          type: string
+          title: Last Name
+        email:
+          type: string
+          title: Email
+        role:
+          type: string
+          title: Role
+        status:
+          type: string
+          title: Status
+        organization_id:
+          type: string
+          format: uuid
+          title: Organization Id
+      type: object
+      required:
+      - id
+      - created_at
+      - updated_at
+      - modified_by
+      - first_name
+      - last_name
+      - email
+      - role
+      - status
+      - organization_id
+      title: UserResponse
     HumanReviewTaskCreateRequest:
       properties:
         flow_execution_id:
@@ -1259,86 +1598,36 @@ components:
         among non-deleted rows). target_task_executions carries the list of tasks
 
         the reviewer should see — single-target executors send a one-element list.'
-    HumanReviewTaskAssignmentResponse:
+    ValidationError:
       properties:
-        id:
+        loc:
+          items:
+            anyOf:
+            - type: string
+            - type: integer
+          type: array
+          title: Location
+        msg:
           type: string
-          format: uuid
-          title: Id
-        created_at:
+          title: Message
+        type:
           type: string
-          format: date-time
-          title: Created At
-        updated_at:
-          type: string
-          format: date-time
-          title: Updated At
-        modified_by:
-          type: string
-          title: Modified By
-        human_review_task_id:
-          type: string
-          format: uuid
-          title: Human Review Task Id
-          description: UUID of the human review task this assignment belongs to.
-          examples:
-          - 550e8400-e29b-41d4-a716-446655440000
-        user_id:
-          anyOf:
-          - type: string
-            format: uuid
-          - type: 'null'
-          title: User Id
-          description: UUID of the user assigned to this task. Null for unclaimed group assignments. Set when a user has claimed or directly been assigned the task.
-          examples:
-          - 550e8400-e29b-41d4-a716-446655440000
-        worker_group_id:
-          anyOf:
-          - type: string
-            format: uuid
-          - type: 'null'
-          title: Worker Group Id
-          description: UUID of the worker group assigned to this task. Null for direct user assignments.
-          examples:
-          - 550e8400-e29b-41d4-a716-446655440000
-        organization_id:
-          type: string
-          format: uuid
-          title: Organization Id
-          description: UUID of the organization this assignment belongs to.
-          examples:
-          - 550e8400-e29b-41d4-a716-446655440000
-        status:
-          type: string
-          title: Status
-          description: 'Status of the assignment. Valid values: ''pending'', ''in_progress'', ''completed'', ''cancelled''.'
-          examples:
-          - pending
-        started_at:
-          anyOf:
-          - type: string
-            format: date-time
-          - type: 'null'
-          title: Started At
-          description: Timestamp when the user started working on this task. Null for pending assignments.
-          examples:
-          - '2024-01-01T00:00:00Z'
-        user:
-          anyOf:
-          - $ref: '#/components/schemas/app__api__user__user_api_model__UserResponse'
-          - type: 'null'
-          description: Full user information. Only populated when include_user_info query parameter is set to true.
+          title: Error Type
       type: object
       required:
-      - id
-      - created_at
-      - updated_at
-      - modified_by
-      - human_review_task_id
-      - organization_id
-      - status
-      title: HumanReviewTaskAssignmentResponse
-      description: Response model for human review task assignment operations.
+      - loc
+      - msg
+      - type
+      title: ValidationError
+    HTTPValidationError:
+      properties:
+        detail:
+          items:
+            $ref: '#/components/schemas/ValidationError'
+          type: array
+          title: Detail
+      type: object
+      title: HTTPValidationError
   securitySchemes:
     BearerAuth:
       type: http
