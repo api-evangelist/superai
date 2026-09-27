@@ -392,36 +392,6 @@ components:
         This model matches the error format returned by the centralized
 
         exception handlers in app/api/errors/handlers.py.'
-    ResolveUriResponse:
-      properties:
-        download_url:
-          type: string
-          title: Download Url
-          description: Pre-signed URL for downloading the file. Use this URL directly—no authentication headers required. Valid for 1 hour.
-        expires_at:
-          type: string
-          title: Expires At
-          description: ISO 8601 timestamp when the download URL expires. Request a new URL after this time.
-        expires_in_seconds:
-          type: integer
-          title: Expires In Seconds
-          description: Seconds remaining until the download URL expires. Always 3600 (1 hour) for new URLs.
-      type: object
-      required:
-      - download_url
-      - expires_at
-      - expires_in_seconds
-      title: ResolveUriResponse
-      description: 'Response containing a temporary pre-signed download URL.
-
-
-        The download_url can be used directly to download the file without
-
-        additional authentication. URLs expire after 1 hour.'
-      examples:
-      - download_url: https://storage.googleapis.com/superai-file-upload-prod-eu/flows/255a17d0-5c21-47d9-8e0b-a08b48436f0a/documents/f8230da2-4136-4ffb-acfe-db9318970ea2?X-Goog-Algorithm=GOOG4-RSA-SHA256&X-Goog-Credential=...&X-Goog-Date=...&X-Goog-Expires=3600&X-Goog-Signature=...
-        expires_at: '2025-01-15T15:00:00+00:00'
-        expires_in_seconds: 3600
     ErrorResponse:
       properties:
         error:
@@ -479,6 +449,36 @@ components:
       - msg
       - type
       title: ValidationError
+    ResolveUriResponse:
+      properties:
+        download_url:
+          type: string
+          title: Download Url
+          description: Pre-signed URL for downloading the file. Use this URL directly—no authentication headers required. Valid for 1 hour.
+        expires_at:
+          type: string
+          title: Expires At
+          description: ISO 8601 timestamp when the download URL expires. Request a new URL after this time.
+        expires_in_seconds:
+          type: integer
+          title: Expires In Seconds
+          description: Seconds remaining until the download URL expires. Always 3600 (1 hour) for new URLs.
+      type: object
+      required:
+      - download_url
+      - expires_at
+      - expires_in_seconds
+      title: ResolveUriResponse
+      description: 'Response containing a temporary pre-signed download URL.
+
+
+        The download_url can be used directly to download the file without
+
+        additional authentication. URLs expire after 1 hour.'
+      examples:
+      - download_url: https://storage.googleapis.com/superai-file-upload-prod-eu/flows/255a17d0-5c21-47d9-8e0b-a08b48436f0a/documents/f8230da2-4136-4ffb-acfe-db9318970ea2?X-Goog-Algorithm=GOOG4-RSA-SHA256&X-Goog-Credential=...&X-Goog-Date=...&X-Goog-Expires=3600&X-Goog-Signature=...
+        expires_at: '2025-01-15T15:00:00+00:00'
+        expires_in_seconds: 3600
     HTTPValidationError:
       properties:
         detail:

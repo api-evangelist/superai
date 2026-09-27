@@ -314,16 +314,12 @@ paths:
       - APIKeyAuth: []
 components:
   schemas:
-    UserRole:
+    HubViewPreference:
       type: string
       enum:
-      - org_admin
-      - backoffice
-      - app_user
-      - worker
-      - publisher
-      - integration
-      title: UserRole
+      - cards
+      - list
+      title: HubViewPreference
     ErrorDetail:
       properties:
         message:
@@ -360,90 +356,6 @@ components:
         This model matches the error format returned by the centralized
 
         exception handlers in app/api/errors/handlers.py.'
-    WorkerLandingPageConfig:
-      type: string
-      enum:
-      - hub
-      - assigned_flow_data_tab
-      - assigned_flow_work_tab
-      title: WorkerLandingPageConfig
-      description: Configuration for worker landing page redirect.
-    HubViewPreference:
-      type: string
-      enum:
-      - cards
-      - list
-      title: HubViewPreference
-    HubTagFilter:
-      properties:
-        mode:
-          type: string
-          enum:
-          - contains_any
-          - not_contains_any
-          title: Mode
-          default: contains_any
-        values:
-          items:
-            type: string
-          type: array
-          title: Values
-      type: object
-      title: HubTagFilter
-    UserSettings:
-      properties:
-        templates_collapsed:
-          type: boolean
-          title: Templates Collapsed
-          default: false
-        hub_view:
-          $ref: '#/components/schemas/HubViewPreference'
-          default: cards
-        sidebar_open:
-          type: boolean
-          title: Sidebar Open
-          default: true
-        hub_sort:
-          type: string
-          enum:
-          - created_at_desc
-          - created_at_asc
-          - updated_at_desc
-          - updated_at_asc
-          - display_name_asc
-          - display_name_desc
-          title: Hub Sort
-          default: created_at_desc
-        hub_tag_filters:
-          items:
-            $ref: '#/components/schemas/HubTagFilter'
-          type: array
-          title: Hub Tag Filters
-        runs_per_page:
-          type: integer
-          title: Runs Per Page
-          default: 10
-        default_flow_views:
-          additionalProperties:
-            anyOf:
-            - type: string
-              format: uuid
-            - type: string
-              const: runs
-          propertyNames:
-            format: uuid
-          type: object
-          maxProperties: 1000
-          title: Default Flow Views
-      type: object
-      title: UserSettings
-    UserStatus:
-      type: string
-      enum:
-      - pending
-      - active
-      - inactive
-      title: UserStatus
     ErrorResponse:
       properties:
         error:
@@ -524,64 +436,16 @@ components:
       - organization_id
       title: User
       description: User model
-    UserSettingsUpdateRequest:
-      properties:
-        templates_collapsed:
-          anyOf:
-          - type: boolean
-          - type: 'null'
-          title: Templates Collapsed
-        hub_view:
-          anyOf:
-          - $ref: '#/components/schemas/HubViewPreference'
-          - type: 'null'
-        sidebar_open:
-          anyOf:
-          - type: boolean
-          - type: 'null'
-          title: Sidebar Open
-        hub_sort:
-          anyOf:
-          - type: string
-            enum:
-            - created_at_desc
-            - created_at_asc
-            - updated_at_desc
-            - updated_at_asc
-            - display_name_asc
-            - display_name_desc
-          - type: 'null'
-          title: Hub Sort
-        hub_tag_filters:
-          anyOf:
-          - items:
-              $ref: '#/components/schemas/HubTagFilter'
-            type: array
-          - type: 'null'
-          title: Hub Tag Filters
-        runs_per_page:
-          anyOf:
-          - type: integer
-          - type: 'null'
-          title: Runs Per Page
-        default_flow_views:
-          anyOf:
-          - additionalProperties:
-              anyOf:
-              - type: string
-                format: uuid
-              - type: string
-                const: runs
-              - type: 'null'
-            propertyNames:
-              format: uuid
-            type: object
-            maxProperties: 1000
-          - type: 'null'
-          title: Default Flow Views
-      additionalProperties: false
-      type: object
-      title: UserSettingsUpdateRequest
+    UserRole:
+      type: string
+      enum:
+      - org_admin
+      - backoffice
+      - app_user
+      - worker
+      - publisher
+      - integration
+      title: UserRole
     LandingPageConfig:
       properties:
         landing_page_config:
@@ -603,57 +467,6 @@ components:
         This model encapsulates the landing page redirect behavior including
 
         the configuration type and optional target flow ID.'
-    UserUpdateRequest:
-      properties:
-        first_name:
-          anyOf:
-          - type: string
-            maxLength: 100
-            minLength: 1
-          - type: 'null'
-          title: First Name
-          description: User's first name. Used for display in the UI and in email communications. Must be at least 1 character if provided. Set to null or omit to leave unchanged.
-          examples:
-          - John
-          - Maria
-          - 李
-        last_name:
-          anyOf:
-          - type: string
-            maxLength: 100
-            minLength: 1
-          - type: 'null'
-          title: Last Name
-          description: User's last name or family name. Combined with first_name for full name display. Must be at least 1 character if provided. Set to null or omit to leave unchanged.
-          examples:
-          - Doe
-          - García
-          - Chen
-        password:
-          anyOf:
-          - type: string
-            maxLength: 128
-            minLength: 8
-          - type: 'null'
-          title: Password
-          description: 'New password for the user account. Note: Password updates are currently not implemented in the API. This field is reserved for future functionality. Password changes should be handled through the authentication service.'
-          examples:
-          - MySecureP@ssw0rd123
-        settings:
-          anyOf:
-          - $ref: '#/components/schemas/UserSettingsUpdateRequest'
-          - type: 'null'
-          description: User UI preferences to update (partial updates supported)
-      type: object
-      title: UserUpdateRequest
-      description: 'Request model for updating the authenticated user''s profile information.
-
-
-        All fields are optional. Only provided fields will be updated,
-
-        allowing partial updates without affecting other user attributes.
-
-        Omitted fields remain unchanged in the database.'
     UserProfileResponse:
       properties:
         id:
@@ -722,6 +535,193 @@ components:
       - organization_tier
       title: UserProfileResponse
       description: User profile response with organization name included.
+    HubTagFilter:
+      properties:
+        mode:
+          type: string
+          enum:
+          - contains_any
+          - not_contains_any
+          title: Mode
+          default: contains_any
+        values:
+          items:
+            type: string
+          type: array
+          title: Values
+      type: object
+      title: HubTagFilter
+    UserUpdateRequest:
+      properties:
+        first_name:
+          anyOf:
+          - type: string
+            maxLength: 100
+            minLength: 1
+          - type: 'null'
+          title: First Name
+          description: User's first name. Used for display in the UI and in email communications. Must be at least 1 character if provided. Set to null or omit to leave unchanged.
+          examples:
+          - John
+          - Maria
+          - 李
+        last_name:
+          anyOf:
+          - type: string
+            maxLength: 100
+            minLength: 1
+          - type: 'null'
+          title: Last Name
+          description: User's last name or family name. Combined with first_name for full name display. Must be at least 1 character if provided. Set to null or omit to leave unchanged.
+          examples:
+          - Doe
+          - García
+          - Chen
+        password:
+          anyOf:
+          - type: string
+            maxLength: 128
+            minLength: 8
+          - type: 'null'
+          title: Password
+          description: 'New password for the user account. Note: Password updates are currently not implemented in the API. This field is reserved for future functionality. Password changes should be handled through the authentication service.'
+          examples:
+          - MySecureP@ssw0rd123
+        settings:
+          anyOf:
+          - $ref: '#/components/schemas/UserSettingsUpdateRequest'
+          - type: 'null'
+          description: User UI preferences to update (partial updates supported)
+      type: object
+      title: UserUpdateRequest
+      description: 'Request model for updating the authenticated user''s profile information.
+
+
+        All fields are optional. Only provided fields will be updated,
+
+        allowing partial updates without affecting other user attributes.
+
+        Omitted fields remain unchanged in the database.'
+    UserSettings:
+      properties:
+        templates_collapsed:
+          type: boolean
+          title: Templates Collapsed
+          default: false
+        hub_view:
+          $ref: '#/components/schemas/HubViewPreference'
+          default: cards
+        sidebar_open:
+          type: boolean
+          title: Sidebar Open
+          default: true
+        hub_sort:
+          type: string
+          enum:
+          - created_at_desc
+          - created_at_asc
+          - updated_at_desc
+          - updated_at_asc
+          - display_name_asc
+          - display_name_desc
+          title: Hub Sort
+          default: created_at_desc
+        hub_tag_filters:
+          items:
+            $ref: '#/components/schemas/HubTagFilter'
+          type: array
+          title: Hub Tag Filters
+        runs_per_page:
+          type: integer
+          title: Runs Per Page
+          default: 10
+        default_flow_views:
+          additionalProperties:
+            anyOf:
+            - type: string
+              format: uuid
+            - type: string
+              const: runs
+          propertyNames:
+            format: uuid
+          type: object
+          maxProperties: 1000
+          title: Default Flow Views
+      type: object
+      title: UserSettings
+    UserStatus:
+      type: string
+      enum:
+      - pending
+      - active
+      - inactive
+      title: UserStatus
+    UserSettingsUpdateRequest:
+      properties:
+        templates_collapsed:
+          anyOf:
+          - type: boolean
+          - type: 'null'
+          title: Templates Collapsed
+        hub_view:
+          anyOf:
+          - $ref: '#/components/schemas/HubViewPreference'
+          - type: 'null'
+        sidebar_open:
+          anyOf:
+          - type: boolean
+          - type: 'null'
+          title: Sidebar Open
+        hub_sort:
+          anyOf:
+          - type: string
+            enum:
+            - created_at_desc
+            - created_at_asc
+            - updated_at_desc
+            - updated_at_asc
+            - display_name_asc
+            - display_name_desc
+          - type: 'null'
+          title: Hub Sort
+        hub_tag_filters:
+          anyOf:
+          - items:
+              $ref: '#/components/schemas/HubTagFilter'
+            type: array
+          - type: 'null'
+          title: Hub Tag Filters
+        runs_per_page:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Runs Per Page
+        default_flow_views:
+          anyOf:
+          - additionalProperties:
+              anyOf:
+              - type: string
+                format: uuid
+              - type: string
+                const: runs
+              - type: 'null'
+            propertyNames:
+              format: uuid
+            type: object
+            maxProperties: 1000
+          - type: 'null'
+          title: Default Flow Views
+      additionalProperties: false
+      type: object
+      title: UserSettingsUpdateRequest
+    WorkerLandingPageConfig:
+      type: string
+      enum:
+      - hub
+      - assigned_flow_data_tab
+      - assigned_flow_work_tab
+      title: WorkerLandingPageConfig
+      description: Configuration for worker landing page redirect.
   securitySchemes:
     BearerAuth:
       type: http

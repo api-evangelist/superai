@@ -606,78 +606,32 @@ components:
         This model matches the error format returned by the centralized
 
         exception handlers in app/api/errors/handlers.py.'
+    ErrorResponse:
+      properties:
+        error:
+          $ref: '#/components/schemas/ErrorDetail'
+        request_id:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Request Id
+          description: 'Unique request identifier in ULID format for debugging and support. Example: 01K8KABR6S16YETA2SZPVBS9SP'
+      type: object
+      required:
+      - error
+      title: ErrorResponse
+      description: "Standard API error response structure.\n\nAll error responses from the API follow this format, ensuring\nconsistent error handling for API consumers.\n\nExample:\n    {\n        \"error\": {\n            \"message\": \"Flow not found\",\n            \"code\": \"not_found\"\n        },\n        \"request_id\": \"01K8KABR6S16YETA2SZPVBS9SP\"\n    }"
+      examples:
+      - error:
+          code: not_found
+          message: Resource not found
+        request_id: 01K8KABR6S16YETA2SZPVBS9SP
     LoginMethod:
       type: string
       enum:
       - sso_required
       - password_ok
       title: LoginMethod
-    ResetPasswordResponse:
-      properties:
-        message:
-          type: string
-          title: Message
-      type: object
-      required:
-      - message
-      title: ResetPasswordResponse
-    SignupEmailPolicyResult:
-      properties:
-        allowed:
-          type: boolean
-          title: Allowed
-          description: Whether this email may sign up via magic link.
-        reason:
-          anyOf:
-          - $ref: '#/components/schemas/SignupRejectionReason'
-          - type: 'null'
-          description: 'Rejection reason when not allowed: `disposable_email`, `personal_email_not_allowed`, or `academic_email_not_allowed`.'
-      type: object
-      required:
-      - allowed
-      title: SignupEmailPolicyResult
-      description: Pre-flight evaluation of the signup email policy for the magic-link path.
-    SignupRejectionReason:
-      type: string
-      enum:
-      - disposable_email
-      - personal_email_not_allowed
-      - academic_email_not_allowed
-      title: SignupRejectionReason
-      description: 'Machine-readable reasons a signup email is rejected.
-
-
-        Surfaced to the client as an error ``code`` so the UI can map each to a
-
-        tailored message (e.g. "use your work email" vs "temporary emails aren''t
-
-        allowed").'
-    AnonKeyResponse:
-      properties:
-        anon_key:
-          type: string
-          title: Anon Key
-          description: Anonymous authentication key for client applications. Use this key to authenticate API requests to the authentication service. Include this in your authentication API calls as the 'apikey' header. This key is safe to use in client-side applications and does not grant administrative privileges. It enables password authentication and token generation for users.
-          examples:
-          - eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImFiY2RlZmdoaWprbG1ub3BxcnN0Iiwicm9sZSI6ImFub24iLCJpYXQiOjE2ODkwMDAwMDAsImV4cCI6MTg0Njc2ODAwMH0.signature
-      type: object
-      required:
-      - anon_key
-      title: AnonKeyResponse
-      description: 'Response model for anonymous authentication key retrieval.
-
-
-        Returns the authentication key required for client applications to
-
-        authenticate with the authentication API hosted at core.flows.super.ai.'
-    LoginMethodResult:
-      properties:
-        method:
-          $ref: '#/components/schemas/LoginMethod'
-      type: object
-      required:
-      - method
-      title: LoginMethodResult
     AccessRequestResponse:
       properties:
         status:
@@ -699,26 +653,53 @@ components:
         (an email-enumeration oracle). The created-vs-existing distinction stays
 
         internal (it only gates the Slack notification).'
-    ErrorResponse:
+    ResetPasswordRequest:
       properties:
-        error:
-          $ref: '#/components/schemas/ErrorDetail'
-        request_id:
+        email:
+          type: string
+          format: email
+          title: Email
+        redirect_to:
           anyOf:
           - type: string
           - type: 'null'
-          title: Request Id
-          description: 'Unique request identifier in ULID format for debugging and support. Example: 01K8KABR6S16YETA2SZPVBS9SP'
+          title: Redirect To
+          description: URL to redirect to after password reset. If not provided, the default redirect URL will be used.
       type: object
       required:
-      - error
-      title: ErrorResponse
-      description: "Standard API error response structure.\n\nAll error responses from the API follow this format, ensuring\nconsistent error handling for API consumers.\n\nExample:\n    {\n        \"error\": {\n            \"message\": \"Flow not found\",\n            \"code\": \"not_found\"\n        },\n        \"request_id\": \"01K8KABR6S16YETA2SZPVBS9SP\"\n    }"
-      examples:
-      - error:
-          code: not_found
-          message: Resource not found
-        request_id: 01K8KABR6S16YETA2SZPVBS9SP
+      - email
+      title: ResetPasswordRequest
+    AccessRequestCreate:
+      properties:
+        email:
+          type: string
+          format: email
+          title: Email
+          description: Email the visitor tried to sign up with.
+        full_name:
+          type: string
+          maxLength: 200
+          minLength: 1
+          title: Full Name
+          description: The visitor's name.
+        use_case:
+          type: string
+          maxLength: 5000
+          minLength: 50
+          title: Use Case
+          description: Free-text description of what the visitor wants to use the product for.
+      type: object
+      required:
+      - email
+      - full_name
+      - use_case
+      title: AccessRequestCreate
+      description: 'A visitor''s request for access submitted from the blocked-signup CTA.
+
+
+        The min-lengths mirror the client-side form validation; the max-lengths cap
+
+        abuse on this unauthenticated endpoint.'
     SelfServiceSignupResponse:
       properties:
         organization_id:
@@ -773,53 +754,6 @@ components:
         Used to trigger a new invitation email when the original invitation
 
         has expired, was not received, or the user needs another copy.'
-    ResetPasswordRequest:
-      properties:
-        email:
-          type: string
-          format: email
-          title: Email
-        redirect_to:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Redirect To
-          description: URL to redirect to after password reset. If not provided, the default redirect URL will be used.
-      type: object
-      required:
-      - email
-      title: ResetPasswordRequest
-    AccessRequestCreate:
-      properties:
-        email:
-          type: string
-          format: email
-          title: Email
-          description: Email the visitor tried to sign up with.
-        full_name:
-          type: string
-          maxLength: 200
-          minLength: 1
-          title: Full Name
-          description: The visitor's name.
-        use_case:
-          type: string
-          maxLength: 5000
-          minLength: 50
-          title: Use Case
-          description: Free-text description of what the visitor wants to use the product for.
-      type: object
-      required:
-      - email
-      - full_name
-      - use_case
-      title: AccessRequestCreate
-      description: 'A visitor''s request for access submitted from the blocked-signup CTA.
-
-
-        The min-lengths mirror the client-side form validation; the max-lengths cap
-
-        abuse on this unauthenticated endpoint.'
     ResendInviteResponse:
       properties:
         success:
@@ -854,6 +788,72 @@ components:
         Confirms that the invitation email was successfully queued or sent.
 
         Actual email delivery depends on external email service.'
+    AnonKeyResponse:
+      properties:
+        anon_key:
+          type: string
+          title: Anon Key
+          description: Anonymous authentication key for client applications. Use this key to authenticate API requests to the authentication service. Include this in your authentication API calls as the 'apikey' header. This key is safe to use in client-side applications and does not grant administrative privileges. It enables password authentication and token generation for users.
+          examples:
+          - eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImFiY2RlZmdoaWprbG1ub3BxcnN0Iiwicm9sZSI6ImFub24iLCJpYXQiOjE2ODkwMDAwMDAsImV4cCI6MTg0Njc2ODAwMH0.signature
+      type: object
+      required:
+      - anon_key
+      title: AnonKeyResponse
+      description: 'Response model for anonymous authentication key retrieval.
+
+
+        Returns the authentication key required for client applications to
+
+        authenticate with the authentication API hosted at core.flows.super.ai.'
+    ResetPasswordResponse:
+      properties:
+        message:
+          type: string
+          title: Message
+      type: object
+      required:
+      - message
+      title: ResetPasswordResponse
+    LoginMethodResult:
+      properties:
+        method:
+          $ref: '#/components/schemas/LoginMethod'
+      type: object
+      required:
+      - method
+      title: LoginMethodResult
+    SignupRejectionReason:
+      type: string
+      enum:
+      - disposable_email
+      - personal_email_not_allowed
+      - academic_email_not_allowed
+      title: SignupRejectionReason
+      description: 'Machine-readable reasons a signup email is rejected.
+
+
+        Surfaced to the client as an error ``code`` so the UI can map each to a
+
+        tailored message (e.g. "use your work email" vs "temporary emails aren''t
+
+        allowed").'
+    SignupEmailPolicyResult:
+      properties:
+        allowed:
+          type: boolean
+          title: Allowed
+          description: Whether this email may sign up via magic link.
+        reason:
+          anyOf:
+          - $ref: '#/components/schemas/SignupRejectionReason'
+          - type: 'null'
+          description: 'Rejection reason when not allowed: `disposable_email`, `personal_email_not_allowed`, or `academic_email_not_allowed`.'
+      type: object
+      required:
+      - allowed
+      title: SignupEmailPolicyResult
+      description: Pre-flight evaluation of the signup email policy for the magic-link path.
   securitySchemes:
     BearerAuth:
       type: http

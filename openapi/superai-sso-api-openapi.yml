@@ -653,96 +653,6 @@ components:
           code: not_found
           message: Resource not found
         request_id: 01K8KABR6S16YETA2SZPVBS9SP
-    SSOProviderUpdate:
-      properties:
-        metadata_url:
-          anyOf:
-          - type: string
-            maxLength: 2083
-            minLength: 1
-            format: uri
-          - type: 'null'
-          title: Metadata Url
-          description: Updated SAML metadata URL
-        metadata_xml:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Metadata Xml
-          description: Updated SAML metadata XML
-        domains:
-          anyOf:
-          - items:
-              type: string
-            type: array
-          - type: 'null'
-          title: Domains
-          description: Updated email domains
-        attribute_mapping:
-          anyOf:
-          - additionalProperties: true
-            type: object
-          - type: 'null'
-          title: Attribute Mapping
-          description: Updated attribute mappings
-        is_active:
-          anyOf:
-          - type: boolean
-          - type: 'null'
-          title: Is Active
-          description: Whether provider is active
-      type: object
-      title: SSOProviderUpdate
-      description: Request model for updating an SSO provider via Supabase Management API.
-    SSOProviderCreate:
-      properties:
-        type:
-          type: string
-          title: Type
-          description: SSO provider type
-          default: saml
-        metadata_url:
-          anyOf:
-          - type: string
-            maxLength: 2083
-            minLength: 1
-            format: uri
-          - type: 'null'
-          title: Metadata Url
-          description: URL to fetch SAML metadata
-        metadata_xml:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Metadata Xml
-          description: Raw SAML metadata XML
-        domains:
-          items:
-            type: string
-          type: array
-          title: Domains
-          description: Email domains for this provider
-        attribute_mapping:
-          anyOf:
-          - additionalProperties: true
-            type: object
-          - type: 'null'
-          title: Attribute Mapping
-          description: SAML attribute mappings
-      type: object
-      required:
-      - domains
-      title: SSOProviderCreate
-      description: Request model for creating an SSO provider via Supabase Management API.
-    MetadataResponse:
-      properties:
-        metadata:
-          type: string
-          title: Metadata
-      type: object
-      required:
-      - metadata
-      title: MetadataResponse
     SSOOrganizationResponse:
       properties:
         sso_provider_id:
@@ -805,27 +715,47 @@ components:
       - updated_at
       title: SSOOrganizationResponse
       description: API response model for SSO organization configuration.
-    ValidationError:
+    SSOProviderUpdate:
       properties:
-        loc:
-          items:
-            anyOf:
-            - type: string
-            - type: integer
-          type: array
-          title: Location
-        msg:
-          type: string
-          title: Message
-        type:
-          type: string
-          title: Error Type
+        metadata_url:
+          anyOf:
+          - type: string
+            maxLength: 2083
+            minLength: 1
+            format: uri
+          - type: 'null'
+          title: Metadata Url
+          description: Updated SAML metadata URL
+        metadata_xml:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Metadata Xml
+          description: Updated SAML metadata XML
+        domains:
+          anyOf:
+          - items:
+              type: string
+            type: array
+          - type: 'null'
+          title: Domains
+          description: Updated email domains
+        attribute_mapping:
+          anyOf:
+          - additionalProperties: true
+            type: object
+          - type: 'null'
+          title: Attribute Mapping
+          description: Updated attribute mappings
+        is_active:
+          anyOf:
+          - type: boolean
+          - type: 'null'
+          title: Is Active
+          description: Whether provider is active
       type: object
-      required:
-      - loc
-      - msg
-      - type
-      title: ValidationError
+      title: SSOProviderUpdate
+      description: Request model for updating an SSO provider via Supabase Management API.
     SSOServiceProviderDetails:
       properties:
         entity_id:
@@ -852,6 +782,76 @@ components:
       - slo_url
       title: SSOServiceProviderDetails
       description: Supabase SAML service-provider URLs to configure in the customer's IdP.
+    SSOProviderCreate:
+      properties:
+        type:
+          type: string
+          title: Type
+          description: SSO provider type
+          default: saml
+        metadata_url:
+          anyOf:
+          - type: string
+            maxLength: 2083
+            minLength: 1
+            format: uri
+          - type: 'null'
+          title: Metadata Url
+          description: URL to fetch SAML metadata
+        metadata_xml:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Metadata Xml
+          description: Raw SAML metadata XML
+        domains:
+          items:
+            type: string
+          type: array
+          title: Domains
+          description: Email domains for this provider
+        attribute_mapping:
+          anyOf:
+          - additionalProperties: true
+            type: object
+          - type: 'null'
+          title: Attribute Mapping
+          description: SAML attribute mappings
+      type: object
+      required:
+      - domains
+      title: SSOProviderCreate
+      description: Request model for creating an SSO provider via Supabase Management API.
+    ValidationError:
+      properties:
+        loc:
+          items:
+            anyOf:
+            - type: string
+            - type: integer
+          type: array
+          title: Location
+        msg:
+          type: string
+          title: Message
+        type:
+          type: string
+          title: Error Type
+      type: object
+      required:
+      - loc
+      - msg
+      - type
+      title: ValidationError
+    MetadataResponse:
+      properties:
+        metadata:
+          type: string
+          title: Metadata
+      type: object
+      required:
+      - metadata
+      title: MetadataResponse
     HTTPValidationError:
       properties:
         detail:

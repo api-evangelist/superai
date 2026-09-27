@@ -1105,6 +1105,60 @@ components:
         This model matches the error format returned by the centralized
 
         exception handlers in app/api/errors/handlers.py.'
+    ErrorResponse:
+      properties:
+        error:
+          $ref: '#/components/schemas/ErrorDetail'
+        request_id:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Request Id
+          description: 'Unique request identifier in ULID format for debugging and support. Example: 01K8KABR6S16YETA2SZPVBS9SP'
+      type: object
+      required:
+      - error
+      title: ErrorResponse
+      description: "Standard API error response structure.\n\nAll error responses from the API follow this format, ensuring\nconsistent error handling for API consumers.\n\nExample:\n    {\n        \"error\": {\n            \"message\": \"Flow not found\",\n            \"code\": \"not_found\"\n        },\n        \"request_id\": \"01K8KABR6S16YETA2SZPVBS9SP\"\n    }"
+      examples:
+      - error:
+          code: not_found
+          message: Resource not found
+        request_id: 01K8KABR6S16YETA2SZPVBS9SP
+    PaginatedHumanReviewTasksResponse:
+      properties:
+        items:
+          items:
+            $ref: '#/components/schemas/HumanReviewTaskResponse'
+          type: array
+          title: Items
+          description: Human review tasks for the requested page.
+        total_count:
+          type: integer
+          title: Total Count
+          description: Total number of tasks matching the filters (ignoring offset/limit).
+          examples:
+          - 42
+        offset:
+          type: integer
+          title: Offset
+          description: Offset applied to this page.
+          examples:
+          - 0
+        limit:
+          type: integer
+          title: Limit
+          description: Limit applied to this page.
+          examples:
+          - 10
+      type: object
+      required:
+      - items
+      - total_count
+      - offset
+      - limit
+      title: PaginatedHumanReviewTasksResponse
+      description: Paginated response wrapping a page of human review tasks with total count.
     HumanReviewTaskResponse:
       properties:
         id:
@@ -1246,276 +1300,6 @@ components:
       - status
       title: HumanReviewTaskResponse
       description: Response model for human review task operations.
-    HumanReviewTargetTaskExecution:
-      properties:
-        task_name:
-          type: string
-          title: Task Name
-          description: Name of the target task being reviewed.
-          examples:
-          - extract_doc
-        task_execution_idx:
-          type: integer
-          title: Task Execution Idx
-          description: Index of the target task execution.
-          examples:
-          - 0
-        is_editable:
-          type: boolean
-          title: Is Editable
-          description: Whether the reviewer is allowed to edit this item's data. Read-only items pass through unchanged on completion.
-          default: false
-          examples:
-          - true
-          - false
-        output_name:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Output Name
-          description: When set together with output_collection_idx, narrows the target to a single item of the named output collection on the target task. Both fields must be set or both null.
-          examples:
-          - rows
-        output_collection_idx:
-          anyOf:
-          - type: integer
-          - type: 'null'
-          title: Output Collection Idx
-          description: Zero-based index into the target task's named output collection. Required when output_name is set; must be null otherwise.
-          examples:
-          - 0
-      type: object
-      required:
-      - task_name
-      - task_execution_idx
-      title: HumanReviewTargetTaskExecution
-      description: 'One target execution being reviewed in a human review task.
-
-
-        When ``output_name`` and ``output_collection_idx`` are both set, the entry
-
-        targets a specific item of the named output collection rather than the
-
-        whole task output: the reviewer sees/edits just that item, and the
-
-        matching ``reviewed_output[idx]`` carries that item''s value (not the whole
-
-        task output dict).'
-    HumanReviewTaskCompleteRequest:
-      properties:
-        review_result:
-          type: boolean
-          title: Review Result
-          description: 'Review result: True for correct, False for incorrect.'
-          examples:
-          - true
-          - false
-        reviewed_output:
-          items: {}
-          type: array
-          title: Reviewed Output
-          description: Output of the completed review. List positionally aligned with target_task_executions; each entry is a reviewed item (a dict, or a scalar for per-item references to scalar outputs).
-          examples:
-          - - comments: All dates are correct.
-              verified: true
-      type: object
-      required:
-      - review_result
-      - reviewed_output
-      title: HumanReviewTaskCompleteRequest
-      description: 'Request payload for completing a human review task.
-
-
-        reviewed_output is a list positionally aligned with the task''s
-
-        target_task_executions list (same length and order). Each entry is a
-
-        reviewed item — a dict, or a scalar for per-item references to scalar
-
-        outputs.'
-    PaginatedHumanReviewTasksResponse:
-      properties:
-        items:
-          items:
-            $ref: '#/components/schemas/HumanReviewTaskResponse'
-          type: array
-          title: Items
-          description: Human review tasks for the requested page.
-        total_count:
-          type: integer
-          title: Total Count
-          description: Total number of tasks matching the filters (ignoring offset/limit).
-          examples:
-          - 42
-        offset:
-          type: integer
-          title: Offset
-          description: Offset applied to this page.
-          examples:
-          - 0
-        limit:
-          type: integer
-          title: Limit
-          description: Limit applied to this page.
-          examples:
-          - 10
-      type: object
-      required:
-      - items
-      - total_count
-      - offset
-      - limit
-      title: PaginatedHumanReviewTasksResponse
-      description: Paginated response wrapping a page of human review tasks with total count.
-    HumanReviewTaskAssignmentResponse:
-      properties:
-        id:
-          type: string
-          format: uuid
-          title: Id
-        created_at:
-          type: string
-          format: date-time
-          title: Created At
-        updated_at:
-          type: string
-          format: date-time
-          title: Updated At
-        modified_by:
-          type: string
-          title: Modified By
-        human_review_task_id:
-          type: string
-          format: uuid
-          title: Human Review Task Id
-          description: UUID of the human review task this assignment belongs to.
-          examples:
-          - 550e8400-e29b-41d4-a716-446655440000
-        user_id:
-          anyOf:
-          - type: string
-            format: uuid
-          - type: 'null'
-          title: User Id
-          description: UUID of the user assigned to this task. Null for unclaimed group assignments. Set when a user has claimed or directly been assigned the task.
-          examples:
-          - 550e8400-e29b-41d4-a716-446655440000
-        worker_group_id:
-          anyOf:
-          - type: string
-            format: uuid
-          - type: 'null'
-          title: Worker Group Id
-          description: UUID of the worker group assigned to this task. Null for direct user assignments.
-          examples:
-          - 550e8400-e29b-41d4-a716-446655440000
-        organization_id:
-          type: string
-          format: uuid
-          title: Organization Id
-          description: UUID of the organization this assignment belongs to.
-          examples:
-          - 550e8400-e29b-41d4-a716-446655440000
-        status:
-          type: string
-          title: Status
-          description: 'Status of the assignment. Valid values: ''pending'', ''in_progress'', ''completed'', ''cancelled''.'
-          examples:
-          - pending
-        started_at:
-          anyOf:
-          - type: string
-            format: date-time
-          - type: 'null'
-          title: Started At
-          description: Timestamp when the user started working on this task. Null for pending assignments.
-          examples:
-          - '2024-01-01T00:00:00Z'
-        user:
-          anyOf:
-          - $ref: '#/components/schemas/app__api__user__user_api_model__UserResponse'
-          - type: 'null'
-          description: Full user information. Only populated when include_user_info query parameter is set to true.
-      type: object
-      required:
-      - id
-      - created_at
-      - updated_at
-      - modified_by
-      - human_review_task_id
-      - organization_id
-      - status
-      title: HumanReviewTaskAssignmentResponse
-      description: Response model for human review task assignment operations.
-    ErrorResponse:
-      properties:
-        error:
-          $ref: '#/components/schemas/ErrorDetail'
-        request_id:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Request Id
-          description: 'Unique request identifier in ULID format for debugging and support. Example: 01K8KABR6S16YETA2SZPVBS9SP'
-      type: object
-      required:
-      - error
-      title: ErrorResponse
-      description: "Standard API error response structure.\n\nAll error responses from the API follow this format, ensuring\nconsistent error handling for API consumers.\n\nExample:\n    {\n        \"error\": {\n            \"message\": \"Flow not found\",\n            \"code\": \"not_found\"\n        },\n        \"request_id\": \"01K8KABR6S16YETA2SZPVBS9SP\"\n    }"
-      examples:
-      - error:
-          code: not_found
-          message: Resource not found
-        request_id: 01K8KABR6S16YETA2SZPVBS9SP
-    app__api__user__user_api_model__UserResponse:
-      properties:
-        id:
-          type: string
-          format: uuid
-          title: Id
-        created_at:
-          type: string
-          format: date-time
-          title: Created At
-        updated_at:
-          type: string
-          format: date-time
-          title: Updated At
-        modified_by:
-          type: string
-          title: Modified By
-        first_name:
-          type: string
-          title: First Name
-        last_name:
-          type: string
-          title: Last Name
-        email:
-          type: string
-          title: Email
-        role:
-          type: string
-          title: Role
-        status:
-          type: string
-          title: Status
-        organization_id:
-          type: string
-          format: uuid
-          title: Organization Id
-      type: object
-      required:
-      - id
-      - created_at
-      - updated_at
-      - modified_by
-      - first_name
-      - last_name
-      - email
-      - role
-      - status
-      - organization_id
-      title: UserResponse
     HumanReviewTaskCreateRequest:
       properties:
         flow_execution_id:
@@ -1619,6 +1403,167 @@ components:
       - msg
       - type
       title: ValidationError
+    HumanReviewTaskCompleteRequest:
+      properties:
+        review_result:
+          type: boolean
+          title: Review Result
+          description: 'Review result: True for correct, False for incorrect.'
+          examples:
+          - true
+          - false
+        reviewed_output:
+          items: {}
+          type: array
+          title: Reviewed Output
+          description: Output of the completed review. List positionally aligned with target_task_executions; each entry is a reviewed item (a dict, or a scalar for per-item references to scalar outputs).
+          examples:
+          - - comments: All dates are correct.
+              verified: true
+      type: object
+      required:
+      - review_result
+      - reviewed_output
+      title: HumanReviewTaskCompleteRequest
+      description: 'Request payload for completing a human review task.
+
+
+        reviewed_output is a list positionally aligned with the task''s
+
+        target_task_executions list (same length and order). Each entry is a
+
+        reviewed item — a dict, or a scalar for per-item references to scalar
+
+        outputs.'
+    HumanReviewTaskAssignmentResponse:
+      properties:
+        id:
+          type: string
+          format: uuid
+          title: Id
+        created_at:
+          type: string
+          format: date-time
+          title: Created At
+        updated_at:
+          type: string
+          format: date-time
+          title: Updated At
+        modified_by:
+          type: string
+          title: Modified By
+        human_review_task_id:
+          type: string
+          format: uuid
+          title: Human Review Task Id
+          description: UUID of the human review task this assignment belongs to.
+          examples:
+          - 550e8400-e29b-41d4-a716-446655440000
+        user_id:
+          anyOf:
+          - type: string
+            format: uuid
+          - type: 'null'
+          title: User Id
+          description: UUID of the user assigned to this task. Null for unclaimed group assignments. Set when a user has claimed or directly been assigned the task.
+          examples:
+          - 550e8400-e29b-41d4-a716-446655440000
+        worker_group_id:
+          anyOf:
+          - type: string
+            format: uuid
+          - type: 'null'
+          title: Worker Group Id
+          description: UUID of the worker group assigned to this task. Null for direct user assignments.
+          examples:
+          - 550e8400-e29b-41d4-a716-446655440000
+        organization_id:
+          type: string
+          format: uuid
+          title: Organization Id
+          description: UUID of the organization this assignment belongs to.
+          examples:
+          - 550e8400-e29b-41d4-a716-446655440000
+        status:
+          type: string
+          title: Status
+          description: 'Status of the assignment. Valid values: ''pending'', ''in_progress'', ''completed'', ''cancelled''.'
+          examples:
+          - pending
+        started_at:
+          anyOf:
+          - type: string
+            format: date-time
+          - type: 'null'
+          title: Started At
+          description: Timestamp when the user started working on this task. Null for pending assignments.
+          examples:
+          - '2024-01-01T00:00:00Z'
+        user:
+          anyOf:
+          - $ref: '#/components/schemas/app__api__user__user_api_model__UserResponse'
+          - type: 'null'
+          description: Full user information. Only populated when include_user_info query parameter is set to true.
+      type: object
+      required:
+      - id
+      - created_at
+      - updated_at
+      - modified_by
+      - human_review_task_id
+      - organization_id
+      - status
+      title: HumanReviewTaskAssignmentResponse
+      description: Response model for human review task assignment operations.
+    app__api__user__user_api_model__UserResponse:
+      properties:
+        id:
+          type: string
+          format: uuid
+          title: Id
+        created_at:
+          type: string
+          format: date-time
+          title: Created At
+        updated_at:
+          type: string
+          format: date-time
+          title: Updated At
+        modified_by:
+          type: string
+          title: Modified By
+        first_name:
+          type: string
+          title: First Name
+        last_name:
+          type: string
+          title: Last Name
+        email:
+          type: string
+          title: Email
+        role:
+          type: string
+          title: Role
+        status:
+          type: string
+          title: Status
+        organization_id:
+          type: string
+          format: uuid
+          title: Organization Id
+      type: object
+      required:
+      - id
+      - created_at
+      - updated_at
+      - modified_by
+      - first_name
+      - last_name
+      - email
+      - role
+      - status
+      - organization_id
+      title: UserResponse
     HTTPValidationError:
       properties:
         detail:
@@ -1628,6 +1573,61 @@ components:
           title: Detail
       type: object
       title: HTTPValidationError
+    HumanReviewTargetTaskExecution:
+      properties:
+        task_name:
+          type: string
+          title: Task Name
+          description: Name of the target task being reviewed.
+          examples:
+          - extract_doc
+        task_execution_idx:
+          type: integer
+          title: Task Execution Idx
+          description: Index of the target task execution.
+          examples:
+          - 0
+        is_editable:
+          type: boolean
+          title: Is Editable
+          description: Whether the reviewer is allowed to edit this item's data. Read-only items pass through unchanged on completion.
+          default: false
+          examples:
+          - true
+          - false
+        output_name:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Output Name
+          description: When set together with output_collection_idx, narrows the target to a single item of the named output collection on the target task. Both fields must be set or both null.
+          examples:
+          - rows
+        output_collection_idx:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Output Collection Idx
+          description: Zero-based index into the target task's named output collection. Required when output_name is set; must be null otherwise.
+          examples:
+          - 0
+      type: object
+      required:
+      - task_name
+      - task_execution_idx
+      title: HumanReviewTargetTaskExecution
+      description: 'One target execution being reviewed in a human review task.
+
+
+        When ``output_name`` and ``output_collection_idx`` are both set, the entry
+
+        targets a specific item of the named output collection rather than the
+
+        whole task output: the reviewer sees/edits just that item, and the
+
+        matching ``reviewed_output[idx]`` carries that item''s value (not the whole
+
+        task output dict).'
   securitySchemes:
     BearerAuth:
       type: http

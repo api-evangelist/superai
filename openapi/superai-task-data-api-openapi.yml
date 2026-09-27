@@ -226,6 +226,27 @@ components:
           code: not_found
           message: Resource not found
         request_id: 01K8KABR6S16YETA2SZPVBS9SP
+    ValidationError:
+      properties:
+        loc:
+          items:
+            anyOf:
+            - type: string
+            - type: integer
+          type: array
+          title: Location
+        msg:
+          type: string
+          title: Message
+        type:
+          type: string
+          title: Error Type
+      type: object
+      required:
+      - loc
+      - msg
+      - type
+      title: ValidationError
     TaskDynamicDataRequest:
       properties:
         flow_definition:
@@ -257,27 +278,6 @@ components:
         and schema extraction. The flow definition should include all tasks,
 
         connections, and configurations needed to execute the flow.'
-    ValidationError:
-      properties:
-        loc:
-          items:
-            anyOf:
-            - type: string
-            - type: integer
-          type: array
-          title: Location
-        msg:
-          type: string
-          title: Message
-        type:
-          type: string
-          title: Error Type
-      type: object
-      required:
-      - loc
-      - msg
-      - type
-      title: ValidationError
     TaskDynamicDataResponse:
       properties:
         output_schemas:

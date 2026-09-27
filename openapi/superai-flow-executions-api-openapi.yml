@@ -1398,6 +1398,19 @@ paths:
       - APIKeyAuth: []
 components:
   schemas:
+    ProcessingStatus:
+      type: string
+      enum:
+      - queued
+      - running
+      - completed
+      - failed
+      - deleted
+      - awaiting_input
+      - cancel_requested
+      - cancelled
+      title: ProcessingStatus
+      description: "Valid status values for task processing lifecycle.\n\nUsed by task_execution and task_output tables to track where a task\nis in its processing pipeline, independent of data consistency state.\n\nStatus Transitions:\n    queued → running → completed\n                     → failed\n    running/awaiting_input → cancel_requested → cancelled\n    Any status → deleted (soft delete)"
     ErrorDetail:
       properties:
         message:
@@ -1434,98 +1447,106 @@ components:
         This model matches the error format returned by the centralized
 
         exception handlers in app/api/errors/handlers.py.'
-    FlowExecutionResponse:
+    ErrorResponse:
+      properties:
+        error:
+          $ref: '#/components/schemas/ErrorDetail'
+        request_id:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Request Id
+          description: 'Unique request identifier in ULID format for debugging and support. Example: 01K8KABR6S16YETA2SZPVBS9SP'
+      type: object
+      required:
+      - error
+      title: ErrorResponse
+      description: "Standard API error response structure.\n\nAll error responses from the API follow this format, ensuring\nconsistent error handling for API consumers.\n\nExample:\n    {\n        \"error\": {\n            \"message\": \"Flow not found\",\n            \"code\": \"not_found\"\n        },\n        \"request_id\": \"01K8KABR6S16YETA2SZPVBS9SP\"\n    }"
+      examples:
+      - error:
+          code: not_found
+          message: Resource not found
+        request_id: 01K8KABR6S16YETA2SZPVBS9SP
+    AddTaskStatusRequest:
+      properties:
+        statuses:
+          items:
+            $ref: '#/components/schemas/AddTaskStatusRequestItem'
+          type: array
+          maxItems: 100
+          minItems: 1
+          title: Statuses
+          description: 'Array of task status updates to apply. Minimum: 1 update, Maximum: 100 updates per request. Updates are processed in order provided.'
+          example:
+          - status: completed
+            task_name: extract_data
+          - status: running
+            task_name: validate_results
+      type: object
+      required:
+      - statuses
+      title: AddTaskStatusRequest
+      description: 'Batch request to add multiple task status updates.
+
+
+        Allows system workers to report status changes for multiple tasks
+
+        in a single API call for improved performance.'
+    ValidationError:
+      properties:
+        loc:
+          items:
+            anyOf:
+            - type: string
+            - type: integer
+          type: array
+          title: Location
+        msg:
+          type: string
+          title: Message
+        type:
+          type: string
+          title: Error Type
+      type: object
+      required:
+      - loc
+      - msg
+      - type
+      title: ValidationError
+    FlowTaskStatusAPI:
       properties:
         id:
           type: string
           format: uuid
           title: Id
-        created_at:
-          type: string
-          format: date-time
-          title: Created At
-        updated_at:
-          type: string
-          format: date-time
-          title: Updated At
-        modified_by:
-          type: string
-          title: Modified By
-        flow_id:
+        flow_execution_id:
           type: string
           format: uuid
-          title: Flow Id
-          description: UUID of the flow definition being executed. References the parent flow that defines the workflow structure.
-          examples:
-          - 550e8400-e29b-41d4-a716-446655440000
-        flow_version:
-          type: integer
-          minimum: 1.0
-          title: Flow Version
-          description: Version number of the flow definition used for this execution. Execution continues on the same version even if flow is updated. Ensures consistency throughout execution lifecycle.
-          examples:
-          - 3
+          title: Flow Execution Id
+        task_name:
+          type: string
+          title: Task Name
         status:
-          $ref: '#/components/schemas/ExecutionStatus'
-          description: 'Current execution status. Possible values: ''queued'', ''running'', ''completed'', ''failed'', ''deleted'', ''stale''. Status transitions: queued → running → completed/failed. Use ''completed'' to indicate success, ''failed'' for errors.'
-          examples:
-          - running
-        input:
-          additionalProperties: true
-          type: object
-          title: Input
-          description: 'Input data provided when execution was created. Schema is defined by the flow definition. Commonly includes: file_key, document_url, or custom parameters. Structure varies by flow type.'
-          examples:
-          - file_key: documents/abc123.pdf
-            metadata:
-              priority: high
+          $ref: '#/components/schemas/ProcessingStatus'
+        created_at:
+          anyOf:
+          - type: string
+            format: date-time
+          - type: 'null'
+          title: Created At
         organization_id:
           type: string
           format: uuid
           title: Organization Id
-          description: UUID of the organization that owns this execution. Used for access control and data isolation. All executions are scoped to an organization.
-          examples:
-          - 660e8400-e29b-41d4-a716-446655440001
-        pricing_config_id:
-          anyOf:
-          - type: string
-            format: uuid
-          - type: 'null'
-          title: Pricing Config Id
-          description: UUID of the pricing config active when this execution was created or re-executed. References the default config if no org-specific config existed at that time. None for executions created before pricing config tracking was introduced.
-        total_credits:
-          anyOf:
-          - type: integer
-          - type: 'null'
-          title: Total Credits
-          description: Total credits consumed by this flow execution across all tasks. None when no usage records exist yet.
-          example: 42
-        triggered_task_executor_name:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Triggered Task Executor Name
-          description: Executor name of the trigger that fired this execution (e.g., 'receive_file'). Set for multi-input flows; None for single-input-task flows.
       type: object
       required:
       - id
-      - created_at
-      - updated_at
-      - modified_by
-      - flow_id
-      - flow_version
+      - flow_execution_id
+      - task_name
       - status
-      - input
       - organization_id
-      title: FlowExecutionResponse
-      description: 'Response model for flow execution operations.
-
-
-        Represents a single flow execution instance with its current state and metadata.
-
-        Flow executions are runtime instances of flow definitions that process input data
-
-        through a series of tasks defined in the flow''s workflow.'
+      title: FlowTaskStatusAPI
+      description: API model for FlowTaskStatus.
     FlowExecutionResponseWithRunNumber:
       properties:
         id:
@@ -1627,6 +1648,107 @@ components:
         that indicates the sequential position of this execution among all
 
         executions for the same flow (including deleted ones).'
+    FlowExecutionResponse:
+      properties:
+        id:
+          type: string
+          format: uuid
+          title: Id
+        created_at:
+          type: string
+          format: date-time
+          title: Created At
+        updated_at:
+          type: string
+          format: date-time
+          title: Updated At
+        modified_by:
+          type: string
+          title: Modified By
+        flow_id:
+          type: string
+          format: uuid
+          title: Flow Id
+          description: UUID of the flow definition being executed. References the parent flow that defines the workflow structure.
+          examples:
+          - 550e8400-e29b-41d4-a716-446655440000
+        flow_version:
+          type: integer
+          minimum: 1.0
+          title: Flow Version
+          description: Version number of the flow definition used for this execution. Execution continues on the same version even if flow is updated. Ensures consistency throughout execution lifecycle.
+          examples:
+          - 3
+        status:
+          $ref: '#/components/schemas/ExecutionStatus'
+          description: 'Current execution status. Possible values: ''queued'', ''running'', ''completed'', ''failed'', ''deleted'', ''stale''. Status transitions: queued → running → completed/failed. Use ''completed'' to indicate success, ''failed'' for errors.'
+          examples:
+          - running
+        input:
+          additionalProperties: true
+          type: object
+          title: Input
+          description: 'Input data provided when execution was created. Schema is defined by the flow definition. Commonly includes: file_key, document_url, or custom parameters. Structure varies by flow type.'
+          examples:
+          - file_key: documents/abc123.pdf
+            metadata:
+              priority: high
+        organization_id:
+          type: string
+          format: uuid
+          title: Organization Id
+          description: UUID of the organization that owns this execution. Used for access control and data isolation. All executions are scoped to an organization.
+          examples:
+          - 660e8400-e29b-41d4-a716-446655440001
+        pricing_config_id:
+          anyOf:
+          - type: string
+            format: uuid
+          - type: 'null'
+          title: Pricing Config Id
+          description: UUID of the pricing config active when this execution was created or re-executed. References the default config if no org-specific config existed at that time. None for executions created before pricing config tracking was introduced.
+        total_credits:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Total Credits
+          description: Total credits consumed by this flow execution across all tasks. None when no usage records exist yet.
+          example: 42
+        triggered_task_executor_name:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Triggered Task Executor Name
+          description: Executor name of the trigger that fired this execution (e.g., 'receive_file'). Set for multi-input flows; None for single-input-task flows.
+      type: object
+      required:
+      - id
+      - created_at
+      - updated_at
+      - modified_by
+      - flow_id
+      - flow_version
+      - status
+      - input
+      - organization_id
+      title: FlowExecutionResponse
+      description: 'Response model for flow execution operations.
+
+
+        Represents a single flow execution instance with its current state and metadata.
+
+        Flow executions are runtime instances of flow definitions that process input data
+
+        through a series of tasks defined in the flow''s workflow.'
+    HTTPValidationError:
+      properties:
+        detail:
+          items:
+            $ref: '#/components/schemas/ValidationError'
+          type: array
+          title: Detail
+      type: object
+      title: HTTPValidationError
     ExecutionStatus:
       type: string
       enum:
@@ -1642,53 +1764,6 @@ components:
       - cancelled
       title: ExecutionStatus
       description: "Valid status values for flow execution lifecycle.\n\nStatus Transitions:\n    queued → running → completed\n                     → failed\n\n    running/awaiting_input → cancel_requested → cancelled\n\n    Any status → deleted (soft delete)\n    completed → edited (user manually changed output)\n    completed/failed → stale (downstream data outdated due to upstream edit)\n\nStatus Definitions:\n    - queued: Execution created but workflow not yet started\n    - running: Workflow started, actively processing tasks\n    - completed: All tasks finished successfully\n    - failed: One or more tasks failed, workflow stopped\n    - deleted: Soft deleted, hidden from list operations\n    - stale: Previously completed but data is now outdated due to upstream edit\n    - edited: User manually changed task output\n    - cancel_requested: Cancellation requested, workflow being gracefully cancelled\n    - cancelled: Workflow cancelled by user"
-    FlowTaskStatusAPI:
-      properties:
-        id:
-          type: string
-          format: uuid
-          title: Id
-        flow_execution_id:
-          type: string
-          format: uuid
-          title: Flow Execution Id
-        task_name:
-          type: string
-          title: Task Name
-        status:
-          $ref: '#/components/schemas/ProcessingStatus'
-        created_at:
-          anyOf:
-          - type: string
-            format: date-time
-          - type: 'null'
-          title: Created At
-        organization_id:
-          type: string
-          format: uuid
-          title: Organization Id
-      type: object
-      required:
-      - id
-      - flow_execution_id
-      - task_name
-      - status
-      - organization_id
-      title: FlowTaskStatusAPI
-      description: API model for FlowTaskStatus.
-    ProcessingStatus:
-      type: string
-      enum:
-      - queued
-      - running
-      - completed
-      - failed
-      - deleted
-      - awaiting_input
-      - cancel_requested
-      - cancelled
-      title: ProcessingStatus
-      description: "Valid status values for task processing lifecycle.\n\nUsed by task_execution and task_output tables to track where a task\nis in its processing pipeline, independent of data consistency state.\n\nStatus Transitions:\n    queued → running → completed\n                     → failed\n    running/awaiting_input → cancel_requested → cancelled\n    Any status → deleted (soft delete)"
     AddTaskStatusRequestItem:
       properties:
         task_name:
@@ -1716,26 +1791,6 @@ components:
         Represents one task''s status change within a flow execution.
 
         Used by system workers to report task execution progress.'
-    ErrorResponse:
-      properties:
-        error:
-          $ref: '#/components/schemas/ErrorDetail'
-        request_id:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Request Id
-          description: 'Unique request identifier in ULID format for debugging and support. Example: 01K8KABR6S16YETA2SZPVBS9SP'
-      type: object
-      required:
-      - error
-      title: ErrorResponse
-      description: "Standard API error response structure.\n\nAll error responses from the API follow this format, ensuring\nconsistent error handling for API consumers.\n\nExample:\n    {\n        \"error\": {\n            \"message\": \"Flow not found\",\n            \"code\": \"not_found\"\n        },\n        \"request_id\": \"01K8KABR6S16YETA2SZPVBS9SP\"\n    }"
-      examples:
-      - error:
-          code: not_found
-          message: Resource not found
-        request_id: 01K8KABR6S16YETA2SZPVBS9SP
     FlowExecutionCreateRequest:
       properties:
         flow_id:
@@ -1774,61 +1829,6 @@ components:
         This model defines the required data to start a new flow execution.
 
         The input schema must match the flow definition''s expected input structure.'
-    AddTaskStatusRequest:
-      properties:
-        statuses:
-          items:
-            $ref: '#/components/schemas/AddTaskStatusRequestItem'
-          type: array
-          maxItems: 100
-          minItems: 1
-          title: Statuses
-          description: 'Array of task status updates to apply. Minimum: 1 update, Maximum: 100 updates per request. Updates are processed in order provided.'
-          example:
-          - status: completed
-            task_name: extract_data
-          - status: running
-            task_name: validate_results
-      type: object
-      required:
-      - statuses
-      title: AddTaskStatusRequest
-      description: 'Batch request to add multiple task status updates.
-
-
-        Allows system workers to report status changes for multiple tasks
-
-        in a single API call for improved performance.'
-    ValidationError:
-      properties:
-        loc:
-          items:
-            anyOf:
-            - type: string
-            - type: integer
-          type: array
-          title: Location
-        msg:
-          type: string
-          title: Message
-        type:
-          type: string
-          title: Error Type
-      type: object
-      required:
-      - loc
-      - msg
-      - type
-      title: ValidationError
-    HTTPValidationError:
-      properties:
-        detail:
-          items:
-            $ref: '#/components/schemas/ValidationError'
-          type: array
-          title: Detail
-      type: object
-      title: HTTPValidationError
   securitySchemes:
     BearerAuth:
       type: http

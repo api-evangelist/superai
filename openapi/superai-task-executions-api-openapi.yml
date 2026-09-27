@@ -565,6 +565,158 @@ paths:
       - APIKeyAuth: []
 components:
   schemas:
+    ProcessingStatus:
+      type: string
+      enum:
+      - queued
+      - running
+      - completed
+      - failed
+      - deleted
+      - awaiting_input
+      - cancel_requested
+      - cancelled
+      title: ProcessingStatus
+      description: "Valid status values for task processing lifecycle.\n\nUsed by task_execution and task_output tables to track where a task\nis in its processing pipeline, independent of data consistency state.\n\nStatus Transitions:\n    queued → running → completed\n                     → failed\n    running/awaiting_input → cancel_requested → cancelled\n    Any status → deleted (soft delete)"
+    FlowTaskTagAPI:
+      properties:
+        id:
+          type: string
+          format: uuid
+          title: Id
+          description: Unique identifier for this tag record. Auto-generated UUID assigned at tag creation. Used for direct tag access and references.
+          examples:
+          - 123e4567-e89b-12d3-a456-426614174000
+        flow_execution_id:
+          type: string
+          format: uuid
+          title: Flow Execution Id
+          description: ID of the flow execution containing the tagged task. Establishes execution context and organization scope. Tags are scoped to flow executions; same task in different executions has independent tag sets. Used for filtering tags by execution.
+          examples:
+          - 223e4567-e89b-12d3-a456-426614174000
+        task_name:
+          type: string
+          maxLength: 200
+          minLength: 1
+          title: Task Name
+          description: Name of the tagged task as defined in flow definition YAML. Case-sensitive identifier matching flow configuration. Tags are attached to task_name within a flow_execution_id. Multiple tags can be attached to the same task.
+          examples:
+          - send_email
+          - extract_data
+          - validate_document
+        tag:
+          type: string
+          maxLength: 200
+          minLength: 1
+          title: Tag
+          description: "Tag value identifying the categorization or state. Free-form string for flexible workflow customization. Case-sensitive; same tag with different case creates separate records. Combined with tag_type for organized categorization. \n\nCommon patterns:\n- Workflow: 'reviewed', 'approved', 'rejected', 'pending'\n- Quality: 'quality_checked', 'flagged', 'verified'\n- Priority: 'high', 'medium', 'low'\n- Custom: Domain-specific values"
+          examples:
+          - reviewed
+          - approved
+          - priority_high
+          - requires_attention
+        tag_type:
+          type: string
+          maxLength: 100
+          minLength: 1
+          title: Tag Type
+          description: "Category or classification for the tag value. Groups related tags for filtering and organization in UI/queries. Case-sensitive; use consistent values across organization. \n\nCommon types:\n- 'review_status': Workflow states\n- 'quality': Quality assurance flags\n- 'priority': Business priority levels\n- 'approval': Approval workflow states\n- 'custom': Domain-specific categories"
+          examples:
+          - review_status
+          - quality
+          - priority
+          - approval
+          - custom
+        tag_metadata:
+          anyOf:
+          - {}
+          - type: 'null'
+          title: Tag Metadata
+          description: "Optional structured metadata providing tag context. Can be object, array, or primitive. NULL if no additional context needed. \n\nCommon uses:\n- Reviewer info: Who tagged and when\n- Approval details: Approver and notes\n- Quality metrics: Confidence scores, reasons\n- Custom data: Domain-specific context\n\nNote: Part of composite unique key with flow_execution_id, task_name, tag, and tag_type. Different metadata creates separate tags."
+          examples:
+          - notes: Looks good
+            reviewer: user@example.com
+          - confidence: 0.95
+            model: gpt-4
+          - null
+        status:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Status
+          description: "Tag lifecycle status indicating active or deleted state. Valid values: 'active', 'deleted'. \n\n'active': Tag is visible in queries and included in task tag lists. Default state for newly created tags. \n\n'deleted': Tag soft-deleted; excluded from list queries. Preserves audit trail (who deleted, when) without hard deletion. \n\nSoft-delete rationale: Audit compliance requires deletion history. \n\nNote: Only 'active' tags returned by GET /task-tags endpoint."
+          examples:
+          - active
+          - deleted
+        created_at:
+          anyOf:
+          - type: string
+            format: date-time
+          - type: 'null'
+          title: Created At
+          description: ISO 8601 timestamp when tag was created (UTC). Represents when tag was first added to task execution. NULL for legacy tags created before timestamp tracking. Used for audit trails and chronological sorting.
+          examples:
+          - '2025-01-24T10:30:00Z'
+        updated_at:
+          anyOf:
+          - type: string
+            format: date-time
+          - type: 'null'
+          title: Updated At
+          description: ISO 8601 timestamp of last update to this tag (UTC). Changes when tag is modified or soft-deleted. For deleted tags, records deletion timestamp. NULL for tags never updated since creation. Used for change tracking and audit history.
+          examples:
+          - '2025-01-24T10:35:00Z'
+        modified_by:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Modified By
+          description: "Identifier of actor who last modified this tag. Tracks who made the last change for auditing purposes. \n\nValues:\n- 'system': System-automated changes (workers, background jobs)\n- User ID: UUID string of the user who made the change (e.g., '123e4567-e89b-12d3-a456-426614174000')\n- Integration type: For service accounts/integrations (e.g., 'integration', 'service-account')\n\nFor deleted tags, indicates who performed soft deletion. NULL for tags never modified since creation. Used for audit trails and accountability."
+          examples:
+          - 123e4567-e89b-12d3-a456-426614174000
+          - integration
+          - system
+          - null
+        organization_id:
+          type: string
+          format: uuid
+          title: Organization Id
+          description: ID of organization owning this tag. Inherited from parent flow execution for multi-tenant isolation. Used for Row-Level Security (RLS) filtering and authorization. All tags scoped to single organization; cross-org access forbidden. Queries automatically filtered by user's organization_id.
+          examples:
+          - 323e4567-e89b-12d3-a456-426614174000
+      type: object
+      required:
+      - id
+      - flow_execution_id
+      - task_name
+      - tag
+      - tag_type
+      - organization_id
+      title: FlowTaskTagAPI
+      description: 'API model representing a task execution tag.
+
+
+        Task tags provide flexible categorization and workflow state tracking for
+
+        task executions. Tags enable custom workflows like review processes, quality
+
+        assurance, priority management, and domain-specific categorization.
+
+
+        Tags are scoped to (flow_execution_id, task_name) pairs and support:
+
+        - Workflow state: Track review/approval status
+
+        - Quality assurance: Flag issues or verify quality
+
+        - Categorization: Apply business-specific labels
+
+        - Audit trails: Record who tagged what and when
+
+
+        Lifecycle: Tags are soft-deleted (status=''deleted'') rather than hard-deleted
+
+        to preserve audit history. Only active tags appear in list queries.'
     ErrorDetail:
       properties:
         message:
@@ -601,177 +753,47 @@ components:
         This model matches the error format returned by the centralized
 
         exception handlers in app/api/errors/handlers.py.'
-    TaskExecutionAPI:
+    ErrorResponse:
       properties:
-        id:
-          type: string
-          format: uuid
-          title: Id
-          description: Unique identifier for this task execution. Auto-generated UUID assigned at creation time. Used for direct resource access via GET /task-executions/{id}.
-          examples:
-          - 123e4567-e89b-12d3-a456-426614174000
-        flow_execution_id:
-          type: string
-          format: uuid
-          title: Flow Execution Id
-          description: ID of the parent flow execution containing this task. Establishes the execution hierarchy and determines organization scope. All tasks in a flow execution share the same flow_execution_id.
-          examples:
-          - 223e4567-e89b-12d3-a456-426614174000
-        task_execution_idx:
-          type: integer
-          minimum: 0.0
-          title: Task Execution Idx
-          description: Zero-based execution index tracking task attempts. 0 = first execution, 1 = first retry, 2 = second retry, etc. Increments for each retry or loop iteration of the same task. Combines with flow_execution_id and task_name to form unique composite key.
-          examples:
-          - 0
-          - 1
-          - 2
-        task_name:
-          type: string
-          maxLength: 200
-          minLength: 1
-          title: Task Name
-          description: Name of the task as defined in the flow definition YAML. Case-sensitive identifier matching flow configuration. Used to reference task in flow logic and dependency graphs.
-          examples:
-          - send_email
-          - process_data
-          - validate_input
-        created_at:
-          anyOf:
-          - type: string
-            format: date-time
-          - type: 'null'
-          title: Created At
-          description: ISO 8601 timestamp when task execution was created (UTC). Represents when the task was queued or first recorded in the system. NULL for legacy records created before timestamp tracking.
-          examples:
-          - '2025-01-23T10:30:00Z'
-        updated_at:
-          anyOf:
-          - type: string
-            format: date-time
-          - type: 'null'
-          title: Updated At
-          description: ISO 8601 timestamp of last update to this task execution (UTC). Changes whenever status, output, or error fields are modified. Used for change tracking and optimistic locking. NULL for records never updated since creation.
-          examples:
-          - '2025-01-23T10:35:00Z'
-        modified_by:
-          type: string
-          title: Modified By
-          description: "Identifier of the actor who last modified this task execution. Tracks manual interventions vs automated updates for auditing. Defaults to 'system' for worker-initiated changes. \n\nValues:\n- 'system': System-automated changes (workers, background jobs)\n- User ID: UUID string of the user who made the change (e.g., '123e4567-e89b-12d3-a456-426614174000')\n- Integration type: For service accounts/integrations (e.g., 'integration', 'service-account')"
-          default: system
-          examples:
-          - system
-          - 123e4567-e89b-12d3-a456-426614174000
-          - integration
-        processing_status:
-          $ref: '#/components/schemas/ProcessingStatus'
-          description: Processing lifecycle status of the task.
-          examples:
-          - queued
-          - running
-          - completed
-          - failed
-        edited_status:
-          $ref: '#/components/schemas/TaskExecutionEditedStatus'
-          description: Whether this task execution was manually edited.
-          examples:
-          - not_edited
-          - edited_not_reexecuted
-          - edited_reexecuted
-        stale_status:
-          $ref: '#/components/schemas/StaleStatus'
-          description: Whether this task execution's data is outdated.
-          examples:
-          - consistent
-          - stale
-        input:
-          title: Input
-          description: Input parameters provided to the task executor. Schema varies by task type; can be object, array, or primitive. NULL if task accepts no input parameters. Resolved from flow definition and upstream task outputs.
-          examples:
-          - recipient: user@example.com
-            subject: Hello
-          - - 1
-            - 2
-            - 3
-            - 4
-            - 5
-          - simple string input
-        output:
-          anyOf:
-          - {}
-          - type: 'null'
-          title: Output
-          description: Output data produced by the task executor upon successful completion. Only populated when status is 'completed'; NULL for other states. Available to downstream tasks via {{task_name.output}} syntax. Structure defined by task executor implementation. Used for task chaining and flow data propagation.
-          examples:
-          - email_id: msg_123
-            sent_at: '2025-01-23T10:30:00Z'
-          - duration_ms: 1234
-            errors: 0
-            processed_rows: 150
         error:
-          anyOf:
-          - {}
-          - type: 'null'
-          title: Error
-          description: "Error information when task execution fails. Only populated when status is 'failed'; NULL for other states. Contains error message, exception type, and stack trace for debugging. \n\nTypical structure:\n{\n  \"message\": \"Human-readable error description\",\n  \"type\": \"Exception class name\",\n  \"traceback\": \"Full Python stack trace\"\n}\n\nUsed for debugging, monitoring, and error reporting workflows."
-          examples:
-          - message: Connection timeout after 30 seconds
-            traceback: "Traceback (most recent call last):\n  ..."
-            type: ConnectionError
-        organization_id:
-          type: string
-          format: uuid
-          title: Organization Id
-          description: ID of the organization owning this task execution. Inherited from parent flow execution for tenant isolation. Used for Row-Level Security (RLS) filtering and authorization. All task executions are scoped to a single organization.
-          examples:
-          - 323e4567-e89b-12d3-a456-426614174000
-        source_task_executions:
-          anyOf:
-          - {}
-          - type: 'null'
-          title: Source Task Executions
-          description: Tracks the original producer of this task's output data. Set by pass-through tasks (HITL, Branch, Validation) to propagate provenance.
-        started_at:
+          $ref: '#/components/schemas/ErrorDetail'
+        request_id:
           anyOf:
           - type: string
-            format: date-time
           - type: 'null'
-          title: Started At
-          description: ISO 8601 UTC timestamp when task execution started on the Temporal worker. Captures actual compute start time, distinct from created_at (API write time). NULL for legacy records created before timing was tracked.
-        completed_at:
-          anyOf:
-          - type: string
-            format: date-time
-          - type: 'null'
-          title: Completed At
-          description: ISO 8601 UTC timestamp when task execution finished on the Temporal worker. Captures actual compute end time, distinct from updated_at (API write time). NULL for legacy records or in-progress executions.
-        credits:
-          anyOf:
-          - type: integer
-          - type: 'null'
-          title: Credits
-          description: Total credits consumed by this task execution. None when no usage records exist for this task.
-          examples:
-          - 10
+          title: Request Id
+          description: 'Unique request identifier in ULID format for debugging and support. Example: 01K8KABR6S16YETA2SZPVBS9SP'
       type: object
       required:
-      - id
-      - flow_execution_id
-      - task_execution_idx
-      - task_name
-      - processing_status
-      - edited_status
-      - stale_status
-      - organization_id
-      title: TaskExecutionAPI
-      description: "API model representing a task execution within a flow.\n\nTask executions track individual task invocations during flow execution.\nEach task can execute multiple times (retries, loops), identified by\ntask_execution_idx. Contains full execution context including inputs,\noutputs, errors, and lifecycle metadata.\n\nResource Hierarchy:\n    Organization → Flow → Flow Execution → Task Execution"
-    StaleStatus:
-      type: string
-      enum:
-      - consistent
-      - stale
-      title: StaleStatus
-      description: "Tracks whether task data is consistent with upstream changes.\n\nOrthogonal to edited_status — a task can be both \"edited\" and \"stale\".\n\nValues:\n    - consistent: Data is up-to-date with all upstream dependencies\n    - stale: Data is outdated due to an upstream edit and should be recalculated"
+      - error
+      title: ErrorResponse
+      description: "Standard API error response structure.\n\nAll error responses from the API follow this format, ensuring\nconsistent error handling for API consumers.\n\nExample:\n    {\n        \"error\": {\n            \"message\": \"Flow not found\",\n            \"code\": \"not_found\"\n        },\n        \"request_id\": \"01K8KABR6S16YETA2SZPVBS9SP\"\n    }"
+      examples:
+      - error:
+          code: not_found
+          message: Resource not found
+        request_id: 01K8KABR6S16YETA2SZPVBS9SP
+    ValidationError:
+      properties:
+        loc:
+          items:
+            anyOf:
+            - type: string
+            - type: integer
+          type: array
+          title: Location
+        msg:
+          type: string
+          title: Message
+        type:
+          type: string
+          title: Error Type
+      type: object
+      required:
+      - loc
+      - msg
+      - type
+      title: ValidationError
     ListTaskExecutionsResponse:
       properties:
         task_executions:
@@ -986,6 +1008,13 @@ components:
         - Quality assurance (''quality_checked'', ''flagged'')
 
         - Custom business logic (''priority_high'', ''requires_attention'')'
+    StaleStatus:
+      type: string
+      enum:
+      - consistent
+      - stale
+      title: StaleStatus
+      description: "Tracks whether task data is consistent with upstream changes.\n\nOrthogonal to edited_status — a task can be both \"edited\" and \"stale\".\n\nValues:\n    - consistent: Data is up-to-date with all upstream dependencies\n    - stale: Data is outdated due to an upstream edit and should be recalculated"
     CreateTaskExecutionRequest:
       properties:
         flow_execution_id:
@@ -1090,199 +1119,170 @@ components:
         Fields are intentionally simplified to reduce worker complexity.
 
         The server infers additional fields like organization_id and timestamps.'
-    FlowTaskTagAPI:
+    TaskExecutionAPI:
       properties:
         id:
           type: string
           format: uuid
           title: Id
-          description: Unique identifier for this tag record. Auto-generated UUID assigned at tag creation. Used for direct tag access and references.
+          description: Unique identifier for this task execution. Auto-generated UUID assigned at creation time. Used for direct resource access via GET /task-executions/{id}.
           examples:
           - 123e4567-e89b-12d3-a456-426614174000
         flow_execution_id:
           type: string
           format: uuid
           title: Flow Execution Id
-          description: ID of the flow execution containing the tagged task. Establishes execution context and organization scope. Tags are scoped to flow executions; same task in different executions has independent tag sets. Used for filtering tags by execution.
+          description: ID of the parent flow execution containing this task. Establishes the execution hierarchy and determines organization scope. All tasks in a flow execution share the same flow_execution_id.
           examples:
           - 223e4567-e89b-12d3-a456-426614174000
+        task_execution_idx:
+          type: integer
+          minimum: 0.0
+          title: Task Execution Idx
+          description: Zero-based execution index tracking task attempts. 0 = first execution, 1 = first retry, 2 = second retry, etc. Increments for each retry or loop iteration of the same task. Combines with flow_execution_id and task_name to form unique composite key.
+          examples:
+          - 0
+          - 1
+          - 2
         task_name:
           type: string
           maxLength: 200
           minLength: 1
           title: Task Name
-          description: Name of the tagged task as defined in flow definition YAML. Case-sensitive identifier matching flow configuration. Tags are attached to task_name within a flow_execution_id. Multiple tags can be attached to the same task.
+          description: Name of the task as defined in the flow definition YAML. Case-sensitive identifier matching flow configuration. Used to reference task in flow logic and dependency graphs.
           examples:
           - send_email
-          - extract_data
-          - validate_document
-        tag:
-          type: string
-          maxLength: 200
-          minLength: 1
-          title: Tag
-          description: "Tag value identifying the categorization or state. Free-form string for flexible workflow customization. Case-sensitive; same tag with different case creates separate records. Combined with tag_type for organized categorization. \n\nCommon patterns:\n- Workflow: 'reviewed', 'approved', 'rejected', 'pending'\n- Quality: 'quality_checked', 'flagged', 'verified'\n- Priority: 'high', 'medium', 'low'\n- Custom: Domain-specific values"
-          examples:
-          - reviewed
-          - approved
-          - priority_high
-          - requires_attention
-        tag_type:
-          type: string
-          maxLength: 100
-          minLength: 1
-          title: Tag Type
-          description: "Category or classification for the tag value. Groups related tags for filtering and organization in UI/queries. Case-sensitive; use consistent values across organization. \n\nCommon types:\n- 'review_status': Workflow states\n- 'quality': Quality assurance flags\n- 'priority': Business priority levels\n- 'approval': Approval workflow states\n- 'custom': Domain-specific categories"
-          examples:
-          - review_status
-          - quality
-          - priority
-          - approval
-          - custom
-        tag_metadata:
-          anyOf:
-          - {}
-          - type: 'null'
-          title: Tag Metadata
-          description: "Optional structured metadata providing tag context. Can be object, array, or primitive. NULL if no additional context needed. \n\nCommon uses:\n- Reviewer info: Who tagged and when\n- Approval details: Approver and notes\n- Quality metrics: Confidence scores, reasons\n- Custom data: Domain-specific context\n\nNote: Part of composite unique key with flow_execution_id, task_name, tag, and tag_type. Different metadata creates separate tags."
-          examples:
-          - notes: Looks good
-            reviewer: user@example.com
-          - confidence: 0.95
-            model: gpt-4
-          - null
-        status:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Status
-          description: "Tag lifecycle status indicating active or deleted state. Valid values: 'active', 'deleted'. \n\n'active': Tag is visible in queries and included in task tag lists. Default state for newly created tags. \n\n'deleted': Tag soft-deleted; excluded from list queries. Preserves audit trail (who deleted, when) without hard deletion. \n\nSoft-delete rationale: Audit compliance requires deletion history. \n\nNote: Only 'active' tags returned by GET /task-tags endpoint."
-          examples:
-          - active
-          - deleted
+          - process_data
+          - validate_input
         created_at:
           anyOf:
           - type: string
             format: date-time
           - type: 'null'
           title: Created At
-          description: ISO 8601 timestamp when tag was created (UTC). Represents when tag was first added to task execution. NULL for legacy tags created before timestamp tracking. Used for audit trails and chronological sorting.
+          description: ISO 8601 timestamp when task execution was created (UTC). Represents when the task was queued or first recorded in the system. NULL for legacy records created before timestamp tracking.
           examples:
-          - '2025-01-24T10:30:00Z'
+          - '2025-01-23T10:30:00Z'
         updated_at:
           anyOf:
           - type: string
             format: date-time
           - type: 'null'
           title: Updated At
-          description: ISO 8601 timestamp of last update to this tag (UTC). Changes when tag is modified or soft-deleted. For deleted tags, records deletion timestamp. NULL for tags never updated since creation. Used for change tracking and audit history.
+          description: ISO 8601 timestamp of last update to this task execution (UTC). Changes whenever status, output, or error fields are modified. Used for change tracking and optimistic locking. NULL for records never updated since creation.
           examples:
-          - '2025-01-24T10:35:00Z'
+          - '2025-01-23T10:35:00Z'
         modified_by:
-          anyOf:
-          - type: string
-          - type: 'null'
+          type: string
           title: Modified By
-          description: "Identifier of actor who last modified this tag. Tracks who made the last change for auditing purposes. \n\nValues:\n- 'system': System-automated changes (workers, background jobs)\n- User ID: UUID string of the user who made the change (e.g., '123e4567-e89b-12d3-a456-426614174000')\n- Integration type: For service accounts/integrations (e.g., 'integration', 'service-account')\n\nFor deleted tags, indicates who performed soft deletion. NULL for tags never modified since creation. Used for audit trails and accountability."
+          description: "Identifier of the actor who last modified this task execution. Tracks manual interventions vs automated updates for auditing. Defaults to 'system' for worker-initiated changes. \n\nValues:\n- 'system': System-automated changes (workers, background jobs)\n- User ID: UUID string of the user who made the change (e.g., '123e4567-e89b-12d3-a456-426614174000')\n- Integration type: For service accounts/integrations (e.g., 'integration', 'service-account')"
+          default: system
           examples:
+          - system
           - 123e4567-e89b-12d3-a456-426614174000
           - integration
-          - system
-          - null
+        processing_status:
+          $ref: '#/components/schemas/ProcessingStatus'
+          description: Processing lifecycle status of the task.
+          examples:
+          - queued
+          - running
+          - completed
+          - failed
+        edited_status:
+          $ref: '#/components/schemas/TaskExecutionEditedStatus'
+          description: Whether this task execution was manually edited.
+          examples:
+          - not_edited
+          - edited_not_reexecuted
+          - edited_reexecuted
+        stale_status:
+          $ref: '#/components/schemas/StaleStatus'
+          description: Whether this task execution's data is outdated.
+          examples:
+          - consistent
+          - stale
+        input:
+          title: Input
+          description: Input parameters provided to the task executor. Schema varies by task type; can be object, array, or primitive. NULL if task accepts no input parameters. Resolved from flow definition and upstream task outputs.
+          examples:
+          - recipient: user@example.com
+            subject: Hello
+          - - 1
+            - 2
+            - 3
+            - 4
+            - 5
+          - simple string input
+        output:
+          anyOf:
+          - {}
+          - type: 'null'
+          title: Output
+          description: Output data produced by the task executor upon successful completion. Only populated when status is 'completed'; NULL for other states. Available to downstream tasks via {{task_name.output}} syntax. Structure defined by task executor implementation. Used for task chaining and flow data propagation.
+          examples:
+          - email_id: msg_123
+            sent_at: '2025-01-23T10:30:00Z'
+          - duration_ms: 1234
+            errors: 0
+            processed_rows: 150
+        error:
+          anyOf:
+          - {}
+          - type: 'null'
+          title: Error
+          description: "Error information when task execution fails. Only populated when status is 'failed'; NULL for other states. Contains error message, exception type, and stack trace for debugging. \n\nTypical structure:\n{\n  \"message\": \"Human-readable error description\",\n  \"type\": \"Exception class name\",\n  \"traceback\": \"Full Python stack trace\"\n}\n\nUsed for debugging, monitoring, and error reporting workflows."
+          examples:
+          - message: Connection timeout after 30 seconds
+            traceback: "Traceback (most recent call last):\n  ..."
+            type: ConnectionError
         organization_id:
           type: string
           format: uuid
           title: Organization Id
-          description: ID of organization owning this tag. Inherited from parent flow execution for multi-tenant isolation. Used for Row-Level Security (RLS) filtering and authorization. All tags scoped to single organization; cross-org access forbidden. Queries automatically filtered by user's organization_id.
+          description: ID of the organization owning this task execution. Inherited from parent flow execution for tenant isolation. Used for Row-Level Security (RLS) filtering and authorization. All task executions are scoped to a single organization.
           examples:
           - 323e4567-e89b-12d3-a456-426614174000
+        source_task_executions:
+          anyOf:
+          - {}
+          - type: 'null'
+          title: Source Task Executions
+          description: Tracks the original producer of this task's output data. Set by pass-through tasks (HITL, Branch, Validation) to propagate provenance.
+        started_at:
+          anyOf:
+          - type: string
+            format: date-time
+          - type: 'null'
+          title: Started At
+          description: ISO 8601 UTC timestamp when task execution started on the Temporal worker. Captures actual compute start time, distinct from created_at (API write time). NULL for legacy records created before timing was tracked.
+        completed_at:
+          anyOf:
+          - type: string
+            format: date-time
+          - type: 'null'
+          title: Completed At
+          description: ISO 8601 UTC timestamp when task execution finished on the Temporal worker. Captures actual compute end time, distinct from updated_at (API write time). NULL for legacy records or in-progress executions.
+        credits:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Credits
+          description: Total credits consumed by this task execution. None when no usage records exist for this task.
+          examples:
+          - 10
       type: object
       required:
       - id
       - flow_execution_id
+      - task_execution_idx
       - task_name
-      - tag
-      - tag_type
+      - processing_status
+      - edited_status
+      - stale_status
       - organization_id
-      title: FlowTaskTagAPI
-      description: 'API model representing a task execution tag.
-
-
-        Task tags provide flexible categorization and workflow state tracking for
-
-        task executions. Tags enable custom workflows like review processes, quality
-
-        assurance, priority management, and domain-specific categorization.
-
-
-        Tags are scoped to (flow_execution_id, task_name) pairs and support:
-
-        - Workflow state: Track review/approval status
-
-        - Quality assurance: Flag issues or verify quality
-
-        - Categorization: Apply business-specific labels
-
-        - Audit trails: Record who tagged what and when
-
-
-        Lifecycle: Tags are soft-deleted (status=''deleted'') rather than hard-deleted
-
-        to preserve audit history. Only active tags appear in list queries.'
-    ErrorResponse:
-      properties:
-        error:
-          $ref: '#/components/schemas/ErrorDetail'
-        request_id:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Request Id
-          description: 'Unique request identifier in ULID format for debugging and support. Example: 01K8KABR6S16YETA2SZPVBS9SP'
-      type: object
-      required:
-      - error
-      title: ErrorResponse
-      description: "Standard API error response structure.\n\nAll error responses from the API follow this format, ensuring\nconsistent error handling for API consumers.\n\nExample:\n    {\n        \"error\": {\n            \"message\": \"Flow not found\",\n            \"code\": \"not_found\"\n        },\n        \"request_id\": \"01K8KABR6S16YETA2SZPVBS9SP\"\n    }"
-      examples:
-      - error:
-          code: not_found
-          message: Resource not found
-        request_id: 01K8KABR6S16YETA2SZPVBS9SP
-    ProcessingStatus:
-      type: string
-      enum:
-      - queued
-      - running
-      - completed
-      - failed
-      - deleted
-      - awaiting_input
-      - cancel_requested
-      - cancelled
-      title: ProcessingStatus
-      description: "Valid status values for task processing lifecycle.\n\nUsed by task_execution and task_output tables to track where a task\nis in its processing pipeline, independent of data consistency state.\n\nStatus Transitions:\n    queued → running → completed\n                     → failed\n    running/awaiting_input → cancel_requested → cancelled\n    Any status → deleted (soft delete)"
-    ValidationError:
-      properties:
-        loc:
-          items:
-            anyOf:
-            - type: string
-            - type: integer
-          type: array
-          title: Location
-        msg:
-          type: string
-          title: Message
-        type:
-          type: string
-          title: Error Type
-      type: object
-      required:
-      - loc
-      - msg
-      - type
-      title: ValidationError
+      title: TaskExecutionAPI
+      description: "API model representing a task execution within a flow.\n\nTask executions track individual task invocations during flow execution.\nEach task can execute multiple times (retries, loops), identified by\ntask_execution_idx. Contains full execution context including inputs,\noutputs, errors, and lifecycle metadata.\n\nResource Hierarchy:\n    Organization → Flow → Flow Execution → Task Execution"
     HTTPValidationError:
       properties:
         detail:

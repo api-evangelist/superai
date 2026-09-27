@@ -65,6 +65,24 @@ paths:
       - APIKeyAuth: []
 components:
   schemas:
+    ModelsResponse:
+      properties:
+        models:
+          items:
+            $ref: '#/components/schemas/ModelInfo'
+          type: array
+          title: Models
+          description: List of available models
+        count:
+          type: integer
+          title: Count
+          description: Total number of models
+      type: object
+      required:
+      - models
+      - count
+      title: ModelsResponse
+      description: Response containing list of models.
     ValidationError:
       properties:
         loc:
@@ -133,31 +151,6 @@ components:
       - supports_confidence_scores
       title: ModelInfo
       description: Model information from LiteLLM.
-    ModelsResponse:
-      properties:
-        models:
-          items:
-            $ref: '#/components/schemas/ModelInfo'
-          type: array
-          title: Models
-          description: List of available models
-        count:
-          type: integer
-          title: Count
-          description: Total number of models
-      type: object
-      required:
-      - models
-      - count
-      title: ModelsResponse
-      description: Response containing list of models.
-    Region:
-      type: string
-      enum:
-      - eu
-      - global
-      title: Region
-      description: Available regions for model deployment.
     HTTPValidationError:
       properties:
         detail:
@@ -167,6 +160,13 @@ components:
           title: Detail
       type: object
       title: HTTPValidationError
+    Region:
+      type: string
+      enum:
+      - eu
+      - global
+      title: Region
+      description: Available regions for model deployment.
   securitySchemes:
     BearerAuth:
       type: http
