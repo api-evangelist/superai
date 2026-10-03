@@ -202,6 +202,25 @@ components:
           code: not_found
           message: Resource not found
         request_id: 01K8KABR6S16YETA2SZPVBS9SP
+    WebhookDataCreateRequest:
+      properties:
+        task_name:
+          type: string
+          title: Task Name
+          description: Name of the webhook_receiver task in the flow that waits for this data.
+          examples:
+          - wait_for_validation
+        data:
+          additionalProperties: true
+          type: object
+          title: Data
+          description: The data for the task. Must match the task's output model (defined by its fields parameter); unknown fields or type mismatches are rejected with 422. Note that field values are compared exactly for duplicate detection — re-sending the identical body is acknowledged idempotently, while a different body for the same task is rejected with 409.
+      type: object
+      required:
+      - task_name
+      - data
+      title: WebhookDataCreateRequest
+      description: Payload submitted by an external system for a waiting webhook_receiver task.
     WebhookDataAckResponse:
       properties:
         id:
@@ -222,25 +241,6 @@ components:
       - status
       title: WebhookDataAckResponse
       description: Acknowledgment that a webhook payload is durably stored.
-    WebhookDataCreateRequest:
-      properties:
-        task_name:
-          type: string
-          title: Task Name
-          description: Name of the webhook_receiver task in the flow that waits for this data.
-          examples:
-          - wait_for_validation
-        data:
-          additionalProperties: true
-          type: object
-          title: Data
-          description: The data for the task. Must match the task's output model (defined by its fields parameter); unknown fields or type mismatches are rejected with 422. Note that field values are compared exactly for duplicate detection — re-sending the identical body is acknowledged idempotently, while a different body for the same task is rejected with 409.
-      type: object
-      required:
-      - task_name
-      - data
-      title: WebhookDataCreateRequest
-      description: Payload submitted by an external system for a waiting webhook_receiver task.
   securitySchemes:
     BearerAuth:
       type: http

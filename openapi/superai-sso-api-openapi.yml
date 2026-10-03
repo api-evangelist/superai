@@ -597,6 +597,47 @@ paths:
       - APIKeyAuth: []
 components:
   schemas:
+    SSOProviderUpdate:
+      properties:
+        metadata_url:
+          anyOf:
+          - type: string
+            maxLength: 2083
+            minLength: 1
+            format: uri
+          - type: 'null'
+          title: Metadata Url
+          description: Updated SAML metadata URL
+        metadata_xml:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Metadata Xml
+          description: Updated SAML metadata XML
+        domains:
+          anyOf:
+          - items:
+              type: string
+            type: array
+          - type: 'null'
+          title: Domains
+          description: Updated email domains
+        attribute_mapping:
+          anyOf:
+          - additionalProperties: true
+            type: object
+          - type: 'null'
+          title: Attribute Mapping
+          description: Updated attribute mappings
+        is_active:
+          anyOf:
+          - type: boolean
+          - type: 'null'
+          title: Is Active
+          description: Whether provider is active
+      type: object
+      title: SSOProviderUpdate
+      description: Request model for updating an SSO provider via Supabase Management API.
     ErrorDetail:
       properties:
         message:
@@ -633,26 +674,15 @@ components:
         This model matches the error format returned by the centralized
 
         exception handlers in app/api/errors/handlers.py.'
-    ErrorResponse:
+    MetadataResponse:
       properties:
-        error:
-          $ref: '#/components/schemas/ErrorDetail'
-        request_id:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Request Id
-          description: 'Unique request identifier in ULID format for debugging and support. Example: 01K8KABR6S16YETA2SZPVBS9SP'
+        metadata:
+          type: string
+          title: Metadata
       type: object
       required:
-      - error
-      title: ErrorResponse
-      description: "Standard API error response structure.\n\nAll error responses from the API follow this format, ensuring\nconsistent error handling for API consumers.\n\nExample:\n    {\n        \"error\": {\n            \"message\": \"Flow not found\",\n            \"code\": \"not_found\"\n        },\n        \"request_id\": \"01K8KABR6S16YETA2SZPVBS9SP\"\n    }"
-      examples:
-      - error:
-          code: not_found
-          message: Resource not found
-        request_id: 01K8KABR6S16YETA2SZPVBS9SP
+      - metadata
+      title: MetadataResponse
     SSOOrganizationResponse:
       properties:
         sso_provider_id:
@@ -715,73 +745,47 @@ components:
       - updated_at
       title: SSOOrganizationResponse
       description: API response model for SSO organization configuration.
-    SSOProviderUpdate:
+    ValidationError:
       properties:
-        metadata_url:
-          anyOf:
-          - type: string
-            maxLength: 2083
-            minLength: 1
-            format: uri
-          - type: 'null'
-          title: Metadata Url
-          description: Updated SAML metadata URL
-        metadata_xml:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Metadata Xml
-          description: Updated SAML metadata XML
-        domains:
-          anyOf:
-          - items:
-              type: string
-            type: array
-          - type: 'null'
-          title: Domains
-          description: Updated email domains
-        attribute_mapping:
-          anyOf:
-          - additionalProperties: true
-            type: object
-          - type: 'null'
-          title: Attribute Mapping
-          description: Updated attribute mappings
-        is_active:
-          anyOf:
-          - type: boolean
-          - type: 'null'
-          title: Is Active
-          description: Whether provider is active
-      type: object
-      title: SSOProviderUpdate
-      description: Request model for updating an SSO provider via Supabase Management API.
-    SSOServiceProviderDetails:
-      properties:
-        entity_id:
+        loc:
+          items:
+            anyOf:
+            - type: string
+            - type: integer
+          type: array
+          title: Location
+        msg:
           type: string
-          title: Entity Id
-          description: SAML SP EntityID
-        metadata_url:
+          title: Message
+        type:
           type: string
-          title: Metadata Url
-          description: SAML SP metadata URL
-        acs_url:
-          type: string
-          title: Acs Url
-          description: Assertion Consumer Service (ACS) URL
-        slo_url:
-          type: string
-          title: Slo Url
-          description: Single Logout (SLO) URL
+          title: Error Type
       type: object
       required:
-      - entity_id
-      - metadata_url
-      - acs_url
-      - slo_url
-      title: SSOServiceProviderDetails
-      description: Supabase SAML service-provider URLs to configure in the customer's IdP.
+      - loc
+      - msg
+      - type
+      title: ValidationError
+    ErrorResponse:
+      properties:
+        error:
+          $ref: '#/components/schemas/ErrorDetail'
+        request_id:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Request Id
+          description: 'Unique request identifier in ULID format for debugging and support. Example: 01K8KABR6S16YETA2SZPVBS9SP'
+      type: object
+      required:
+      - error
+      title: ErrorResponse
+      description: "Standard API error response structure.\n\nAll error responses from the API follow this format, ensuring\nconsistent error handling for API consumers.\n\nExample:\n    {\n        \"error\": {\n            \"message\": \"Flow not found\",\n            \"code\": \"not_found\"\n        },\n        \"request_id\": \"01K8KABR6S16YETA2SZPVBS9SP\"\n    }"
+      examples:
+      - error:
+          code: not_found
+          message: Resource not found
+        request_id: 01K8KABR6S16YETA2SZPVBS9SP
     SSOProviderCreate:
       properties:
         type:
@@ -822,36 +826,32 @@ components:
       - domains
       title: SSOProviderCreate
       description: Request model for creating an SSO provider via Supabase Management API.
-    ValidationError:
+    SSOServiceProviderDetails:
       properties:
-        loc:
-          items:
-            anyOf:
-            - type: string
-            - type: integer
-          type: array
-          title: Location
-        msg:
+        entity_id:
           type: string
-          title: Message
-        type:
+          title: Entity Id
+          description: SAML SP EntityID
+        metadata_url:
           type: string
-          title: Error Type
+          title: Metadata Url
+          description: SAML SP metadata URL
+        acs_url:
+          type: string
+          title: Acs Url
+          description: Assertion Consumer Service (ACS) URL
+        slo_url:
+          type: string
+          title: Slo Url
+          description: Single Logout (SLO) URL
       type: object
       required:
-      - loc
-      - msg
-      - type
-      title: ValidationError
-    MetadataResponse:
-      properties:
-        metadata:
-          type: string
-          title: Metadata
-      type: object
-      required:
-      - metadata
-      title: MetadataResponse
+      - entity_id
+      - metadata_url
+      - acs_url
+      - slo_url
+      title: SSOServiceProviderDetails
+      description: Supabase SAML service-provider URLs to configure in the customer's IdP.
     HTTPValidationError:
       properties:
         detail:

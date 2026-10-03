@@ -170,114 +170,6 @@ paths:
       - APIKeyAuth: []
 components:
   schemas:
-    ErrorDetail:
-      properties:
-        message:
-          type: string
-          title: Message
-          description: Human-readable error message
-        code:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Code
-          description: Machine-readable error code for programmatic handling
-        details:
-          anyOf:
-          - items:
-              type: string
-            type: array
-          - items:
-              additionalProperties: true
-              type: object
-            type: array
-          - additionalProperties: true
-            type: object
-          - type: 'null'
-          title: Details
-          description: Additional error context, validation errors, or debugging information
-      type: object
-      required:
-      - message
-      title: ErrorDetail
-      description: 'Standard error detail structure.
-
-
-        This model matches the error format returned by the centralized
-
-        exception handlers in app/api/errors/handlers.py.'
-    ErrorResponse:
-      properties:
-        error:
-          $ref: '#/components/schemas/ErrorDetail'
-        request_id:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Request Id
-          description: 'Unique request identifier in ULID format for debugging and support. Example: 01K8KABR6S16YETA2SZPVBS9SP'
-      type: object
-      required:
-      - error
-      title: ErrorResponse
-      description: "Standard API error response structure.\n\nAll error responses from the API follow this format, ensuring\nconsistent error handling for API consumers.\n\nExample:\n    {\n        \"error\": {\n            \"message\": \"Flow not found\",\n            \"code\": \"not_found\"\n        },\n        \"request_id\": \"01K8KABR6S16YETA2SZPVBS9SP\"\n    }"
-      examples:
-      - error:
-          code: not_found
-          message: Resource not found
-        request_id: 01K8KABR6S16YETA2SZPVBS9SP
-    ValidationError:
-      properties:
-        loc:
-          items:
-            anyOf:
-            - type: string
-            - type: integer
-          type: array
-          title: Location
-        msg:
-          type: string
-          title: Message
-        type:
-          type: string
-          title: Error Type
-      type: object
-      required:
-      - loc
-      - msg
-      - type
-      title: ValidationError
-    TaskDynamicDataRequest:
-      properties:
-        flow_definition:
-          additionalProperties: true
-          type: object
-          title: Flow Definition
-          description: 'Complete flow definition in SuperAI Flows DSL format. Must include: - ''name'': Flow name (string, required). - ''tasks'': List of task definitions with task_executor_name, parameters, etc. - ''connections'': Optional list of task dependencies and data flows. - ''config'': Optional flow-level configuration. The definition will be validated and analyzed to extract task output schemas and dynamic configuration data. Validation errors will be returned in the response if the definition is invalid.'
-          examples:
-          - name: my-workflow
-            tasks:
-            - name: fetch_data
-              parameters:
-                method: GET
-                url: https://api.example.com/data
-              task_executor_name: http_request
-            - name: process_data
-              parameters:
-                code: result = input_data['value'] * 2
-              task_executor_name: python_code
-      type: object
-      required:
-      - flow_definition
-      title: TaskDynamicDataRequest
-      description: 'Request model for task data analysis endpoint.
-
-
-        Accepts a flow definition in the SuperAI Flows DSL format for validation
-
-        and schema extraction. The flow definition should include all tasks,
-
-        connections, and configurations needed to execute the flow.'
     TaskDynamicDataResponse:
       properties:
         output_schemas:
@@ -357,6 +249,114 @@ components:
         validate task connections, and understand what data each task will produce.
 
         Each field serves a specific purpose in the flow building and validation process.'
+    ValidationError:
+      properties:
+        loc:
+          items:
+            anyOf:
+            - type: string
+            - type: integer
+          type: array
+          title: Location
+        msg:
+          type: string
+          title: Message
+        type:
+          type: string
+          title: Error Type
+      type: object
+      required:
+      - loc
+      - msg
+      - type
+      title: ValidationError
+    ErrorResponse:
+      properties:
+        error:
+          $ref: '#/components/schemas/ErrorDetail'
+        request_id:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Request Id
+          description: 'Unique request identifier in ULID format for debugging and support. Example: 01K8KABR6S16YETA2SZPVBS9SP'
+      type: object
+      required:
+      - error
+      title: ErrorResponse
+      description: "Standard API error response structure.\n\nAll error responses from the API follow this format, ensuring\nconsistent error handling for API consumers.\n\nExample:\n    {\n        \"error\": {\n            \"message\": \"Flow not found\",\n            \"code\": \"not_found\"\n        },\n        \"request_id\": \"01K8KABR6S16YETA2SZPVBS9SP\"\n    }"
+      examples:
+      - error:
+          code: not_found
+          message: Resource not found
+        request_id: 01K8KABR6S16YETA2SZPVBS9SP
+    TaskDynamicDataRequest:
+      properties:
+        flow_definition:
+          additionalProperties: true
+          type: object
+          title: Flow Definition
+          description: 'Complete flow definition in SuperAI Flows DSL format. Must include: - ''name'': Flow name (string, required). - ''tasks'': List of task definitions with task_executor_name, parameters, etc. - ''connections'': Optional list of task dependencies and data flows. - ''config'': Optional flow-level configuration. The definition will be validated and analyzed to extract task output schemas and dynamic configuration data. Validation errors will be returned in the response if the definition is invalid.'
+          examples:
+          - name: my-workflow
+            tasks:
+            - name: fetch_data
+              parameters:
+                method: GET
+                url: https://api.example.com/data
+              task_executor_name: http_request
+            - name: process_data
+              parameters:
+                code: result = input_data['value'] * 2
+              task_executor_name: python_code
+      type: object
+      required:
+      - flow_definition
+      title: TaskDynamicDataRequest
+      description: 'Request model for task data analysis endpoint.
+
+
+        Accepts a flow definition in the SuperAI Flows DSL format for validation
+
+        and schema extraction. The flow definition should include all tasks,
+
+        connections, and configurations needed to execute the flow.'
+    ErrorDetail:
+      properties:
+        message:
+          type: string
+          title: Message
+          description: Human-readable error message
+        code:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Code
+          description: Machine-readable error code for programmatic handling
+        details:
+          anyOf:
+          - items:
+              type: string
+            type: array
+          - items:
+              additionalProperties: true
+              type: object
+            type: array
+          - additionalProperties: true
+            type: object
+          - type: 'null'
+          title: Details
+          description: Additional error context, validation errors, or debugging information
+      type: object
+      required:
+      - message
+      title: ErrorDetail
+      description: 'Standard error detail structure.
+
+
+        This model matches the error format returned by the centralized
+
+        exception handlers in app/api/errors/handlers.py.'
     HTTPValidationError:
       properties:
         detail:

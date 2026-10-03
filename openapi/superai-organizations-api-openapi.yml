@@ -951,51 +951,45 @@ paths:
       - APIKeyAuth: []
 components:
   schemas:
-    AutoCalibrationSettings:
+    AdditionalCredits:
       properties:
-        enabled:
-          type: boolean
-          title: Enabled
-          description: When true, a flow version bump re-runs the flow's last applied calibration and surfaces the result to back office as a pending proposal for review. The proposal is never auto-applied. Defaults on; set false to disable per organization.
-          default: true
-      type: object
-      title: AutoCalibrationSettings
-      description: Auto-calibration trigger settings (back office).
-    MonthlyCredits:
-      properties:
-        allowance:
+        granted:
           type: integer
-          title: Allowance
-          description: Monthly credit allowance based on tier
+          title: Granted
+          description: Total additional credits granted to organization
         consumed:
           type: integer
           title: Consumed
-          description: Credits consumed from monthly allowance in current period
+          description: Credits consumed from additional grants
         remaining:
           type: integer
           title: Remaining
-          description: Credits remaining from monthly allowance
-        period_end:
-          type: string
-          format: date
-          title: Period End
-          description: Date when the current monthly period resets
+          description: Additional credits remaining
       type: object
       required:
-      - allowance
+      - granted
       - consumed
       - remaining
-      - period_end
-      title: MonthlyCredits
-      description: Monthly credit allowance details for an organization.
-    WorkerGroupCreateRequest:
+      title: AdditionalCredits
+      description: Additional (one-time grant) credit details for an organization.
+    OrganizationTier:
+      type: string
+      enum:
+      - free
+      - growth
+      - enterprise
+      title: OrganizationTier
+      description: Organization tier determining monthly credit allowance.
+    WorkerGroupUpdateRequest:
       properties:
         name:
-          type: string
-          maxLength: 255
-          minLength: 1
+          anyOf:
+          - type: string
+            maxLength: 255
+            minLength: 1
+          - type: 'null'
           title: Name
-          description: Name of the worker group. Must be unique within the organization.
+          description: New name for the worker group. Must be unique within the organization.
           examples:
           - Document Review Team
         description:
@@ -1003,23 +997,87 @@ components:
           - type: string
           - type: 'null'
           title: Description
-          description: Optional description of the worker group.
+          description: New description for the worker group.
           examples:
-          - Team responsible for reviewing incoming documents.
-        member_user_ids:
+          - Updated team description.
+      type: object
+      title: WorkerGroupUpdateRequest
+      description: Request payload for updating an existing worker group.
+    OrganizationSettings:
+      properties:
+        worker_landing_page:
+          $ref: '#/components/schemas/WorkerLandingPageConfig'
+          description: 'Landing page configuration: ''hub'', ''assigned_flow_data_tab'', or ''assigned_flow_work_tab'''
+          default: hub
+        max_concurrent_executions:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Max Concurrent Executions
+          description: Max concurrent flow executions for this organization. When set, overrides the tier-based default. When null, the tier default from TIER_CONCURRENCY_LIMITS is used.
+        payment_method:
+          anyOf:
+          - $ref: '#/components/schemas/OrganizationPaymentMethod'
+          - type: 'null'
+          description: 'How the organization pays (FLO-2286). ''invoice'' is only valid for Enterprise; Free/Growth are always ''stripe''. Backoffice-only: set via PATCH /admin/organizations/{id}/payment-method, never this endpoint. When null, the effective method is ''stripe''.'
+        security:
+          $ref: '#/components/schemas/OrganizationSecuritySettings'
+          description: Security-related settings such as strict SSO enforcement.
+        auto_calibration:
+          $ref: '#/components/schemas/AutoCalibrationSettings'
+          description: Auto-calibration trigger configuration (back office).
+      type: object
+      title: OrganizationSettings
+      description: Organization settings model for requests and updates.
+    WorkerLandingPageConfig:
+      type: string
+      enum:
+      - hub
+      - assigned_flow_data_tab
+      - assigned_flow_work_tab
+      title: WorkerLandingPageConfig
+      description: Configuration for worker landing page redirect.
+    WorkerGroupListResponse:
+      properties:
+        items:
           items:
-            type: string
-            format: uuid
+            $ref: '#/components/schemas/WorkerGroupResponse'
           type: array
-          title: Member User Ids
-          description: List of user UUIDs to add as members when creating the group.
+          title: Items
+          description: List of worker groups.
+        total:
+          type: integer
+          title: Total
+          description: Total number of worker groups in the organization.
           examples:
-          - - 550e8400-e29b-41d4-a716-446655440000
+          - 10
       type: object
       required:
-      - name
-      title: WorkerGroupCreateRequest
-      description: Request payload for creating a new worker group.
+      - items
+      - total
+      title: WorkerGroupListResponse
+      description: Paginated response for listing worker groups.
+    ValidationError:
+      properties:
+        loc:
+          items:
+            anyOf:
+            - type: string
+            - type: integer
+          type: array
+          title: Location
+        msg:
+          type: string
+          title: Message
+        type:
+          type: string
+          title: Error Type
+      type: object
+      required:
+      - loc
+      - msg
+      - type
+      title: ValidationError
     CreditBalanceResponse:
       properties:
         organization_id:
@@ -1043,6 +1101,25 @@ components:
       - additional
       title: CreditBalanceResponse
       description: Credit balance for an organization, split into monthly allowance and additional grants.
+    HTTPValidationError:
+      properties:
+        detail:
+          items:
+            $ref: '#/components/schemas/ValidationError'
+          type: array
+          title: Detail
+      type: object
+      title: HTTPValidationError
+    AutoCalibrationSettings:
+      properties:
+        enabled:
+          type: boolean
+          title: Enabled
+          description: When true, a flow version bump re-runs the flow's last applied calibration and surfaces the result to back office as a pending proposal for review. The proposal is never auto-applied. Defaults on; set false to disable per organization.
+          default: true
+      type: object
+      title: AutoCalibrationSettings
+      description: Auto-calibration trigger settings (back office).
     OrganizationPaymentMethod:
       type: string
       enum:
@@ -1082,42 +1159,159 @@ components:
       type: object
       title: WorkerGroupMembersUpdateRequest
       description: Request payload for adding/removing members from a worker group.
-    ErrorDetail:
+    WorkerGroupResponse:
       properties:
-        message:
+        id:
           type: string
-          title: Message
-          description: Human-readable error message
-        code:
+          format: uuid
+          title: Id
+        created_at:
+          type: string
+          format: date-time
+          title: Created At
+        updated_at:
+          type: string
+          format: date-time
+          title: Updated At
+        modified_by:
+          type: string
+          title: Modified By
+        organization_id:
+          type: string
+          format: uuid
+          title: Organization Id
+          description: UUID of the organization this worker group belongs to.
+          examples:
+          - 550e8400-e29b-41d4-a716-446655440000
+        name:
+          type: string
+          title: Name
+          description: Name of the worker group.
+          examples:
+          - Document Review Team
+        description:
           anyOf:
           - type: string
           - type: 'null'
-          title: Code
-          description: Machine-readable error code for programmatic handling
-        details:
-          anyOf:
-          - items:
-              type: string
-            type: array
-          - items:
-              additionalProperties: true
-              type: object
-            type: array
-          - additionalProperties: true
-            type: object
-          - type: 'null'
-          title: Details
-          description: Additional error context, validation errors, or debugging information
+          title: Description
+          description: Description of the worker group.
+          examples:
+          - Team responsible for reviewing incoming documents.
+        member_count:
+          type: integer
+          title: Member Count
+          description: Number of users currently in this worker group.
+          examples:
+          - 5
       type: object
       required:
-      - message
-      title: ErrorDetail
-      description: 'Standard error detail structure.
-
-
-        This model matches the error format returned by the centralized
-
-        exception handlers in app/api/errors/handlers.py.'
+      - id
+      - created_at
+      - updated_at
+      - modified_by
+      - organization_id
+      - name
+      - member_count
+      title: WorkerGroupResponse
+      description: Response model for worker group list / summary operations.
+    MonthlyCredits:
+      properties:
+        allowance:
+          type: integer
+          title: Allowance
+          description: Monthly credit allowance based on tier
+        consumed:
+          type: integer
+          title: Consumed
+          description: Credits consumed from monthly allowance in current period
+        remaining:
+          type: integer
+          title: Remaining
+          description: Credits remaining from monthly allowance
+        period_end:
+          type: string
+          format: date
+          title: Period End
+          description: Date when the current monthly period resets
+      type: object
+      required:
+      - allowance
+      - consumed
+      - remaining
+      - period_end
+      title: MonthlyCredits
+      description: Monthly credit allowance details for an organization.
+    UserSummary:
+      properties:
+        id:
+          type: string
+          format: uuid
+          title: Id
+          description: UUID of the user.
+        first_name:
+          type: string
+          title: First Name
+          description: User's first name.
+        last_name:
+          type: string
+          title: Last Name
+          description: User's last name.
+        email:
+          type: string
+          title: Email
+          description: User's email address.
+        role:
+          type: string
+          title: Role
+          description: User's role.
+        added_at:
+          anyOf:
+          - type: string
+            format: date-time
+          - type: 'null'
+          title: Added At
+          description: When the user was added to the group.
+      type: object
+      required:
+      - id
+      - first_name
+      - last_name
+      - email
+      - role
+      title: UserSummary
+      description: Lightweight user representation used within worker group responses.
+    WorkerGroupCreateRequest:
+      properties:
+        name:
+          type: string
+          maxLength: 255
+          minLength: 1
+          title: Name
+          description: Name of the worker group. Must be unique within the organization.
+          examples:
+          - Document Review Team
+        description:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Description
+          description: Optional description of the worker group.
+          examples:
+          - Team responsible for reviewing incoming documents.
+        member_user_ids:
+          items:
+            type: string
+            format: uuid
+          type: array
+          title: Member User Ids
+          description: List of user UUIDs to add as members when creating the group.
+          examples:
+          - - 550e8400-e29b-41d4-a716-446655440000
+      type: object
+      required:
+      - name
+      title: WorkerGroupCreateRequest
+      description: Request payload for creating a new worker group.
     app__api__organization__organization_api_model__OrganizationResponse:
       properties:
         id:
@@ -1197,6 +1391,26 @@ components:
       - period_end
       title: OrganizationResponse
       description: Organization response model.
+    ErrorResponse:
+      properties:
+        error:
+          $ref: '#/components/schemas/ErrorDetail'
+        request_id:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Request Id
+          description: 'Unique request identifier in ULID format for debugging and support. Example: 01K8KABR6S16YETA2SZPVBS9SP'
+      type: object
+      required:
+      - error
+      title: ErrorResponse
+      description: "Standard API error response structure.\n\nAll error responses from the API follow this format, ensuring\nconsistent error handling for API consumers.\n\nExample:\n    {\n        \"error\": {\n            \"message\": \"Flow not found\",\n            \"code\": \"not_found\"\n        },\n        \"request_id\": \"01K8KABR6S16YETA2SZPVBS9SP\"\n    }"
+      examples:
+      - error:
+          code: not_found
+          message: Resource not found
+        request_id: 01K8KABR6S16YETA2SZPVBS9SP
     OrganizationSecuritySettings:
       properties:
         enforce_sso:
@@ -1212,168 +1426,42 @@ components:
       type: object
       title: OrganizationSecuritySettings
       description: Security-related organization settings.
-    OrganizationTier:
-      type: string
-      enum:
-      - free
-      - growth
-      - enterprise
-      title: OrganizationTier
-      description: Organization tier determining monthly credit allowance.
-    WorkerGroupResponse:
+    ErrorDetail:
       properties:
-        id:
-          type: string
-          format: uuid
-          title: Id
-        created_at:
-          type: string
-          format: date-time
-          title: Created At
-        updated_at:
-          type: string
-          format: date-time
-          title: Updated At
-        modified_by:
-          type: string
-          title: Modified By
-        organization_id:
-          type: string
-          format: uuid
-          title: Organization Id
-          description: UUID of the organization this worker group belongs to.
-          examples:
-          - 550e8400-e29b-41d4-a716-446655440000
-        name:
-          type: string
-          title: Name
-          description: Name of the worker group.
-          examples:
-          - Document Review Team
-        description:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Description
-          description: Description of the worker group.
-          examples:
-          - Team responsible for reviewing incoming documents.
-        member_count:
-          type: integer
-          title: Member Count
-          description: Number of users currently in this worker group.
-          examples:
-          - 5
-      type: object
-      required:
-      - id
-      - created_at
-      - updated_at
-      - modified_by
-      - organization_id
-      - name
-      - member_count
-      title: WorkerGroupResponse
-      description: Response model for worker group list / summary operations.
-    OrganizationSettings:
-      properties:
-        worker_landing_page:
-          $ref: '#/components/schemas/WorkerLandingPageConfig'
-          description: 'Landing page configuration: ''hub'', ''assigned_flow_data_tab'', or ''assigned_flow_work_tab'''
-          default: hub
-        max_concurrent_executions:
-          anyOf:
-          - type: integer
-          - type: 'null'
-          title: Max Concurrent Executions
-          description: Max concurrent flow executions for this organization. When set, overrides the tier-based default. When null, the tier default from TIER_CONCURRENCY_LIMITS is used.
-        payment_method:
-          anyOf:
-          - $ref: '#/components/schemas/OrganizationPaymentMethod'
-          - type: 'null'
-          description: 'How the organization pays (FLO-2286). ''invoice'' is only valid for Enterprise; Free/Growth are always ''stripe''. Backoffice-only: set via PATCH /admin/organizations/{id}/payment-method, never this endpoint. When null, the effective method is ''stripe''.'
-        security:
-          $ref: '#/components/schemas/OrganizationSecuritySettings'
-          description: Security-related settings such as strict SSO enforcement.
-        auto_calibration:
-          $ref: '#/components/schemas/AutoCalibrationSettings'
-          description: Auto-calibration trigger configuration (back office).
-      type: object
-      title: OrganizationSettings
-      description: Organization settings model for requests and updates.
-    WorkerGroupUpdateRequest:
-      properties:
-        name:
-          anyOf:
-          - type: string
-            maxLength: 255
-            minLength: 1
-          - type: 'null'
-          title: Name
-          description: New name for the worker group. Must be unique within the organization.
-          examples:
-          - Document Review Team
-        description:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Description
-          description: New description for the worker group.
-          examples:
-          - Updated team description.
-      type: object
-      title: WorkerGroupUpdateRequest
-      description: Request payload for updating an existing worker group.
-    ValidationError:
-      properties:
-        loc:
-          items:
-            anyOf:
-            - type: string
-            - type: integer
-          type: array
-          title: Location
-        msg:
+        message:
           type: string
           title: Message
-        type:
-          type: string
-          title: Error Type
+          description: Human-readable error message
+        code:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Code
+          description: Machine-readable error code for programmatic handling
+        details:
+          anyOf:
+          - items:
+              type: string
+            type: array
+          - items:
+              additionalProperties: true
+              type: object
+            type: array
+          - additionalProperties: true
+            type: object
+          - type: 'null'
+          title: Details
+          description: Additional error context, validation errors, or debugging information
       type: object
       required:
-      - loc
-      - msg
-      - type
-      title: ValidationError
-    WorkerGroupListResponse:
-      properties:
-        items:
-          items:
-            $ref: '#/components/schemas/WorkerGroupResponse'
-          type: array
-          title: Items
-          description: List of worker groups.
-        total:
-          type: integer
-          title: Total
-          description: Total number of worker groups in the organization.
-          examples:
-          - 10
-      type: object
-      required:
-      - items
-      - total
-      title: WorkerGroupListResponse
-      description: Paginated response for listing worker groups.
-    HTTPValidationError:
-      properties:
-        detail:
-          items:
-            $ref: '#/components/schemas/ValidationError'
-          type: array
-          title: Detail
-      type: object
-      title: HTTPValidationError
+      - message
+      title: ErrorDetail
+      description: 'Standard error detail structure.
+
+
+        This model matches the error format returned by the centralized
+
+        exception handlers in app/api/errors/handlers.py.'
     WorkerGroupDetailResponse:
       properties:
         id:
@@ -1435,94 +1523,6 @@ components:
       - member_count
       title: WorkerGroupDetailResponse
       description: Response model for worker group detail operations (includes member list).
-    UserSummary:
-      properties:
-        id:
-          type: string
-          format: uuid
-          title: Id
-          description: UUID of the user.
-        first_name:
-          type: string
-          title: First Name
-          description: User's first name.
-        last_name:
-          type: string
-          title: Last Name
-          description: User's last name.
-        email:
-          type: string
-          title: Email
-          description: User's email address.
-        role:
-          type: string
-          title: Role
-          description: User's role.
-        added_at:
-          anyOf:
-          - type: string
-            format: date-time
-          - type: 'null'
-          title: Added At
-          description: When the user was added to the group.
-      type: object
-      required:
-      - id
-      - first_name
-      - last_name
-      - email
-      - role
-      title: UserSummary
-      description: Lightweight user representation used within worker group responses.
-    ErrorResponse:
-      properties:
-        error:
-          $ref: '#/components/schemas/ErrorDetail'
-        request_id:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Request Id
-          description: 'Unique request identifier in ULID format for debugging and support. Example: 01K8KABR6S16YETA2SZPVBS9SP'
-      type: object
-      required:
-      - error
-      title: ErrorResponse
-      description: "Standard API error response structure.\n\nAll error responses from the API follow this format, ensuring\nconsistent error handling for API consumers.\n\nExample:\n    {\n        \"error\": {\n            \"message\": \"Flow not found\",\n            \"code\": \"not_found\"\n        },\n        \"request_id\": \"01K8KABR6S16YETA2SZPVBS9SP\"\n    }"
-      examples:
-      - error:
-          code: not_found
-          message: Resource not found
-        request_id: 01K8KABR6S16YETA2SZPVBS9SP
-    AdditionalCredits:
-      properties:
-        granted:
-          type: integer
-          title: Granted
-          description: Total additional credits granted to organization
-        consumed:
-          type: integer
-          title: Consumed
-          description: Credits consumed from additional grants
-        remaining:
-          type: integer
-          title: Remaining
-          description: Additional credits remaining
-      type: object
-      required:
-      - granted
-      - consumed
-      - remaining
-      title: AdditionalCredits
-      description: Additional (one-time grant) credit details for an organization.
-    WorkerLandingPageConfig:
-      type: string
-      enum:
-      - hub
-      - assigned_flow_data_tab
-      - assigned_flow_work_tab
-      title: WorkerLandingPageConfig
-      description: Configuration for worker landing page redirect.
   securitySchemes:
     BearerAuth:
       type: http

@@ -630,6 +630,239 @@ paths:
       - APIKeyAuth: []
 components:
   schemas:
+    WorkerGroupListResponse:
+      properties:
+        items:
+          items:
+            $ref: '#/components/schemas/WorkerGroupResponse'
+          type: array
+          title: Items
+          description: List of worker groups.
+        total:
+          type: integer
+          title: Total
+          description: Total number of worker groups in the organization.
+          examples:
+          - 10
+      type: object
+      required:
+      - items
+      - total
+      title: WorkerGroupListResponse
+      description: Paginated response for listing worker groups.
+    UserSummary:
+      properties:
+        id:
+          type: string
+          format: uuid
+          title: Id
+          description: UUID of the user.
+        first_name:
+          type: string
+          title: First Name
+          description: User's first name.
+        last_name:
+          type: string
+          title: Last Name
+          description: User's last name.
+        email:
+          type: string
+          title: Email
+          description: User's email address.
+        role:
+          type: string
+          title: Role
+          description: User's role.
+        added_at:
+          anyOf:
+          - type: string
+            format: date-time
+          - type: 'null'
+          title: Added At
+          description: When the user was added to the group.
+      type: object
+      required:
+      - id
+      - first_name
+      - last_name
+      - email
+      - role
+      title: UserSummary
+      description: Lightweight user representation used within worker group responses.
+    WorkerGroupUpdateRequest:
+      properties:
+        name:
+          anyOf:
+          - type: string
+            maxLength: 255
+            minLength: 1
+          - type: 'null'
+          title: Name
+          description: New name for the worker group. Must be unique within the organization.
+          examples:
+          - Document Review Team
+        description:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Description
+          description: New description for the worker group.
+          examples:
+          - Updated team description.
+      type: object
+      title: WorkerGroupUpdateRequest
+      description: Request payload for updating an existing worker group.
+    WorkerGroupCreateRequest:
+      properties:
+        name:
+          type: string
+          maxLength: 255
+          minLength: 1
+          title: Name
+          description: Name of the worker group. Must be unique within the organization.
+          examples:
+          - Document Review Team
+        description:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Description
+          description: Optional description of the worker group.
+          examples:
+          - Team responsible for reviewing incoming documents.
+        member_user_ids:
+          items:
+            type: string
+            format: uuid
+          type: array
+          title: Member User Ids
+          description: List of user UUIDs to add as members when creating the group.
+          examples:
+          - - 550e8400-e29b-41d4-a716-446655440000
+      type: object
+      required:
+      - name
+      title: WorkerGroupCreateRequest
+      description: Request payload for creating a new worker group.
+    ValidationError:
+      properties:
+        loc:
+          items:
+            anyOf:
+            - type: string
+            - type: integer
+          type: array
+          title: Location
+        msg:
+          type: string
+          title: Message
+        type:
+          type: string
+          title: Error Type
+      type: object
+      required:
+      - loc
+      - msg
+      - type
+      title: ValidationError
+    ErrorResponse:
+      properties:
+        error:
+          $ref: '#/components/schemas/ErrorDetail'
+        request_id:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Request Id
+          description: 'Unique request identifier in ULID format for debugging and support. Example: 01K8KABR6S16YETA2SZPVBS9SP'
+      type: object
+      required:
+      - error
+      title: ErrorResponse
+      description: "Standard API error response structure.\n\nAll error responses from the API follow this format, ensuring\nconsistent error handling for API consumers.\n\nExample:\n    {\n        \"error\": {\n            \"message\": \"Flow not found\",\n            \"code\": \"not_found\"\n        },\n        \"request_id\": \"01K8KABR6S16YETA2SZPVBS9SP\"\n    }"
+      examples:
+      - error:
+          code: not_found
+          message: Resource not found
+        request_id: 01K8KABR6S16YETA2SZPVBS9SP
+    WorkerGroupMembersUpdateRequest:
+      properties:
+        add_user_ids:
+          items:
+            type: string
+            format: uuid
+          type: array
+          title: Add User Ids
+          description: List of user UUIDs to add to the group.
+          examples:
+          - - 550e8400-e29b-41d4-a716-446655440000
+        remove_user_ids:
+          items:
+            type: string
+            format: uuid
+          type: array
+          title: Remove User Ids
+          description: List of user UUIDs to remove from the group.
+          examples:
+          - - 660e8400-e29b-41d4-a716-446655440001
+      type: object
+      title: WorkerGroupMembersUpdateRequest
+      description: Request payload for adding/removing members from a worker group.
+    WorkerGroupResponse:
+      properties:
+        id:
+          type: string
+          format: uuid
+          title: Id
+        created_at:
+          type: string
+          format: date-time
+          title: Created At
+        updated_at:
+          type: string
+          format: date-time
+          title: Updated At
+        modified_by:
+          type: string
+          title: Modified By
+        organization_id:
+          type: string
+          format: uuid
+          title: Organization Id
+          description: UUID of the organization this worker group belongs to.
+          examples:
+          - 550e8400-e29b-41d4-a716-446655440000
+        name:
+          type: string
+          title: Name
+          description: Name of the worker group.
+          examples:
+          - Document Review Team
+        description:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Description
+          description: Description of the worker group.
+          examples:
+          - Team responsible for reviewing incoming documents.
+        member_count:
+          type: integer
+          title: Member Count
+          description: Number of users currently in this worker group.
+          examples:
+          - 5
+      type: object
+      required:
+      - id
+      - created_at
+      - updated_at
+      - modified_by
+      - organization_id
+      - name
+      - member_count
+      title: WorkerGroupResponse
+      description: Response model for worker group list / summary operations.
     ErrorDetail:
       properties:
         message:
@@ -666,6 +899,15 @@ components:
         This model matches the error format returned by the centralized
 
         exception handlers in app/api/errors/handlers.py.'
+    HTTPValidationError:
+      properties:
+        detail:
+          items:
+            $ref: '#/components/schemas/ValidationError'
+          type: array
+          title: Detail
+      type: object
+      title: HTTPValidationError
     WorkerGroupDetailResponse:
       properties:
         id:
@@ -727,248 +969,6 @@ components:
       - member_count
       title: WorkerGroupDetailResponse
       description: Response model for worker group detail operations (includes member list).
-    UserSummary:
-      properties:
-        id:
-          type: string
-          format: uuid
-          title: Id
-          description: UUID of the user.
-        first_name:
-          type: string
-          title: First Name
-          description: User's first name.
-        last_name:
-          type: string
-          title: Last Name
-          description: User's last name.
-        email:
-          type: string
-          title: Email
-          description: User's email address.
-        role:
-          type: string
-          title: Role
-          description: User's role.
-        added_at:
-          anyOf:
-          - type: string
-            format: date-time
-          - type: 'null'
-          title: Added At
-          description: When the user was added to the group.
-      type: object
-      required:
-      - id
-      - first_name
-      - last_name
-      - email
-      - role
-      title: UserSummary
-      description: Lightweight user representation used within worker group responses.
-    WorkerGroupCreateRequest:
-      properties:
-        name:
-          type: string
-          maxLength: 255
-          minLength: 1
-          title: Name
-          description: Name of the worker group. Must be unique within the organization.
-          examples:
-          - Document Review Team
-        description:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Description
-          description: Optional description of the worker group.
-          examples:
-          - Team responsible for reviewing incoming documents.
-        member_user_ids:
-          items:
-            type: string
-            format: uuid
-          type: array
-          title: Member User Ids
-          description: List of user UUIDs to add as members when creating the group.
-          examples:
-          - - 550e8400-e29b-41d4-a716-446655440000
-      type: object
-      required:
-      - name
-      title: WorkerGroupCreateRequest
-      description: Request payload for creating a new worker group.
-    ErrorResponse:
-      properties:
-        error:
-          $ref: '#/components/schemas/ErrorDetail'
-        request_id:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Request Id
-          description: 'Unique request identifier in ULID format for debugging and support. Example: 01K8KABR6S16YETA2SZPVBS9SP'
-      type: object
-      required:
-      - error
-      title: ErrorResponse
-      description: "Standard API error response structure.\n\nAll error responses from the API follow this format, ensuring\nconsistent error handling for API consumers.\n\nExample:\n    {\n        \"error\": {\n            \"message\": \"Flow not found\",\n            \"code\": \"not_found\"\n        },\n        \"request_id\": \"01K8KABR6S16YETA2SZPVBS9SP\"\n    }"
-      examples:
-      - error:
-          code: not_found
-          message: Resource not found
-        request_id: 01K8KABR6S16YETA2SZPVBS9SP
-    WorkerGroupUpdateRequest:
-      properties:
-        name:
-          anyOf:
-          - type: string
-            maxLength: 255
-            minLength: 1
-          - type: 'null'
-          title: Name
-          description: New name for the worker group. Must be unique within the organization.
-          examples:
-          - Document Review Team
-        description:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Description
-          description: New description for the worker group.
-          examples:
-          - Updated team description.
-      type: object
-      title: WorkerGroupUpdateRequest
-      description: Request payload for updating an existing worker group.
-    ValidationError:
-      properties:
-        loc:
-          items:
-            anyOf:
-            - type: string
-            - type: integer
-          type: array
-          title: Location
-        msg:
-          type: string
-          title: Message
-        type:
-          type: string
-          title: Error Type
-      type: object
-      required:
-      - loc
-      - msg
-      - type
-      title: ValidationError
-    WorkerGroupResponse:
-      properties:
-        id:
-          type: string
-          format: uuid
-          title: Id
-        created_at:
-          type: string
-          format: date-time
-          title: Created At
-        updated_at:
-          type: string
-          format: date-time
-          title: Updated At
-        modified_by:
-          type: string
-          title: Modified By
-        organization_id:
-          type: string
-          format: uuid
-          title: Organization Id
-          description: UUID of the organization this worker group belongs to.
-          examples:
-          - 550e8400-e29b-41d4-a716-446655440000
-        name:
-          type: string
-          title: Name
-          description: Name of the worker group.
-          examples:
-          - Document Review Team
-        description:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Description
-          description: Description of the worker group.
-          examples:
-          - Team responsible for reviewing incoming documents.
-        member_count:
-          type: integer
-          title: Member Count
-          description: Number of users currently in this worker group.
-          examples:
-          - 5
-      type: object
-      required:
-      - id
-      - created_at
-      - updated_at
-      - modified_by
-      - organization_id
-      - name
-      - member_count
-      title: WorkerGroupResponse
-      description: Response model for worker group list / summary operations.
-    WorkerGroupListResponse:
-      properties:
-        items:
-          items:
-            $ref: '#/components/schemas/WorkerGroupResponse'
-          type: array
-          title: Items
-          description: List of worker groups.
-        total:
-          type: integer
-          title: Total
-          description: Total number of worker groups in the organization.
-          examples:
-          - 10
-      type: object
-      required:
-      - items
-      - total
-      title: WorkerGroupListResponse
-      description: Paginated response for listing worker groups.
-    HTTPValidationError:
-      properties:
-        detail:
-          items:
-            $ref: '#/components/schemas/ValidationError'
-          type: array
-          title: Detail
-      type: object
-      title: HTTPValidationError
-    WorkerGroupMembersUpdateRequest:
-      properties:
-        add_user_ids:
-          items:
-            type: string
-            format: uuid
-          type: array
-          title: Add User Ids
-          description: List of user UUIDs to add to the group.
-          examples:
-          - - 550e8400-e29b-41d4-a716-446655440000
-        remove_user_ids:
-          items:
-            type: string
-            format: uuid
-          type: array
-          title: Remove User Ids
-          description: List of user UUIDs to remove from the group.
-          examples:
-          - - 660e8400-e29b-41d4-a716-446655440001
-      type: object
-      title: WorkerGroupMembersUpdateRequest
-      description: Request payload for adding/removing members from a worker group.
   securitySchemes:
     BearerAuth:
       type: http

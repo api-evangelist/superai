@@ -1069,6 +1069,61 @@ paths:
       - APIKeyAuth: []
 components:
   schemas:
+    HumanReviewTargetTaskExecution:
+      properties:
+        task_name:
+          type: string
+          title: Task Name
+          description: Name of the target task being reviewed.
+          examples:
+          - extract_doc
+        task_execution_idx:
+          type: integer
+          title: Task Execution Idx
+          description: Index of the target task execution.
+          examples:
+          - 0
+        is_editable:
+          type: boolean
+          title: Is Editable
+          description: Whether the reviewer is allowed to edit this item's data. Read-only items pass through unchanged on completion.
+          default: false
+          examples:
+          - true
+          - false
+        output_name:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Output Name
+          description: When set together with output_collection_idx, narrows the target to a single item of the named output collection on the target task. Both fields must be set or both null.
+          examples:
+          - rows
+        output_collection_idx:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Output Collection Idx
+          description: Zero-based index into the target task's named output collection. Required when output_name is set; must be null otherwise.
+          examples:
+          - 0
+      type: object
+      required:
+      - task_name
+      - task_execution_idx
+      title: HumanReviewTargetTaskExecution
+      description: 'One target execution being reviewed in a human review task.
+
+
+        When ``output_name`` and ``output_collection_idx`` are both set, the entry
+
+        targets a specific item of the named output collection rather than the
+
+        whole task output: the reviewer sees/edits just that item, and the
+
+        matching ``reviewed_output[idx]`` carries that item''s value (not the whole
+
+        task output dict).'
     ErrorDetail:
       properties:
         message:
@@ -1105,26 +1160,6 @@ components:
         This model matches the error format returned by the centralized
 
         exception handlers in app/api/errors/handlers.py.'
-    ErrorResponse:
-      properties:
-        error:
-          $ref: '#/components/schemas/ErrorDetail'
-        request_id:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Request Id
-          description: 'Unique request identifier in ULID format for debugging and support. Example: 01K8KABR6S16YETA2SZPVBS9SP'
-      type: object
-      required:
-      - error
-      title: ErrorResponse
-      description: "Standard API error response structure.\n\nAll error responses from the API follow this format, ensuring\nconsistent error handling for API consumers.\n\nExample:\n    {\n        \"error\": {\n            \"message\": \"Flow not found\",\n            \"code\": \"not_found\"\n        },\n        \"request_id\": \"01K8KABR6S16YETA2SZPVBS9SP\"\n    }"
-      examples:
-      - error:
-          code: not_found
-          message: Resource not found
-        request_id: 01K8KABR6S16YETA2SZPVBS9SP
     PaginatedHumanReviewTasksResponse:
       properties:
         items:
@@ -1403,6 +1438,26 @@ components:
       - msg
       - type
       title: ValidationError
+    ErrorResponse:
+      properties:
+        error:
+          $ref: '#/components/schemas/ErrorDetail'
+        request_id:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Request Id
+          description: 'Unique request identifier in ULID format for debugging and support. Example: 01K8KABR6S16YETA2SZPVBS9SP'
+      type: object
+      required:
+      - error
+      title: ErrorResponse
+      description: "Standard API error response structure.\n\nAll error responses from the API follow this format, ensuring\nconsistent error handling for API consumers.\n\nExample:\n    {\n        \"error\": {\n            \"message\": \"Flow not found\",\n            \"code\": \"not_found\"\n        },\n        \"request_id\": \"01K8KABR6S16YETA2SZPVBS9SP\"\n    }"
+      examples:
+      - error:
+          code: not_found
+          message: Resource not found
+        request_id: 01K8KABR6S16YETA2SZPVBS9SP
     HumanReviewTaskCompleteRequest:
       properties:
         review_result:
@@ -1515,6 +1570,15 @@ components:
       - status
       title: HumanReviewTaskAssignmentResponse
       description: Response model for human review task assignment operations.
+    HTTPValidationError:
+      properties:
+        detail:
+          items:
+            $ref: '#/components/schemas/ValidationError'
+          type: array
+          title: Detail
+      type: object
+      title: HTTPValidationError
     app__api__user__user_api_model__UserResponse:
       properties:
         id:
@@ -1564,70 +1628,6 @@ components:
       - status
       - organization_id
       title: UserResponse
-    HTTPValidationError:
-      properties:
-        detail:
-          items:
-            $ref: '#/components/schemas/ValidationError'
-          type: array
-          title: Detail
-      type: object
-      title: HTTPValidationError
-    HumanReviewTargetTaskExecution:
-      properties:
-        task_name:
-          type: string
-          title: Task Name
-          description: Name of the target task being reviewed.
-          examples:
-          - extract_doc
-        task_execution_idx:
-          type: integer
-          title: Task Execution Idx
-          description: Index of the target task execution.
-          examples:
-          - 0
-        is_editable:
-          type: boolean
-          title: Is Editable
-          description: Whether the reviewer is allowed to edit this item's data. Read-only items pass through unchanged on completion.
-          default: false
-          examples:
-          - true
-          - false
-        output_name:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Output Name
-          description: When set together with output_collection_idx, narrows the target to a single item of the named output collection on the target task. Both fields must be set or both null.
-          examples:
-          - rows
-        output_collection_idx:
-          anyOf:
-          - type: integer
-          - type: 'null'
-          title: Output Collection Idx
-          description: Zero-based index into the target task's named output collection. Required when output_name is set; must be null otherwise.
-          examples:
-          - 0
-      type: object
-      required:
-      - task_name
-      - task_execution_idx
-      title: HumanReviewTargetTaskExecution
-      description: 'One target execution being reviewed in a human review task.
-
-
-        When ``output_name`` and ``output_collection_idx`` are both set, the entry
-
-        targets a specific item of the named output collection rather than the
-
-        whole task output: the reviewer sees/edits just that item, and the
-
-        matching ``reviewed_output[idx]`` carries that item''s value (not the whole
-
-        task output dict).'
   securitySchemes:
     BearerAuth:
       type: http
