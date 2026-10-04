@@ -570,73 +570,22 @@ paths:
                     request_id: 01K8KACP7D2XFGHJ9KLM4NPQR8
 components:
   schemas:
-    AnonKeyResponse:
+    SignupEmailPolicyResult:
       properties:
-        anon_key:
-          type: string
-          title: Anon Key
-          description: Anonymous authentication key for client applications. Use this key to authenticate API requests to the authentication service. Include this in your authentication API calls as the 'apikey' header. This key is safe to use in client-side applications and does not grant administrative privileges. It enables password authentication and token generation for users.
-          examples:
-          - eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImFiY2RlZmdoaWprbG1ub3BxcnN0Iiwicm9sZSI6ImFub24iLCJpYXQiOjE2ODkwMDAwMDAsImV4cCI6MTg0Njc2ODAwMH0.signature
-      type: object
-      required:
-      - anon_key
-      title: AnonKeyResponse
-      description: 'Response model for anonymous authentication key retrieval.
-
-
-        Returns the authentication key required for client applications to
-
-        authenticate with the authentication API hosted at core.flows.super.ai.'
-    ResendInviteResponse:
-      properties:
-        success:
+        allowed:
           type: boolean
-          title: Success
-          description: 'Indicates whether the invitation was successfully processed. True if invitation was queued/sent, False if operation failed. Note: This indicates the API succeeded, not that email was delivered.'
-          examples:
-          - true
-        message:
-          type: string
-          title: Message
-          description: 'Human-readable message describing the result. Provides confirmation or additional context about the operation. Example: ''Invitation has been resent successfully'''
-          examples:
-          - Invitation has been resent successfully
-          - Invitation email queued for delivery
-        email:
-          type: string
-          title: Email
-          description: Email address that received the invitation. Echoes back the requested email for confirmation. Useful for logging and audit purposes.
-          examples:
-          - user@example.com
-          - john.doe@company.com
+          title: Allowed
+          description: Whether this email may sign up via magic link.
+        reason:
+          anyOf:
+          - $ref: '#/components/schemas/SignupRejectionReason'
+          - type: 'null'
+          description: 'Rejection reason when not allowed: `disposable_email`, `personal_email_not_allowed`, or `academic_email_not_allowed`.'
       type: object
       required:
-      - success
-      - message
-      - email
-      title: ResendInviteResponse
-      description: 'Response model for resend invite operation.
-
-
-        Confirms that the invitation email was successfully queued or sent.
-
-        Actual email delivery depends on external email service.'
-    SignupRejectionReason:
-      type: string
-      enum:
-      - disposable_email
-      - personal_email_not_allowed
-      - academic_email_not_allowed
-      title: SignupRejectionReason
-      description: 'Machine-readable reasons a signup email is rejected.
-
-
-        Surfaced to the client as an error ``code`` so the UI can map each to a
-
-        tailored message (e.g. "use your work email" vs "temporary emails aren''t
-
-        allowed").'
+      - allowed
+      title: SignupEmailPolicyResult
+      description: Pre-flight evaluation of the signup email policy for the magic-link path.
     ResetPasswordResponse:
       properties:
         message:
@@ -646,68 +595,58 @@ components:
       required:
       - message
       title: ResetPasswordResponse
-    LoginMethodResult:
+    AccessRequestResponse:
       properties:
-        method:
-          $ref: '#/components/schemas/LoginMethod'
+        status:
+          type: string
+          title: Status
+          description: Always 'received'.
+          default: received
       type: object
-      required:
-      - method
-      title: LoginMethodResult
-    SelfServiceSignupResponse:
-      properties:
-        organization_id:
-          type: string
-          format: uuid
-          title: Organization Id
-          description: The organization the user belongs to.
-        organization_name:
-          type: string
-          title: Organization Name
-          description: Auto-generated organization display name.
-        user_id:
-          type: string
-          format: uuid
-          title: User Id
-          description: The provisioned (or existing) user's ID.
-        email:
-          type: string
-          format: email
-          title: Email
-          description: The verified email the account is keyed on.
-        created:
-          type: boolean
-          title: Created
-          description: True when a new free-tier organization and user were provisioned. False when an account for this email already existed and was returned unchanged.
-      type: object
-      required:
-      - organization_id
-      - organization_name
-      - user_id
-      - email
-      - created
-      title: SelfServiceSignupResponse
-      description: Result of completing self-service signup.
-    ResendInviteRequest:
+      title: AccessRequestResponse
+      description: 'Constant acknowledgement that an access request was received.
+
+
+        Deliberately carries no record identifier and is identical whether the
+
+        request was newly created or updated an existing one, so the unauthenticated
+
+        endpoint can''t be probed to learn which emails have already requested access
+
+        (an email-enumeration oracle). The created-vs-existing distinction stays
+
+        internal (it only gates the Slack notification).'
+    AccessRequestCreate:
       properties:
         email:
           type: string
           format: email
           title: Email
-          description: Email address of the user to re-invite. Must match an existing user account in pending or active status. A new invitation email will be sent to this address with a fresh authentication link and setup instructions.
-          examples:
-          - user@example.com
-          - john.doe@company.com
+          description: Email the visitor tried to sign up with.
+        full_name:
+          type: string
+          maxLength: 200
+          minLength: 1
+          title: Full Name
+          description: The visitor's name.
+        use_case:
+          type: string
+          maxLength: 5000
+          minLength: 50
+          title: Use Case
+          description: Free-text description of what the visitor wants to use the product for.
       type: object
       required:
       - email
-      title: ResendInviteRequest
-      description: 'Request model for resending user invitation.
+      - full_name
+      - use_case
+      title: AccessRequestCreate
+      description: 'A visitor''s request for access submitted from the blocked-signup CTA.
 
 
-        Used to trigger a new invitation email when the original invitation
+        The min-lengths mirror the client-side form validation; the max-lengths cap
 
-        has expired, was not received, or the user needs another copy.'
+        abuse on this unauthenticated endpoint.'
     ResetPasswordRequest:
       properties:
         email:
@@ -724,32 +663,6 @@ components:
       required:
       - email
       title: ResetPasswordRequest
-    LoginMethod:
-      type: string
-      enum:
-      - sso_required
-      - password_ok
-      title: LoginMethod
-    ErrorResponse:
-      properties:
-        error:
-          $ref: '#/components/schemas/ErrorDetail'
-        request_id:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Request Id
-          description: 'Unique request identifier in ULID format for debugging and support. Example: 01K8KABR6S16YETA2SZPVBS9SP'
-      type: object
-      required:
-      - error
-      title: ErrorResponse
-      description: "Standard API error response structure.\n\nAll error responses from the API follow this format, ensuring\nconsistent error handling for API consumers.\n\nExample:\n    {\n        \"error\": {\n            \"message\": \"Flow not found\",\n            \"code\": \"not_found\"\n        },\n        \"request_id\": \"01K8KABR6S16YETA2SZPVBS9SP\"\n    }"
-      examples:
-      - error:
-          code: not_found
-          message: Resource not found
-        request_id: 01K8KABR6S16YETA2SZPVBS9SP
     ErrorDetail:
       properties:
         message:
@@ -786,74 +699,161 @@ components:
         This model matches the error format returned by the centralized
 
         exception handlers in app/api/errors/handlers.py.'
-    AccessRequestCreate:
+    SignupRejectionReason:
+      type: string
+      enum:
+      - disposable_email
+      - personal_email_not_allowed
+      - academic_email_not_allowed
+      title: SignupRejectionReason
+      description: 'Machine-readable reasons a signup email is rejected.
+
+
+        Surfaced to the client as an error ``code`` so the UI can map each to a
+
+        tailored message (e.g. "use your work email" vs "temporary emails aren''t
+
+        allowed").'
+    AnonKeyResponse:
+      properties:
+        anon_key:
+          type: string
+          title: Anon Key
+          description: Anonymous authentication key for client applications. Use this key to authenticate API requests to the authentication service. Include this in your authentication API calls as the 'apikey' header. This key is safe to use in client-side applications and does not grant administrative privileges. It enables password authentication and token generation for users.
+          examples:
+          - eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImFiY2RlZmdoaWprbG1ub3BxcnN0Iiwicm9sZSI6ImFub24iLCJpYXQiOjE2ODkwMDAwMDAsImV4cCI6MTg0Njc2ODAwMH0.signature
+      type: object
+      required:
+      - anon_key
+      title: AnonKeyResponse
+      description: 'Response model for anonymous authentication key retrieval.
+
+
+        Returns the authentication key required for client applications to
+
+        authenticate with the authentication API hosted at core.flows.super.ai.'
+    SelfServiceSignupResponse:
+      properties:
+        organization_id:
+          type: string
+          format: uuid
+          title: Organization Id
+          description: The organization the user belongs to.
+        organization_name:
+          type: string
+          title: Organization Name
+          description: Auto-generated organization display name.
+        user_id:
+          type: string
+          format: uuid
+          title: User Id
+          description: The provisioned (or existing) user's ID.
+        email:
+          type: string
+          format: email
+          title: Email
+          description: The verified email the account is keyed on.
+        created:
+          type: boolean
+          title: Created
+          description: True when a new free-tier organization and user were provisioned. False when an account for this email already existed and was returned unchanged.
+      type: object
+      required:
+      - organization_id
+      - organization_name
+      - user_id
+      - email
+      - created
+      title: SelfServiceSignupResponse
+      description: Result of completing self-service signup.
+    ResendInviteResponse:
+      properties:
+        success:
+          type: boolean
+          title: Success
+          description: 'Indicates whether the invitation was successfully processed. True if invitation was queued/sent, False if operation failed. Note: This indicates the API succeeded, not that email was delivered.'
+          examples:
+          - true
+        message:
+          type: string
+          title: Message
+          description: 'Human-readable message describing the result. Provides confirmation or additional context about the operation. Example: ''Invitation has been resent successfully'''
+          examples:
+          - Invitation has been resent successfully
+          - Invitation email queued for delivery
+        email:
+          type: string
+          title: Email
+          description: Email address that received the invitation. Echoes back the requested email for confirmation. Useful for logging and audit purposes.
+          examples:
+          - user@example.com
+          - john.doe@company.com
+      type: object
+      required:
+      - success
+      - message
+      - email
+      title: ResendInviteResponse
+      description: 'Response model for resend invite operation.
+
+
+        Confirms that the invitation email was successfully queued or sent.
+
+        Actual email delivery depends on external email service.'
+    ResendInviteRequest:
       properties:
         email:
           type: string
           format: email
           title: Email
-          description: Email the visitor tried to sign up with.
-        full_name:
-          type: string
-          maxLength: 200
-          minLength: 1
-          title: Full Name
-          description: The visitor's name.
-        use_case:
-          type: string
-          maxLength: 5000
-          minLength: 50
-          title: Use Case
-          description: Free-text description of what the visitor wants to use the product for.
+          description: Email address of the user to re-invite. Must match an existing user account in pending or active status. A new invitation email will be sent to this address with a fresh authentication link and setup instructions.
+          examples:
+          - user@example.com
+          - john.doe@company.com
       type: object
       required:
       - email
-      - full_name
-      - use_case
-      title: AccessRequestCreate
-      description: 'A visitor''s request for access submitted from the blocked-signup CTA.
+      title: ResendInviteRequest
+      description: 'Request model for resending user invitation.
 
 
-        The min-lengths mirror the client-side form validation; the max-lengths cap
+        Used to trigger a new invitation email when the original invitation
 
-        abuse on this unauthenticated endpoint.'
-    SignupEmailPolicyResult:
+        has expired, was not received, or the user needs another copy.'
+    LoginMethod:
+      type: string
+      enum:
+      - sso_required
+      - password_ok
+      title: LoginMethod
+    LoginMethodResult:
       properties:
-        allowed:
-          type: boolean
-          title: Allowed
-          description: Whether this email may sign up via magic link.
-        reason:
-          anyOf:
-          - $ref: '#/components/schemas/SignupRejectionReason'
-          - type: 'null'
-          description: 'Rejection reason when not allowed: `disposable_email`, `personal_email_not_allowed`, or `academic_email_not_allowed`.'
+        method:
+          $ref: '#/components/schemas/LoginMethod'
       type: object
       required:
-      - allowed
-      title: SignupEmailPolicyResult
-      description: Pre-flight evaluation of the signup email policy for the magic-link path.
-    AccessRequestResponse:
+      - method
+      title: LoginMethodResult
+    ErrorResponse:
       properties:
-        status:
-          type: string
-          title: Status
-          description: Always 'received'.
-          default: received
+        error:
+          $ref: '#/components/schemas/ErrorDetail'
+        request_id:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Request Id
+          description: 'Unique request identifier in ULID format for debugging and support. Example: 01K8KABR6S16YETA2SZPVBS9SP'
       type: object
-      title: AccessRequestResponse
-      description: 'Constant acknowledgement that an access request was received.
-
-
-        Deliberately carries no record identifier and is identical whether the
-
-        request was newly created or updated an existing one, so the unauthenticated
-
-        endpoint can''t be probed to learn which emails have already requested access
-
-        (an email-enumeration oracle). The created-vs-existing distinction stays
-
-        internal (it only gates the Slack notification).'
+      required:
+      - error
+      title: ErrorResponse
+      description: "Standard API error response structure.\n\nAll error responses from the API follow this format, ensuring\nconsistent error handling for API consumers.\n\nExample:\n    {\n        \"error\": {\n            \"message\": \"Flow not found\",\n            \"code\": \"not_found\"\n        },\n        \"request_id\": \"01K8KABR6S16YETA2SZPVBS9SP\"\n    }"
+      examples:
+      - error:
+          code: not_found
+          message: Resource not found
+        request_id: 01K8KABR6S16YETA2SZPVBS9SP
   securitySchemes:
     BearerAuth:
       type: http

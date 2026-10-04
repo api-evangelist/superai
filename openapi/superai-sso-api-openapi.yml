@@ -597,6 +597,97 @@ paths:
       - APIKeyAuth: []
 components:
   schemas:
+    MetadataResponse:
+      properties:
+        metadata:
+          type: string
+          title: Metadata
+      type: object
+      required:
+      - metadata
+      title: MetadataResponse
+    ErrorResponse:
+      properties:
+        error:
+          $ref: '#/components/schemas/ErrorDetail'
+        request_id:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Request Id
+          description: 'Unique request identifier in ULID format for debugging and support. Example: 01K8KABR6S16YETA2SZPVBS9SP'
+      type: object
+      required:
+      - error
+      title: ErrorResponse
+      description: "Standard API error response structure.\n\nAll error responses from the API follow this format, ensuring\nconsistent error handling for API consumers.\n\nExample:\n    {\n        \"error\": {\n            \"message\": \"Flow not found\",\n            \"code\": \"not_found\"\n        },\n        \"request_id\": \"01K8KABR6S16YETA2SZPVBS9SP\"\n    }"
+      examples:
+      - error:
+          code: not_found
+          message: Resource not found
+        request_id: 01K8KABR6S16YETA2SZPVBS9SP
+    ErrorDetail:
+      properties:
+        message:
+          type: string
+          title: Message
+          description: Human-readable error message
+        code:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Code
+          description: Machine-readable error code for programmatic handling
+        details:
+          anyOf:
+          - items:
+              type: string
+            type: array
+          - items:
+              additionalProperties: true
+              type: object
+            type: array
+          - additionalProperties: true
+            type: object
+          - type: 'null'
+          title: Details
+          description: Additional error context, validation errors, or debugging information
+      type: object
+      required:
+      - message
+      title: ErrorDetail
+      description: 'Standard error detail structure.
+
+
+        This model matches the error format returned by the centralized
+
+        exception handlers in app/api/errors/handlers.py.'
+    SSOServiceProviderDetails:
+      properties:
+        entity_id:
+          type: string
+          title: Entity Id
+          description: SAML SP EntityID
+        metadata_url:
+          type: string
+          title: Metadata Url
+          description: SAML SP metadata URL
+        acs_url:
+          type: string
+          title: Acs Url
+          description: Assertion Consumer Service (ACS) URL
+        slo_url:
+          type: string
+          title: Slo Url
+          description: Single Logout (SLO) URL
+      type: object
+      required:
+      - entity_id
+      - metadata_url
+      - acs_url
+      - slo_url
+      title: SSOServiceProviderDetails
+      description: Supabase SAML service-provider URLs to configure in the customer's IdP.
     SSOProviderUpdate:
       properties:
         metadata_url:
@@ -638,51 +729,6 @@ components:
       type: object
       title: SSOProviderUpdate
       description: Request model for updating an SSO provider via Supabase Management API.
-    ErrorDetail:
-      properties:
-        message:
-          type: string
-          title: Message
-          description: Human-readable error message
-        code:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Code
-          description: Machine-readable error code for programmatic handling
-        details:
-          anyOf:
-          - items:
-              type: string
-            type: array
-          - items:
-              additionalProperties: true
-              type: object
-            type: array
-          - additionalProperties: true
-            type: object
-          - type: 'null'
-          title: Details
-          description: Additional error context, validation errors, or debugging information
-      type: object
-      required:
-      - message
-      title: ErrorDetail
-      description: 'Standard error detail structure.
-
-
-        This model matches the error format returned by the centralized
-
-        exception handlers in app/api/errors/handlers.py.'
-    MetadataResponse:
-      properties:
-        metadata:
-          type: string
-          title: Metadata
-      type: object
-      required:
-      - metadata
-      title: MetadataResponse
     SSOOrganizationResponse:
       properties:
         sso_provider_id:
@@ -766,26 +812,15 @@ components:
       - msg
       - type
       title: ValidationError
-    ErrorResponse:
+    HTTPValidationError:
       properties:
-        error:
-          $ref: '#/components/schemas/ErrorDetail'
-        request_id:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Request Id
-          description: 'Unique request identifier in ULID format for debugging and support. Example: 01K8KABR6S16YETA2SZPVBS9SP'
+        detail:
+          items:
+            $ref: '#/components/schemas/ValidationError'
+          type: array
+          title: Detail
       type: object
-      required:
-      - error
-      title: ErrorResponse
-      description: "Standard API error response structure.\n\nAll error responses from the API follow this format, ensuring\nconsistent error handling for API consumers.\n\nExample:\n    {\n        \"error\": {\n            \"message\": \"Flow not found\",\n            \"code\": \"not_found\"\n        },\n        \"request_id\": \"01K8KABR6S16YETA2SZPVBS9SP\"\n    }"
-      examples:
-      - error:
-          code: not_found
-          message: Resource not found
-        request_id: 01K8KABR6S16YETA2SZPVBS9SP
+      title: HTTPValidationError
     SSOProviderCreate:
       properties:
         type:
@@ -826,41 +861,6 @@ components:
       - domains
       title: SSOProviderCreate
       description: Request model for creating an SSO provider via Supabase Management API.
-    SSOServiceProviderDetails:
-      properties:
-        entity_id:
-          type: string
-          title: Entity Id
-          description: SAML SP EntityID
-        metadata_url:
-          type: string
-          title: Metadata Url
-          description: SAML SP metadata URL
-        acs_url:
-          type: string
-          title: Acs Url
-          description: Assertion Consumer Service (ACS) URL
-        slo_url:
-          type: string
-          title: Slo Url
-          description: Single Logout (SLO) URL
-      type: object
-      required:
-      - entity_id
-      - metadata_url
-      - acs_url
-      - slo_url
-      title: SSOServiceProviderDetails
-      description: Supabase SAML service-provider URLs to configure in the customer's IdP.
-    HTTPValidationError:
-      properties:
-        detail:
-          items:
-            $ref: '#/components/schemas/ValidationError'
-          type: array
-          title: Detail
-      type: object
-      title: HTTPValidationError
   securitySchemes:
     BearerAuth:
       type: http

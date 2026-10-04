@@ -1070,6 +1070,44 @@ paths:
       - APIKeyAuth: []
 components:
   schemas:
+    app__api__integrations__plugins__plugins_router__OauthAuthorizeRequest:
+      properties:
+        redirect_to:
+          type: string
+          title: Redirect To
+        integration_name:
+          type: string
+          title: Integration Name
+      type: object
+      required:
+      - redirect_to
+      - integration_name
+      title: OauthAuthorizeRequest
+    IntegrationCreateRequest:
+      properties:
+        flow_id:
+          type: string
+          format: uuid
+          title: Flow Id
+        credential_id:
+          anyOf:
+          - type: string
+            format: uuid
+          - type: 'null'
+          title: Credential Id
+        description:
+          type: string
+          title: Description
+        task_name:
+          type: string
+          title: Task Name
+      type: object
+      required:
+      - flow_id
+      - credential_id
+      - description
+      - task_name
+      title: IntegrationCreateRequest
     GetUiSchemaRequest:
       properties:
         parameters:
@@ -1086,77 +1124,6 @@ components:
       required:
       - parameters
       title: GetUiSchemaRequest
-    ValidationError:
-      properties:
-        loc:
-          items:
-            anyOf:
-            - type: string
-            - type: integer
-          type: array
-          title: Location
-        msg:
-          type: string
-          title: Message
-        type:
-          type: string
-          title: Error Type
-      type: object
-      required:
-      - loc
-      - msg
-      - type
-      title: ValidationError
-    ErrorResponse:
-      properties:
-        error:
-          $ref: '#/components/schemas/ErrorDetail'
-        request_id:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Request Id
-          description: 'Unique request identifier in ULID format for debugging and support. Example: 01K8KABR6S16YETA2SZPVBS9SP'
-      type: object
-      required:
-      - error
-      title: ErrorResponse
-      description: "Standard API error response structure.\n\nAll error responses from the API follow this format, ensuring\nconsistent error handling for API consumers.\n\nExample:\n    {\n        \"error\": {\n            \"message\": \"Flow not found\",\n            \"code\": \"not_found\"\n        },\n        \"request_id\": \"01K8KABR6S16YETA2SZPVBS9SP\"\n    }"
-      examples:
-      - error:
-          code: not_found
-          message: Resource not found
-        request_id: 01K8KABR6S16YETA2SZPVBS9SP
-    app__api__integrations_new__integration_api_model__OauthAuthorizeRequest:
-      properties:
-        redirect_to:
-          type: string
-          title: Redirect To
-        integration_name:
-          type: string
-          title: Integration Name
-        provider_name:
-          type: string
-          title: Provider Name
-      type: object
-      required:
-      - redirect_to
-      - integration_name
-      - provider_name
-      title: OauthAuthorizeRequest
-    app__api__integrations__plugins__plugins_router__OauthAuthorizeRequest:
-      properties:
-        redirect_to:
-          type: string
-          title: Redirect To
-        integration_name:
-          type: string
-          title: Integration Name
-      type: object
-      required:
-      - redirect_to
-      - integration_name
-      title: OauthAuthorizeRequest
     ErrorDetail:
       properties:
         message:
@@ -1193,6 +1160,27 @@ components:
         This model matches the error format returned by the centralized
 
         exception handlers in app/api/errors/handlers.py.'
+    ValidationError:
+      properties:
+        loc:
+          items:
+            anyOf:
+            - type: string
+            - type: integer
+          type: array
+          title: Location
+        msg:
+          type: string
+          title: Message
+        type:
+          type: string
+          title: Error Type
+      type: object
+      required:
+      - loc
+      - msg
+      - type
+      title: ValidationError
     HTTPValidationError:
       properties:
         detail:
@@ -1202,31 +1190,43 @@ components:
           title: Detail
       type: object
       title: HTTPValidationError
-    IntegrationCreateRequest:
+    app__api__integrations_new__integration_api_model__OauthAuthorizeRequest:
       properties:
-        flow_id:
+        redirect_to:
           type: string
-          format: uuid
-          title: Flow Id
-        credential_id:
-          anyOf:
-          - type: string
-            format: uuid
-          - type: 'null'
-          title: Credential Id
-        description:
+          title: Redirect To
+        integration_name:
           type: string
-          title: Description
-        task_name:
+          title: Integration Name
+        provider_name:
           type: string
-          title: Task Name
+          title: Provider Name
       type: object
       required:
-      - flow_id
-      - credential_id
-      - description
-      - task_name
-      title: IntegrationCreateRequest
+      - redirect_to
+      - integration_name
+      - provider_name
+      title: OauthAuthorizeRequest
+    ErrorResponse:
+      properties:
+        error:
+          $ref: '#/components/schemas/ErrorDetail'
+        request_id:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Request Id
+          description: 'Unique request identifier in ULID format for debugging and support. Example: 01K8KABR6S16YETA2SZPVBS9SP'
+      type: object
+      required:
+      - error
+      title: ErrorResponse
+      description: "Standard API error response structure.\n\nAll error responses from the API follow this format, ensuring\nconsistent error handling for API consumers.\n\nExample:\n    {\n        \"error\": {\n            \"message\": \"Flow not found\",\n            \"code\": \"not_found\"\n        },\n        \"request_id\": \"01K8KABR6S16YETA2SZPVBS9SP\"\n    }"
+      examples:
+      - error:
+          code: not_found
+          message: Resource not found
+        request_id: 01K8KABR6S16YETA2SZPVBS9SP
   securitySchemes:
     BearerAuth:
       type: http

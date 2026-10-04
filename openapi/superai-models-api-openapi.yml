@@ -65,13 +65,6 @@ paths:
       - APIKeyAuth: []
 components:
   schemas:
-    Region:
-      type: string
-      enum:
-      - eu
-      - global
-      title: Region
-      description: Available regions for model deployment.
     ModelInfo:
       properties:
         model_name:
@@ -119,6 +112,13 @@ components:
       - supports_confidence_scores
       title: ModelInfo
       description: Model information from LiteLLM.
+    Region:
+      type: string
+      enum:
+      - eu
+      - global
+      title: Region
+      description: Available regions for model deployment.
     ValidationError:
       properties:
         loc:

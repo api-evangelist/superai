@@ -519,118 +519,6 @@ paths:
       - APIKeyAuth: []
 components:
   schemas:
-    ErrorDetail:
-      properties:
-        message:
-          type: string
-          title: Message
-          description: Human-readable error message
-        code:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Code
-          description: Machine-readable error code for programmatic handling
-        details:
-          anyOf:
-          - items:
-              type: string
-            type: array
-          - items:
-              additionalProperties: true
-              type: object
-            type: array
-          - additionalProperties: true
-            type: object
-          - type: 'null'
-          title: Details
-          description: Additional error context, validation errors, or debugging information
-      type: object
-      required:
-      - message
-      title: ErrorDetail
-      description: 'Standard error detail structure.
-
-
-        This model matches the error format returned by the centralized
-
-        exception handlers in app/api/errors/handlers.py.'
-    TaskOutputEditedStatus:
-      type: string
-      enum:
-      - not_edited
-      - edited
-      title: TaskOutputEditedStatus
-      description: "Aggregated edited status for a task output.\n\nValues:\n    - not_edited: All task executions have not_edited status\n    - edited: At least one task execution has edited_not_reexecuted or edited_reexecuted status"
-    TaskOutput:
-      properties:
-        created_at:
-          type: string
-          format: date-time
-          title: Created At
-        updated_at:
-          type: string
-          format: date-time
-          title: Updated At
-        modified_by:
-          type: string
-          title: Modified By
-        id:
-          type: string
-          format: uuid
-          title: Id
-        flow_execution_id:
-          type: string
-          format: uuid
-          title: Flow Execution Id
-        task_name:
-          type: string
-          title: Task Name
-        summary:
-          title: Summary
-        output:
-          anyOf:
-          - {}
-          - type: 'null'
-          title: Output
-        tags:
-          anyOf:
-          - {}
-          - type: 'null'
-          title: Tags
-        processing_status:
-          $ref: '#/components/schemas/ProcessingStatus'
-          default: queued
-        edited_status:
-          $ref: '#/components/schemas/TaskOutputEditedStatus'
-          default: not_edited
-        stale_status:
-          $ref: '#/components/schemas/StaleStatus'
-          default: consistent
-        error:
-          anyOf:
-          - {}
-          - type: 'null'
-          title: Error
-        organization_id:
-          type: string
-          format: uuid
-          title: Organization Id
-      type: object
-      required:
-      - flow_execution_id
-      - task_name
-      - summary
-      - organization_id
-      title: TaskOutput
-      description: Database model for node output.
-    StaleStatus:
-      type: string
-      enum:
-      - consistent
-      - stale
-      title: StaleStatus
-      description: "Tracks whether task data is consistent with upstream changes.\n\nOrthogonal to edited_status — a task can be both \"edited\" and \"stale\".\n\nValues:\n    - consistent: Data is up-to-date with all upstream dependencies\n    - stale: Data is outdated due to an upstream edit and should be recalculated"
     ErrorResponse:
       properties:
         error:
@@ -651,39 +539,13 @@ components:
           code: not_found
           message: Resource not found
         request_id: 01K8KABR6S16YETA2SZPVBS9SP
-    ProcessingStatus:
+    StaleStatus:
       type: string
       enum:
-      - queued
-      - running
-      - completed
-      - failed
-      - deleted
-      - awaiting_input
-      - cancel_requested
-      - cancelled
-      title: ProcessingStatus
-      description: "Valid status values for task processing lifecycle.\n\nUsed by task_execution and task_output tables to track where a task\nis in its processing pipeline, independent of data consistency state.\n\nStatus Transitions:\n    queued → running → completed\n                     → failed\n    running/awaiting_input → cancel_requested → cancelled\n    Any status → deleted (soft delete)"
-    TaskExecutionError:
-      properties:
-        message:
-          type: string
-          title: Message
-          description: Human-readable error message describing what went wrong. This is the primary error information displayed to users.
-          examples:
-          - 'Webhook notification failed: HTTP 500 - Internal Server Error'
-          - Connection timeout after 30 seconds
-          - Invalid credentials provided
-      type: object
-      required:
-      - message
-      title: TaskExecutionError
-      description: 'Error information for failed task executions.
-
-
-        This model represents the structure of errors that occur during task execution.
-
-        It includes both the error message and a flag indicating whether the error is retryable.'
+      - consistent
+      - stale
+      title: StaleStatus
+      description: "Tracks whether task data is consistent with upstream changes.\n\nOrthogonal to edited_status — a task can be both \"edited\" and \"stale\".\n\nValues:\n    - consistent: Data is up-to-date with all upstream dependencies\n    - stale: Data is outdated due to an upstream edit and should be recalculated"
     TaskOutputAPI:
       properties:
         id:
@@ -829,6 +691,144 @@ components:
       - organization_id
       title: TaskOutputAPI
       description: "API model representing a task's output data.\n\nTask outputs store the summarized, structured results of task executions.\nUnlike task executions which track the full lifecycle (input, output, error),\ntask outputs focus on the final output data formatted for display, downstream\nconsumption, and workflow decision logic.\n\nKey Differences from Task Execution:\n    - Task Execution: Full execution record with input, output, error, retries\n    - Task Output: Summarized result optimized for querying and display\n    - One task execution typically produces one task output upon completion\n\nResource Hierarchy:\n    Organization → Flow → Flow Execution → Task Output"
+    TaskOutput:
+      properties:
+        created_at:
+          type: string
+          format: date-time
+          title: Created At
+        updated_at:
+          type: string
+          format: date-time
+          title: Updated At
+        modified_by:
+          type: string
+          title: Modified By
+        id:
+          type: string
+          format: uuid
+          title: Id
+        flow_execution_id:
+          type: string
+          format: uuid
+          title: Flow Execution Id
+        task_name:
+          type: string
+          title: Task Name
+        summary:
+          title: Summary
+        output:
+          anyOf:
+          - {}
+          - type: 'null'
+          title: Output
+        tags:
+          anyOf:
+          - {}
+          - type: 'null'
+          title: Tags
+        processing_status:
+          $ref: '#/components/schemas/ProcessingStatus'
+          default: queued
+        edited_status:
+          $ref: '#/components/schemas/TaskOutputEditedStatus'
+          default: not_edited
+        stale_status:
+          $ref: '#/components/schemas/StaleStatus'
+          default: consistent
+        error:
+          anyOf:
+          - {}
+          - type: 'null'
+          title: Error
+        organization_id:
+          type: string
+          format: uuid
+          title: Organization Id
+      type: object
+      required:
+      - flow_execution_id
+      - task_name
+      - summary
+      - organization_id
+      title: TaskOutput
+      description: Database model for node output.
+    ErrorDetail:
+      properties:
+        message:
+          type: string
+          title: Message
+          description: Human-readable error message
+        code:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Code
+          description: Machine-readable error code for programmatic handling
+        details:
+          anyOf:
+          - items:
+              type: string
+            type: array
+          - items:
+              additionalProperties: true
+              type: object
+            type: array
+          - additionalProperties: true
+            type: object
+          - type: 'null'
+          title: Details
+          description: Additional error context, validation errors, or debugging information
+      type: object
+      required:
+      - message
+      title: ErrorDetail
+      description: 'Standard error detail structure.
+
+
+        This model matches the error format returned by the centralized
+
+        exception handlers in app/api/errors/handlers.py.'
+    ProcessingStatus:
+      type: string
+      enum:
+      - queued
+      - running
+      - completed
+      - failed
+      - deleted
+      - awaiting_input
+      - cancel_requested
+      - cancelled
+      title: ProcessingStatus
+      description: "Valid status values for task processing lifecycle.\n\nUsed by task_execution and task_output tables to track where a task\nis in its processing pipeline, independent of data consistency state.\n\nStatus Transitions:\n    queued → running → completed\n                     → failed\n    running/awaiting_input → cancel_requested → cancelled\n    Any status → deleted (soft delete)"
+    TaskExecutionError:
+      properties:
+        message:
+          type: string
+          title: Message
+          description: Human-readable error message describing what went wrong. This is the primary error information displayed to users.
+          examples:
+          - 'Webhook notification failed: HTTP 500 - Internal Server Error'
+          - Connection timeout after 30 seconds
+          - Invalid credentials provided
+      type: object
+      required:
+      - message
+      title: TaskExecutionError
+      description: 'Error information for failed task executions.
+
+
+        This model represents the structure of errors that occur during task execution.
+
+        It includes both the error message and a flag indicating whether the error is retryable.'
+    TaskOutputEditedStatus:
+      type: string
+      enum:
+      - not_edited
+      - edited
+      title: TaskOutputEditedStatus
+      description: "Aggregated edited status for a task output.\n\nValues:\n    - not_edited: All task executions have not_edited status\n    - edited: At least one task execution has edited_not_reexecuted or edited_reexecuted status"
   securitySchemes:
     BearerAuth:
       type: http

@@ -393,6 +393,90 @@ paths:
       - APIKeyAuth: []
 components:
   schemas:
+    PatchFlowTaskTagsResponseItem:
+      properties:
+        status:
+          type: string
+          enum:
+          - added
+          - removed
+          - already_exists
+          - not_found
+          title: Status
+          description: "Outcome of the tag operation. Idempotent operations return success status even if no change occurred. \n\nStatus values:\n- 'added': Tag successfully created (operation='add'). New tag record inserted with status='active'. \n- 'removed': Tag successfully soft-deleted (operation='remove'). Tag record updated with status='deleted' and deletion metadata. \n- 'already_exists': Add operation found existing identical tag (operation='add'). No change made; existing tag remains active. Idempotent success. \n- 'not_found': Remove operation found no matching tag (operation='remove'). No change made; tag already absent or deleted. Idempotent success. \n\nNote: All statuses indicate successful processing. No 'error' status exists; errors raise HTTP 4xx/5xx responses instead. \n\nIdempotency guarantee: Same request produces same result when repeated. Safe to retry on network failures without duplicate tags or errors."
+          examples:
+          - added
+          - removed
+          - already_exists
+          - not_found
+      type: object
+      required:
+      - status
+      title: PatchFlowTaskTagsResponseItem
+      description: 'Result of a single tag operation in a batch request.
+
+
+        Indicates success or idempotent outcome for each operation.
+
+        Response array matches request array order (1:1 correspondence).'
+    PatchFlowTaskTagsResponse:
+      properties:
+        tags:
+          items:
+            $ref: '#/components/schemas/PatchFlowTaskTagsResponseItem'
+          type: array
+          title: Tags
+          description: "Array of operation results in request array order. Each element corresponds to the tag operation at the same index in the request. \n\nResponse structure:\n- Length: Always equals request.tags length\n- Order: Preserves request order (response[i] is result of request.tags[i])\n- Content: Each item contains 'status' field indicating operation outcome\n\nExample mapping:\nRequest: [add_tag1, remove_tag2, add_tag3]\nResponse: [status1, status2, status3]\n\nAll operations complete (no partial failures). Check each status to determine individual operation outcomes. Use array index to match operations with results."
+          examples:
+          - - status: added
+            - status: removed
+            - status: already_exists
+      type: object
+      required:
+      - tags
+      title: PatchFlowTaskTagsResponse
+      description: 'Response from batch tag operations.
+
+
+        Returns status for each operation in request array order.
+
+        Array length matches request array length (1:1 correspondence).'
+    ErrorDetail:
+      properties:
+        message:
+          type: string
+          title: Message
+          description: Human-readable error message
+        code:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Code
+          description: Machine-readable error code for programmatic handling
+        details:
+          anyOf:
+          - items:
+              type: string
+            type: array
+          - items:
+              additionalProperties: true
+              type: object
+            type: array
+          - additionalProperties: true
+            type: object
+          - type: 'null'
+          title: Details
+          description: Additional error context, validation errors, or debugging information
+      type: object
+      required:
+      - message
+      title: ErrorDetail
+      description: 'Standard error detail structure.
+
+
+        This model matches the error format returned by the centralized
+
+        exception handlers in app/api/errors/handlers.py.'
     PatchFlowTaskTagsRequest:
       properties:
         tags:
@@ -426,75 +510,6 @@ components:
         Supports mixed operations (add and remove) in a single atomic transaction.
 
         All operations succeed together or all fail. Efficient for bulk tagging.'
-    PatchFlowTaskTagsResponse:
-      properties:
-        tags:
-          items:
-            $ref: '#/components/schemas/PatchFlowTaskTagsResponseItem'
-          type: array
-          title: Tags
-          description: "Array of operation results in request array order. Each element corresponds to the tag operation at the same index in the request. \n\nResponse structure:\n- Length: Always equals request.tags length\n- Order: Preserves request order (response[i] is result of request.tags[i])\n- Content: Each item contains 'status' field indicating operation outcome\n\nExample mapping:\nRequest: [add_tag1, remove_tag2, add_tag3]\nResponse: [status1, status2, status3]\n\nAll operations complete (no partial failures). Check each status to determine individual operation outcomes. Use array index to match operations with results."
-          examples:
-          - - status: added
-            - status: removed
-            - status: already_exists
-      type: object
-      required:
-      - tags
-      title: PatchFlowTaskTagsResponse
-      description: 'Response from batch tag operations.
-
-
-        Returns status for each operation in request array order.
-
-        Array length matches request array length (1:1 correspondence).'
-    PatchFlowTaskTagsResponseItem:
-      properties:
-        status:
-          type: string
-          enum:
-          - added
-          - removed
-          - already_exists
-          - not_found
-          title: Status
-          description: "Outcome of the tag operation. Idempotent operations return success status even if no change occurred. \n\nStatus values:\n- 'added': Tag successfully created (operation='add'). New tag record inserted with status='active'. \n- 'removed': Tag successfully soft-deleted (operation='remove'). Tag record updated with status='deleted' and deletion metadata. \n- 'already_exists': Add operation found existing identical tag (operation='add'). No change made; existing tag remains active. Idempotent success. \n- 'not_found': Remove operation found no matching tag (operation='remove'). No change made; tag already absent or deleted. Idempotent success. \n\nNote: All statuses indicate successful processing. No 'error' status exists; errors raise HTTP 4xx/5xx responses instead. \n\nIdempotency guarantee: Same request produces same result when repeated. Safe to retry on network failures without duplicate tags or errors."
-          examples:
-          - added
-          - removed
-          - already_exists
-          - not_found
-      type: object
-      required:
-      - status
-      title: PatchFlowTaskTagsResponseItem
-      description: 'Result of a single tag operation in a batch request.
-
-
-        Indicates success or idempotent outcome for each operation.
-
-        Response array matches request array order (1:1 correspondence).'
-    ValidationError:
-      properties:
-        loc:
-          items:
-            anyOf:
-            - type: string
-            - type: integer
-          type: array
-          title: Location
-        msg:
-          type: string
-          title: Message
-        type:
-          type: string
-          title: Error Type
-      type: object
-      required:
-      - loc
-      - msg
-      - type
-      title: ValidationError
     PatchFlowTaskTagsRequestItem:
       properties:
         operation:
@@ -575,62 +590,6 @@ components:
         Represents one add or remove operation for a task execution tag.
 
         Batch multiple operations in a single PATCH request for efficiency.'
-    ErrorResponse:
-      properties:
-        error:
-          $ref: '#/components/schemas/ErrorDetail'
-        request_id:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Request Id
-          description: 'Unique request identifier in ULID format for debugging and support. Example: 01K8KABR6S16YETA2SZPVBS9SP'
-      type: object
-      required:
-      - error
-      title: ErrorResponse
-      description: "Standard API error response structure.\n\nAll error responses from the API follow this format, ensuring\nconsistent error handling for API consumers.\n\nExample:\n    {\n        \"error\": {\n            \"message\": \"Flow not found\",\n            \"code\": \"not_found\"\n        },\n        \"request_id\": \"01K8KABR6S16YETA2SZPVBS9SP\"\n    }"
-      examples:
-      - error:
-          code: not_found
-          message: Resource not found
-        request_id: 01K8KABR6S16YETA2SZPVBS9SP
-    ErrorDetail:
-      properties:
-        message:
-          type: string
-          title: Message
-          description: Human-readable error message
-        code:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Code
-          description: Machine-readable error code for programmatic handling
-        details:
-          anyOf:
-          - items:
-              type: string
-            type: array
-          - items:
-              additionalProperties: true
-              type: object
-            type: array
-          - additionalProperties: true
-            type: object
-          - type: 'null'
-          title: Details
-          description: Additional error context, validation errors, or debugging information
-      type: object
-      required:
-      - message
-      title: ErrorDetail
-      description: 'Standard error detail structure.
-
-
-        This model matches the error format returned by the centralized
-
-        exception handlers in app/api/errors/handlers.py.'
     FlowTaskTagAPI:
       properties:
         id:
@@ -770,6 +729,27 @@ components:
         Lifecycle: Tags are soft-deleted (status=''deleted'') rather than hard-deleted
 
         to preserve audit history. Only active tags appear in list queries.'
+    ValidationError:
+      properties:
+        loc:
+          items:
+            anyOf:
+            - type: string
+            - type: integer
+          type: array
+          title: Location
+        msg:
+          type: string
+          title: Message
+        type:
+          type: string
+          title: Error Type
+      type: object
+      required:
+      - loc
+      - msg
+      - type
+      title: ValidationError
     HTTPValidationError:
       properties:
         detail:
@@ -779,6 +759,26 @@ components:
           title: Detail
       type: object
       title: HTTPValidationError
+    ErrorResponse:
+      properties:
+        error:
+          $ref: '#/components/schemas/ErrorDetail'
+        request_id:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Request Id
+          description: 'Unique request identifier in ULID format for debugging and support. Example: 01K8KABR6S16YETA2SZPVBS9SP'
+      type: object
+      required:
+      - error
+      title: ErrorResponse
+      description: "Standard API error response structure.\n\nAll error responses from the API follow this format, ensuring\nconsistent error handling for API consumers.\n\nExample:\n    {\n        \"error\": {\n            \"message\": \"Flow not found\",\n            \"code\": \"not_found\"\n        },\n        \"request_id\": \"01K8KABR6S16YETA2SZPVBS9SP\"\n    }"
+      examples:
+      - error:
+          code: not_found
+          message: Resource not found
+        request_id: 01K8KABR6S16YETA2SZPVBS9SP
   securitySchemes:
     BearerAuth:
       type: http
