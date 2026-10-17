@@ -597,6 +597,184 @@ paths:
       - APIKeyAuth: []
 components:
   schemas:
+    SSOOrganizationResponse:
+      properties:
+        sso_provider_id:
+          type: string
+          title: Sso Provider Id
+          description: Supabase SSO provider ID
+        organization_id:
+          anyOf:
+          - type: string
+            format: uuid
+          - type: 'null'
+          title: Organization Id
+          description: Associated organization ID
+        domains:
+          anyOf:
+          - items:
+              type: string
+            type: array
+          - type: 'null'
+          title: Domains
+          description: Email domains for this SSO provider
+        metadata_url:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Metadata Url
+          description: SAML metadata URL
+        metadata_xml_hash:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Metadata Xml Hash
+          description: Hash of SAML metadata XML
+        attribute_mapping:
+          anyOf:
+          - additionalProperties: true
+            type: object
+          - type: 'null'
+          title: Attribute Mapping
+          description: SAML attribute mappings
+        is_active:
+          type: boolean
+          title: Is Active
+          description: Whether the SSO provider is active
+          default: true
+        created_at:
+          type: string
+          format: date-time
+          title: Created At
+          description: Creation timestamp
+        updated_at:
+          type: string
+          format: date-time
+          title: Updated At
+          description: Last update timestamp
+      type: object
+      required:
+      - sso_provider_id
+      - created_at
+      - updated_at
+      title: SSOOrganizationResponse
+      description: API response model for SSO organization configuration.
+    SSOServiceProviderDetails:
+      properties:
+        entity_id:
+          type: string
+          title: Entity Id
+          description: SAML SP EntityID
+        metadata_url:
+          type: string
+          title: Metadata Url
+          description: SAML SP metadata URL
+        acs_url:
+          type: string
+          title: Acs Url
+          description: Assertion Consumer Service (ACS) URL
+        slo_url:
+          type: string
+          title: Slo Url
+          description: Single Logout (SLO) URL
+      type: object
+      required:
+      - entity_id
+      - metadata_url
+      - acs_url
+      - slo_url
+      title: SSOServiceProviderDetails
+      description: Supabase SAML service-provider URLs to configure in the customer's IdP.
+    HTTPValidationError:
+      properties:
+        detail:
+          items:
+            $ref: '#/components/schemas/ValidationError'
+          type: array
+          title: Detail
+      type: object
+      title: HTTPValidationError
+    SSOProviderCreate:
+      properties:
+        type:
+          type: string
+          title: Type
+          description: SSO provider type
+          default: saml
+        metadata_url:
+          anyOf:
+          - type: string
+            maxLength: 2083
+            minLength: 1
+            format: uri
+          - type: 'null'
+          title: Metadata Url
+          description: URL to fetch SAML metadata
+        metadata_xml:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Metadata Xml
+          description: Raw SAML metadata XML
+        domains:
+          items:
+            type: string
+          type: array
+          title: Domains
+          description: Email domains for this provider
+        attribute_mapping:
+          anyOf:
+          - additionalProperties: true
+            type: object
+          - type: 'null'
+          title: Attribute Mapping
+          description: SAML attribute mappings
+      type: object
+      required:
+      - domains
+      title: SSOProviderCreate
+      description: Request model for creating an SSO provider via Supabase Management API.
+    SSOProviderUpdate:
+      properties:
+        metadata_url:
+          anyOf:
+          - type: string
+            maxLength: 2083
+            minLength: 1
+            format: uri
+          - type: 'null'
+          title: Metadata Url
+          description: Updated SAML metadata URL
+        metadata_xml:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Metadata Xml
+          description: Updated SAML metadata XML
+        domains:
+          anyOf:
+          - items:
+              type: string
+            type: array
+          - type: 'null'
+          title: Domains
+          description: Updated email domains
+        attribute_mapping:
+          anyOf:
+          - additionalProperties: true
+            type: object
+          - type: 'null'
+          title: Attribute Mapping
+          description: Updated attribute mappings
+        is_active:
+          anyOf:
+          - type: boolean
+          - type: 'null'
+          title: Is Active
+          description: Whether provider is active
+      type: object
+      title: SSOProviderUpdate
+      description: Request model for updating an SSO provider via Supabase Management API.
     MetadataResponse:
       properties:
         metadata:
@@ -662,135 +840,6 @@ components:
         This model matches the error format returned by the centralized
 
         exception handlers in app/api/errors/handlers.py.'
-    SSOServiceProviderDetails:
-      properties:
-        entity_id:
-          type: string
-          title: Entity Id
-          description: SAML SP EntityID
-        metadata_url:
-          type: string
-          title: Metadata Url
-          description: SAML SP metadata URL
-        acs_url:
-          type: string
-          title: Acs Url
-          description: Assertion Consumer Service (ACS) URL
-        slo_url:
-          type: string
-          title: Slo Url
-          description: Single Logout (SLO) URL
-      type: object
-      required:
-      - entity_id
-      - metadata_url
-      - acs_url
-      - slo_url
-      title: SSOServiceProviderDetails
-      description: Supabase SAML service-provider URLs to configure in the customer's IdP.
-    SSOProviderUpdate:
-      properties:
-        metadata_url:
-          anyOf:
-          - type: string
-            maxLength: 2083
-            minLength: 1
-            format: uri
-          - type: 'null'
-          title: Metadata Url
-          description: Updated SAML metadata URL
-        metadata_xml:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Metadata Xml
-          description: Updated SAML metadata XML
-        domains:
-          anyOf:
-          - items:
-              type: string
-            type: array
-          - type: 'null'
-          title: Domains
-          description: Updated email domains
-        attribute_mapping:
-          anyOf:
-          - additionalProperties: true
-            type: object
-          - type: 'null'
-          title: Attribute Mapping
-          description: Updated attribute mappings
-        is_active:
-          anyOf:
-          - type: boolean
-          - type: 'null'
-          title: Is Active
-          description: Whether provider is active
-      type: object
-      title: SSOProviderUpdate
-      description: Request model for updating an SSO provider via Supabase Management API.
-    SSOOrganizationResponse:
-      properties:
-        sso_provider_id:
-          type: string
-          title: Sso Provider Id
-          description: Supabase SSO provider ID
-        organization_id:
-          anyOf:
-          - type: string
-            format: uuid
-          - type: 'null'
-          title: Organization Id
-          description: Associated organization ID
-        domains:
-          anyOf:
-          - items:
-              type: string
-            type: array
-          - type: 'null'
-          title: Domains
-          description: Email domains for this SSO provider
-        metadata_url:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Metadata Url
-          description: SAML metadata URL
-        metadata_xml_hash:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Metadata Xml Hash
-          description: Hash of SAML metadata XML
-        attribute_mapping:
-          anyOf:
-          - additionalProperties: true
-            type: object
-          - type: 'null'
-          title: Attribute Mapping
-          description: SAML attribute mappings
-        is_active:
-          type: boolean
-          title: Is Active
-          description: Whether the SSO provider is active
-          default: true
-        created_at:
-          type: string
-          format: date-time
-          title: Created At
-          description: Creation timestamp
-        updated_at:
-          type: string
-          format: date-time
-          title: Updated At
-          description: Last update timestamp
-      type: object
-      required:
-      - sso_provider_id
-      - created_at
-      - updated_at
-      title: SSOOrganizationResponse
-      description: API response model for SSO organization configuration.
     ValidationError:
       properties:
         loc:
@@ -812,55 +861,6 @@ components:
       - msg
       - type
       title: ValidationError
-    HTTPValidationError:
-      properties:
-        detail:
-          items:
-            $ref: '#/components/schemas/ValidationError'
-          type: array
-          title: Detail
-      type: object
-      title: HTTPValidationError
-    SSOProviderCreate:
-      properties:
-        type:
-          type: string
-          title: Type
-          description: SSO provider type
-          default: saml
-        metadata_url:
-          anyOf:
-          - type: string
-            maxLength: 2083
-            minLength: 1
-            format: uri
-          - type: 'null'
-          title: Metadata Url
-          description: URL to fetch SAML metadata
-        metadata_xml:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Metadata Xml
-          description: Raw SAML metadata XML
-        domains:
-          items:
-            type: string
-          type: array
-          title: Domains
-          description: Email domains for this provider
-        attribute_mapping:
-          anyOf:
-          - additionalProperties: true
-            type: object
-          - type: 'null'
-          title: Attribute Mapping
-          description: SAML attribute mappings
-      type: object
-      required:
-      - domains
-      title: SSOProviderCreate
-      description: Request model for creating an SSO provider via Supabase Management API.
   securitySchemes:
     BearerAuth:
       type: http

@@ -356,6 +356,51 @@ paths:
       - APIKeyAuth: []
 components:
   schemas:
+    HTTPValidationError:
+      properties:
+        detail:
+          items:
+            $ref: '#/components/schemas/ValidationError'
+          type: array
+          title: Detail
+      type: object
+      title: HTTPValidationError
+    ResolveUriRequest:
+      properties:
+        uri:
+          type: string
+          title: Uri
+          description: The gs:// storage URI to resolve. Pass the exact URI from your task output.
+      type: object
+      required:
+      - uri
+      title: ResolveUriRequest
+      description: 'Request body for resolving a storage URI to a download URL.
+
+
+        Pass the gs:// URI exactly as received from task outputs—no parsing required.'
+      examples:
+      - uri: gs://superai-file-upload-prod-eu/flows/255a17d0-5c21-47d9-8e0b-a08b48436f0a/documents/f8230da2-4136-4ffb-acfe-db9318970ea2
+    ErrorResponse:
+      properties:
+        error:
+          $ref: '#/components/schemas/ErrorDetail'
+        request_id:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Request Id
+          description: 'Unique request identifier in ULID format for debugging and support. Example: 01K8KABR6S16YETA2SZPVBS9SP'
+      type: object
+      required:
+      - error
+      title: ErrorResponse
+      description: "Standard API error response structure.\n\nAll error responses from the API follow this format, ensuring\nconsistent error handling for API consumers.\n\nExample:\n    {\n        \"error\": {\n            \"message\": \"Flow not found\",\n            \"code\": \"not_found\"\n        },\n        \"request_id\": \"01K8KABR6S16YETA2SZPVBS9SP\"\n    }"
+      examples:
+      - error:
+          code: not_found
+          message: Resource not found
+        request_id: 01K8KABR6S16YETA2SZPVBS9SP
     ErrorDetail:
       properties:
         message:
@@ -392,22 +437,6 @@ components:
         This model matches the error format returned by the centralized
 
         exception handlers in app/api/errors/handlers.py.'
-    ResolveUriRequest:
-      properties:
-        uri:
-          type: string
-          title: Uri
-          description: The gs:// storage URI to resolve. Pass the exact URI from your task output.
-      type: object
-      required:
-      - uri
-      title: ResolveUriRequest
-      description: 'Request body for resolving a storage URI to a download URL.
-
-
-        Pass the gs:// URI exactly as received from task outputs—no parsing required.'
-      examples:
-      - uri: gs://superai-file-upload-prod-eu/flows/255a17d0-5c21-47d9-8e0b-a08b48436f0a/documents/f8230da2-4136-4ffb-acfe-db9318970ea2
     ValidationError:
       properties:
         loc:
@@ -429,15 +458,6 @@ components:
       - msg
       - type
       title: ValidationError
-    HTTPValidationError:
-      properties:
-        detail:
-          items:
-            $ref: '#/components/schemas/ValidationError'
-          type: array
-          title: Detail
-      type: object
-      title: HTTPValidationError
     ResolveUriResponse:
       properties:
         download_url:
@@ -468,26 +488,6 @@ components:
       - download_url: https://storage.googleapis.com/superai-file-upload-prod-eu/flows/255a17d0-5c21-47d9-8e0b-a08b48436f0a/documents/f8230da2-4136-4ffb-acfe-db9318970ea2?X-Goog-Algorithm=GOOG4-RSA-SHA256&X-Goog-Credential=...&X-Goog-Date=...&X-Goog-Expires=3600&X-Goog-Signature=...
         expires_at: '2025-01-15T15:00:00+00:00'
         expires_in_seconds: 3600
-    ErrorResponse:
-      properties:
-        error:
-          $ref: '#/components/schemas/ErrorDetail'
-        request_id:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Request Id
-          description: 'Unique request identifier in ULID format for debugging and support. Example: 01K8KABR6S16YETA2SZPVBS9SP'
-      type: object
-      required:
-      - error
-      title: ErrorResponse
-      description: "Standard API error response structure.\n\nAll error responses from the API follow this format, ensuring\nconsistent error handling for API consumers.\n\nExample:\n    {\n        \"error\": {\n            \"message\": \"Flow not found\",\n            \"code\": \"not_found\"\n        },\n        \"request_id\": \"01K8KABR6S16YETA2SZPVBS9SP\"\n    }"
-      examples:
-      - error:
-          code: not_found
-          message: Resource not found
-        request_id: 01K8KABR6S16YETA2SZPVBS9SP
   securitySchemes:
     BearerAuth:
       type: http

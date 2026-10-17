@@ -65,6 +65,61 @@ paths:
       - APIKeyAuth: []
 components:
   schemas:
+    HTTPValidationError:
+      properties:
+        detail:
+          items:
+            $ref: '#/components/schemas/ValidationError'
+          type: array
+          title: Detail
+      type: object
+      title: HTTPValidationError
+    Region:
+      type: string
+      enum:
+      - eu
+      - global
+      title: Region
+      description: Available regions for model deployment.
+    ModelsResponse:
+      properties:
+        models:
+          items:
+            $ref: '#/components/schemas/ModelInfo'
+          type: array
+          title: Models
+          description: List of available models
+        count:
+          type: integer
+          title: Count
+          description: Total number of models
+      type: object
+      required:
+      - models
+      - count
+      title: ModelsResponse
+      description: Response containing list of models.
+    ValidationError:
+      properties:
+        loc:
+          items:
+            anyOf:
+            - type: string
+            - type: integer
+          type: array
+          title: Location
+        msg:
+          type: string
+          title: Message
+        type:
+          type: string
+          title: Error Type
+      type: object
+      required:
+      - loc
+      - msg
+      - type
+      title: ValidationError
     ModelInfo:
       properties:
         model_name:
@@ -112,61 +167,6 @@ components:
       - supports_confidence_scores
       title: ModelInfo
       description: Model information from LiteLLM.
-    Region:
-      type: string
-      enum:
-      - eu
-      - global
-      title: Region
-      description: Available regions for model deployment.
-    ValidationError:
-      properties:
-        loc:
-          items:
-            anyOf:
-            - type: string
-            - type: integer
-          type: array
-          title: Location
-        msg:
-          type: string
-          title: Message
-        type:
-          type: string
-          title: Error Type
-      type: object
-      required:
-      - loc
-      - msg
-      - type
-      title: ValidationError
-    HTTPValidationError:
-      properties:
-        detail:
-          items:
-            $ref: '#/components/schemas/ValidationError'
-          type: array
-          title: Detail
-      type: object
-      title: HTTPValidationError
-    ModelsResponse:
-      properties:
-        models:
-          items:
-            $ref: '#/components/schemas/ModelInfo'
-          type: array
-          title: Models
-          description: List of available models
-        count:
-          type: integer
-          title: Count
-          description: Total number of models
-      type: object
-      required:
-      - models
-      - count
-      title: ModelsResponse
-      description: Response containing list of models.
   securitySchemes:
     BearerAuth:
       type: http
